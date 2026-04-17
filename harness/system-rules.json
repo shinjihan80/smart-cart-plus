@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0",
+  "appName": "Smart Cart Plus",
+
+  "uxTerms": {
+    "forbidden": [
+      "주문 목록",
+      "다시 구매하기",
+      "저장 상태",
+      "유통기한",
+      "소비기한",
+      "배송 내역"
+    ],
+    "replacements": {
+      "주문 목록":    "주문 내역",
+      "다시 구매하기": "재구매하기",
+      "저장 상태":   "보관 상태",
+      "유통기한":    "보관 가능 기한",
+      "소비기한":    "보관 가능 기한",
+      "배송 내역":   "주문 내역"
+    }
+  },
+
+  "designTokens": {
+    "borderRadius": "rounded-2xl",
+    "gap":          "gap-y-4",
+    "primaryColor": "indigo-600",
+    "tagStyle":     "rounded-full px-2.5 py-0.5 text-xs font-medium"
+  },
+
+  "allowedStorageTypes": ["냉장", "냉동", "실온"],
+  "allowedThickness":    ["얇음", "보통", "두꺼움"],
+  "allowedWeatherTags":  ["봄", "여름", "가을", "겨울", "우천", "맑음"],
+
+  "outputSchema": {
+    "parserAgent": {
+      "description": "외부 텍스트를 Phase 1 스키마 JSON으로 변환",
+      "required":    ["items"],
+      "itemTypes":   ["FoodItem", "ClothingItem"],
+      "foodRequired":    ["id", "name", "category", "storageType", "baseShelfLifeDays", "purchaseDate"],
+      "clothingRequired": ["id", "name", "category", "size", "thickness", "material"]
+    },
+    "nutritionAgent": {
+      "description": "식품 D-Day 계산 + 식단 추천",
+      "required":    ["results"],
+      "resultItem":  {
+        "required":  ["itemId", "name", "dDay", "status", "recommendation"]
+      }
+    },
+    "styleAgent": {
+      "description": "날씨 기반 의류 코디 제안",
+      "required":    ["weather", "outfits"],
+      "outfitItem":  {
+        "required":  ["itemId", "name", "outfitSuggestion", "weatherMatch"]
+      }
+    },
+    "visionAgent": {
+      "description": "이미지 → 식품·패션 자동 분류 + Phase 3.5 스키마 변환",
+      "required":    ["items", "domain_summary"],
+      "foodRequired":    ["id", "name", "domain", "storageType", "baseShelfLifeDays", "purchaseDate"],
+      "fashionRequired": ["id", "name", "domain", "category", "size", "thickness", "material"]
+    }
+  }
+}

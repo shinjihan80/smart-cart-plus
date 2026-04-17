@@ -3,7 +3,7 @@ import path from 'path';
 import Anthropic from '@anthropic-ai/sdk';
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
-export type AgentType = 'parser' | 'nutrition' | 'style' | 'image' | 'url';
+export type AgentType = 'parser' | 'nutrition' | 'style' | 'image' | 'url' | 'vision';
 
 interface ValidationResult {
   valid: boolean;
@@ -133,6 +133,16 @@ export function validateOutput(
       for (const field of required) {
         if (!(field in res)) {
           return { valid: false, error: `style 응답에 필수 필드 '${field}'가 없습니다.` };
+        }
+      }
+      break;
+    }
+
+    case 'vision': {
+      const required: string[] = schema.visionAgent.required;
+      for (const field of required) {
+        if (!(field in res)) {
+          return { valid: false, error: `vision 응답에 필수 필드 '${field}'가 없습니다.` };
         }
       }
       break;

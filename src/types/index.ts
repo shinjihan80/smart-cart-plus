@@ -47,10 +47,44 @@ export interface ClothingItem {
 }
 
 // ────────────────────────────────────────────────
+// C. 패션 Vision 확장 타입 (Phase 3.5)
+// ────────────────────────────────────────────────
+
+/** 착용감 관련 물성 정보 — vision-parser가 이미지에서 추출 */
+export interface FashionAttributes {
+  sheerness?: boolean;  // 비침 여부
+  stretch?:   boolean;  // 신축성 여부
+  lining?:    boolean;  // 안감 여부
+}
+
+/** 실측 치수 — 제품 상세 이미지에서 추출 (cm 단위) */
+export interface FashionMeasurements {
+  chest?:        number;   // 가슴둘레
+  totalLength?:  number;   // 총장
+  waist?:        number;   // 허리
+  waistBanding?: boolean;  // 밴딩 여부
+}
+
+/**
+ * EnrichedClothingItem — Vision 분석으로 추가 정보를 획득한 의류 아이템
+ * ClothingItem을 extends하므로 isClothingItem() 타입가드가 그대로 통과됨
+ */
+export interface EnrichedClothingItem extends ClothingItem {
+  attributes?:   FashionAttributes;
+  measurements?: FashionMeasurements;
+  washingTip?:   string;
+}
+
+// ────────────────────────────────────────────────
 // 유니온 타입 — 리스트 렌더링용
 // ────────────────────────────────────────────────
-export type CartItem = FoodItem | ClothingItem;
+export type CartItem = FoodItem | EnrichedClothingItem;
 
 // 타입 가드
 export const isFoodItem     = (item: CartItem): item is FoodItem     => item.category === '식품';
 export const isClothingItem = (item: CartItem): item is ClothingItem => item.category === '의류' || item.category === '액세서리';
+
+// Phase 3.5 신규: Vision 분석으로 추출된 풍부한 패션 데이터 여부 확인
+export const isEnrichedClothingItem = (item: CartItem): item is EnrichedClothingItem =>
+  isClothingItem(item) &&
+  ('attributes' in item || 'measurements' in item || 'washingTip' in item);

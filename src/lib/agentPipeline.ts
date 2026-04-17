@@ -31,8 +31,9 @@ export const AGENT_MODEL: Record<AgentType, AgentModel> = {
   parser:    'claude-haiku-4-5',   // 저비용 추출
   nutrition: 'claude-sonnet-4-6',  // 분석·추천
   style:     'claude-sonnet-4-6',  // 분석·추천
-  image:     'claude-haiku-4-5',   // 이미지 → 구조화 추출 (Vision)
+  image:     'claude-haiku-4-5',   // 이미지 → 구조화 추출 (Vision, 저비용)
   url:       'claude-haiku-4-5',   // URL 텍스트 → 구조화 추출
+  vision:    'claude-sonnet-4-6',  // 통합 Vision 파서 (식품·패션 자동 분류, 고정밀)
 } as const;
 
 // ─── 클라이언트 싱글톤 ────────────────────────────────────────────────────────
