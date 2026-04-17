@@ -91,8 +91,19 @@ function SwipeFoodCard({
               {item.baseShelfLifeDays}일 보관
             </span>
           </div>
+          {/* D-Day 프로그레스 바 */}
+          <div className="mt-2">
+            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  dDay <= 2 ? 'bg-brand-warning' : dDay <= 5 ? 'bg-amber-400' : 'bg-brand-success'
+                }`}
+                style={{ width: `${Math.max(4, Math.min(100, (dDay / item.baseShelfLifeDays) * 100))}%` }}
+              />
+            </div>
+          </div>
           {item.nutritionFacts && (
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-2 mt-1.5">
               <span className="text-[9px] text-gray-400 tabular-nums">{item.nutritionFacts.calories}kcal</span>
               <span className="text-[9px] text-gray-300">|</span>
               <span className="text-[9px] text-gray-400 tabular-nums">단 {item.nutritionFacts.protein}g</span>
@@ -119,7 +130,7 @@ type StorageFilter = '전체' | StorageType;
 type SortKey = 'dDay' | 'name';
 
 export default function FridgePage() {
-  const { items: allItems, removeItem } = useCart();
+  const { items: allItems, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState<StorageFilter>('전체');
@@ -140,7 +151,7 @@ export default function FridgePage() {
   function handleDiscard(id: string) {
     const name = allFood.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
-    showToast(`"${name}" 소진 처리됐어요.`);
+    showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
   }
 
   const FILTERS: { key: StorageFilter; label: string }[] = [

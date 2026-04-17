@@ -11,6 +11,7 @@ interface CartContextValue {
   items:         CartItem[];
   addItems:      (newItems: CartItem[]) => void;
   removeItem:    (id: string) => void;
+  undoRemove:    () => void;
   resetData:     () => void;
   discardCount:  number;
 }
@@ -22,6 +23,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems]               = useState<CartItem[]>(mockCartItems);
   const [discardCount, setDiscardCount] = useState(0);
   const [hydrated, setHydrated]         = useState(false);
+  const [lastRemoved, setLastRemoved]   = useState<{ item: CartItem; index: number } | null>(null);
 
   // 클라이언트 마운트 후 localStorage에서 복원
   useEffect(() => {
@@ -53,9 +55,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    setItems((prev) => {
+      const index = prev.findIndex((i) => i.id === id);
+      if (index !== -1) setLastRemoved({ item: prev[index], index });
+      return prev.filter((i) => i.id !== id);
+    });
     setDiscardCount((prev) => prev + 1);
   }, []);
+
+  const undoRemove = useCallback(() => {
+    if (!lastRemoved) return;
+    setItems((prev) => {
+      const next = [...prev];
+      next.splice(lastRemoved.index, 0, lastRemoved.item);
+      return next;
+    });
+    setDiscardCount((prev) => Math.max(0, prev - 1));
+    setLastRemoved(null);
+  }, [lastRemoved]);
 
   const resetData = useCallback(() => {
     setItems(mockCartItems);
@@ -65,7 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <CartContext.Provider value={{ items, addItems, removeItem, resetData, discardCount }}>
+    <CartContext.Provider value={{ items, addItems, removeItem, undoRemove, resetData, discardCount }}>
       {children}
     </CartContext.Provider>
   );

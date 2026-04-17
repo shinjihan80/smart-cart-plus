@@ -414,7 +414,7 @@ function MonthlyHistory({ selectedMonth, onChangeMonth }: { selectedMonth: numbe
 
 // ── 홈 대시보드 ───────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { items, removeItem } = useCart();
+  const { items, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -453,7 +453,7 @@ export default function HomePage() {
           <FridgeCarousel items={items} onDiscard={(id) => {
             const name = items.find((i) => i.id === id)?.name ?? '';
             removeItem(id);
-            showToast(`"${name}" 소진 처리됐어요.`);
+            showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
           }} />
           <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
         </div>

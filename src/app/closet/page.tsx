@@ -109,7 +109,7 @@ type ClosetSort = 'name' | 'thickness';
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
 
 export default function ClosetPage() {
-  const { items: allItems, removeItem } = useCart();
+  const { items: allItems, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<CategoryFilter>('전체');
@@ -132,7 +132,7 @@ export default function ClosetPage() {
   function handleRemove(id: string) {
     const name = allClothing.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
-    showToast(`"${name}" 삭제됐어요.`);
+    showToast(`"${name}" 삭제됐어요.`, undoRemove);
   }
 
   const FILTERS: { key: CategoryFilter; label: string }[] = [
