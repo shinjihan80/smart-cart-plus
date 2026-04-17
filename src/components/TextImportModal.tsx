@@ -41,6 +41,24 @@ async function resizeImage(file: File, maxPx = 1200): Promise<Blob> {
   });
 }
 
+// 썸네일 base64 생성 (아이템 이미지용, 작게)
+async function toThumbnailBase64(file: File, maxPx = 300): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+      const w = Math.round(img.width  * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width  = w;
+      canvas.height = h;
+      canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.6));
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 // ── 탭 헤더 ──────────────────────────────────────────────────────────────────
 function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab) => void }) {
   const tabs: { key: InputTab; label: string; emoji: string }[] = [
@@ -496,10 +514,17 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
         data = await callApi('/api/agents/parser-agent', { rawText: text });
 
       } else if (activeTab === 'image' && imageFile) {
+        // API 전송용 리사이즈
         const resized = await resizeImage(imageFile);
         const form = new FormData();
         form.append('image', new File([resized], imageFile.name, { type: 'image/jpeg' }));
         data = await callApi('/api/agents/vision-parser', form);
+
+        // 썸네일 생성 → 추출된 아이템에 자동 첨부
+        if (data.items && data.items.length > 0) {
+          const thumb = await toThumbnailBase64(imageFile);
+          data.items = data.items.map((item) => ({ ...item, imageUrl: thumb }) as CartItem);
+        }
 
       } else if (activeTab === 'url') {
         data = await callApi('/api/agents/url-agent', { url });
