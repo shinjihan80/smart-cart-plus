@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { ChevronRight } from 'lucide-react';
 
@@ -50,7 +51,8 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 }
 
 export default function MyPage() {
-  const { items, discardCount } = useCart();
+  const { items, discardCount, resetData } = useCart();
+  const { showToast } = useToast();
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
 
@@ -62,11 +64,18 @@ export default function MyPage() {
   const frozenCount = foodItemsList.filter((f) => f.storageType === '냉동').length;
   const roomCount   = foodItemsList.filter((f) => f.storageType === '실온').length;
 
+  function handleReset() {
+    if (confirm('모든 데이터를 초기화하시겠어요? 기본 샘플 데이터로 복원됩니다.')) {
+      resetData();
+      showToast('데이터가 초기화됐어요.');
+    }
+  }
+
   const menuItems = [
-    { label: '알림 설정',       emoji: '🔔', desc: '소비 기한 알림, 코디 추천 알림' },
-    { label: '패밀리 관리',     emoji: '👨‍👩‍👧', desc: '가족 구성원 추가 및 공유' },
-    { label: '데이터 관리',     emoji: '💾', desc: '내보내기, 초기화' },
-    { label: '고객센터',        emoji: '💬', desc: '문의 및 피드백' },
+    { label: '알림 설정',       emoji: '🔔', desc: '소비 기한 알림, 코디 추천 알림', action: undefined },
+    { label: '패밀리 관리',     emoji: '👨‍👩‍👧', desc: '가족 구성원 추가 및 공유', action: undefined },
+    { label: '데이터 초기화',   emoji: '💾', desc: '샘플 데이터로 복원', action: handleReset },
+    { label: '고객센터',        emoji: '💬', desc: '문의 및 피드백', action: undefined },
   ];
 
   return (
@@ -186,7 +195,11 @@ export default function MyPage() {
           <h3 className="text-xs text-gray-400 font-medium mb-2">설정</h3>
           <div className="divide-y divide-gray-50">
             {menuItems.map((m) => (
-              <button key={m.label} className="flex items-center gap-3 w-full py-3 text-left hover:bg-gray-50/50 -mx-2 px-2 rounded-2xl transition-colors">
+              <button
+                key={m.label}
+                onClick={m.action}
+                className="flex items-center gap-3 w-full py-3 text-left hover:bg-gray-50/50 -mx-2 px-2 rounded-2xl transition-colors"
+              >
                 <span className="text-base">{m.emoji}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800">{m.label}</p>

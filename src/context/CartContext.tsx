@@ -30,6 +30,7 @@ interface CartContextValue {
   items:         CartItem[];
   addItems:      (newItems: CartItem[]) => void;
   removeItem:    (id: string) => void;
+  resetData:     () => void;
   discardCount:  number;
 }
 
@@ -57,8 +58,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setDiscardCount((prev) => prev + 1);
   }, []);
 
+  const resetData = useCallback(() => {
+    setItems(mockCartItems);
+    setDiscardCount(0);
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(DISCARD_KEY);
+  }, []);
+
   return (
-    <CartContext.Provider value={{ items, addItems, removeItem, discardCount }}>
+    <CartContext.Provider value={{ items, addItems, removeItem, resetData, discardCount }}>
       {children}
     </CartContext.Provider>
   );
