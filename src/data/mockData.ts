@@ -1,5 +1,12 @@
 import { FoodItem, ClothingItem, CartItem } from '@/types';
 
+// 오늘 기준 N일 전 날짜를 ISO 문자열로 반환
+function daysAgo(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split('T')[0];
+}
+
 // ────────────────────────────────────────────────
 // A. 식품 Mock Data
 // ────────────────────────────────────────────────
@@ -10,7 +17,7 @@ export const foodItems: FoodItem[] = [
     category:          '식품',
     storageType:       '냉장',
     baseShelfLifeDays: 5,
-    purchaseDate:      '2026-04-14',
+    purchaseDate:      daysAgo(3),   // D-2 (임박)
     nutritionFacts: {
       calories: 20,
       protein:  1.5,
@@ -24,7 +31,7 @@ export const foodItems: FoodItem[] = [
     category:          '식품',
     storageType:       '냉동',
     baseShelfLifeDays: 30,
-    purchaseDate:      '2026-04-10',
+    purchaseDate:      daysAgo(7),   // D-23 (여유)
     nutritionFacts: {
       calories: 210,
       protein:  18.0,
@@ -38,13 +45,35 @@ export const foodItems: FoodItem[] = [
     category:          '식품',
     storageType:       '냉장',
     baseShelfLifeDays: 7,
-    purchaseDate:      '2026-04-15',
+    purchaseDate:      daysAgo(2),   // D-5 (보통)
     nutritionFacts: {
       calories: 75,
       protein:  8.1,
       fat:      4.2,
       carbs:    1.8,
     },
+  },
+  {
+    id:                'f4',
+    name:              '제주 감귤 주스',
+    category:          '식품',
+    storageType:       '냉장',
+    baseShelfLifeDays: 10,
+    purchaseDate:      daysAgo(9),   // D-1 (긴급)
+    nutritionFacts: {
+      calories: 45,
+      protein:  0.5,
+      fat:      0.1,
+      carbs:    10.5,
+    },
+  },
+  {
+    id:                'f5',
+    name:              '통밀 식빵',
+    category:          '식품',
+    storageType:       '실온',
+    baseShelfLifeDays: 4,
+    purchaseDate:      daysAgo(1),   // D-3 (경고)
   },
 ];
 
@@ -80,6 +109,16 @@ export const clothingItems: ClothingItem[] = [
     material:    '기모',
     weatherTags: ['가을', '겨울'],
     colorFamily: '어스톤',
+  },
+  {
+    id:          'c4',
+    name:        'Nike 에어포스 1',
+    category:    '의류',
+    size:        '260',
+    thickness:   '보통',
+    material:    '가죽',
+    weatherTags: ['봄', '가을'],
+    colorFamily: '모노톤',
   },
 ];
 

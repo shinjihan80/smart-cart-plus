@@ -28,7 +28,10 @@ const MOCK_ORDERS: { id: string; store: string; mall: string; mallBg: string; pr
   { id: 'c1', store: '무신사',   mall: 'musinsa',    mallBg: 'bg-mall-musinsa',    price: 59000 },
   { id: 'f2', store: '쿠팡',    mall: 'coupang',    mallBg: 'bg-mall-coupang',    price: 15900 },
   { id: 'f3', store: '네이버',   mall: 'naver',      mallBg: 'bg-mall-naver',      price: 3200 },
+  { id: 'f4', store: '쿠팡',    mall: 'coupang',    mallBg: 'bg-mall-coupang',    price: 6500 },
+  { id: 'f5', store: '마켓컬리', mall: 'kurly',      mallBg: 'bg-mall-kurly',      price: 3800 },
   { id: 'c3', store: '올리브영', mall: 'oliveyoung', mallBg: 'bg-mall-oliveyoung', price: 49900 },
+  { id: 'c4', store: '무신사',   mall: 'musinsa',    mallBg: 'bg-mall-musinsa',    price: 129000 },
 ];
 
 // ── 스켈레톤 ──────────────────────────────────────────────────────────────────

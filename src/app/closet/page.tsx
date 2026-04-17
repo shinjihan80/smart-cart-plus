@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { isClothingItem } from '@/types';
+import { useState } from 'react';
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { isClothingItem, type ClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { Wind, Thermometer, Droplets } from 'lucide-react';
 
@@ -24,26 +25,110 @@ const SEASON_TAG_STYLE: Record<string, string> = {
   겨울: 'bg-blue-50 text-blue-500',
 };
 
+// ── 스와이프 의류 카드 ────────────────────────────────────────────────────────
+function SwipeClothingCard({
+  item, index, onRemove,
+}: {
+  item: ClothingItem; index: number; onRemove: (id: string) => void;
+}) {
+  const x = useMotionValue(0);
+  const bgColor = useTransform(
+    x, [-120, -30, 0],
+    ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)'],
+  );
+  const removeOpacity = useTransform(x, [-120, -40], [1, 0]);
+
+  const thick = THICKNESS_STYLE[item.thickness];
+  const ThickIcon = thick.icon;
+
+  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
+    if (info.offset.x < -80) onRemove(item.id);
+  }
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -200, transition: { duration: 0.2 } }}
+      transition={{ ...springTransition, delay: 0.1 + index * 0.04 }}
+      className="relative overflow-hidden rounded-[32px]"
+    >
+      <div className="absolute inset-0 flex items-center justify-end px-6 pointer-events-none">
+        <motion.div style={{ opacity: removeOpacity }} className="flex flex-col items-center gap-0.5">
+          <span className="text-xl">🗑️</span>
+          <span className="text-[9px] font-semibold text-brand-warning">삭제</span>
+        </motion.div>
+      </div>
+
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: -130, right: 0 }}
+        dragElastic={0.12}
+        style={{ x, backgroundColor: bgColor, ...CARD_SHADOW }}
+        onDragEnd={handleDragEnd}
+        className="rounded-[32px] border border-gray-50 p-5 flex items-center gap-4 relative z-10 cursor-grab"
+      >
+        <div className="shrink-0 w-14 text-center">
+          <p className="text-2xl font-extrabold tracking-tight text-gray-900">{item.size}</p>
+          <p className="text-[9px] text-gray-400 mt-0.5">사이즈</p>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm">{CATEGORY_EMOJI[item.category] ?? '📦'}</span>
+            <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+          </div>
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
+              <ThickIcon size={10} />
+              {item.thickness}
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
+              {item.material}
+            </span>
+            {item.weatherTags?.map((tag) => (
+              <span
+                key={tag}
+                className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function ClosetPage() {
-  const { items: allItems } = useCart();
+  const { items: allItems, removeItem } = useCart();
+  const [toast, setToast] = useState<string | null>(null);
+
   const items = allItems.filter(isClothingItem);
-  const clothesCount    = items.filter((c) => c.category === '의류').length;
-  const accessoryCount  = items.filter((c) => c.category === '액세서리').length;
-  const thinCount       = items.filter((c) => c.thickness === '얇음').length;
-  const thickCount      = items.filter((c) => c.thickness === '두꺼움').length;
+  const clothesCount   = items.filter((c) => c.category === '의류').length;
+  const accessoryCount = items.filter((c) => c.category === '액세서리').length;
+  const thinCount      = items.filter((c) => c.thickness === '얇음').length;
+  const thickCount     = items.filter((c) => c.thickness === '두꺼움').length;
+
+  function handleRemove(id: string) {
+    const name = items.find((i) => i.id === id)?.name ?? '';
+    removeItem(id);
+    setToast(`"${name}" 삭제됐어요.`);
+    setTimeout(() => setToast(null), 2500);
+  }
 
   return (
     <div>
-      {/* 헤더 */}
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
         <div className="px-4 py-3.5">
           <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
-          <p className="text-[10px] text-gray-400 mt-0.5">의류·액세서리 {items.length}개 관리 중</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">의류·액세서리 {items.length}개 · ← 밀어서 삭제</p>
         </div>
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
-
         {/* 요약 카드 */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -72,64 +157,43 @@ export default function ClosetPage() {
           </div>
         </motion.div>
 
-        {/* 아이템 리스트 */}
-        {items.map((item, index) => {
-          const thick = THICKNESS_STYLE[item.thickness];
-          const ThickIcon = thick.icon;
-
-          return (
-            <motion.div
+        {/* 아이템 리스트 (스와이프 삭제) */}
+        <AnimatePresence mode="popLayout">
+          {items.map((item, index) => (
+            <SwipeClothingCard
               key={item.id}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...springTransition, delay: 0.1 + index * 0.06 }}
-              className={`${CARD} flex items-center gap-4`}
-              style={CARD_SHADOW}
-            >
-              {/* 사이즈 */}
-              <div className="shrink-0 w-14 text-center">
-                <p className="text-2xl font-extrabold tracking-tight text-gray-900">
-                  {item.size}
-                </p>
-                <p className="text-[9px] text-gray-400 mt-0.5">사이즈</p>
-              </div>
-
-              {/* 상품 정보 */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{CATEGORY_EMOJI[item.category] ?? '📦'}</span>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-                </div>
-                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                  <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
-                    <ThickIcon size={10} />
-                    {item.thickness}
-                  </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
-                    {item.material}
-                  </span>
-                  {item.weatherTags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
+              item={item}
+              index={index}
+              onRemove={handleRemove}
+            />
+          ))}
+        </AnimatePresence>
 
         {items.length === 0 && (
           <div className="text-center py-16 text-gray-400">
             <p className="text-4xl mb-3">👔</p>
             <p className="text-sm font-medium">옷장이 비어있어요</p>
-            <p className="text-xs mt-1">홈에서 의류를 추가해보세요.</p>
+            <p className="text-xs mt-1">+ 버튼을 눌러 의류를 추가해보세요.</p>
           </div>
         )}
       </div>
+
+      {/* 토스트 */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-xs w-full px-4"
+          >
+            <div className="rounded-2xl bg-gray-900 text-white text-sm font-medium px-4 py-3 text-center shadow-lg">
+              {toast}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
