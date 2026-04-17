@@ -152,9 +152,27 @@ function SwipeFoodCard({
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
                 {/* 이미지 */}
                 {item.imageUrl ? (
-                  <div className="rounded-2xl overflow-hidden bg-gray-100 h-32">
+                  <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                    <div className="absolute bottom-1.5 right-1.5 flex gap-1">
+                      <button
+                        aria-label="사진 변경"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const file = await pickImage();
+                          if (!file) return;
+                          const dataUrl = await resizeAndEncode(file);
+                          onUpdate(item.id, { imageUrl: dataUrl });
+                        }}
+                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
+                      >📷</button>
+                      <button
+                        aria-label="사진 삭제"
+                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
+                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
+                      >✕</button>
+                    </div>
                   </div>
                 ) : (
                   <button
