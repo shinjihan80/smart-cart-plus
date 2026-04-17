@@ -23,16 +23,54 @@ const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
 const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 
-// ── Mock 주문 데이터 ──────────────────────────────────────────────────────────
-const MOCK_ORDERS: { id: string; store: string; mall: string; mallBg: string; price: number }[] = [
-  { id: 'f1', store: '마켓컬리', mall: 'kurly',      mallBg: 'bg-mall-kurly',      price: 4900 },
-  { id: 'c1', store: '무신사',   mall: 'musinsa',    mallBg: 'bg-mall-musinsa',    price: 59000 },
-  { id: 'f2', store: '쿠팡',    mall: 'coupang',    mallBg: 'bg-mall-coupang',    price: 15900 },
-  { id: 'f3', store: '네이버',   mall: 'naver',      mallBg: 'bg-mall-naver',      price: 3200 },
-  { id: 'f4', store: '쿠팡',    mall: 'coupang',    mallBg: 'bg-mall-coupang',    price: 6500 },
-  { id: 'f5', store: '마켓컬리', mall: 'kurly',      mallBg: 'bg-mall-kurly',      price: 3800 },
-  { id: 'c3', store: '올리브영', mall: 'oliveyoung', mallBg: 'bg-mall-oliveyoung', price: 49900 },
-  { id: 'c4', store: '무신사',   mall: 'musinsa',    mallBg: 'bg-mall-musinsa',    price: 129000 },
+// ── Mock 주문 데이터 (달별) ────────────────────────────────────────────────────
+interface OrderItem {
+  id: string; name: string; store: string; mallBg: string; price: number; date: string;
+}
+
+const MONTHLY_DATA: { month: number; label: string; total: number; orders: OrderItem[] }[] = [
+  {
+    month: 1, label: '1월', total: 187400,
+    orders: [
+      { id: 'm1-1', name: '유기농 바나나',       store: '마켓컬리', mallBg: 'bg-mall-kurly',   price: 5900, date: '01.08' },
+      { id: 'm1-2', name: '울 코트',            store: '무신사',   mallBg: 'bg-mall-musinsa', price: 139000, date: '01.15' },
+      { id: 'm1-3', name: '세탁세제 대용량',      store: '쿠팡',    mallBg: 'bg-mall-coupang', price: 22500, date: '01.22' },
+      { id: 'm1-4', name: '비타민C',            store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 20000, date: '01.28' },
+    ],
+  },
+  {
+    month: 2, label: '2월', total: 156200,
+    orders: [
+      { id: 'm2-1', name: '딸기 1kg',           store: '마켓컬리', mallBg: 'bg-mall-kurly',   price: 12900, date: '02.03' },
+      { id: 'm2-2', name: '봄 가디건',           store: '무신사',   mallBg: 'bg-mall-musinsa', price: 49900, date: '02.10' },
+      { id: 'm2-3', name: '샴푸 리필팩',         store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 8900, date: '02.14' },
+      { id: 'm2-4', name: '냉동 만두',           store: '쿠팡',    mallBg: 'bg-mall-coupang', price: 7500, date: '02.20' },
+      { id: 'm2-5', name: '런닝화',             store: '네이버',   mallBg: 'bg-mall-naver',   price: 77000, date: '02.25' },
+    ],
+  },
+  {
+    month: 3, label: '3월', total: 203800,
+    orders: [
+      { id: 'm3-1', name: '유기농 두부',         store: '마켓컬리', mallBg: 'bg-mall-kurly',   price: 3200, date: '03.05' },
+      { id: 'm3-2', name: '리넨 원피스',         store: '무신사',   mallBg: 'bg-mall-musinsa', price: 59000, date: '03.12' },
+      { id: 'm3-3', name: '한우 불고기',         store: '쿠팡',    mallBg: 'bg-mall-coupang', price: 15900, date: '03.15' },
+      { id: 'm3-4', name: '선크림 SPF50',       store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 18700, date: '03.20' },
+      { id: 'm3-5', name: '에어포스 1',          store: '네이버',   mallBg: 'bg-mall-naver',   price: 107000, date: '03.28' },
+    ],
+  },
+  {
+    month: 4, label: '4월', total: 272200,
+    orders: [
+      { id: 'f1', name: '친환경 샐러드 믹스',     store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 4900, date: '04.14' },
+      { id: 'c1', name: 'Mango 리넨 혼방 원피스', store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 59000, date: '04.10' },
+      { id: 'f2', name: '아이용 한우 불고기',     store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 15900, date: '04.10' },
+      { id: 'f3', name: '국내산 유기농 두부',     store: '네이버',   mallBg: 'bg-mall-naver',      price: 3200, date: '04.15' },
+      { id: 'f4', name: '제주 감귤 주스',        store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 6500, date: '04.08' },
+      { id: 'f5', name: '통밀 식빵',            store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 3800, date: '04.16' },
+      { id: 'c3', name: '유니클로 기모 후리스',   store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 49900, date: '04.05' },
+      { id: 'c4', name: 'Nike 에어포스 1',      store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 129000, date: '04.03' },
+    ],
+  },
 ];
 
 // ── 스켈레톤 ──────────────────────────────────────────────────────────────────
@@ -139,12 +177,17 @@ function ClosetSummary({ items }: { items: import('@/types').CartItem[] }) {
   );
 }
 
-// ── [B-2] 이번 달 지출 (1x1) ─────────────────────────────────────────────────
-function MonthlySpending() {
-  const total = MOCK_ORDERS.reduce((sum, o) => sum + o.price, 0);
+// ── [B-2] 이번 달 지출 (1x1) — 탭 클릭 시 달별 내역 펼침 ─────────────────────
+function MonthlySpending({ onOpenHistory }: { onOpenHistory: () => void }) {
+  const now = new Date();
+  const thisMonth = MONTHLY_DATA.find((m) => m.month === now.getMonth() + 1) ?? MONTHLY_DATA[MONTHLY_DATA.length - 1];
+  const prevMonth = MONTHLY_DATA.find((m) => m.month === now.getMonth()) ?? MONTHLY_DATA[MONTHLY_DATA.length - 2];
+  const diff = prevMonth.total > 0
+    ? Math.round(((thisMonth.total - prevMonth.total) / prevMonth.total) * 100)
+    : 0;
 
   return (
-    <Link href="/mypage" className="block">
+    <button onClick={onOpenHistory} className="block text-left w-full">
       <Widget index={2}>
         <div className="flex flex-col h-full justify-between">
           <div className="flex items-center gap-2 mb-3">
@@ -153,15 +196,18 @@ function MonthlySpending() {
           </div>
           <div>
             <p className="text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums">
-              ₩{total.toLocaleString()}
+              ₩{thisMonth.total.toLocaleString()}
             </p>
             <p className="text-[10px] text-gray-400 mt-1">
-              지난달 대비 <span className="text-brand-success font-semibold">-12%</span>
+              지난달 대비{' '}
+              <span className={`font-semibold ${diff <= 0 ? 'text-brand-success' : 'text-brand-warning'}`}>
+                {diff <= 0 ? '' : '+'}{diff}%
+              </span>
             </p>
           </div>
         </div>
       </Widget>
-    </Link>
+    </button>
   );
 }
 
@@ -255,40 +301,64 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
   );
 }
 
-// ── [D] 최근 쇼핑 내역 ────────────────────────────────────────────────────────
-function RecentOrders({ items }: { items: import('@/types').CartItem[] }) {
-  const total = MOCK_ORDERS.reduce((sum, o) => sum + o.price, 0);
-  const orders = items.map((item) => {
-    const mock = MOCK_ORDERS.find((o) => o.id === item.id);
-    return {
-      ...item,
-      store:  mock?.store ?? '기타',
-      mallBg: mock?.mallBg ?? 'bg-gray-400',
-      price:  mock?.price ?? 0,
-    };
-  });
+// ── [D] 달별 소비 내역 (Full Width) ───────────────────────────────────────────
+function MonthlyHistory({ selectedMonth, onChangeMonth }: { selectedMonth: number; onChangeMonth: (m: number) => void }) {
+  const data = MONTHLY_DATA.find((m) => m.month === selectedMonth) ?? MONTHLY_DATA[MONTHLY_DATA.length - 1];
+  const maxTotal = Math.max(...MONTHLY_DATA.map((m) => m.total));
 
   return (
     <div className="col-span-2">
-      <Widget index={4}>
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-gray-400 font-medium">최근 쇼핑 내역</span>
-          <span className="text-xs text-gray-400">
-            합계 <span className="font-bold text-gray-700 tabular-nums">₩{total.toLocaleString()}</span>
+      <Widget index={4} className="!p-0 overflow-hidden">
+        {/* 헤더 */}
+        <div className="px-5 pt-5 pb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-base">📊</span>
+            <span className="text-xs text-gray-400 font-medium">월별 소비 내역</span>
+          </div>
+          <span className="text-xs font-bold text-gray-700 tabular-nums">
+            ₩{data.total.toLocaleString()}
           </span>
         </div>
-        <div className="h-px bg-gray-50 mb-3" />
-        <div className="flex flex-col gap-3">
-          {orders.slice(0, 4).map((order) => (
-            <div key={order.id} className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-full ${order.mallBg} flex items-center justify-center shrink-0`}>
-                <span className="text-white text-[10px] font-bold">
-                  {order.store.charAt(0)}
+
+        {/* 월 탭 + 미니 바 차트 */}
+        <div className="flex gap-1 px-5 pb-4">
+          {MONTHLY_DATA.map((m) => {
+            const isActive = m.month === selectedMonth;
+            const barH = Math.max(8, (m.total / maxTotal) * 48);
+            return (
+              <button
+                key={m.month}
+                onClick={() => onChangeMonth(m.month)}
+                className={`flex-1 flex flex-col items-center gap-1 py-1 rounded-2xl transition-colors ${
+                  isActive ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
+                }`}
+              >
+                <div className="w-full flex justify-center items-end h-12">
+                  <div
+                    className={`w-5 rounded-full transition-all duration-300 ${
+                      isActive ? 'bg-brand-primary' : 'bg-gray-200'
+                    }`}
+                    style={{ height: `${barH}px` }}
+                  />
+                </div>
+                <span className={`text-[10px] font-medium ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
+                  {m.label}
                 </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 선택 월 내역 리스트 */}
+        <div className="px-5 pb-5 flex flex-col gap-2.5">
+          {data.orders.map((order) => (
+            <div key={order.id} className="flex items-center gap-3">
+              <div className={`w-7 h-7 rounded-full ${order.mallBg} flex items-center justify-center shrink-0`}>
+                <span className="text-white text-[9px] font-bold">{order.store.charAt(0)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800 truncate">{order.name}</p>
-                <p className="text-[10px] text-gray-400">{order.store} · {order.category}</p>
+                <p className="text-[10px] text-gray-400">{order.store} · {order.date}</p>
               </div>
               <span className="text-sm font-bold text-gray-900 shrink-0 tabular-nums">
                 ₩{order.price.toLocaleString()}
@@ -296,12 +366,6 @@ function RecentOrders({ items }: { items: import('@/types').CartItem[] }) {
             </div>
           ))}
         </div>
-        <Link
-          href="/mypage"
-          className="mt-4 flex items-center justify-center gap-1 text-xs text-brand-primary font-medium py-2 rounded-2xl hover:bg-brand-primary/5 transition-colors"
-        >
-          전체보기 <ChevronRight size={14} />
-        </Link>
       </Widget>
     </div>
   );
@@ -312,6 +376,8 @@ export default function HomePage() {
   const { items, removeItem } = useCart();
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
@@ -339,13 +405,15 @@ export default function HomePage() {
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <DailyBriefing items={items} />
           <ClosetSummary items={items} />
-          <MonthlySpending />
+          <MonthlySpending onOpenHistory={() => setShowHistory(!showHistory)} />
           <FridgeCarousel items={items} onDiscard={(id) => {
             const name = items.find((i) => i.id === id)?.name ?? '';
             removeItem(id);
             showToast(`"${name}" 소진 처리됐어요.`);
           }} />
-          <RecentOrders items={items} />
+          {showHistory && (
+            <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
+          )}
         </div>
       )}
     </div>
