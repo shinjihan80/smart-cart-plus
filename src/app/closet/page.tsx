@@ -212,7 +212,17 @@ export default function ClosetPage() {
           ))}
         </AnimatePresence>
 
-        {items.length === 0 && (
+        {items.length === 0 && allClothing.length > 0 && (
+          <div className="text-center py-12 text-gray-400">
+            <p className="text-3xl mb-2">🔍</p>
+            <p className="text-sm font-medium">검색 결과가 없어요</p>
+            <button onClick={() => { setSearch(''); setFilter('전체'); }} className="text-xs text-brand-primary mt-1">
+              필터 초기화
+            </button>
+          </div>
+        )}
+
+        {allClothing.length === 0 && (
           <div className="text-center py-16 text-gray-400">
             <p className="text-4xl mb-3">👔</p>
             <p className="text-sm font-medium">옷장이 비어있어요</p>
