@@ -365,7 +365,7 @@ export default function FridgePage() {
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
         <div className="px-4 py-3.5">
           <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
-          <p className="text-[10px] text-gray-400 mt-0.5">식품 {allFood.length}개 · ← 밀어서 소진 처리</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">식품 {allFood.length}개 관리 중 · ← 밀어서 소진</p>
         </div>
       </header>
 
