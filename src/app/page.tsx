@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { foodItems, clothingItems, mockCartItems } from '@/data/mockData';
-import { isFoodItem } from '@/types';
+import { isFoodItem, isClothingItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { ChevronRight } from 'lucide-react';
+import TextImportModal from '@/components/TextImportModal';
+import { ChevronRight, Plus, Camera } from 'lucide-react';
 
 // ── 디자인 토큰 ──────────────────────────────────────────────────────────────
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
 const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
-
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 
 // ── Mock 주문 데이터 ──────────────────────────────────────────────────────────
@@ -28,6 +28,8 @@ function Skeleton() {
   return (
     <div className="px-4 py-5 grid grid-cols-2 gap-4">
       <div className="col-span-2 h-[130px] rounded-[32px] bg-gray-100 animate-pulse" />
+      <div className="h-[120px] rounded-[32px] bg-gray-100 animate-pulse" />
+      <div className="h-[120px] rounded-[32px] bg-gray-100 animate-pulse" />
       <div className="col-span-2 h-[160px] rounded-[32px] bg-gray-100 animate-pulse" />
       <div className="col-span-2 h-[200px] rounded-[32px] bg-gray-100 animate-pulse" />
     </div>
@@ -68,11 +70,9 @@ function DailyBriefing() {
   return (
     <Link href="/closet" className="col-span-2 block">
       <Widget index={0} className="relative overflow-hidden min-h-[130px]">
-        {/* CSS 날씨 일러스트 */}
         <div className="absolute -right-4 -top-2 opacity-30 select-none pointer-events-none">
           <div className="text-[80px] leading-none">🌤️</div>
         </div>
-        {/* 콘텐츠 */}
         <div className="relative z-10">
           <p className="text-xs text-gray-400 font-medium mb-2">오늘의 브리핑</p>
           <h2 className="text-lg font-bold text-gray-900 leading-snug">
@@ -93,26 +93,75 @@ function DailyBriefing() {
   );
 }
 
-// ── [B] 냉장고 카루셀 카드 (개별 스와이프) ────────────────────────────────────
+// ── [B-1] 옷장 현황 (1x1) ────────────────────────────────────────────────────
+function ClosetSummary() {
+  const clothes = clothingItems.filter(isClothingItem);
+  const thinCount  = clothes.filter((c) => c.thickness === '얇음').length;
+  const thickCount = clothes.filter((c) => c.thickness === '두꺼움').length;
+
+  return (
+    <Link href="/closet" className="block">
+      <Widget index={1}>
+        <div className="flex flex-col h-full justify-between">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base">👔</span>
+            <span className="text-xs text-gray-400 font-medium">옷장 현황</span>
+          </div>
+          <div>
+            <p className="text-3xl font-extrabold tracking-tight text-gray-900">
+              {clothes.length}<span className="text-base font-bold text-gray-400 ml-0.5">벌</span>
+            </p>
+            <div className="flex gap-2 mt-2">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-500 font-medium">
+                얇은 옷 {thinCount}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-500 font-medium">
+                두꺼운 옷 {thickCount}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Widget>
+    </Link>
+  );
+}
+
+// ── [B-2] 이번 달 지출 (1x1) ─────────────────────────────────────────────────
+function MonthlySpending() {
+  const total = MOCK_ORDERS.reduce((sum, o) => sum + o.price, 0);
+
+  return (
+    <Link href="/mypage" className="block">
+      <Widget index={2}>
+        <div className="flex flex-col h-full justify-between">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base">💰</span>
+            <span className="text-xs text-gray-400 font-medium">이번 달 지출</span>
+          </div>
+          <div>
+            <p className="text-2xl font-extrabold tracking-tight text-gray-900">
+              ₩{total.toLocaleString()}
+            </p>
+            <p className="text-[10px] text-gray-400 mt-1">
+              지난달 대비 <span className="text-emerald-500 font-semibold">-12%</span>
+            </p>
+          </div>
+        </div>
+      </Widget>
+    </Link>
+  );
+}
+
+// ── [C] 냉장고 카루셀 카드 (스와이프) ─────────────────────────────────────────
 function FridgeCard({
-  name,
-  dDay,
-  storageType,
-  emoji,
-  onDiscard,
-  onReorder,
+  name, dDay, storageType, emoji, onDiscard, onReorder,
 }: {
-  name: string;
-  dDay: number;
-  storageType: string;
-  emoji: string;
-  onDiscard: () => void;
-  onReorder: () => void;
+  name: string; dDay: number; storageType: string; emoji: string;
+  onDiscard: () => void; onReorder: () => void;
 }) {
   const x = useMotionValue(0);
   const bgColor = useTransform(
-    x,
-    [-100, -30, 0, 30, 100],
+    x, [-100, -30, 0, 30, 100],
     ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)', 'rgb(253,253,255)', 'rgb(238,242,255)'],
   );
   const discardOpacity = useTransform(x, [-100, -30], [1, 0]);
@@ -128,12 +177,10 @@ function FridgeCard({
 
   return (
     <div className="relative shrink-0 w-[140px] h-[140px] rounded-3xl overflow-hidden">
-      {/* 뒤 레이어 */}
       <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
         <motion.span style={{ opacity: reorderOpacity }} className="text-lg">🔄</motion.span>
         <motion.span style={{ opacity: discardOpacity }} className="text-lg">🗑️</motion.span>
       </div>
-      {/* 앞 레이어 */}
       <motion.div
         drag="x"
         dragConstraints={{ left: -100, right: 100 }}
@@ -168,7 +215,7 @@ function FridgeCarousel({ onToast }: { onToast: (msg: string) => void }) {
 
   return (
     <div className="col-span-2">
-      <Widget index={1} className="!p-0 overflow-hidden">
+      <Widget index={3} className="!p-0 overflow-hidden">
         <div className="px-5 pt-5 pb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-base">🧊</span>
@@ -196,8 +243,9 @@ function FridgeCarousel({ onToast }: { onToast: (msg: string) => void }) {
   );
 }
 
-// ── [C] 최근 쇼핑 내역 ────────────────────────────────────────────────────────
+// ── [D] 최근 쇼핑 내역 ────────────────────────────────────────────────────────
 function RecentOrders() {
+  const total = MOCK_ORDERS.reduce((sum, o) => sum + o.price, 0);
   const orders = mockCartItems.map((item) => {
     const mock = MOCK_ORDERS.find((o) => o.id === item.id);
     return {
@@ -210,25 +258,26 @@ function RecentOrders() {
 
   return (
     <div className="col-span-2">
-      <Widget index={2}>
-        <div className="flex items-center justify-between mb-4">
+      <Widget index={4}>
+        <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-400 font-medium">최근 쇼핑 내역</span>
+          <span className="text-xs text-gray-400">
+            합계 <span className="font-bold text-gray-700">₩{total.toLocaleString()}</span>
+          </span>
         </div>
+        <div className="h-px bg-gray-50 mb-3" />
         <div className="flex flex-col gap-3">
           {orders.slice(0, 4).map((order) => (
             <div key={order.id} className="flex items-center gap-3">
-              {/* 구매처 로고 */}
               <div className={`w-8 h-8 rounded-full ${order.storeColor} flex items-center justify-center shrink-0`}>
                 <span className="text-white text-[10px] font-bold">
                   {order.store.charAt(0)}
                 </span>
               </div>
-              {/* 상품 정보 */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800 truncate">{order.name}</p>
                 <p className="text-[10px] text-gray-400">{order.store} · {order.category}</p>
               </div>
-              {/* 금액 */}
               <span className="text-sm font-bold text-gray-900 shrink-0">
                 ₩{order.price.toLocaleString()}
               </span>
@@ -246,10 +295,61 @@ function RecentOrders() {
   );
 }
 
+// ── 빈 상태 온보딩 ────────────────────────────────────────────────────────────
+function EmptyDashboard({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div className="px-4 py-5">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={springTransition}
+        className={`${CARD} flex flex-col items-center text-center py-12`}
+        style={CARD_SHADOW}
+      >
+        <div className="text-5xl mb-4">📸</div>
+        <h2 className="text-base font-bold text-gray-900 mb-1">
+          첫 상품을 추가해보세요
+        </h2>
+        <p className="text-sm text-gray-400 mb-5 leading-relaxed max-w-[240px]">
+          식품 라벨이나 의류 사이즈표 사진을 찍으면<br />
+          AI가 자동으로 정보를 분석해요.
+        </p>
+        <button
+          onClick={onAdd}
+          className="flex items-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 transition-all text-white text-sm font-semibold px-5 py-2.5"
+        >
+          <Camera size={16} />
+          사진으로 추가하기
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
+// ── FAB (플로팅 액션 버튼) ────────────────────────────────────────────────────
+function FloatingAddButton({ onClick }: { onClick: () => void }) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ ...springTransition, delay: 0.5 }}
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.92 }}
+      onClick={onClick}
+      className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200"
+    >
+      <Plus size={24} strokeWidth={2.5} />
+    </motion.button>
+  );
+}
+
 // ── 홈 대시보드 ───────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const [ready, setReady] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [ready, setReady]         = useState(false);
+  const [toast, setToast]         = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const hasData = mockCartItems.length > 0;
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
@@ -274,12 +374,31 @@ export default function HomePage() {
       {/* 벤토 그리드 */}
       {!ready ? (
         <Skeleton />
-      ) : (
+      ) : hasData ? (
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <DailyBriefing />
+          <ClosetSummary />
+          <MonthlySpending />
           <FridgeCarousel onToast={showToast} />
           <RecentOrders />
         </div>
+      ) : (
+        <EmptyDashboard onAdd={() => setShowModal(true)} />
+      )}
+
+      {/* FAB */}
+      {ready && hasData && (
+        <FloatingAddButton onClick={() => setShowModal(true)} />
+      )}
+
+      {/* 모달 */}
+      {showModal && (
+        <TextImportModal
+          onClose={() => setShowModal(false)}
+          onImport={(items) => {
+            showToast(`${items.length}개 상품이 추가됐어요!`);
+          }}
+        />
       )}
 
       {/* 토스트 */}
