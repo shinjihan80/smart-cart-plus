@@ -20,6 +20,7 @@ import {
   CartItem,
   FashionCategory,
   FASHION_GROUP,
+  FOOD_GROUP,
 } from '@/types';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -29,6 +30,7 @@ type VisionRawFoodItem = {
   domain:            'food';
   id:                string;
   name:              string;
+  foodCategory?:     string;
   storageType:       string;
   baseShelfLifeDays: number;
   purchaseDate:      string;
@@ -82,6 +84,8 @@ const AGENT_INSTRUCTION = `
 
 ## Step 2A — 식품(food) 추출 규칙
 - domain: "food" 반드시 포함
+- foodCategory: 아래 중 하나로 분류
+  "채소·과일" | "정육·계란" | "수산·해산" | "유제품" | "음료" | "간식·과자" | "양념·소스" | "면·즉석" | "빵·베이커리" | "건강식품" | "기타 식품"
 - storageType: "냉장" | "냉동" | "실온" 중 하나 (라벨에 없으면 식품 유형으로 추론)
 - baseShelfLifeDays: 라벨의 보관 기한 또는 식품 유형 기반 추론값 (숫자)
 - purchaseDate: 이미지에서 확인 불가능하면 오늘 날짜 (YYYY-MM-DD)
@@ -89,7 +93,8 @@ const AGENT_INSTRUCTION = `
 
 ## Step 2B — 패션/의류(fashion) 추출 규칙
 - domain: "fashion" 반드시 포함
-- category: "의류" 또는 "액세서리"
+- category: 아래 중 하나로 분류
+  "상의" | "하의" | "아우터" | "원피스" | "신발" | "가방" | "모자" | "스카프" | "안경" | "선글라스" | "시계" | "주얼리" | "기타 액세서리"
 - size: 이미지에서 추출, 없으면 "Free"
 - thickness: "얇음" | "보통" | "두꺼움" 중 하나
 - material: 혼용률 표기에서 추출 (예: "면 100%", "폴리에스터 60% 면 40%")
@@ -112,6 +117,7 @@ const AGENT_INSTRUCTION = `
       "domain": "food",
       "id": "p1",
       "name": "상품명",
+      "foodCategory": "채소·과일",
       "storageType": "냉장",
       "baseShelfLifeDays": 5,
       "purchaseDate": "YYYY-MM-DD"
@@ -137,11 +143,16 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
       ? (raw.storageType as StorageType)
       : '실온';
 
+    const VALID_FOOD_CATS = Object.keys(FOOD_GROUP) as import('@/types').FoodCategory[];
+    const foodCategory = VALID_FOOD_CATS.includes(raw.foodCategory as import('@/types').FoodCategory)
+      ? (raw.foodCategory as import('@/types').FoodCategory)
+      : '기타 식품' as import('@/types').FoodCategory;
+
     const item: FoodItem = {
       id:                raw.id,
       name:              raw.name,
       category:          '식품',
-      foodCategory:      '기타 식품',
+      foodCategory,
       storageType,
       baseShelfLifeDays: Math.max(1, Math.round(raw.baseShelfLifeDays)),
       purchaseDate:      raw.purchaseDate || new Date().toISOString().split('T')[0],
