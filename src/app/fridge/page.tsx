@@ -293,7 +293,7 @@ export default function FridgePage() {
 
   const items = allFood
     .filter((i) => storageFilter === '전체' || i.storageType === storageFilter)
-    .filter((i) => groupFilter === '전체' || FOOD_GROUP[i.foodCategory] === groupFilter)
+    .filter((i) => groupFilter === '전체' || (FOOD_GROUP[i.foodCategory] ?? '기타') === groupFilter)
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'dDay' ? a.dDay - b.dDay : a.name.localeCompare(b.name));
 
@@ -304,7 +304,7 @@ export default function FridgePage() {
 
   const foodGroupCounts = (['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => ({
     group: g,
-    count: allFood.filter((f) => FOOD_GROUP[f.foodCategory] === g).length,
+    count: allFood.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length,
   })).filter((g) => g.count > 0);
 
   function handleDiscard(id: string) {
@@ -478,7 +478,7 @@ export default function FridgePage() {
           // 식품 그룹별 섹션 그룹핑
           <>
             {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
-              const group = items.filter((i) => FOOD_GROUP[i.foodCategory] === grp);
+              const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
               if (group.length === 0) return null;
               const grpEmoji = grp === '신선식품' ? '🥬' : grp === '가공식품' ? '🍜' : grp === '음료·간식' ? '🧃' : '📦';
               return (

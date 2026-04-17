@@ -45,11 +45,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const storedItems = localStorage.getItem(STORAGE_KEY);
       if (storedItems) {
         const parsed = JSON.parse(storedItems) as CartItem[];
-        // 마이그레이션: foodCategory가 없는 구 버전 식품 데이터 보정
+        // 마이그레이션: 구 버전 데이터 보정
         const migrated = parsed.map((item) => {
-          if (item.category === '식품' && !('foodCategory' in item)) {
+          const cat = item.category as string;
+          // 식품: foodCategory 누락 보정
+          if (cat === '식품' && !('foodCategory' in item)) {
             return Object.assign({}, item, { foodCategory: '기타 식품' }) as CartItem;
           }
+          // 패션: 구 카테고리('의류'/'액세서리') → 새 카테고리로 변환
+          if (cat === '의류') return Object.assign({}, item, { category: '상의' }) as CartItem;
+          if (cat === '액세서리') return Object.assign({}, item, { category: '주얼리' }) as CartItem;
           return item;
         });
         if (migrated.length > 0) setItems(migrated);

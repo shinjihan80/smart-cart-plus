@@ -355,7 +355,7 @@ export default function ClosetPage() {
 
   const allClothing = allItems.filter(isClothingItem);
   const items = allClothing
-    .filter((i) => filter === '전체' || FASHION_GROUP[i.category] === filter)
+    .filter((i) => filter === '전체' || (FASHION_GROUP[i.category] ?? '의류') === filter)
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'name'
       ? a.name.localeCompare(b.name)
@@ -364,7 +364,7 @@ export default function ClosetPage() {
 
   const groupCounts = (['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => ({
     group: g,
-    count: allClothing.filter((c) => FASHION_GROUP[c.category] === g).length,
+    count: allClothing.filter((c) => (FASHION_GROUP[c.category] ?? '의류') === g).length,
   })).filter((g) => g.count > 0);
 
   function handleRemove(id: string) {
@@ -536,7 +536,7 @@ export default function ClosetPage() {
         {filter === '전체' && !search ? (
           <>
             {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((grp) => {
-              const group = items.filter((i) => FASHION_GROUP[i.category] === grp);
+              const group = items.filter((i) => (FASHION_GROUP[i.category] ?? '의류') === grp);
               if (group.length === 0) return null;
               return (
                 <div key={grp}>

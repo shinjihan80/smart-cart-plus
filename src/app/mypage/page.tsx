@@ -191,7 +191,7 @@ export default function MyPage() {
             <div>
               <p className="text-[9px] text-gray-400 mb-1.5">🥬 식품</p>
               {(['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => {
-                const count = foodItemsList.filter((f) => FOOD_GROUP[f.foodCategory] === g).length;
+                const count = foodItemsList.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length;
                 if (count === 0) return null;
                 const pct = foodItemsList.length > 0 ? (count / foodItemsList.length) * 100 : 0;
                 return (
@@ -209,7 +209,7 @@ export default function MyPage() {
             <div>
               <p className="text-[9px] text-gray-400 mb-1.5">👕 패션</p>
               {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => {
-                const count = clothingItemsList.filter((c) => FASHION_GROUP[c.category] === g).length;
+                const count = clothingItemsList.filter((c) => (FASHION_GROUP[c.category] ?? '의류') === g).length;
                 if (count === 0) return null;
                 const pct = clothingItemsList.length > 0 ? (count / clothingItemsList.length) * 100 : 0;
                 return (
