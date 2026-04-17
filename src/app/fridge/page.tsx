@@ -346,19 +346,41 @@ export default function FridgePage() {
           </button>
         </div>
 
-        {/* 아이템 리스트 (스와이프 삭제) */}
-        <AnimatePresence mode="popLayout">
-          {items.map((item, index) => (
-            <SwipeFoodCard
-              key={item.id}
-              item={item}
-              dDay={item.dDay}
-              index={index}
-              onDiscard={handleDiscard}
-              onUpdate={updateItem}
-            />
-          ))}
-        </AnimatePresence>
+        {/* 아이템 리스트 (보관 타입별 그룹 or 필터 결과) */}
+        {filter === '전체' && !search ? (
+          // 보관 타입별 섹션 그룹핑
+          <>
+            {(['냉장', '냉동', '실온'] as const).map((type) => {
+              const group = items.filter((i) => i.storageType === type);
+              if (group.length === 0) return null;
+              const st = STORAGE_STYLE[type];
+              return (
+                <div key={type}>
+                  <div className="flex items-center gap-2 mb-2 mt-1">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${st.bg} ${st.text}`}>
+                      {type === '냉장' ? '❄️' : type === '냉동' ? '🧊' : '📦'} {type} {group.length}
+                    </span>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
+                  <AnimatePresence mode="popLayout">
+                    <div className="flex flex-col gap-3">
+                      {group.map((item, index) => (
+                        <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+                      ))}
+                    </div>
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </>
+        ) : (
+          // 검색/필터 결과 플랫 리스트
+          <AnimatePresence mode="popLayout">
+            {items.map((item, index) => (
+              <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+            ))}
+          </AnimatePresence>
+        )}
 
         {items.length === 0 && allFood.length > 0 && (
           <div className="text-center py-12 text-gray-400">
