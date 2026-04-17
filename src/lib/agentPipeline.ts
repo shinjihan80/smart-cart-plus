@@ -31,6 +31,8 @@ export const AGENT_MODEL: Record<AgentType, AgentModel> = {
   parser:    'claude-haiku-4-5',   // 저비용 추출
   nutrition: 'claude-sonnet-4-6',  // 분석·추천
   style:     'claude-sonnet-4-6',  // 분석·추천
+  image:     'claude-haiku-4-5',   // 이미지 → 구조화 추출 (Vision)
+  url:       'claude-haiku-4-5',   // URL 텍스트 → 구조화 추출
 } as const;
 
 // ─── 클라이언트 싱글톤 ────────────────────────────────────────────────────────
@@ -55,7 +57,7 @@ export function routeData(agentType: AgentType): FoodItem[] | ClothingItem[] | n
   switch (agentType) {
     case 'nutrition': return foodItems;
     case 'style':     return clothingItems;
-    case 'parser':    return null;
+    default:          return null; // parser, image, url
   }
 }
 
@@ -78,7 +80,7 @@ export function routeData(agentType: AgentType): FoodItem[] | ClothingItem[] | n
 export async function runWithDualReview(params: {
   agentType:        AgentType;
   agentInstruction: string;
-  userContent:      string;
+  userContent:      string | Anthropic.Messages.ContentBlockParam[];
   model?:           AgentModel;   // 미지정 시 AGENT_MODEL 기본값 사용
 }): Promise<unknown> {
   const client = getAnthropicClient();
