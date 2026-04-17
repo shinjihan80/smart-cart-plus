@@ -7,7 +7,16 @@ import { foodItems, clothingItems, mockCartItems } from '@/data/mockData';
 import { isFoodItem, isClothingItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import TextImportModal from '@/components/TextImportModal';
-import { ChevronRight, Plus, Camera } from 'lucide-react';
+import { ChevronRight, Plus, Camera, Sparkles } from 'lucide-react';
+
+// ── 시간대 인사말 ────────────────────────────────────────────────────────────
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 6)  return '새벽이에요, 푹 쉬세요';
+  if (h < 12) return '좋은 아침이에요';
+  if (h < 18) return '오후도 힘내세요';
+  return '오늘 하루 수고했어요';
+}
 
 // ── 디자인 토큰 ──────────────────────────────────────────────────────────────
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -108,7 +117,7 @@ function ClosetSummary() {
             <span className="text-xs text-gray-400 font-medium">옷장 현황</span>
           </div>
           <div>
-            <p className="text-3xl font-extrabold tracking-tight text-gray-900">
+            <p className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums">
               {clothes.length}<span className="text-base font-bold text-gray-400 ml-0.5">벌</span>
             </p>
             <div className="flex gap-2 mt-2">
@@ -139,7 +148,7 @@ function MonthlySpending() {
             <span className="text-xs text-gray-400 font-medium">이번 달 지출</span>
           </div>
           <div>
-            <p className="text-2xl font-extrabold tracking-tight text-gray-900">
+            <p className="text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums">
               ₩{total.toLocaleString()}
             </p>
             <p className="text-[10px] text-gray-400 mt-1">
@@ -191,7 +200,7 @@ function FridgeCard({
       >
         <span className="text-2xl">{emoji}</span>
         <div>
-          <p className={`text-3xl font-extrabold tracking-tight ${
+          <p className={`text-3xl font-extrabold tracking-tight tabular-nums ${
             isUrgent ? 'text-rose-500' : isWarning ? 'text-amber-500' : 'text-gray-900'
           }`}>
             {dDay <= 0 ? '만료' : `D-${dDay}`}
@@ -262,7 +271,7 @@ function RecentOrders() {
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-400 font-medium">최근 쇼핑 내역</span>
           <span className="text-xs text-gray-400">
-            합계 <span className="font-bold text-gray-700">₩{total.toLocaleString()}</span>
+            합계 <span className="font-bold text-gray-700 tabular-nums">₩{total.toLocaleString()}</span>
           </span>
         </div>
         <div className="h-px bg-gray-50 mb-3" />
@@ -278,7 +287,7 @@ function RecentOrders() {
                 <p className="text-sm font-medium text-gray-800 truncate">{order.name}</p>
                 <p className="text-[10px] text-gray-400">{order.store} · {order.category}</p>
               </div>
-              <span className="text-sm font-bold text-gray-900 shrink-0">
+              <span className="text-sm font-bold text-gray-900 shrink-0 tabular-nums">
                 ₩{order.price.toLocaleString()}
               </span>
             </div>
@@ -365,9 +374,13 @@ export default function HomePage() {
     <div>
       {/* 헤더 */}
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
-        <div className="px-4 py-3.5">
-          <h1 className="text-base font-bold text-gray-900 tracking-tight">Smart Cart Plus</h1>
-          <p className="text-[10px] text-gray-400 mt-0.5">라이프스타일 AI 매니저</p>
+        <div className="px-4 py-3.5 flex items-center justify-between">
+          <div>
+            <h1 className="text-base font-bold text-gray-900 tracking-tight">Smart Cart Plus</h1>
+            <p className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
+              <Sparkles size={10} /> {getGreeting()}
+            </p>
+          </div>
         </div>
       </header>
 
