@@ -93,7 +93,7 @@ function SwipeFoodCard({
               {style.label}
             </span>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
-              {FOOD_EMOJI[item.foodCategory]} {item.foodCategory}
+              {FOOD_EMOJI[item.foodCategory] ?? '📦'} {item.foodCategory ?? '기타'}
             </span>
           </div>
           {/* D-Day 프로그레스 바 */}

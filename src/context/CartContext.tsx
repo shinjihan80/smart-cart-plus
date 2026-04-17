@@ -39,13 +39,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [lastRemoved, setLastRemoved]   = useState<{ item: CartItem; index: number } | null>(null);
   const [discardHistory, setDiscardHistory] = useState<DiscardRecord[]>([]);
 
-  // 클라이언트 마운트 후 localStorage 복원
+  // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
   useEffect(() => {
     try {
       const storedItems = localStorage.getItem(STORAGE_KEY);
       if (storedItems) {
         const parsed = JSON.parse(storedItems) as CartItem[];
-        if (parsed.length > 0) setItems(parsed);
+        // 마이그레이션: foodCategory가 없는 구 버전 식품 데이터 보정
+        const migrated = parsed.map((item) => {
+          if (item.category === '식품' && !('foodCategory' in item)) {
+            return Object.assign({}, item, { foodCategory: '기타 식품' }) as CartItem;
+          }
+          return item;
+        });
+        if (migrated.length > 0) setItems(migrated);
       }
       const storedCount = localStorage.getItem(DISCARD_KEY);
       if (storedCount) setDiscardCount(parseInt(storedCount, 10));
