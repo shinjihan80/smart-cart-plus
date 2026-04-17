@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { isFoodItem, isClothingItem } from '@/types';
+import { isFoodItem, isClothingItem, FOOD_GROUP, FASHION_GROUP, type FoodGroup, type FashionGroup } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
@@ -176,6 +176,55 @@ export default function MyPage() {
             </div>
           </motion.div>
         )}
+
+        {/* 카테고리 분포 */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.22 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <h3 className="text-xs text-gray-400 font-medium mb-3">카테고리 분포</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {/* 식품 그룹 */}
+            <div>
+              <p className="text-[9px] text-gray-400 mb-1.5">🥬 식품</p>
+              {(['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => {
+                const count = foodItemsList.filter((f) => FOOD_GROUP[f.foodCategory] === g).length;
+                if (count === 0) return null;
+                const pct = foodItemsList.length > 0 ? (count / foodItemsList.length) * 100 : 0;
+                return (
+                  <div key={g} className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[9px] text-gray-500 w-14 truncate">{g}</span>
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full bg-brand-success rounded-full" />
+                    </div>
+                    <span className="text-[9px] text-gray-400 tabular-nums w-4 text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {/* 패션 그룹 */}
+            <div>
+              <p className="text-[9px] text-gray-400 mb-1.5">👕 패션</p>
+              {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => {
+                const count = clothingItemsList.filter((c) => FASHION_GROUP[c.category] === g).length;
+                if (count === 0) return null;
+                const pct = clothingItemsList.length > 0 ? (count / clothingItemsList.length) * 100 : 0;
+                return (
+                  <div key={g} className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[9px] text-gray-500 w-14 truncate">{g}</span>
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full bg-brand-primary rounded-full" />
+                    </div>
+                    <span className="text-[9px] text-gray-400 tabular-nums w-4 text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </motion.div>
 
         {/* 소진 히스토리 */}
         {discardHistory.length > 0 && (

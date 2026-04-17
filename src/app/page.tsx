@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { isFoodItem, isClothingItem } from '@/types';
+import { isFoodItem, isClothingItem, FOOD_EMOJI } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -59,16 +59,18 @@ const MONTHLY_DATA: { month: number; label: string; total: number; orders: Order
     ],
   },
   {
-    month: 4, label: '4월', total: 272200,
+    month: 4, label: '4월', total: 384300,
     orders: [
+      { id: 'f6', name: '노르웨이 생연어',        store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 18900, date: '04.16' },
+      { id: 'c10', name: 'Ray-Ban 웨이페어러',   store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 185000, date: '04.12' },
       { id: 'f1', name: '친환경 샐러드 믹스',     store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 4900, date: '04.14' },
-      { id: 'c1', name: 'Mango 리넨 혼방 원피스', store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 59000, date: '04.10' },
       { id: 'f2', name: '아이용 한우 불고기',     store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 15900, date: '04.10' },
-      { id: 'f3', name: '국내산 유기농 두부',     store: '네이버',   mallBg: 'bg-mall-naver',      price: 3200, date: '04.15' },
-      { id: 'f4', name: '제주 감귤 주스',        store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 6500, date: '04.08' },
-      { id: 'f5', name: '통밀 식빵',            store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 3800, date: '04.16' },
-      { id: 'c3', name: '유니클로 기모 후리스',   store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 49900, date: '04.05' },
-      { id: 'c4', name: 'Nike 에어포스 1',      store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 129000, date: '04.03' },
+      { id: 'f8', name: '서울우유 1L',           store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 2800, date: '04.11' },
+      { id: 'c7', name: '버켄스탁 아리조나',      store: '네이버',   mallBg: 'bg-mall-naver',      price: 89000, date: '04.08' },
+      { id: 'f9', name: '오리온 초코파이',        store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 4800, date: '04.07' },
+      { id: 'c8', name: '캉골 미니 크로스백',     store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 45000, date: '04.05' },
+      { id: 'f7', name: '무항생제 달걀',          store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 8500, date: '04.03' },
+      { id: 'c9', name: 'New Era 볼캡',         store: '네이버',   mallBg: 'bg-mall-naver',      price: 9500, date: '04.02' },
     ],
   },
 ];
@@ -280,8 +282,6 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
     .sort((a, b) => a.dDay - b.dDay);
 
-  const EMOJI: Record<string, string> = { 냉장: '🥦', 냉동: '🥩', 실온: '🍞' };
-
   return (
     <div className="col-span-2">
       <Widget index={3} className="!p-0 overflow-hidden">
@@ -289,6 +289,7 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
           <div className="flex items-center gap-2">
             <span className="text-base">🧊</span>
             <span className="text-xs text-gray-400 font-medium">스마트 냉장고</span>
+            <span className="text-[9px] text-gray-300 tabular-nums">{sorted.length}개</span>
           </div>
           <Link href="/fridge" className="text-xs text-brand-primary font-medium flex items-center gap-0.5">
             전체보기 <ChevronRight size={14} />
@@ -301,7 +302,7 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
               name={item.name}
               dDay={item.dDay}
               storageType={item.storageType}
-              emoji={EMOJI[item.storageType] ?? '📦'}
+              emoji={FOOD_EMOJI[item.foodCategory] ?? '📦'}
               onDiscard={() => onDiscard(item.id)}
             />
           ))}
