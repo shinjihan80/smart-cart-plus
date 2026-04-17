@@ -57,6 +57,7 @@ export interface FoodItem {
   baseShelfLifeDays: number;
   purchaseDate:      string;
 
+  imageUrl?:       string;
   nutritionFacts?: NutritionFacts;
   openedDate?:     string;
 }
@@ -106,6 +107,7 @@ export interface ClothingItem {
   thickness:     Thickness;
   material:      string;
 
+  imageUrl?:     string;
   weatherTags?:  WeatherTag[];
   colorFamily?:  string;
 }

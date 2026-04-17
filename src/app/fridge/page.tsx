@@ -139,6 +139,21 @@ function SwipeFoodCard({
               className="overflow-hidden"
             >
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
+                {/* 이미지 */}
+                {item.imageUrl ? (
+                  <div className="rounded-2xl overflow-hidden bg-gray-100 h-32">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); /* 추후 이미지 업로드 연결 */ }}
+                    className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
+                  >
+                    <span className="text-lg">📷</span>
+                    <span className="text-[10px] font-medium">사진 추가</span>
+                  </button>
+                )}
                 {/* 이름 수정 */}
                 <div>
                   <span className="text-gray-400">상품명</span>
