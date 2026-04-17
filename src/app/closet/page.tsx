@@ -27,6 +27,65 @@ const SEASON_TAG_STYLE: Record<string, string> = {
   겨울: 'bg-blue-50 text-blue-500',
 };
 
+// ── 코디 추천 ────────────────────────────────────────────────────────────────
+function OutfitSection({ items }: { items: ClothingItem[] }) {
+  const month = new Date().getMonth() + 1;
+  const season = month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
+  const seasonItems = items.filter((c) => c.weatherTags?.includes(season));
+  const otherItems  = items.filter((c) => !c.weatherTags?.includes(season) && c.category === '의류');
+
+  if (seasonItems.length === 0 && otherItems.length === 0) return null;
+
+  // 간단한 코디 조합: 계절 아이템 + 보완 아이템
+  const outfits: { name: string; items: string[]; tip: string }[] = [];
+  if (seasonItems.length >= 1) {
+    outfits.push({
+      name: '오늘의 추천',
+      items: seasonItems.slice(0, 2).map((i) => i.name),
+      tip: `${season} 날씨에 딱 맞는 조합이에요`,
+    });
+  }
+  if (seasonItems.length >= 1 && otherItems.length >= 1) {
+    outfits.push({
+      name: '레이어드 코디',
+      items: [seasonItems[0].name, otherItems[0].name],
+      tip: '얇은 옷 위에 겹쳐 입기 좋아요',
+    });
+  }
+
+  if (outfits.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...springTransition, delay: 0.12 }}
+      className={CARD}
+      style={CARD_SHADOW}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base">👗</span>
+        <span className="text-xs text-gray-400 font-medium">AI 코디 추천</span>
+      </div>
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
+        {outfits.map((outfit) => (
+          <div key={outfit.name} className="shrink-0 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3.5 py-2.5 min-w-[150px]">
+            <p className="text-xs font-semibold text-gray-800">{outfit.name}</p>
+            <div className="flex flex-col gap-0.5 mt-1.5">
+              {outfit.items.map((name) => (
+                <span key={name} className="text-[10px] text-brand-primary truncate">
+                  • {name}
+                </span>
+              ))}
+            </div>
+            <p className="text-[9px] text-gray-400 mt-1.5">{outfit.tip}</p>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 // ── 스와이프 의류 카드 ────────────────────────────────────────────────────────
 function SwipeClothingCard({
   item, index, onRemove,
@@ -258,6 +317,9 @@ export default function ClosetPage() {
             </motion.div>
           );
         })()}
+
+        {/* 코디 추천 */}
+        <OutfitSection items={allClothing} />
 
         {/* 검색 + 필터 */}
         <div className="flex gap-2">

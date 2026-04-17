@@ -174,6 +174,45 @@ function SwipeFoodCard({
   );
 }
 
+// ── 레시피 추천 데이터 ────────────────────────────────────────────────────────
+const RECIPES = [
+  { id: 'r1', name: '두부 샐러드 볼',     emoji: '🥗', ingredients: ['두부', '샐러드'], time: '10분' },
+  { id: 'r2', name: '불고기 덮밥',        emoji: '🍚', ingredients: ['불고기'],        time: '15분' },
+  { id: 'r3', name: '감귤 스무디',        emoji: '🧃', ingredients: ['감귤'],          time: '5분' },
+  { id: 'r4', name: '토스트 & 두부 스크램블', emoji: '🍞', ingredients: ['식빵', '두부'],  time: '10분' },
+];
+
+function RecipeSection({ foodNames }: { foodNames: string[] }) {
+  const matched = RECIPES.filter((r) =>
+    r.ingredients.some((ing) => foodNames.some((name) => name.includes(ing))),
+  );
+  if (matched.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...springTransition, delay: 0.15 }}
+      className={CARD}
+      style={CARD_SHADOW}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base">👨‍🍳</span>
+        <span className="text-xs text-gray-400 font-medium">보유 식재료 레시피 추천</span>
+      </div>
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
+        {matched.map((r) => (
+          <div key={r.id} className="shrink-0 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3.5 py-2.5 min-w-[120px]">
+            <span className="text-2xl">{r.emoji}</span>
+            <p className="text-xs font-semibold text-gray-800 mt-1.5">{r.name}</p>
+            <p className="text-[9px] text-gray-400 mt-0.5">⏱ {r.time}</p>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 type StorageFilter = '전체' | StorageType;
 type SortKey = 'dDay' | 'name';
 
@@ -248,6 +287,9 @@ export default function FridgePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* 레시피 추천 */}
+        <RecipeSection foodNames={allFood.map((f) => f.name)} />
 
         {/* 검색 + 필터 */}
         <div className="flex gap-2">
