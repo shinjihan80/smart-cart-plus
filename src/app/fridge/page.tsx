@@ -239,8 +239,17 @@ type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
 type SortKey = 'dDay' | 'name';
 
+const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType; days: number }[] = [
+  { name: '우유 1L',     foodCategory: '유제품',    storageType: '냉장', days: 10 },
+  { name: '달걀 10구',   foodCategory: '정육·계란', storageType: '냉장', days: 21 },
+  { name: '식빵',        foodCategory: '빵·베이커리', storageType: '실온', days: 4 },
+  { name: '바나나',      foodCategory: '채소·과일', storageType: '실온', days: 5 },
+  { name: '닭가슴살',    foodCategory: '정육·계란', storageType: '냉동', days: 60 },
+  { name: '요거트',      foodCategory: '유제품',    storageType: '냉장', days: 14 },
+];
+
 export default function FridgePage() {
-  const { items: allItems, updateItem, removeItem, undoRemove } = useCart();
+  const { items: allItems, addItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [search, setSearch]         = useState('');
   const [storageFilter, setStorageFilter] = useState<StorageFilter>('전체');
@@ -270,6 +279,20 @@ export default function FridgePage() {
     const name = allFood.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
     showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
+  }
+
+  function handleQuickAdd(preset: typeof QUICK_ADD_FOODS[number]) {
+    const { added } = addItems([{
+      id: `qa-${Date.now()}`,
+      name: preset.name,
+      category: '식품',
+      foodCategory: preset.foodCategory,
+      storageType: preset.storageType,
+      baseShelfLifeDays: preset.days,
+      purchaseDate: new Date().toISOString().split('T')[0],
+    }]);
+    if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
+    else showToast(`"${preset.name}" 이미 있어요.`);
   }
 
   const STORAGE_FILTERS: { key: StorageFilter; label: string }[] = [
@@ -329,6 +352,31 @@ export default function FridgePage() {
               <span key={group} className="text-[9px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
                 {group} {count}
               </span>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* 빠른 추가 */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.1 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="text-base">⚡</span>
+            <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
+          </div>
+          <div className="flex gap-1.5 flex-wrap">
+            {QUICK_ADD_FOODS.map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => handleQuickAdd(preset)}
+                className="text-[11px] px-2.5 py-1.5 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
+              >
+                {FOOD_EMOJI[preset.foodCategory]} {preset.name}
+              </button>
             ))}
           </div>
         </motion.div>

@@ -233,7 +233,7 @@ const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
 const GROUP_EMOJI: Record<FashionGroup, string> = { 의류: '👕', 신발: '👟', 가방: '👜', 액세서리: '✨' };
 
 export default function ClosetPage() {
-  const { items: allItems, updateItem, removeItem, undoRemove } = useCart();
+  const { items: allItems, addItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<GroupFilter>('전체');
@@ -257,6 +257,27 @@ export default function ClosetPage() {
     const name = allClothing.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
     showToast(`"${name}" 삭제됐어요.`, undoRemove);
+  }
+
+  const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string }[] = [
+    { name: '반팔 티셔츠', category: '상의',   size: 'M',    material: '면' },
+    { name: '청바지',      category: '하의',   size: '32',   material: '데님' },
+    { name: '운동화',      category: '신발',   size: '260',  material: '메쉬' },
+    { name: '에코백',      category: '가방',   size: 'Free', material: '캔버스' },
+    { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면' },
+  ];
+
+  function handleQuickAdd(preset: typeof QUICK_ADD_FASHION[number]) {
+    const { added } = addItems([{
+      id: `qa-${Date.now()}`,
+      name: preset.name,
+      category: preset.category,
+      size: preset.size,
+      thickness: '보통' as const,
+      material: preset.material,
+    }]);
+    if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
+    else showToast(`"${preset.name}" 이미 있어요.`);
   }
 
   const FILTERS: { key: GroupFilter; label: string }[] = [
@@ -327,6 +348,31 @@ export default function ClosetPage() {
             </motion.div>
           );
         })()}
+
+        {/* 빠른 추가 */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.1 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="text-base">⚡</span>
+            <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
+          </div>
+          <div className="flex gap-1.5 flex-wrap">
+            {QUICK_ADD_FASHION.map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => handleQuickAdd(preset)}
+                className="text-[11px] px-2.5 py-1.5 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
+              >
+                {FASHION_EMOJI[preset.category]} {preset.name}
+              </button>
+            ))}
+          </div>
+        </motion.div>
 
         {/* 코디 추천 */}
         <OutfitSection items={allClothing} />

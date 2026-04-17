@@ -7,7 +7,7 @@ import { isFoodItem, isClothingItem, FOOD_EMOJI } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronRight, Sparkles, Search } from 'lucide-react';
 
 // ── 시간대 인사말 ────────────────────────────────────────────────────────────
 function getGreeting(): string {
@@ -487,6 +487,11 @@ export default function HomePage() {
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [search, setSearch] = useState('');
+
+  const searchResults = search.trim()
+    ? items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
+    : [];
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
@@ -509,6 +514,38 @@ export default function HomePage() {
           </span>
         </div>
       </header>
+
+      {/* 검색 바 */}
+      <div className="px-4 pt-3">
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="전체 상품 검색"
+            className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+        </div>
+        {search.trim() && (
+          <div className="mt-2 flex flex-col gap-1.5">
+            {searchResults.length > 0 ? searchResults.slice(0, 5).map((item) => (
+              <Link
+                key={item.id}
+                href={isFoodItem(item) ? '/fridge' : '/closet'}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-white border border-gray-100 hover:border-brand-primary/20 transition-colors"
+              >
+                <span className="text-sm">{isFoodItem(item) ? '🥬' : '👕'}</span>
+                <span className="text-sm text-gray-800 flex-1 truncate">{item.name}</span>
+                <span className="text-[10px] text-gray-400">{item.category === '식품' ? '냉장고' : '옷장'}</span>
+                <ChevronRight size={12} className="text-gray-300" />
+              </Link>
+            )) : (
+              <p className="text-xs text-gray-400 text-center py-2">검색 결과가 없어요</p>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* 벤토 그리드 */}
       {!ready ? (
