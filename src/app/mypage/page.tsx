@@ -153,7 +153,7 @@ export default function MyPage() {
           <div className="divide-y divide-gray-50">
             <StatRow emoji="🛍️" label="전체 상품"     value={`${items.length}개`} />
             <StatRow emoji="🥦" label="식품"          value={`${foodItemsList.length}개`} />
-            <StatRow emoji="👗" label="의류·액세서리"  value={`${clothingItemsList.length}개`} />
+            <StatRow emoji="👕" label="패션 전체"  value={`${clothingItemsList.length}개`} />
             <StatRow emoji="⚠️" label="소비 임박"     value={`${urgentCount}개`} accent={urgentCount > 0} />
             <StatRow emoji="🗑️" label="소진 처리 (누적)" value={`${discardCount}건`} />
           </div>

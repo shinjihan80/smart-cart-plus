@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { isEnrichedClothingItem } from '@/types';
-import { isClothingItem, type ClothingItem } from '@/types';
+import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type FashionGroup, FASHION_GROUP, FASHION_EMOJI } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Wind, Thermometer, Droplets, Search } from 'lucide-react';
@@ -18,8 +17,6 @@ const THICKNESS_STYLE = {
   두꺼움: { bg: 'bg-purple-50', text: 'text-purple-600', icon: Droplets },
 } as const;
 
-const CATEGORY_EMOJI: Record<string, string> = { 의류: '👗', 액세서리: '💍' };
-
 const SEASON_TAG_STYLE: Record<string, string> = {
   봄: 'bg-pink-50 text-pink-500',
   여름: 'bg-amber-50 text-amber-500',
@@ -32,7 +29,7 @@ function OutfitSection({ items }: { items: ClothingItem[] }) {
   const month = new Date().getMonth() + 1;
   const season = month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
   const seasonItems = items.filter((c) => c.weatherTags?.includes(season));
-  const otherItems  = items.filter((c) => !c.weatherTags?.includes(season) && c.category === '의류');
+  const otherItems  = items.filter((c) => !c.weatherTags?.includes(season) && FASHION_GROUP[c.category] === '의류');
 
   if (seasonItems.length === 0 && otherItems.length === 0) return null;
 
@@ -140,7 +137,7 @@ function SwipeClothingCard({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">{CATEGORY_EMOJI[item.category] ?? '📦'}</span>
+              <span className="text-sm">{FASHION_EMOJI[item.category] ?? '📦'}</span>
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
             </div>
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
@@ -229,31 +226,32 @@ function SwipeClothingCard({
   );
 }
 
-type CategoryFilter = '전체' | '의류' | '액세서리';
+type GroupFilter = '전체' | FashionGroup;
 type ClosetSort = 'name' | 'thickness';
 
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
+const GROUP_EMOJI: Record<FashionGroup, string> = { 의류: '👕', 신발: '👟', 가방: '👜', 액세서리: '✨' };
 
 export default function ClosetPage() {
   const { items: allItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<CategoryFilter>('전체');
+  const [filter, setFilter] = useState<GroupFilter>('전체');
   const [sortBy, setSortBy] = useState<ClosetSort>('name');
 
   const allClothing = allItems.filter(isClothingItem);
   const items = allClothing
-    .filter((i) => filter === '전체' || i.category === filter)
+    .filter((i) => filter === '전체' || FASHION_GROUP[i.category] === filter)
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'name'
       ? a.name.localeCompare(b.name)
       : THICKNESS_ORDER[a.thickness] - THICKNESS_ORDER[b.thickness]
     );
 
-  const clothesCount   = allClothing.filter((c) => c.category === '의류').length;
-  const accessoryCount = allClothing.filter((c) => c.category === '액세서리').length;
-  const thinCount      = allClothing.filter((c) => c.thickness === '얇음').length;
-  const thickCount     = allClothing.filter((c) => c.thickness === '두꺼움').length;
+  const groupCounts = (['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => ({
+    group: g,
+    count: allClothing.filter((c) => FASHION_GROUP[c.category] === g).length,
+  })).filter((g) => g.count > 0);
 
   function handleRemove(id: string) {
     const name = allClothing.find((i) => i.id === id)?.name ?? '';
@@ -261,10 +259,12 @@ export default function ClosetPage() {
     showToast(`"${name}" 삭제됐어요.`, undoRemove);
   }
 
-  const FILTERS: { key: CategoryFilter; label: string }[] = [
+  const FILTERS: { key: GroupFilter; label: string }[] = [
     { key: '전체',     label: '전체' },
-    { key: '의류',     label: '👗 의류' },
-    { key: '액세서리', label: '💍 액세서리' },
+    { key: '의류',     label: '👕 의류' },
+    { key: '신발',     label: '👟 신발' },
+    { key: '가방',     label: '👜 가방' },
+    { key: '액세서리', label: '✨ 액세서리' },
   ];
 
   return (
@@ -285,23 +285,17 @@ export default function ClosetPage() {
           className={CARD}
           style={CARD_SHADOW}
         >
-          <div className="grid grid-cols-4 gap-3 text-center">
-            <div>
-              <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{items.length}</p>
+          <div className="flex justify-between text-center">
+            <div className="flex-1">
+              <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{allClothing.length}</p>
               <p className="text-[10px] text-gray-400 mt-0.5">전체</p>
             </div>
-            <div>
-              <p className="text-2xl font-extrabold text-brand-primary tabular-nums">{clothesCount}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">의류</p>
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-amber-500 tabular-nums">{accessoryCount}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">액세서리</p>
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-sky-500 tabular-nums">{thinCount}/{thickCount}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">얇/두꺼</p>
-            </div>
+            {groupCounts.map(({ group, count }) => (
+              <div key={group} className="flex-1">
+                <p className="text-2xl font-extrabold text-brand-primary tabular-nums">{count}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{group}</p>
+              </div>
+            ))}
           </div>
         </motion.div>
 
@@ -325,7 +319,7 @@ export default function ClosetPage() {
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                 {seasonItems.map((item) => (
                   <div key={item.id} className="shrink-0 flex items-center gap-2 bg-brand-primary/5 rounded-2xl px-3 py-1.5">
-                    <span className="text-sm">{CATEGORY_EMOJI[item.category] ?? '📦'}</span>
+                    <span className="text-sm">{FASHION_EMOJI[item.category] ?? '📦'}</span>
                     <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{item.name}</span>
                   </div>
                 ))}
@@ -377,14 +371,14 @@ export default function ClosetPage() {
         {/* 아이템 리스트 (카테고리별 그룹 or 필터 결과) */}
         {filter === '전체' && !search ? (
           <>
-            {(['의류', '액세서리'] as const).map((cat) => {
-              const group = items.filter((i) => i.category === cat);
+            {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((grp) => {
+              const group = items.filter((i) => FASHION_GROUP[i.category] === grp);
               if (group.length === 0) return null;
               return (
-                <div key={cat}>
+                <div key={grp}>
                   <div className="flex items-center gap-2 mb-2 mt-1">
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
-                      {CATEGORY_EMOJI[cat]} {cat} {group.length}
+                      {GROUP_EMOJI[grp]} {grp} {group.length}
                     </span>
                     <div className="flex-1 h-px bg-gray-100" />
                   </div>

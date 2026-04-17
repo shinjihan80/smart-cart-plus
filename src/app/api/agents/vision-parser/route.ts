@@ -18,6 +18,8 @@ import {
   FoodItem,
   EnrichedClothingItem,
   CartItem,
+  FashionCategory,
+  FASHION_GROUP,
 } from '@/types';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -152,9 +154,10 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
     ? (raw.thickness as Thickness)
     : '보통';
 
-  const category = (raw.category === '의류' || raw.category === '액세서리')
-    ? raw.category
-    : '의류';
+  const VALID_FASHION_CATS = Object.keys(FASHION_GROUP) as FashionCategory[];
+  const category: FashionCategory = VALID_FASHION_CATS.includes(raw.category as FashionCategory)
+    ? (raw.category as FashionCategory)
+    : '상의';
 
   const weatherTags = (raw.weatherTags ?? [])
     .filter((t): t is WeatherTag => VALID_WEATHER_TAGS.includes(t as WeatherTag));

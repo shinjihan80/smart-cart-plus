@@ -20,7 +20,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // 이메일에서 추출할 주문 정보 타입
 interface EmailOrderItem {
   name:     string;
-  category: '식품' | '의류' | '액세서리';
+  category: string;
   store:    string;
   price:    number;
   date:     string;

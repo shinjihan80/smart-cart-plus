@@ -78,47 +78,67 @@ export const foodItems: FoodItem[] = [
 ];
 
 // ────────────────────────────────────────────────
-// B. 의류 / 액세서리 Mock Data
+// B. 패션 Mock Data (세분화된 카테고리)
 // ────────────────────────────────────────────────
 export const clothingItems: ClothingItem[] = [
+  // ── 의류 ──
   {
-    id:          'c1',
-    name:        'Mango 리넨 혼방 원피스',
-    category:    '의류',
-    size:        'M',
-    thickness:   '얇음',
-    material:    '리넨',
-    weatherTags: ['봄', '여름'],
-    colorFamily: '어스톤',
+    id: 'c1', name: 'Mango 리넨 혼방 원피스',
+    category: '원피스', size: 'M', thickness: '얇음', material: '리넨',
+    weatherTags: ['봄', '여름'], colorFamily: '어스톤',
   },
   {
-    id:          'c2',
-    name:        'Pandora 로즈골드 링',
-    category:    '액세서리',
-    size:        '52',
-    thickness:   '보통',
-    material:    '로즈골드',
+    id: 'c3', name: '유니클로 기모 후리스',
+    category: '아우터', size: 'L', thickness: '두꺼움', material: '기모',
+    weatherTags: ['가을', '겨울'], colorFamily: '어스톤',
+  },
+  {
+    id: 'c5', name: '무인양품 옥스포드 셔츠',
+    category: '상의', size: 'M', thickness: '보통', material: '면',
+    weatherTags: ['봄', '가을'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c6', name: '리바이스 501 데님',
+    category: '하의', size: '32', thickness: '보통', material: '데님',
+    weatherTags: ['봄', '가을'], colorFamily: '모노톤',
+  },
+  // ── 신발 ──
+  {
+    id: 'c4', name: 'Nike 에어포스 1',
+    category: '신발', size: '260', thickness: '보통', material: '가죽',
+    weatherTags: ['봄', '가을'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c7', name: '버켄스탁 아리조나',
+    category: '신발', size: '250', thickness: '얇음', material: '코르크',
+    weatherTags: ['여름'], colorFamily: '어스톤',
+  },
+  // ── 가방 ──
+  {
+    id: 'c8', name: '캉골 미니 크로스백',
+    category: '가방', size: 'Free', thickness: '보통', material: '나일론',
+    weatherTags: ['봄', '여름'], colorFamily: '파스텔',
+  },
+  // ── 액세서리 ──
+  {
+    id: 'c2', name: 'Pandora 로즈골드 링',
+    category: '주얼리', size: '52', thickness: '보통', material: '로즈골드',
     colorFamily: '메탈릭',
   },
   {
-    id:          'c3',
-    name:        '유니클로 기모 후리스',
-    category:    '의류',
-    size:        'L',
-    thickness:   '두꺼움',
-    material:    '기모',
-    weatherTags: ['가을', '겨울'],
-    colorFamily: '어스톤',
+    id: 'c9', name: 'New Era 볼캡',
+    category: '모자', size: 'Free', thickness: '보통', material: '면',
+    weatherTags: ['여름'], colorFamily: '모노톤',
   },
   {
-    id:          'c4',
-    name:        'Nike 에어포스 1',
-    category:    '의류',
-    size:        '260',
-    thickness:   '보통',
-    material:    '가죽',
-    weatherTags: ['봄', '가을'],
-    colorFamily: '모노톤',
+    id: 'c10', name: 'Ray-Ban 웨이페어러',
+    category: '선글라스', size: 'Free', thickness: '보통', material: '아세테이트',
+    weatherTags: ['여름', '맑음'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c11', name: '무지 울 머플러',
+    category: '스카프', size: 'Free', thickness: '두꺼움', material: '울',
+    weatherTags: ['가을', '겨울'], colorFamily: '어스톤',
   },
 ];
 

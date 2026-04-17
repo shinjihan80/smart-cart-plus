@@ -33,17 +33,50 @@ export interface FoodItem {
 // ────────────────────────────────────────────────
 // B. 패션 / 의류 (Clothing)
 // ────────────────────────────────────────────────
-export interface ClothingItem {
-  id:        string;
-  name:      string;
-  category:  '의류' | '액세서리';
-  size:      string;      // 'S' | 'M' | 'L' | 'Free' | '52' 등 자유형
-  thickness: Thickness;
-  material:  string;      // 예: '리넨', '면', '기모', '로즈골드'
 
-  // ── 확장 예약 필드 (날씨 기반 스타일링 Phase 2) ──
-  weatherTags?:  WeatherTag[]; // 날씨 API 연동 코디 추천용
-  colorFamily?:  string;       // 예: '파스텔', '어스톤', '비비드'
+/** 세분화된 패션 카테고리 */
+export type FashionCategory =
+  | '상의' | '하의' | '아우터' | '원피스'  // 의류
+  | '신발'                                // 슈즈
+  | '가방'                                // 백
+  | '모자' | '스카프' | '안경' | '선글라스' | '시계' | '주얼리' | '기타 액세서리'; // 액세서리
+
+/** 카테고리 그룹 (GNB 배지, 통계 등에서 사용) */
+export type FashionGroup = '의류' | '신발' | '가방' | '액세서리';
+
+export const FASHION_GROUP: Record<FashionCategory, FashionGroup> = {
+  상의:        '의류',
+  하의:        '의류',
+  아우터:      '의류',
+  원피스:      '의류',
+  신발:        '신발',
+  가방:        '가방',
+  모자:        '액세서리',
+  스카프:      '액세서리',
+  안경:        '액세서리',
+  선글라스:    '액세서리',
+  시계:        '액세서리',
+  주얼리:      '액세서리',
+  '기타 액세서리': '액세서리',
+};
+
+export const FASHION_EMOJI: Record<FashionCategory, string> = {
+  상의: '👕', 하의: '👖', 아우터: '🧥', 원피스: '👗',
+  신발: '👟', 가방: '👜',
+  모자: '🧢', 스카프: '🧣', 안경: '👓', 선글라스: '🕶️',
+  시계: '⌚', 주얼리: '💍', '기타 액세서리': '✨',
+};
+
+export interface ClothingItem {
+  id:            string;
+  name:          string;
+  category:      FashionCategory;
+  size:          string;
+  thickness:     Thickness;
+  material:      string;
+
+  weatherTags?:  WeatherTag[];
+  colorFamily?:  string;
 }
 
 // ────────────────────────────────────────────────
@@ -82,7 +115,7 @@ export type CartItem = FoodItem | EnrichedClothingItem;
 
 // 타입 가드
 export const isFoodItem     = (item: CartItem): item is FoodItem     => item.category === '식품';
-export const isClothingItem = (item: CartItem): item is ClothingItem => item.category === '의류' || item.category === '액세서리';
+export const isClothingItem = (item: CartItem): item is ClothingItem => item.category !== '식품';
 
 // Phase 3.5 신규: Vision 분석으로 추출된 풍부한 패션 데이터 여부 확인
 export const isEnrichedClothingItem = (item: CartItem): item is EnrichedClothingItem =>

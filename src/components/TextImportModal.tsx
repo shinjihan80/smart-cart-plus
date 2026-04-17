@@ -404,7 +404,7 @@ function StepConfirm({
         {items.map((item) => (
           <div key={item.id} className="rounded-2xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2">
             <span className="mt-0.5 text-base shrink-0">
-              {isFoodItem(item) ? '🥦' : item.category === '액세서리' ? '💍' : '👗'}
+              {isFoodItem(item) ? '🥦' : '👗'}
             </span>
             <div className="flex-1 min-w-0">
               <input
