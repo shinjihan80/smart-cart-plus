@@ -25,11 +25,13 @@ function SwipeFoodCard({
   dDay,
   index,
   onDiscard,
+  onUpdate,
 }: {
   item: FoodItem;
   dDay: number;
   index: number;
   onDiscard: (id: string) => void;
+  onUpdate: (id: string, updates: Partial<FoodItem>) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const x = useMotionValue(0);
@@ -136,23 +138,39 @@ function SwipeFoodCard({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-3 mt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-[10px]">
+              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
+                {/* 이름 수정 */}
                 <div>
-                  <span className="text-gray-400">구매일</span>
-                  <p className="text-gray-700 font-medium tabular-nums mt-0.5">{item.purchaseDate}</p>
+                  <span className="text-gray-400">상품명</span>
+                  <input
+                    type="text"
+                    defaultValue={item.name}
+                    onBlur={(e) => {
+                      const v = e.target.value.trim();
+                      if (v && v !== item.name) onUpdate(item.id, { name: v });
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-gray-50 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
+                  />
                 </div>
-                <div>
-                  <span className="text-gray-400">보관 만료</span>
-                  <p className={`font-medium tabular-nums mt-0.5 ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
-                    {(() => {
-                      const d = new Date(item.purchaseDate);
-                      d.setDate(d.getDate() + item.baseShelfLifeDays);
-                      return d.toISOString().split('T')[0];
-                    })()}
-                  </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-gray-400">구매일</span>
+                    <p className="text-gray-700 font-medium tabular-nums mt-0.5">{item.purchaseDate}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">보관 만료</span>
+                    <p className={`font-medium tabular-nums mt-0.5 ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
+                      {(() => {
+                        const d = new Date(item.purchaseDate);
+                        d.setDate(d.getDate() + item.baseShelfLifeDays);
+                        return d.toISOString().split('T')[0];
+                      })()}
+                    </p>
+                  </div>
                 </div>
                 {item.nutritionFacts && (
-                  <>
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <span className="text-gray-400">칼로리</span>
                       <p className="text-gray-700 font-medium tabular-nums mt-0.5">{item.nutritionFacts.calories} kcal</p>
@@ -163,7 +181,7 @@ function SwipeFoodCard({
                         단{item.nutritionFacts.protein} · 지{item.nutritionFacts.fat} · 탄{item.nutritionFacts.carbs}g
                       </p>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </motion.div>
@@ -217,7 +235,7 @@ type StorageFilter = '전체' | StorageType;
 type SortKey = 'dDay' | 'name';
 
 export default function FridgePage() {
-  const { items: allItems, removeItem, undoRemove } = useCart();
+  const { items: allItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState<StorageFilter>('전체');
@@ -337,6 +355,7 @@ export default function FridgePage() {
               dDay={item.dDay}
               index={index}
               onDiscard={handleDiscard}
+              onUpdate={updateItem}
             />
           ))}
         </AnimatePresence>

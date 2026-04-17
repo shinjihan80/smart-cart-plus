@@ -20,6 +20,7 @@ interface CartContextValue {
   items:           CartItem[];
   archived:        CartItem[];
   addItems:        (newItems: CartItem[]) => { added: number; skipped: number };
+  updateItem:      (id: string, updates: Partial<CartItem>) => void;
   removeItem:      (id: string) => void;
   undoRemove:      () => void;
   resetData:       () => void;
@@ -95,6 +96,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return { added, skipped };
   }, []);
 
+  const updateItem = useCallback((id: string, updates: Partial<CartItem>) => {
+    setItems((prev) => prev.map((item) =>
+      item.id === id ? { ...item, ...updates } as CartItem : item,
+    ));
+  }, []);
+
   const removeItem = useCallback((id: string) => {
     setItems((prev) => {
       const index = prev.findIndex((i) => i.id === id);
@@ -160,7 +167,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider value={{
-      items, archived, addItems, removeItem, undoRemove, resetData, archiveExpired,
+      items, archived, addItems, updateItem, removeItem, undoRemove, resetData, archiveExpired,
       discardCount, discardHistory,
     }}>
       {children}

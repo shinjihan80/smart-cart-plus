@@ -88,9 +88,9 @@ function OutfitSection({ items }: { items: ClothingItem[] }) {
 
 // ── 스와이프 의류 카드 ────────────────────────────────────────────────────────
 function SwipeClothingCard({
-  item, index, onRemove,
+  item, index, onRemove, onUpdate,
 }: {
-  item: ClothingItem; index: number; onRemove: (id: string) => void;
+  item: ClothingItem; index: number; onRemove: (id: string) => void; onUpdate: (id: string, updates: Partial<ClothingItem>) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const x = useMotionValue(0);
@@ -173,7 +173,22 @@ function SwipeClothingCard({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-3 mt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-[10px]">
+              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
+                {/* 이름 수정 */}
+                <div>
+                  <span className="text-gray-400">상품명</span>
+                  <input
+                    type="text"
+                    defaultValue={item.name}
+                    onBlur={(e) => {
+                      const v = e.target.value.trim();
+                      if (v && v !== item.name) onUpdate(item.id, { name: v });
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-gray-50 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                 <div>
                   <span className="text-gray-400">카테고리</span>
                   <p className="text-gray-700 font-medium mt-0.5">{item.category}</p>
@@ -204,6 +219,7 @@ function SwipeClothingCard({
                     <p className="text-gray-700 font-medium mt-0.5">{item.weatherTags.join(', ')}</p>
                   </div>
                 )}
+                </div>
               </div>
             </motion.div>
           )}
@@ -219,7 +235,7 @@ type ClosetSort = 'name' | 'thickness';
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
 
 export default function ClosetPage() {
-  const { items: allItems, removeItem, undoRemove } = useCart();
+  const { items: allItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<CategoryFilter>('전체');
@@ -366,6 +382,7 @@ export default function ClosetPage() {
               item={item}
               index={index}
               onRemove={handleRemove}
+              onUpdate={updateItem}
             />
           ))}
         </AnimatePresence>
