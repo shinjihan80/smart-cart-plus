@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingAdd from "@/components/layout/FloatingAdd";
+import PageTransition from "@/components/layout/PageTransition";
 import Providers from "@/components/layout/Providers";
 
 const geistMono = Geist_Mono({
@@ -28,7 +29,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gray-50">
         <Providers>
           <main className="flex-1 pb-20 max-w-md mx-auto w-full">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </main>
           <FloatingAdd />
           <BottomNav />

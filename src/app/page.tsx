@@ -392,6 +392,9 @@ export default function HomePage() {
               <Sparkles size={10} /> {getGreeting()}
             </p>
           </div>
+          <span className="text-[10px] text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
+            {items.length}개 관리 중
+          </span>
         </div>
       </header>
 

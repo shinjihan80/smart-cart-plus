@@ -3,21 +3,30 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Refrigerator, Shirt, User } from 'lucide-react';
-
-const NAV_ITEMS = [
-  { href: '/',        label: '홈',       icon: Home },
-  { href: '/fridge',  label: '냉장고',   icon: Refrigerator },
-  { href: '/closet',  label: '옷장',     icon: Shirt },
-  { href: '/mypage',  label: '마이페이지', icon: User },
-] as const;
+import { useCart } from '@/context/CartContext';
+import { isFoodItem, isClothingItem } from '@/types';
+import { calcRemainingDays } from '@/components/FoodTags';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { items } = useCart();
+
+  const urgentCount   = items.filter(isFoodItem).filter(
+    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
+  ).length;
+  const clothingCount = items.filter(isClothingItem).length;
+
+  const NAV_ITEMS = [
+    { href: '/',       label: '홈',       icon: Home,         badge: 0 },
+    { href: '/fridge', label: '냉장고',   icon: Refrigerator, badge: urgentCount },
+    { href: '/closet', label: '옷장',     icon: Shirt,        badge: clothingCount },
+    { href: '/mypage', label: '마이',     icon: User,         badge: 0 },
+  ] as const;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm border-t border-gray-100">
       <div className="max-w-md mx-auto flex">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, label, icon: Icon, badge }) => {
           const isActive = pathname === href;
           return (
             <Link
@@ -27,7 +36,16 @@ export default function BottomNav() {
                 isActive ? 'text-brand-primary' : 'text-gray-400'
               }`}
             >
-              <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} />
+              <span className="relative">
+                <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} />
+                {badge > 0 && (
+                  <span className={`absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-[9px] font-bold flex items-center justify-center ${
+                    href === '/fridge' ? 'bg-brand-warning' : 'bg-brand-primary'
+                  }`}>
+                    {badge}
+                  </span>
+                )}
+              </span>
               <span className="text-[10px] font-medium">{label}</span>
             </Link>
           );
