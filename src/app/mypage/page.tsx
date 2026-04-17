@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { ChevronRight } from 'lucide-react';
+import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -105,11 +106,21 @@ export default function MyPage() {
     else showToast('아카이브할 만료 식품이 없어요.');
   }
 
+  function handleExportJSON() {
+    exportAsJSON(items);
+    showToast('JSON 파일로 내보냈어요.');
+  }
+
+  function handleExportCSV() {
+    exportAsCSV(items);
+    showToast('CSV 파일로 내보냈어요.');
+  }
+
   const menuItems = [
     { label: '만료 식품 정리',   emoji: '📦', desc: '보관 기한 +7일 초과 항목 아카이브', action: handleArchive },
-    { label: '패밀리 관리',     emoji: '👨‍👩‍👧', desc: '가족 구성원 추가 및 공유', action: undefined },
-    { label: '데이터 초기화',   emoji: '💾', desc: '샘플 데이터로 복원', action: handleReset },
-    { label: '고객센터',        emoji: '💬', desc: '문의 및 피드백', action: undefined },
+    { label: 'JSON 내보내기',   emoji: '📄', desc: '전체 데이터를 JSON 파일로 다운로드', action: handleExportJSON },
+    { label: 'CSV 내보내기',    emoji: '📊', desc: '전체 데이터를 CSV 파일로 다운로드', action: handleExportCSV },
+    { label: '데이터 초기화',   emoji: '🔄', desc: '샘플 데이터로 복원', action: handleReset },
   ];
 
   return (
@@ -432,6 +443,18 @@ export default function MyPage() {
             <div className="flex justify-between">
               <span>Vision 파서</span>
               <span className="text-gray-600 font-medium">통합 Multimodal</span>
+            </div>
+            <div className="flex justify-between">
+              <span>데이터 저장</span>
+              <span className="text-gray-600 font-medium">로컬 (localStorage)</span>
+            </div>
+            <div className="flex justify-between">
+              <span>식품 카테고리</span>
+              <span className="text-gray-600 font-medium tabular-nums">11종</span>
+            </div>
+            <div className="flex justify-between">
+              <span>패션 카테고리</span>
+              <span className="text-gray-600 font-medium tabular-nums">13종</span>
             </div>
           </div>
         </motion.div>
