@@ -342,6 +342,40 @@ function UrgentAlert({ items }: { items: import('@/types').CartItem[] }) {
   );
 }
 
+// ── 한눈 요약 바 ─────────────────────────────────────────────────────────────
+function QuickStats({ items }: { items: import('@/types').CartItem[] }) {
+  const food    = items.filter(isFoodItem).length;
+  const clothes = items.filter(isClothingItem).length;
+  const urgent  = items.filter(isFoodItem).filter(
+    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
+  ).length;
+
+  const stats = [
+    { label: '전체',  value: items.length, color: 'text-gray-900' },
+    { label: '식품',  value: food,         color: 'text-sky-600' },
+    { label: '의류',  value: clothes,      color: 'text-brand-primary' },
+    { label: '임박',  value: urgent,       color: urgent > 0 ? 'text-brand-warning' : 'text-gray-900' },
+  ];
+
+  return (
+    <div className="col-span-2">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springTransition, delay: 0.05 }}
+        className="flex justify-between px-2"
+      >
+        {stats.map((s) => (
+          <div key={s.label} className="flex flex-col items-center gap-0.5">
+            <span className={`text-xl font-extrabold tabular-nums ${s.color}`}>{s.value}</span>
+            <span className="text-[9px] text-gray-400 font-medium">{s.label}</span>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
 // ── [D] 달별 소비 내역 (Full Width) ───────────────────────────────────────────
 function MonthlyHistory({ selectedMonth, onChangeMonth }: { selectedMonth: number; onChangeMonth: (m: number) => void }) {
   const data = MONTHLY_DATA.find((m) => m.month === selectedMonth) ?? MONTHLY_DATA[MONTHLY_DATA.length - 1];
@@ -447,6 +481,7 @@ export default function HomePage() {
       ) : (
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <UrgentAlert items={items} />
+          <QuickStats items={items} />
           <DailyBriefing items={items} />
           <ClosetSummary items={items} />
           <MonthlySpending />

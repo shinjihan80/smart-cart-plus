@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { isEnrichedClothingItem } from '@/types';
 import { isClothingItem, type ClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -32,6 +33,7 @@ function SwipeClothingCard({
 }: {
   item: ClothingItem; index: number; onRemove: (id: string) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-120, -30, 0],
@@ -68,36 +70,85 @@ function SwipeClothingCard({
         dragElastic={0.12}
         style={{ x, backgroundColor: bgColor, ...CARD_SHADOW }}
         onDragEnd={handleDragEnd}
-        className="rounded-[32px] border border-gray-50 p-5 flex items-center gap-4 relative z-10 cursor-grab"
+        onClick={() => setExpanded(!expanded)}
+        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
-        <div className="shrink-0 w-14 text-center">
-          <p className="text-2xl font-extrabold tracking-tight text-gray-900">{item.size}</p>
-          <p className="text-[9px] text-gray-400 mt-0.5">사이즈</p>
+        <div className="flex items-center gap-4">
+          <div className="shrink-0 w-14 text-center">
+            <p className="text-2xl font-extrabold tracking-tight text-gray-900">{item.size}</p>
+            <p className="text-[9px] text-gray-400 mt-0.5">사이즈</p>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm">{CATEGORY_EMOJI[item.category] ?? '📦'}</span>
+              <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+            </div>
+            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
+                <ThickIcon size={10} />
+                {item.thickness}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
+                {item.material}
+              </span>
+              {item.weatherTags?.map((tag) => (
+                <span
+                  key={tag}
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm">{CATEGORY_EMOJI[item.category] ?? '📦'}</span>
-            <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-          </div>
-          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-            <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
-              <ThickIcon size={10} />
-              {item.thickness}
-            </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
-              {item.material}
-            </span>
-            {item.weatherTags?.map((tag) => (
-              <span
-                key={tag}
-                className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
+        {/* 펼침 상세 */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-3 mt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-[10px]">
+                <div>
+                  <span className="text-gray-400">카테고리</span>
+                  <p className="text-gray-700 font-medium mt-0.5">{item.category}</p>
+                </div>
+                <div>
+                  <span className="text-gray-400">소재</span>
+                  <p className="text-gray-700 font-medium mt-0.5">{item.material}</p>
+                </div>
+                <div>
+                  <span className="text-gray-400">두께</span>
+                  <p className="text-gray-700 font-medium mt-0.5">{item.thickness}</p>
+                </div>
+                {item.colorFamily && (
+                  <div>
+                    <span className="text-gray-400">컬러 패밀리</span>
+                    <p className="text-gray-700 font-medium mt-0.5">{item.colorFamily}</p>
+                  </div>
+                )}
+                {isEnrichedClothingItem(item) && item.washingTip && (
+                  <div className="col-span-2">
+                    <span className="text-gray-400">세탁 방법</span>
+                    <p className="text-gray-700 font-medium mt-0.5">{item.washingTip}</p>
+                  </div>
+                )}
+                {item.weatherTags && item.weatherTags.length > 0 && (
+                  <div className="col-span-2">
+                    <span className="text-gray-400">추천 시즌</span>
+                    <p className="text-gray-700 font-medium mt-0.5">{item.weatherTags.join(', ')}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );
