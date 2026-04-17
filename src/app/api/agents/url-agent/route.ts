@@ -54,6 +54,20 @@ function extractTextFromHtml(html: string): string {
     .slice(0, 6000); // 토큰 초과 방지
 }
 
+/** HTML에서 og:image 또는 대표 이미지 URL 추출 */
+function extractImageFromHtml(html: string): string | null {
+  // 1. og:image
+  const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+    ?? html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+  if (ogMatch?.[1]) return ogMatch[1];
+
+  // 2. twitter:image
+  const twMatch = html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
+  if (twMatch?.[1]) return twMatch[1];
+
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({})) as Record<string, unknown>;
@@ -77,6 +91,7 @@ export async function POST(req: NextRequest) {
 
     // 페이지 내용 가져오기
     let pageText: string;
+    let pageImageUrl: string | null = null;
     try {
       const response = await fetch(parsedUrl.toString(), {
         headers: {
@@ -96,6 +111,7 @@ export async function POST(req: NextRequest) {
 
       const html = await response.text();
       pageText   = extractTextFromHtml(html);
+      pageImageUrl = extractImageFromHtml(html);
 
       if (pageText.length < 50) {
         return NextResponse.json(
@@ -126,6 +142,15 @@ export async function POST(req: NextRequest) {
     const outputCheck = validateOutput(result, 'parser');
     if (!outputCheck.valid) {
       return NextResponse.json({ error: outputCheck.error }, { status: 400 });
+    }
+
+    // 페이지 이미지를 결과에 첨부
+    const res = result as Record<string, unknown>;
+    if (pageImageUrl && Array.isArray(res.items)) {
+      res.items = (res.items as Record<string, unknown>[]).map((item) => ({
+        ...item,
+        imageUrl: pageImageUrl,
+      }));
     }
 
     return NextResponse.json(result);

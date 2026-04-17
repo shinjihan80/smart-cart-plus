@@ -364,12 +364,12 @@ export default function ClosetPage() {
     showToast(`"${name}" 삭제됐어요.`, undoRemove);
   }
 
-  const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string }[] = [
-    { name: '반팔 티셔츠', category: '상의',   size: 'M',    material: '면' },
-    { name: '청바지',      category: '하의',   size: '32',   material: '데님' },
-    { name: '운동화',      category: '신발',   size: '260',  material: '메쉬' },
-    { name: '에코백',      category: '가방',   size: 'Free', material: '캔버스' },
-    { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면' },
+  const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string; img: string }[] = [
+    { name: '반팔 티셔츠', category: '상의',   size: 'M',    material: '면',     img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop' },
+    { name: '청바지',      category: '하의',   size: '32',   material: '데님',   img: 'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=300&h=300&fit=crop' },
+    { name: '운동화',      category: '신발',   size: '260',  material: '메쉬',   img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop' },
+    { name: '에코백',      category: '가방',   size: 'Free', material: '캔버스', img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&h=300&fit=crop' },
+    { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면', img: 'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=300&h=300&fit=crop' },
   ];
 
   function handleQuickAdd(preset: typeof QUICK_ADD_FASHION[number]) {
@@ -380,6 +380,7 @@ export default function ClosetPage() {
       size: preset.size,
       thickness: '보통' as const,
       material: preset.material,
+      imageUrl: preset.img,
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
