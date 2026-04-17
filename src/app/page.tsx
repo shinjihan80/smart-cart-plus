@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { foodItems, clothingItems, mockCartItems } from '@/data/mockData';
 import { isFoodItem, isClothingItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
-import TextImportModal from '@/components/TextImportModal';
-import { ChevronRight, Plus, Camera, Sparkles } from 'lucide-react';
+import { ChevronRight, Sparkles } from 'lucide-react';
 
 // ── 시간대 인사말 ────────────────────────────────────────────────────────────
 function getGreeting(): string {
@@ -163,10 +162,9 @@ function MonthlySpending() {
 
 // ── [C] 냉장고 카루셀 카드 (스와이프) ─────────────────────────────────────────
 function FridgeCard({
-  name, dDay, storageType, emoji, onDiscard, onReorder,
+  name, dDay, storageType, emoji,
 }: {
   name: string; dDay: number; storageType: string; emoji: string;
-  onDiscard: () => void; onReorder: () => void;
 }) {
   const x = useMotionValue(0);
   const bgColor = useTransform(
@@ -179,11 +177,6 @@ function FridgeCard({
   const isUrgent  = dDay <= 2;
   const isWarning = dDay <= 5;
 
-  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -60) onDiscard();
-    else if (info.offset.x > 60) onReorder();
-  }
-
   return (
     <div className="relative shrink-0 w-[140px] h-[140px] rounded-3xl overflow-hidden">
       <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
@@ -195,7 +188,6 @@ function FridgeCard({
         dragConstraints={{ left: -100, right: 100 }}
         dragElastic={0.15}
         style={{ x, backgroundColor: bgColor }}
-        onDragEnd={handleDragEnd}
         className="relative z-10 w-full h-full rounded-3xl border border-gray-100 p-4 flex flex-col justify-between cursor-grab"
       >
         <span className="text-2xl">{emoji}</span>
@@ -215,7 +207,7 @@ function FridgeCard({
   );
 }
 
-function FridgeCarousel({ onToast }: { onToast: (msg: string) => void }) {
+function FridgeCarousel() {
   const sorted = foodItems
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
     .sort((a, b) => a.dDay - b.dDay);
@@ -242,8 +234,6 @@ function FridgeCarousel({ onToast }: { onToast: (msg: string) => void }) {
               dDay={item.dDay}
               storageType={item.storageType}
               emoji={EMOJI[item.storageType] ?? '📦'}
-              onDiscard={() => onToast(`"${item.name}" 소진 처리됐어요.`)}
-              onReorder={() => onToast(`"${item.name}" 재구매 목록에 추가했어요!`)}
             />
           ))}
         </div>
@@ -304,71 +294,14 @@ function RecentOrders() {
   );
 }
 
-// ── 빈 상태 온보딩 ────────────────────────────────────────────────────────────
-function EmptyDashboard({ onAdd }: { onAdd: () => void }) {
-  return (
-    <div className="px-4 py-5">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={springTransition}
-        className={`${CARD} flex flex-col items-center text-center py-12`}
-        style={CARD_SHADOW}
-      >
-        <div className="text-5xl mb-4">📸</div>
-        <h2 className="text-base font-bold text-gray-900 mb-1">
-          첫 상품을 추가해보세요
-        </h2>
-        <p className="text-sm text-gray-400 mb-5 leading-relaxed max-w-[240px]">
-          식품 라벨이나 의류 사이즈표 사진을 찍으면<br />
-          AI가 자동으로 정보를 분석해요.
-        </p>
-        <button
-          onClick={onAdd}
-          className="flex items-center gap-2 rounded-2xl bg-brand-primary hover:opacity-90 active:scale-95 transition-all text-white text-sm font-semibold px-5 py-2.5"
-        >
-          <Camera size={16} />
-          사진으로 추가하기
-        </button>
-      </motion.div>
-    </div>
-  );
-}
-
-// ── FAB (플로팅 액션 버튼) ────────────────────────────────────────────────────
-function FloatingAddButton({ onClick }: { onClick: () => void }) {
-  return (
-    <motion.button
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ ...springTransition, delay: 0.5 }}
-      whileHover={{ scale: 1.08 }}
-      whileTap={{ scale: 0.92 }}
-      onClick={onClick}
-      className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/30"
-    >
-      <Plus size={24} strokeWidth={2.5} />
-    </motion.button>
-  );
-}
-
 // ── 홈 대시보드 ───────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const [ready, setReady]         = useState(false);
-  const [toast, setToast]         = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-
-  const hasData = mockCartItems.length > 0;
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
     return () => clearTimeout(t);
   }, []);
-
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
-  }
 
   return (
     <div>
@@ -387,49 +320,15 @@ export default function HomePage() {
       {/* 벤토 그리드 */}
       {!ready ? (
         <Skeleton />
-      ) : hasData ? (
+      ) : (
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <DailyBriefing />
           <ClosetSummary />
           <MonthlySpending />
-          <FridgeCarousel onToast={showToast} />
+          <FridgeCarousel />
           <RecentOrders />
         </div>
-      ) : (
-        <EmptyDashboard onAdd={() => setShowModal(true)} />
       )}
-
-      {/* FAB */}
-      {ready && hasData && (
-        <FloatingAddButton onClick={() => setShowModal(true)} />
-      )}
-
-      {/* 모달 */}
-      {showModal && (
-        <TextImportModal
-          onClose={() => setShowModal(false)}
-          onImport={(items) => {
-            showToast(`${items.length}개 상품이 추가됐어요!`);
-          }}
-        />
-      )}
-
-      {/* 토스트 */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            key="toast"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-xs w-full px-4"
-          >
-            <div className="rounded-2xl bg-gray-900 text-white text-sm font-medium px-4 py-3 text-center shadow-lg">
-              {toast}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
+import FloatingAdd from "@/components/layout/FloatingAdd";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -27,6 +28,7 @@ export default function RootLayout({
         <main className="flex-1 pb-20 max-w-md mx-auto w-full">
           {children}
         </main>
+        <FloatingAdd />
         <BottomNav />
       </body>
     </html>
