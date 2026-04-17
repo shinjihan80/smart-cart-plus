@@ -104,17 +104,25 @@ function SwipeClothingCard({
 }
 
 type CategoryFilter = '전체' | '의류' | '액세서리';
+type ClosetSort = 'name' | 'thickness';
+
+const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
 
 export default function ClosetPage() {
   const { items: allItems, removeItem } = useCart();
   const { showToast } = useToast();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<CategoryFilter>('전체');
+  const [sortBy, setSortBy] = useState<ClosetSort>('name');
 
   const allClothing = allItems.filter(isClothingItem);
   const items = allClothing
     .filter((i) => filter === '전체' || i.category === filter)
-    .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()));
+    .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => sortBy === 'name'
+      ? a.name.localeCompare(b.name)
+      : THICKNESS_ORDER[a.thickness] - THICKNESS_ORDER[b.thickness]
+    );
 
   const clothesCount   = allClothing.filter((c) => c.category === '의류').length;
   const accessoryCount = allClothing.filter((c) => c.category === '액세서리').length;
@@ -184,20 +192,28 @@ export default function ClosetPage() {
             />
           </div>
         </div>
-        <div className="flex gap-1.5">
-          {FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
-                filter === key
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex items-center justify-between">
+          <div className="flex gap-1.5">
+            {FILTERS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
+                  filter === key
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setSortBy(sortBy === 'name' ? 'thickness' : 'name')}
+            className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
+          >
+            {sortBy === 'name' ? '🔤 이름순' : '🧥 두께순'}
+          </button>
         </div>
 
         {/* 아이템 리스트 (스와이프 삭제) */}

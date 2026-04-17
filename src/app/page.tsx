@@ -112,25 +112,37 @@ function Widget({
 }
 
 // ── [A] 데일리 브리핑 ─────────────────────────────────────────────────────────
+function getBriefing(): { emoji: string; headline: string; tip: string } {
+  const h = new Date().getHours();
+  if (h < 6)  return { emoji: '🌙', headline: '새벽 공기가 상쾌해요',        tip: '따뜻한 차 한 잔 어떠세요?' };
+  if (h < 9)  return { emoji: '🌅', headline: '현재 16도, 선선한 아침이에요', tip: '얇은 겉옷을 챙기세요.' };
+  if (h < 12) return { emoji: '🌤️', headline: '현재 18도, 바람이 차가워요',  tip: '얇은 가디건을 챙기세요.' };
+  if (h < 15) return { emoji: '☀️', headline: '현재 22도, 따뜻한 오후에요',  tip: '자외선 차단에 신경 쓰세요.' };
+  if (h < 18) return { emoji: '🌤️', headline: '현재 20도, 구름이 살짝 껴요', tip: '우산은 필요 없을 거예요.' };
+  if (h < 21) return { emoji: '🌆', headline: '현재 17도, 해가 지고 있어요', tip: '저녁엔 가디건이 좋아요.' };
+  return           { emoji: '🌙', headline: '현재 14도, 쌀쌀한 밤이에요',  tip: '따뜻하게 입으세요.' };
+}
+
 function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
   const clothes = items.filter(isClothingItem);
   const recommend = clothes.find(
     (c) => c.weatherTags?.includes('봄') || c.weatherTags?.includes('여름'),
   );
+  const briefing = getBriefing();
 
   return (
     <Link href="/closet" className="col-span-2 block">
       <Widget index={0} className="relative overflow-hidden min-h-[130px]">
         <div className="absolute -right-4 -top-2 opacity-30 select-none pointer-events-none">
-          <div className="text-[80px] leading-none">🌤️</div>
+          <div className="text-[80px] leading-none">{briefing.emoji}</div>
         </div>
         <div className="relative z-10">
           <p className="text-xs text-gray-400 font-medium mb-2">오늘의 브리핑</p>
           <h2 className="text-lg font-bold text-gray-900 leading-snug">
-            현재 18도, 바람이 차가워요 🌬️
+            {briefing.headline}
           </h2>
           <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-            얇은 가디건을 챙기세요.
+            {briefing.tip}
             {recommend && (
               <>
                 {' '}추천: <span className="font-semibold text-brand-primary">{recommend.name}</span>

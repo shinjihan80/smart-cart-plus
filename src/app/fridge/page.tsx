@@ -105,20 +105,22 @@ function SwipeFoodCard({
 }
 
 type StorageFilter = '전체' | StorageType;
+type SortKey = 'dDay' | 'name';
 
 export default function FridgePage() {
   const { items: allItems, removeItem } = useCart();
   const { showToast } = useToast();
   const [search, setSearch]   = useState('');
   const [filter, setFilter]   = useState<StorageFilter>('전체');
+  const [sortBy, setSortBy]   = useState<SortKey>('dDay');
 
   const allFood = allItems.filter(isFoodItem)
-    .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
-    .sort((a, b) => a.dDay - b.dDay);
+    .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }));
 
   const items = allFood
     .filter((i) => filter === '전체' || i.storageType === filter)
-    .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()));
+    .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => sortBy === 'dDay' ? a.dDay - b.dDay : a.name.localeCompare(b.name));
 
   const urgentCount = allFood.filter((i) => i.dDay <= 3).length;
   const coldCount   = allFood.filter((i) => i.storageType === '냉장').length;
@@ -190,20 +192,28 @@ export default function FridgePage() {
             />
           </div>
         </div>
-        <div className="flex gap-1.5">
-          {FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
-                filter === key
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex items-center justify-between">
+          <div className="flex gap-1.5">
+            {FILTERS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
+                  filter === key
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setSortBy(sortBy === 'dDay' ? 'name' : 'dDay')}
+            className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
+          >
+            {sortBy === 'dDay' ? '📅 임박순' : '🔤 이름순'}
+          </button>
         </div>
 
         {/* 아이템 리스트 (스와이프 삭제) */}
