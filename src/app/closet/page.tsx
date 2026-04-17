@@ -374,18 +374,38 @@ export default function ClosetPage() {
           </button>
         </div>
 
-        {/* 아이템 리스트 (스와이프 삭제) */}
-        <AnimatePresence mode="popLayout">
-          {items.map((item, index) => (
-            <SwipeClothingCard
-              key={item.id}
-              item={item}
-              index={index}
-              onRemove={handleRemove}
-              onUpdate={updateItem}
-            />
-          ))}
-        </AnimatePresence>
+        {/* 아이템 리스트 (카테고리별 그룹 or 필터 결과) */}
+        {filter === '전체' && !search ? (
+          <>
+            {(['의류', '액세서리'] as const).map((cat) => {
+              const group = items.filter((i) => i.category === cat);
+              if (group.length === 0) return null;
+              return (
+                <div key={cat}>
+                  <div className="flex items-center gap-2 mb-2 mt-1">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
+                      {CATEGORY_EMOJI[cat]} {cat} {group.length}
+                    </span>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
+                  <AnimatePresence mode="popLayout">
+                    <div className="flex flex-col gap-3">
+                      {group.map((item, index) => (
+                        <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} />
+                      ))}
+                    </div>
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {items.map((item, index) => (
+              <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} />
+            ))}
+          </AnimatePresence>
+        )}
 
         {items.length === 0 && allClothing.length > 0 && (
           <div className="text-center py-12 text-gray-400">
