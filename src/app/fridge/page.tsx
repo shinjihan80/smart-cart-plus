@@ -194,10 +194,14 @@ function SwipeFoodCard({
 
 // ── 레시피 추천 데이터 ────────────────────────────────────────────────────────
 const RECIPES = [
-  { id: 'r1', name: '두부 샐러드 볼',     emoji: '🥗', ingredients: ['두부', '샐러드'], time: '10분' },
-  { id: 'r2', name: '불고기 덮밥',        emoji: '🍚', ingredients: ['불고기'],        time: '15분' },
-  { id: 'r3', name: '감귤 스무디',        emoji: '🧃', ingredients: ['감귤'],          time: '5분' },
-  { id: 'r4', name: '토스트 & 두부 스크램블', emoji: '🍞', ingredients: ['식빵', '두부'],  time: '10분' },
+  { id: 'r1', name: '두부 샐러드 볼',       emoji: '🥗', ingredients: ['두부', '샐러드'], time: '10분' },
+  { id: 'r2', name: '불고기 덮밥',          emoji: '🍚', ingredients: ['불고기'],        time: '15분' },
+  { id: 'r3', name: '감귤 스무디',          emoji: '🧃', ingredients: ['감귤'],          time: '5분' },
+  { id: 'r4', name: '토스트 & 스크램블',     emoji: '🍞', ingredients: ['식빵', '달걀'],  time: '10분' },
+  { id: 'r5', name: '연어 포케 볼',         emoji: '🐟', ingredients: ['연어', '샐러드'], time: '15분' },
+  { id: 'r6', name: '김치찌개',             emoji: '🍲', ingredients: ['김치', '두부'],   time: '20분' },
+  { id: 'r7', name: '우유 시리얼',          emoji: '🥛', ingredients: ['우유'],          time: '3분' },
+  { id: 'r8', name: '라면 + 달걀',          emoji: '🍜', ingredients: ['라면', '달걀'],   time: '5분' },
 ];
 
 function RecipeSection({ foodNames }: { foodNames: string[] }) {
