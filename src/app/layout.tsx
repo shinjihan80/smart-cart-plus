@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
@@ -11,12 +11,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#4F46E5",
+};
+
 export const metadata: Metadata = {
   title: "Smart Cart Plus",
   description: "라이프스타일 AI 매니저",
   manifest: "/manifest.json",
-  themeColor: "#4F46E5",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
