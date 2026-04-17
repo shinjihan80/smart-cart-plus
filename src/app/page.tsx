@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { isFoodItem, isClothingItem, FOOD_EMOJI } from '@/types';
+import { isFoodItem, isClothingItem, FOOD_EMOJI, FASHION_EMOJI, type FoodItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -163,14 +163,28 @@ function ClosetSummary({ items }: { items: import('@/types').CartItem[] }) {
   const clothes = items.filter(isClothingItem);
   const thinCount  = clothes.filter((c) => c.thickness === '얇음').length;
   const thickCount = clothes.filter((c) => c.thickness === '두꺼움').length;
+  const withImages = clothes.filter((c) => c.imageUrl).slice(0, 3);
 
   return (
     <Link href="/closet" className="block">
       <Widget index={1}>
         <div className="flex flex-col h-full justify-between">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-base">👔</span>
-            <span className="text-xs text-gray-400 font-medium">옷장 현황</span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-base">👔</span>
+              <span className="text-xs text-gray-400 font-medium">옷장 현황</span>
+            </div>
+            {/* 미니 이미지 프리뷰 */}
+            {withImages.length > 0 && (
+              <div className="flex -space-x-2">
+                {withImages.map((c) => (
+                  <div key={c.id} className="w-6 h-6 rounded-full overflow-hidden border-2 border-white bg-gray-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.imageUrl!} alt="" className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <p className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums">
@@ -537,18 +551,28 @@ export default function HomePage() {
         </div>
         {search.trim() && (
           <div className="mt-2 flex flex-col gap-1.5">
-            {searchResults.length > 0 ? searchResults.slice(0, 5).map((item) => (
+            {searchResults.length > 0 ? searchResults.slice(0, 5).map((item) => {
+              const emoji = isFoodItem(item) ? (FOOD_EMOJI[(item as FoodItem).foodCategory] ?? '📦') : (FASHION_EMOJI[item.category as keyof typeof FASHION_EMOJI] ?? '👕');
+              return (
               <Link
                 key={item.id}
                 href={isFoodItem(item) ? '/fridge' : '/closet'}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-white border border-gray-100 hover:border-brand-primary/20 transition-colors"
               >
-                <span className="text-sm">{isFoodItem(item) ? '🥬' : '👕'}</span>
+                <div className="w-8 h-8 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                  {item.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm">{emoji}</span>
+                  )}
+                </div>
                 <span className="text-sm text-gray-800 flex-1 truncate">{item.name}</span>
-                <span className="text-[10px] text-gray-400">{item.category === '식품' ? '냉장고' : '옷장'}</span>
+                <span className="text-[10px] text-gray-400">{isFoodItem(item) ? '냉장고' : '옷장'}</span>
                 <ChevronRight size={12} className="text-gray-300" />
               </Link>
-            )) : (
+              );
+            }) : (
               <p className="text-xs text-gray-400 text-center py-2">검색 결과가 없어요</p>
             )}
           </div>
