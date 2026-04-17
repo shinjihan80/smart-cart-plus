@@ -164,34 +164,41 @@ function MonthlySpending() {
   );
 }
 
-// ── [C] 냉장고 카루셀 카드 (스와이프) ─────────────────────────────────────────
+// ── [C] 냉장고 카루셀 카드 (스와이프 소진) ───────────────────────────────────
 function FridgeCard({
-  name, dDay, storageType, emoji,
+  name, dDay, storageType, emoji, onDiscard,
 }: {
   name: string; dDay: number; storageType: string; emoji: string;
+  onDiscard: () => void;
 }) {
   const x = useMotionValue(0);
   const bgColor = useTransform(
-    x, [-100, -30, 0, 30, 100],
-    ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)', 'rgb(253,253,255)', 'rgb(238,242,255)'],
+    x, [-100, -30, 0],
+    ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)'],
   );
   const discardOpacity = useTransform(x, [-100, -30], [1, 0]);
-  const reorderOpacity = useTransform(x, [30, 100], [0, 1]);
 
   const isUrgent  = dDay <= 2;
   const isWarning = dDay <= 5;
 
+  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
+    if (info.offset.x < -60) onDiscard();
+  }
+
   return (
     <div className="relative shrink-0 w-[140px] h-[140px] rounded-3xl overflow-hidden">
-      <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
-        <motion.span style={{ opacity: reorderOpacity }} className="text-lg">🔄</motion.span>
-        <motion.span style={{ opacity: discardOpacity }} className="text-lg">🗑️</motion.span>
+      <div className="absolute inset-0 flex items-center justify-end px-3 pointer-events-none">
+        <motion.div style={{ opacity: discardOpacity }} className="flex flex-col items-center gap-0.5">
+          <span className="text-lg">🗑️</span>
+          <span className="text-[8px] font-semibold text-brand-warning">소진</span>
+        </motion.div>
       </div>
       <motion.div
         drag="x"
-        dragConstraints={{ left: -100, right: 100 }}
+        dragConstraints={{ left: -100, right: 0 }}
         dragElastic={0.15}
         style={{ x, backgroundColor: bgColor }}
+        onDragEnd={handleDragEnd}
         className="relative z-10 w-full h-full rounded-3xl border border-gray-100 p-4 flex flex-col justify-between cursor-grab"
       >
         <span className="text-2xl">{emoji}</span>
@@ -211,7 +218,7 @@ function FridgeCard({
   );
 }
 
-function FridgeCarousel({ items }: { items: import('@/types').CartItem[] }) {
+function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartItem[]; onDiscard: (id: string) => void }) {
   const sorted = items.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
     .sort((a, b) => a.dDay - b.dDay);
@@ -238,6 +245,7 @@ function FridgeCarousel({ items }: { items: import('@/types').CartItem[] }) {
               dDay={item.dDay}
               storageType={item.storageType}
               emoji={EMOJI[item.storageType] ?? '📦'}
+              onDiscard={() => onDiscard(item.id)}
             />
           ))}
         </div>
@@ -300,7 +308,7 @@ function RecentOrders({ items }: { items: import('@/types').CartItem[] }) {
 
 // ── 홈 대시보드 ───────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { items } = useCart();
+  const { items, removeItem } = useCart();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -330,7 +338,7 @@ export default function HomePage() {
           <DailyBriefing items={items} />
           <ClosetSummary items={items} />
           <MonthlySpending />
-          <FridgeCarousel items={items} />
+          <FridgeCarousel items={items} onDiscard={removeItem} />
           <RecentOrders items={items} />
         </div>
       )}
