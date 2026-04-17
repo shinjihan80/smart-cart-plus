@@ -5,6 +5,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import FloatingAdd from "@/components/layout/FloatingAdd";
 import PageTransition from "@/components/layout/PageTransition";
 import Providers from "@/components/layout/Providers";
+import OnboardingModal from "@/components/layout/OnboardingModal";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -49,6 +50,7 @@ export default function RootLayout({
           </main>
           <FloatingAdd />
           <BottomNav />
+          <OnboardingModal />
         </Providers>
       </body>
     </html>

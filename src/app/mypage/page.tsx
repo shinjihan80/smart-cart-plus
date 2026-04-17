@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
@@ -64,6 +65,33 @@ export default function MyPage() {
   const frozenCount = foodItemsList.filter((f) => f.storageType === '냉동').length;
   const roomCount   = foodItemsList.filter((f) => f.storageType === '실온').length;
 
+  // 알림 설정
+  const [notiExpiry, setNotiExpiry] = useState(true);
+  const [notiCodi, setNotiCodi]     = useState(true);
+  const [notiDeal, setNotiDeal]     = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('smart-cart-noti');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setNotiExpiry(parsed.expiry ?? true);
+        setNotiCodi(parsed.codi ?? true);
+        setNotiDeal(parsed.deal ?? false);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  function toggleNoti(key: 'expiry' | 'codi' | 'deal') {
+    const next = { expiry: notiExpiry, codi: notiCodi, deal: notiDeal };
+    next[key] = !next[key];
+    setNotiExpiry(next.expiry);
+    setNotiCodi(next.codi);
+    setNotiDeal(next.deal);
+    localStorage.setItem('smart-cart-noti', JSON.stringify(next));
+    showToast(next[key] ? '알림이 켜졌어요.' : '알림이 꺼졌어요.');
+  }
+
   function handleReset() {
     if (confirm('모든 데이터를 초기화하시겠어요? 기본 샘플 데이터로 복원됩니다.')) {
       resetData();
@@ -72,7 +100,6 @@ export default function MyPage() {
   }
 
   const menuItems = [
-    { label: '알림 설정',       emoji: '🔔', desc: '소비 기한 알림, 코디 추천 알림', action: undefined },
     { label: '패밀리 관리',     emoji: '👨‍👩‍👧', desc: '가족 구성원 추가 및 공유', action: undefined },
     { label: '데이터 초기화',   emoji: '💾', desc: '샘플 데이터로 복원', action: handleReset },
     { label: '고객센터',        emoji: '💬', desc: '문의 및 피드백', action: undefined },
@@ -205,6 +232,41 @@ export default function MyPage() {
                 );
               });
             })()}
+          </div>
+        </motion.div>
+
+        {/* 알림 설정 */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.3 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <h3 className="text-xs text-gray-400 font-medium mb-2">알림 설정</h3>
+          <div className="divide-y divide-gray-50">
+            {([
+              { key: 'expiry' as const, emoji: '⏰', label: '보관 기한 임박 알림', value: notiExpiry },
+              { key: 'codi' as const,   emoji: '👗', label: '코디 추천 알림',     value: notiCodi },
+              { key: 'deal' as const,   emoji: '🏷️', label: '할인 정보 알림',     value: notiDeal },
+            ]).map((item) => (
+              <div key={item.key} className="flex items-center justify-between py-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">{item.emoji}</span>
+                  <span className="text-sm text-gray-600">{item.label}</span>
+                </div>
+                <button
+                  onClick={() => toggleNoti(item.key)}
+                  className={`w-10 h-6 rounded-full transition-colors relative ${
+                    item.value ? 'bg-brand-primary' : 'bg-gray-200'
+                  }`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                    item.value ? 'translate-x-5' : 'translate-x-1'
+                  }`} />
+                </button>
+              </div>
+            ))}
           </div>
         </motion.div>
 
