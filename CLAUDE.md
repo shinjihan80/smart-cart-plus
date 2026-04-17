@@ -31,3 +31,6 @@
 | 날짜 | 변경 내용 | 버전 |
 |------|---------|------|
 | 2026-04-16 | 파서 에이전트 팀 초기 구축 (receipt-parser, schema-validator, parse-orchestrator) | v0.1 |
+| 2026-04-17 | 통합 Vision 파서, 벤토 대시보드, 컬러 시스템, App Router 라우팅 | v0.5 |
+| 2026-04-17 | 전역 상태(CartContext), localStorage, 검색/필터/정렬, 되돌리기, PWA | v0.8 |
+| 2026-04-17 | 레시피/코디 추천, 온보딩, 알림 설정, hydration 수정, 최종 정리 | v1.0 |
