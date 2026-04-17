@@ -225,9 +225,9 @@ function MonthlySpending() {
 
 // ── [C] 냉장고 카루셀 카드 (스와이프 소진) ───────────────────────────────────
 function FridgeCard({
-  name, dDay, storageType, emoji, onDiscard,
+  name, dDay, storageType, emoji, imageUrl, onDiscard,
 }: {
-  name: string; dDay: number; storageType: string; emoji: string;
+  name: string; dDay: number; storageType: string; emoji: string; imageUrl?: string;
   onDiscard: () => void;
 }) {
   const x = useMotionValue(0);
@@ -260,7 +260,14 @@ function FridgeCard({
         onDragEnd={handleDragEnd}
         className="relative z-10 w-full h-full rounded-3xl border border-gray-100 p-4 flex flex-col justify-between cursor-grab"
       >
-        <span className="text-2xl">{emoji}</span>
+        {imageUrl ? (
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <span className="text-2xl">{emoji}</span>
+        )}
         <div>
           <p className={`text-3xl font-extrabold tracking-tight tabular-nums ${
             isUrgent ? 'text-brand-warning' : isWarning ? 'text-amber-500' : 'text-gray-900'
@@ -303,6 +310,7 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
               dDay={item.dDay}
               storageType={item.storageType}
               emoji={FOOD_EMOJI[item.foodCategory] ?? '📦'}
+              imageUrl={item.imageUrl}
               onDiscard={() => onDiscard(item.id)}
             />
           ))}

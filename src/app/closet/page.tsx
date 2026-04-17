@@ -213,15 +213,24 @@ function SwipeClothingCard({
         onClick={() => setExpanded(!expanded)}
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
-        <div className="flex items-center gap-4">
-          <div className="shrink-0 w-14 text-center">
-            <p className="text-2xl font-extrabold tracking-tight text-gray-900">{item.size}</p>
-            <p className="text-[9px] text-gray-400 mt-0.5">사이즈</p>
+        <div className="flex items-center gap-3">
+          {/* 썸네일 */}
+          <div className="shrink-0 w-11 h-11 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+            {item.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-lg">{FASHION_EMOJI[item.category] ?? '📦'}</span>
+            )}
+          </div>
+          {/* 사이즈 */}
+          <div className="shrink-0 w-10 text-center">
+            <p className="text-lg font-extrabold tracking-tight text-gray-900">{item.size}</p>
+            <p className="text-[8px] text-gray-400">사이즈</p>
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">{FASHION_EMOJI[item.category] ?? '📦'}</span>
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
             </div>
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">

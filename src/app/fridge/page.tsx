@@ -77,9 +77,19 @@ function SwipeFoodCard({
         onClick={() => setExpanded(!expanded)}
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
-        <div className="flex items-center gap-4">
-        <div className="shrink-0 w-16 text-center">
-          <p className={`text-2xl font-extrabold tracking-tight tabular-nums ${
+        <div className="flex items-center gap-3">
+        {/* 썸네일 */}
+        <div className="shrink-0 w-11 h-11 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+          {item.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-lg">{FOOD_EMOJI[item.foodCategory] ?? '📦'}</span>
+          )}
+        </div>
+        {/* D-Day */}
+        <div className="shrink-0 w-14 text-center">
+          <p className={`text-xl font-extrabold tracking-tight tabular-nums ${
             isUrgent ? 'text-brand-warning' : 'text-gray-900'
           }`}>
             {dDay <= 0 ? '만료' : `D-${dDay}`}
