@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { Snowflake, Thermometer, Package, Search } from 'lucide-react';
+import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -147,7 +148,13 @@ function SwipeFoodCard({
                   </div>
                 ) : (
                   <button
-                    onClick={(e) => { e.stopPropagation(); /* 추후 이미지 업로드 연결 */ }}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const file = await pickImage();
+                      if (!file) return;
+                      const dataUrl = await resizeAndEncode(file);
+                      onUpdate(item.id, { imageUrl: dataUrl });
+                    }}
                     className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
                   >
                     <span className="text-lg">📷</span>

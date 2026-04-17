@@ -6,6 +6,7 @@ import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type Fashion
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Wind, Thermometer, Droplets, Search } from 'lucide-react';
+import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -23,6 +24,89 @@ const SEASON_TAG_STYLE: Record<string, string> = {
   가을: 'bg-orange-50 text-orange-500',
   겨울: 'bg-blue-50 text-blue-500',
 };
+
+// ── 가상 코디 미리보기 ────────────────────────────────────────────────────────
+function OutfitPreview({ items }: { items: ClothingItem[] }) {
+  const [selected, setSelected] = useState<Record<string, string | null>>({
+    상의: null, 하의: null, 아우터: null, 신발: null, 액세서리: null,
+  });
+
+  const slots: { key: string; label: string; groups: import('@/types').FashionGroup[]; emoji: string }[] = [
+    { key: '상의',     label: '상의',     groups: ['의류'],    emoji: '👕' },
+    { key: '하의',     label: '하의',     groups: ['의류'],    emoji: '👖' },
+    { key: '신발',     label: '신발',     groups: ['신발'],    emoji: '👟' },
+    { key: '액세서리', label: '액세서리', groups: ['액세서리'], emoji: '✨' },
+  ];
+
+  // 이미지가 있는 아이템만 사용 가능
+  const hasImages = items.filter((i) => i.imageUrl);
+  if (hasImages.length < 2) return null;
+
+  function getItemsForSlot(key: string): ClothingItem[] {
+    switch (key) {
+      case '상의': return hasImages.filter((i) => ['상의', '원피스'].includes(i.category));
+      case '하의': return hasImages.filter((i) => i.category === '하의');
+      case '신발': return hasImages.filter((i) => i.category === '신발');
+      case '액세서리': return hasImages.filter((i) => FASHION_GROUP[i.category] === '액세서리');
+      default: return [];
+    }
+  }
+
+  function cycleItem(key: string) {
+    const pool = getItemsForSlot(key);
+    if (pool.length === 0) return;
+    const currentIdx = pool.findIndex((i) => i.id === selected[key]);
+    const nextIdx = (currentIdx + 1) % pool.length;
+    setSelected((prev) => ({ ...prev, [key]: pool[nextIdx].id }));
+  }
+
+  const selectedItems = slots
+    .map((s) => {
+      const pool = getItemsForSlot(s.key);
+      const item = pool.find((i) => i.id === selected[s.key]) ?? pool[0];
+      return item ? { ...s, item } : null;
+    })
+    .filter(Boolean) as { key: string; label: string; emoji: string; item: ClothingItem }[];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...springTransition, delay: 0.08 }}
+      className={CARD}
+      style={CARD_SHADOW}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base">👗</span>
+        <span className="text-xs text-gray-400 font-medium">코디 미리보기</span>
+      </div>
+
+      <div className="flex gap-2 justify-center">
+        {selectedItems.map(({ key, emoji, item }) => (
+          <button
+            key={key}
+            onClick={() => cycleItem(key)}
+            className="flex flex-col items-center gap-1 group"
+          >
+            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-brand-primary/30 transition-colors">
+              {item.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-2xl">{emoji}</div>
+              )}
+            </div>
+            <span className="text-[9px] text-gray-400 truncate max-w-[64px]">{item.name}</span>
+          </button>
+        ))}
+      </div>
+
+      {selectedItems.length > 0 && (
+        <p className="text-[9px] text-gray-300 text-center mt-2">탭해서 다른 아이템으로 교체</p>
+      )}
+    </motion.div>
+  );
+}
 
 // ── 코디 추천 ────────────────────────────────────────────────────────────────
 function OutfitSection({ items }: { items: ClothingItem[] }) {
@@ -179,7 +263,13 @@ function SwipeClothingCard({
                   </div>
                 ) : (
                   <button
-                    onClick={(e) => { e.stopPropagation(); }}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const file = await pickImage();
+                      if (!file) return;
+                      const dataUrl = await resizeAndEncode(file);
+                      onUpdate(item.id, { imageUrl: dataUrl });
+                    }}
                     className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
                   >
                     <span className="text-lg">📷</span>
@@ -363,6 +453,9 @@ export default function ClosetPage() {
             </motion.div>
           );
         })()}
+
+        {/* 코디 미리보기 */}
+        <OutfitPreview items={allClothing} />
 
         {/* 빠른 추가 */}
         <motion.div
