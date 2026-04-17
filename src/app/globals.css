@@ -11,6 +11,20 @@
   --color-foreground: var(--foreground);
   --font-sans: 'SUIT', sans-serif;
   --font-mono: var(--font-geist-mono);
+
+  /* Brand Colors */
+  --color-brand-primary: #4F46E5;
+  --color-brand-success: #10B981;
+  --color-brand-warning: #F43F5E;
+
+  /* Mall Colors */
+  --color-mall-kurly: #5F0080;
+  --color-mall-naver: #03C75A;
+  --color-mall-coupang: #EA2328;
+  --color-mall-musinsa: #000000;
+  --color-mall-zigzag: #FF147A;
+  --color-mall-oliveyoung: #9FC93C;
+  --color-mall-bmart: #2AC1BC;
 }
 
 body {

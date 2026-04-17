@@ -24,12 +24,12 @@ const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 
 // ── Mock 주문 데이터 ──────────────────────────────────────────────────────────
-const MOCK_ORDERS: { id: string; store: string; storeColor: string; price: number }[] = [
-  { id: 'f1', store: '쿠팡',    storeColor: 'bg-purple-500', price: 4900 },
-  { id: 'c1', store: '무신사',   storeColor: 'bg-orange-500', price: 59000 },
-  { id: 'f2', store: '쿠팡',    storeColor: 'bg-purple-500', price: 15900 },
-  { id: 'f3', store: '마켓컬리', storeColor: 'bg-violet-500', price: 3200 },
-  { id: 'c3', store: '유니클로', storeColor: 'bg-red-500',    price: 49900 },
+const MOCK_ORDERS: { id: string; store: string; mall: string; mallBg: string; price: number }[] = [
+  { id: 'f1', store: '마켓컬리', mall: 'kurly',      mallBg: 'bg-mall-kurly',      price: 4900 },
+  { id: 'c1', store: '무신사',   mall: 'musinsa',    mallBg: 'bg-mall-musinsa',    price: 59000 },
+  { id: 'f2', store: '쿠팡',    mall: 'coupang',    mallBg: 'bg-mall-coupang',    price: 15900 },
+  { id: 'f3', store: '네이버',   mall: 'naver',      mallBg: 'bg-mall-naver',      price: 3200 },
+  { id: 'c3', store: '올리브영', mall: 'oliveyoung', mallBg: 'bg-mall-oliveyoung', price: 49900 },
 ];
 
 // ── 스켈레톤 ──────────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ function DailyBriefing() {
             얇은 가디건을 챙기세요.
             {recommend && (
               <>
-                {' '}추천: <span className="font-semibold text-indigo-600">{recommend.name}</span>
+                {' '}추천: <span className="font-semibold text-brand-primary">{recommend.name}</span>
               </>
             )}
           </p>
@@ -152,7 +152,7 @@ function MonthlySpending() {
               ₩{total.toLocaleString()}
             </p>
             <p className="text-[10px] text-gray-400 mt-1">
-              지난달 대비 <span className="text-emerald-500 font-semibold">-12%</span>
+              지난달 대비 <span className="text-brand-success font-semibold">-12%</span>
             </p>
           </div>
         </div>
@@ -201,7 +201,7 @@ function FridgeCard({
         <span className="text-2xl">{emoji}</span>
         <div>
           <p className={`text-3xl font-extrabold tracking-tight tabular-nums ${
-            isUrgent ? 'text-rose-500' : isWarning ? 'text-amber-500' : 'text-gray-900'
+            isUrgent ? 'text-brand-warning' : isWarning ? 'text-amber-500' : 'text-gray-900'
           }`}>
             {dDay <= 0 ? '만료' : `D-${dDay}`}
           </p>
@@ -259,9 +259,9 @@ function RecentOrders() {
     const mock = MOCK_ORDERS.find((o) => o.id === item.id);
     return {
       ...item,
-      store:      mock?.store ?? '기타',
-      storeColor: mock?.storeColor ?? 'bg-gray-400',
-      price:      mock?.price ?? 0,
+      store:  mock?.store ?? '기타',
+      mallBg: mock?.mallBg ?? 'bg-gray-400',
+      price:  mock?.price ?? 0,
     };
   });
 
@@ -278,7 +278,7 @@ function RecentOrders() {
         <div className="flex flex-col gap-3">
           {orders.slice(0, 4).map((order) => (
             <div key={order.id} className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-full ${order.storeColor} flex items-center justify-center shrink-0`}>
+              <div className={`w-8 h-8 rounded-full ${order.mallBg} flex items-center justify-center shrink-0`}>
                 <span className="text-white text-[10px] font-bold">
                   {order.store.charAt(0)}
                 </span>
@@ -295,7 +295,7 @@ function RecentOrders() {
         </div>
         <Link
           href="/mypage"
-          className="mt-4 flex items-center justify-center gap-1 text-xs text-indigo-500 font-medium py-2 rounded-2xl hover:bg-indigo-50 transition-colors"
+          className="mt-4 flex items-center justify-center gap-1 text-xs text-brand-primary font-medium py-2 rounded-2xl hover:bg-brand-primary/5 transition-colors"
         >
           전체보기 <ChevronRight size={14} />
         </Link>
@@ -325,7 +325,7 @@ function EmptyDashboard({ onAdd }: { onAdd: () => void }) {
         </p>
         <button
           onClick={onAdd}
-          className="flex items-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 transition-all text-white text-sm font-semibold px-5 py-2.5"
+          className="flex items-center gap-2 rounded-2xl bg-brand-primary hover:opacity-90 active:scale-95 transition-all text-white text-sm font-semibold px-5 py-2.5"
         >
           <Camera size={16} />
           사진으로 추가하기
@@ -345,7 +345,7 @@ function FloatingAddButton({ onClick }: { onClick: () => void }) {
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.92 }}
       onClick={onClick}
-      className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-200"
+      className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/30"
     >
       <Plus size={24} strokeWidth={2.5} />
     </motion.button>
