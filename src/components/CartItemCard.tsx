@@ -6,10 +6,12 @@ import FoodTags    from './FoodTags';
 import ClothingTags from './ClothingTags';
 
 interface Props {
-  item:      CartItem;
-  wide?:     boolean;
-  onReorder: (item: CartItem) => void;
-  onDiscard: (item: CartItem) => void;
+  item:              CartItem;
+  wide?:             boolean;
+  isFavorite?:       boolean;
+  onReorder:         (item: CartItem) => void;
+  onDiscard:         (item: CartItem) => void;
+  onToggleFavorite?: (id: string) => void;
 }
 
 const CATEGORY_ICON: Record<string, string> = {
@@ -31,7 +33,7 @@ const CATEGORY_ICON: Record<string, string> = {
  *   - shadow 없음 + border border-gray-100
  *   - 핵심 숫자 text-3xl font-bold (FoodTags/ClothingTags에서 처리)
  */
-export default function CartItemCard({ item, wide, onReorder, onDiscard }: Props) {
+export default function CartItemCard({ item, wide, isFavorite, onReorder, onDiscard, onToggleFavorite }: Props) {
   const x = useMotionValue(0);
 
   // 드래그 위치에 따라 카드 배경색 변환
@@ -89,9 +91,19 @@ export default function CartItemCard({ item, wide, onReorder, onDiscard }: Props
               {item.name}
             </p>
           </div>
-          <span className="shrink-0 text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full mt-0.5">
-            {item.category}
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+            {onToggleFavorite && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }}
+                className="text-base leading-none hover:scale-110 transition-transform"
+              >
+                {isFavorite ? '❤️' : '🤍'}
+              </button>
+            )}
+            <span className="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+              {item.category}
+            </span>
+          </div>
         </div>
 
         {/* 중단: 태그 영역 */}
