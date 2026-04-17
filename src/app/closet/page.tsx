@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { isClothingItem, type ClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import { Wind, Thermometer, Droplets } from 'lucide-react';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
@@ -104,7 +104,7 @@ function SwipeClothingCard({
 
 export default function ClosetPage() {
   const { items: allItems, removeItem } = useCart();
-  const [toast, setToast] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const items = allItems.filter(isClothingItem);
   const clothesCount   = items.filter((c) => c.category === '의류').length;
@@ -115,8 +115,7 @@ export default function ClosetPage() {
   function handleRemove(id: string) {
     const name = items.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
-    setToast(`"${name}" 삭제됐어요.`);
-    setTimeout(() => setToast(null), 2500);
+    showToast(`"${name}" 삭제됐어요.`);
   }
 
   return (
@@ -178,22 +177,6 @@ export default function ClosetPage() {
         )}
       </div>
 
-      {/* 토스트 */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            key="toast"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-xs w-full px-4"
-          >
-            <div className="rounded-2xl bg-gray-900 text-white text-sm font-medium px-4 py-3 text-center shadow-lg">
-              {toast}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

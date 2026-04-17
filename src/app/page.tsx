@@ -6,6 +6,7 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import { ChevronRight, Sparkles } from 'lucide-react';
 
 // ── 시간대 인사말 ────────────────────────────────────────────────────────────
@@ -309,6 +310,7 @@ function RecentOrders({ items }: { items: import('@/types').CartItem[] }) {
 // ── 홈 대시보드 ───────────────────────────────────────────────────────────────
 export default function HomePage() {
   const { items, removeItem } = useCart();
+  const { showToast } = useToast();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -338,7 +340,11 @@ export default function HomePage() {
           <DailyBriefing items={items} />
           <ClosetSummary items={items} />
           <MonthlySpending />
-          <FridgeCarousel items={items} onDiscard={removeItem} />
+          <FridgeCarousel items={items} onDiscard={(id) => {
+            const name = items.find((i) => i.id === id)?.name ?? '';
+            removeItem(id);
+            showToast(`"${name}" 소진 처리됐어요.`);
+          }} />
           <RecentOrders items={items} />
         </div>
       )}

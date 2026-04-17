@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { isFoodItem, type FoodItem } from '@/types';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { Snowflake, Thermometer, Package } from 'lucide-react';
 
@@ -105,7 +105,7 @@ function SwipeFoodCard({
 
 export default function FridgePage() {
   const { items: allItems, removeItem } = useCart();
-  const [toast, setToast] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const items = allItems.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
@@ -118,8 +118,7 @@ export default function FridgePage() {
   function handleDiscard(id: string) {
     const name = items.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
-    setToast(`"${name}" 소진 처리됐어요.`);
-    setTimeout(() => setToast(null), 2500);
+    showToast(`"${name}" 소진 처리됐어요.`);
   }
 
   return (
@@ -184,22 +183,6 @@ export default function FridgePage() {
         )}
       </div>
 
-      {/* 토스트 */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            key="toast"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-xs w-full px-4"
-          >
-            <div className="rounded-2xl bg-gray-900 text-white text-sm font-medium px-4 py-3 text-center shadow-lg">
-              {toast}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
