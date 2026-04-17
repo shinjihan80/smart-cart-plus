@@ -177,8 +177,8 @@ function ClosetSummary({ items }: { items: import('@/types').CartItem[] }) {
   );
 }
 
-// ── [B-2] 이번 달 지출 (1x1) — 탭 클릭 시 달별 내역 펼침 ─────────────────────
-function MonthlySpending({ onOpenHistory }: { onOpenHistory: () => void }) {
+// ── [B-2] 이번 달 지출 (1x1) ─────────────────────────────────────────────────
+function MonthlySpending() {
   const now = new Date();
   const thisMonth = MONTHLY_DATA.find((m) => m.month === now.getMonth() + 1) ?? MONTHLY_DATA[MONTHLY_DATA.length - 1];
   const prevMonth = MONTHLY_DATA.find((m) => m.month === now.getMonth()) ?? MONTHLY_DATA[MONTHLY_DATA.length - 2];
@@ -187,27 +187,25 @@ function MonthlySpending({ onOpenHistory }: { onOpenHistory: () => void }) {
     : 0;
 
   return (
-    <button onClick={onOpenHistory} className="block text-left w-full">
-      <Widget index={2}>
-        <div className="flex flex-col h-full justify-between">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-base">💰</span>
-            <span className="text-xs text-gray-400 font-medium">이번 달 지출</span>
-          </div>
-          <div>
-            <p className="text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums">
-              ₩{thisMonth.total.toLocaleString()}
-            </p>
-            <p className="text-[10px] text-gray-400 mt-1">
-              지난달 대비{' '}
-              <span className={`font-semibold ${diff <= 0 ? 'text-brand-success' : 'text-brand-warning'}`}>
-                {diff <= 0 ? '' : '+'}{diff}%
-              </span>
-            </p>
-          </div>
+    <Widget index={2}>
+      <div className="flex flex-col h-full justify-between">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-base">💰</span>
+          <span className="text-xs text-gray-400 font-medium">이번 달 지출</span>
         </div>
-      </Widget>
-    </button>
+        <div>
+          <p className="text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums">
+            ₩{thisMonth.total.toLocaleString()}
+          </p>
+          <p className="text-[10px] text-gray-400 mt-1">
+            지난달 대비{' '}
+            <span className={`font-semibold ${diff <= 0 ? 'text-brand-success' : 'text-brand-warning'}`}>
+              {diff <= 0 ? '' : '+'}{diff}%
+            </span>
+          </p>
+        </div>
+      </div>
+    </Widget>
   );
 }
 
@@ -377,7 +375,6 @@ export default function HomePage() {
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
@@ -405,15 +402,13 @@ export default function HomePage() {
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <DailyBriefing items={items} />
           <ClosetSummary items={items} />
-          <MonthlySpending onOpenHistory={() => setShowHistory(!showHistory)} />
+          <MonthlySpending />
           <FridgeCarousel items={items} onDiscard={(id) => {
             const name = items.find((i) => i.id === id)?.name ?? '';
             removeItem(id);
             showToast(`"${name}" 소진 처리됐어요.`);
           }} />
-          {showHistory && (
-            <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
-          )}
+          <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
         </div>
       )}
     </div>
