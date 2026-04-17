@@ -311,6 +311,37 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
   );
 }
 
+// ── 긴급 알림 배너 ───────────────────────────────────────────────────────────
+function UrgentAlert({ items }: { items: import('@/types').CartItem[] }) {
+  const urgent = items.filter(isFoodItem)
+    .map((f) => ({ name: f.name, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
+    .filter((f) => f.dDay <= 1);
+
+  if (urgent.length === 0) return null;
+
+  return (
+    <Link href="/fridge" className="col-span-2 block">
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={springTransition}
+        className="bg-brand-warning/10 border border-brand-warning/20 rounded-[24px] px-4 py-3 flex items-center gap-3"
+      >
+        <span className="text-xl">⚠️</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-brand-warning">
+            {urgent.length}개 식품 긴급 소비 필요
+          </p>
+          <p className="text-[10px] text-gray-500 truncate mt-0.5">
+            {urgent.map((u) => u.name).join(', ')}
+          </p>
+        </div>
+        <ChevronRight size={14} className="text-brand-warning/50 shrink-0" />
+      </motion.div>
+    </Link>
+  );
+}
+
 // ── [D] 달별 소비 내역 (Full Width) ───────────────────────────────────────────
 function MonthlyHistory({ selectedMonth, onChangeMonth }: { selectedMonth: number; onChangeMonth: (m: number) => void }) {
   const data = MONTHLY_DATA.find((m) => m.month === selectedMonth) ?? MONTHLY_DATA[MONTHLY_DATA.length - 1];
@@ -415,6 +446,7 @@ export default function HomePage() {
         <Skeleton />
       ) : (
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
+          <UrgentAlert items={items} />
           <DailyBriefing items={items} />
           <ClosetSummary items={items} />
           <MonthlySpending />
