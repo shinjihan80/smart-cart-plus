@@ -51,7 +51,7 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 }
 
 export default function MyPage() {
-  const { items, discardCount, resetData } = useCart();
+  const { items, discardCount, discardHistory, resetData } = useCart();
   const { showToast } = useToast();
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
@@ -139,6 +139,30 @@ export default function MyPage() {
               <StorageBar emoji="❄️" label="냉장" count={coldCount}   total={foodItemsList.length} />
               <StorageBar emoji="🧊" label="냉동" count={frozenCount} total={foodItemsList.length} />
               <StorageBar emoji="📦" label="실온" count={roomCount}   total={foodItemsList.length} />
+            </div>
+          </motion.div>
+        )}
+
+        {/* 소진 히스토리 */}
+        {discardHistory.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...springTransition, delay: 0.22 }}
+            className={CARD}
+            style={CARD_SHADOW}
+          >
+            <h3 className="text-xs text-gray-400 font-medium mb-2">최근 소진 내역</h3>
+            <div className="flex flex-col gap-2">
+              {discardHistory.slice(0, 5).map((record, i) => (
+                <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{record.category === '식품' ? '🥦' : '👗'}</span>
+                    <span className="text-sm text-gray-700 truncate">{record.name}</span>
+                  </div>
+                  <span className="text-[10px] text-gray-400 tabular-nums shrink-0">{record.date}</span>
+                </div>
+              ))}
             </div>
           </motion.div>
         )}

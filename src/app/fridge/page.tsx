@@ -31,6 +31,7 @@ function SwipeFoodCard({
   index: number;
   onDiscard: (id: string) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-120, -30, 0],
@@ -70,8 +71,10 @@ function SwipeFoodCard({
         dragElastic={0.12}
         style={{ x, backgroundColor: bgColor, ...CARD_SHADOW }}
         onDragEnd={handleDragEnd}
-        className="rounded-[32px] border border-gray-50 p-5 flex items-center gap-4 relative z-10 cursor-grab"
+        onClick={() => setExpanded(!expanded)}
+        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
+        <div className="flex items-center gap-4">
         <div className="shrink-0 w-16 text-center">
           <p className={`text-2xl font-extrabold tracking-tight tabular-nums ${
             isUrgent ? 'text-brand-warning' : 'text-gray-900'
@@ -121,6 +124,51 @@ function SwipeFoodCard({
           dDay <= 5 ? 'bg-amber-400' :
           'bg-brand-success'
         }`} />
+        </div>
+
+        {/* 펼침 상세 */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="pt-3 mt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-[10px]">
+                <div>
+                  <span className="text-gray-400">구매일</span>
+                  <p className="text-gray-700 font-medium tabular-nums mt-0.5">{item.purchaseDate}</p>
+                </div>
+                <div>
+                  <span className="text-gray-400">보관 만료</span>
+                  <p className={`font-medium tabular-nums mt-0.5 ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
+                    {(() => {
+                      const d = new Date(item.purchaseDate);
+                      d.setDate(d.getDate() + item.baseShelfLifeDays);
+                      return d.toISOString().split('T')[0];
+                    })()}
+                  </p>
+                </div>
+                {item.nutritionFacts && (
+                  <>
+                    <div>
+                      <span className="text-gray-400">칼로리</span>
+                      <p className="text-gray-700 font-medium tabular-nums mt-0.5">{item.nutritionFacts.calories} kcal</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">영양소</span>
+                      <p className="text-gray-700 font-medium tabular-nums mt-0.5">
+                        단{item.nutritionFacts.protein} · 지{item.nutritionFacts.fat} · 탄{item.nutritionFacts.carbs}g
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );
