@@ -1,11 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { isFoodItem, type FoodItem } from '@/types';
+import { isFoodItem, type FoodItem, type StorageType } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { Snowflake, Thermometer, Package } from 'lucide-react';
+import { Snowflake, Thermometer, Package, Search } from 'lucide-react';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -103,30 +104,45 @@ function SwipeFoodCard({
   );
 }
 
+type StorageFilter = '전체' | StorageType;
+
 export default function FridgePage() {
   const { items: allItems, removeItem } = useCart();
   const { showToast } = useToast();
+  const [search, setSearch]   = useState('');
+  const [filter, setFilter]   = useState<StorageFilter>('전체');
 
-  const items = allItems.filter(isFoodItem)
+  const allFood = allItems.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
     .sort((a, b) => a.dDay - b.dDay);
 
-  const urgentCount = items.filter((i) => i.dDay <= 3).length;
-  const coldCount   = items.filter((i) => i.storageType === '냉장').length;
-  const frozenCount = items.filter((i) => i.storageType === '냉동').length;
+  const items = allFood
+    .filter((i) => filter === '전체' || i.storageType === filter)
+    .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()));
+
+  const urgentCount = allFood.filter((i) => i.dDay <= 3).length;
+  const coldCount   = allFood.filter((i) => i.storageType === '냉장').length;
+  const frozenCount = allFood.filter((i) => i.storageType === '냉동').length;
 
   function handleDiscard(id: string) {
-    const name = items.find((i) => i.id === id)?.name ?? '';
+    const name = allFood.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
     showToast(`"${name}" 소진 처리됐어요.`);
   }
+
+  const FILTERS: { key: StorageFilter; label: string }[] = [
+    { key: '전체', label: '전체' },
+    { key: '냉장', label: '❄️ 냉장' },
+    { key: '냉동', label: '🧊 냉동' },
+    { key: '실온', label: '📦 실온' },
+  ];
 
   return (
     <div>
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
         <div className="px-4 py-3.5">
           <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
-          <p className="text-[10px] text-gray-400 mt-0.5">식품 {items.length}개 · ← 밀어서 소진 처리</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">식품 {allFood.length}개 · ← 밀어서 소진 처리</p>
         </div>
       </header>
 
@@ -160,6 +176,35 @@ export default function FridgePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* 검색 + 필터 */}
+        <div className="flex gap-2">
+          <div className="flex-1 relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="상품 검색"
+              className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            />
+          </div>
+        </div>
+        <div className="flex gap-1.5">
+          {FILTERS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
+                filter === key
+                  ? 'bg-brand-primary text-white'
+                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
         {/* 아이템 리스트 (스와이프 삭제) */}
         <AnimatePresence mode="popLayout">

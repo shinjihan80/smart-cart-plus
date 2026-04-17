@@ -1,10 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { isClothingItem, type ClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { Wind, Thermometer, Droplets } from 'lucide-react';
+import { Wind, Thermometer, Droplets, Search } from 'lucide-react';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -102,28 +103,42 @@ function SwipeClothingCard({
   );
 }
 
+type CategoryFilter = '전체' | '의류' | '액세서리';
+
 export default function ClosetPage() {
   const { items: allItems, removeItem } = useCart();
   const { showToast } = useToast();
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<CategoryFilter>('전체');
 
-  const items = allItems.filter(isClothingItem);
-  const clothesCount   = items.filter((c) => c.category === '의류').length;
-  const accessoryCount = items.filter((c) => c.category === '액세서리').length;
-  const thinCount      = items.filter((c) => c.thickness === '얇음').length;
-  const thickCount     = items.filter((c) => c.thickness === '두꺼움').length;
+  const allClothing = allItems.filter(isClothingItem);
+  const items = allClothing
+    .filter((i) => filter === '전체' || i.category === filter)
+    .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()));
+
+  const clothesCount   = allClothing.filter((c) => c.category === '의류').length;
+  const accessoryCount = allClothing.filter((c) => c.category === '액세서리').length;
+  const thinCount      = allClothing.filter((c) => c.thickness === '얇음').length;
+  const thickCount     = allClothing.filter((c) => c.thickness === '두꺼움').length;
 
   function handleRemove(id: string) {
-    const name = items.find((i) => i.id === id)?.name ?? '';
+    const name = allClothing.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
     showToast(`"${name}" 삭제됐어요.`);
   }
+
+  const FILTERS: { key: CategoryFilter; label: string }[] = [
+    { key: '전체',     label: '전체' },
+    { key: '의류',     label: '👗 의류' },
+    { key: '액세서리', label: '💍 액세서리' },
+  ];
 
   return (
     <div>
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
         <div className="px-4 py-3.5">
           <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
-          <p className="text-[10px] text-gray-400 mt-0.5">의류·액세서리 {items.length}개 · ← 밀어서 삭제</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">의류·액세서리 {allClothing.length}개 · ← 밀어서 삭제</p>
         </div>
       </header>
 
@@ -155,6 +170,35 @@ export default function ClosetPage() {
             </div>
           </div>
         </motion.div>
+
+        {/* 검색 + 필터 */}
+        <div className="flex gap-2">
+          <div className="flex-1 relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="상품 검색"
+              className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            />
+          </div>
+        </div>
+        <div className="flex gap-1.5">
+          {FILTERS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
+                filter === key
+                  ? 'bg-brand-primary text-white'
+                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
         {/* 아이템 리스트 (스와이프 삭제) */}
         <AnimatePresence mode="popLayout">

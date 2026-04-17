@@ -10,6 +10,13 @@ const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
 const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
 
+const SPENDING_DATA = [
+  { month: '1월', amount: 187400 },
+  { month: '2월', amount: 156200 },
+  { month: '3월', amount: 203800 },
+  { month: '4월', amount: 272200 },
+];
+
 function StatRow({ emoji, label, value, accent }: { emoji: string; label: string; value: string; accent?: boolean }) {
   return (
     <div className="flex items-center justify-between py-2.5">
@@ -126,6 +133,47 @@ export default function MyPage() {
             </div>
           </motion.div>
         )}
+
+        {/* 월별 지출 */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.25 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs text-gray-400 font-medium">월별 지출 추이</h3>
+            <span className="text-xs font-bold text-gray-700 tabular-nums">
+              총 ₩{SPENDING_DATA.reduce((s, d) => s + d.amount, 0).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex items-end gap-2 h-24">
+            {(() => {
+              const max = Math.max(...SPENDING_DATA.map((d) => d.amount));
+              return SPENDING_DATA.map((d, i) => {
+                const h = Math.max(12, (d.amount / max) * 88);
+                const isLast = i === SPENDING_DATA.length - 1;
+                return (
+                  <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5">
+                    <span className={`text-[9px] font-bold tabular-nums ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
+                      {(d.amount / 10000).toFixed(1)}만
+                    </span>
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: h }}
+                      transition={{ ...springTransition, delay: 0.3 + i * 0.08 }}
+                      className={`w-full rounded-xl ${isLast ? 'bg-brand-primary' : 'bg-gray-200'}`}
+                    />
+                    <span className={`text-[10px] font-medium ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
+                      {d.month}
+                    </span>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </motion.div>
 
         {/* 설정 메뉴 */}
         <motion.div
