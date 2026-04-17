@@ -56,7 +56,7 @@ function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab
           onClick={() => onChange(key)}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
             active === key
-              ? 'bg-white text-indigo-600 shadow-sm'
+              ? 'bg-white text-brand-primary shadow-sm'
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
@@ -71,11 +71,11 @@ function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab
 function StepIndicator({ step }: { step: ModalStep }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${step === 'input' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-400'}`}>1</span>
-      <span className={`text-xs font-medium ${step === 'input' ? 'text-indigo-600' : 'text-gray-400'}`}>입력</span>
+      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${step === 'input' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>1</span>
+      <span className={`text-xs font-medium ${step === 'input' ? 'text-brand-primary' : 'text-gray-400'}`}>입력</span>
       <div className="flex-1 h-px bg-gray-200" />
-      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${step === 'confirm' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
-      <span className={`text-xs font-medium ${step === 'confirm' ? 'text-indigo-600' : 'text-gray-400'}`}>결과 확인</span>
+      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${step === 'confirm' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
+      <span className={`text-xs font-medium ${step === 'confirm' ? 'text-brand-primary' : 'text-gray-400'}`}>결과 확인</span>
     </div>
   );
 }
@@ -120,7 +120,7 @@ function ImageTab({
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
           className={`flex flex-col items-center justify-center gap-2 h-44 rounded-2xl border-2 border-dashed cursor-pointer transition-colors ${
-            dragging ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-indigo-300'
+            dragging ? 'border-brand-primary/40 bg-brand-primary/5' : 'border-gray-200 bg-gray-50 hover:border-brand-primary/30'
           }`}
         >
           <span className="text-3xl">📷</span>
@@ -139,6 +139,7 @@ function ImageTab({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt="미리보기" className="w-full h-full object-contain" />
           <button
+            aria-label="이미지 제거"
             onClick={() => { setFile(null); setPreview(null); }}
             className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/70"
           >
@@ -189,7 +190,7 @@ function ImageTab({
       <button
         onClick={onSubmit}
         disabled={!file || loading}
-        className="mt-3 w-full rounded-2xl bg-indigo-600 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-indigo-700 active:scale-95 transition-all"
+        className="mt-3 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
         {loading ? <LoadingSpinner label="AI 이미지 분석 중…" /> : 'AI로 자동 분석하기'}
       </button>
@@ -214,12 +215,12 @@ function TextTab({
         placeholder={TEXT_PLACEHOLDER}
         rows={7}
         disabled={loading}
-        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
       />
       <button
         onClick={onSubmit}
         disabled={!text.trim() || loading}
-        className="mt-3 w-full rounded-2xl bg-indigo-600 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-indigo-700 active:scale-95 transition-all"
+        className="mt-3 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
         {loading ? <LoadingSpinner label="AI 분석 중…" /> : 'AI로 분석하기'}
       </button>
@@ -247,7 +248,7 @@ function UrlTab({
         onChange={(e) => setUrl(e.target.value)}
         placeholder="https://www.coupang.com/vp/products/..."
         disabled={loading}
-        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary"
       />
       <div className="flex gap-2 mt-2 flex-wrap">
         {['쿠팡', '네이버쇼핑', '무신사', '마켓컬리'].map((site) => (
@@ -259,7 +260,7 @@ function UrlTab({
       <button
         onClick={onSubmit}
         disabled={!url.trim() || loading}
-        className="mt-3 w-full rounded-2xl bg-indigo-600 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-indigo-700 active:scale-95 transition-all"
+        className="mt-3 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
         {loading ? <LoadingSpinner label="페이지 분석 중…" /> : 'AI로 분석하기'}
       </button>
@@ -314,7 +315,7 @@ function EnrichedFashionConfirmDetail({ item }: { item: import('@/types').Enrich
       {attrBadges.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {attrBadges.map((b) => (
-            <span key={b} className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-500 font-medium">{b}</span>
+            <span key={b} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium">{b}</span>
           ))}
         </div>
       )}
@@ -370,7 +371,7 @@ function StepConfirm({
   return (
     <>
       <div className="flex items-center gap-2 mb-1">
-        <button onClick={onBack} className="text-gray-400 hover:text-gray-600 p-1 -ml-1">
+        <button aria-label="이전 단계로" onClick={onBack} className="text-gray-400 hover:text-gray-600 p-1 -ml-1">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -388,7 +389,7 @@ function StepConfirm({
             </span>
           )}
           {domainSummary.fashion > 0 && (
-            <span className="text-[10px] px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-semibold">
+            <span className="text-[10px] px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
               👗 패션 {domainSummary.fashion}개 감지됨
             </span>
           )}
@@ -410,14 +411,14 @@ function StepConfirm({
                 type="text"
                 value={item.name}
                 onChange={(e) => updateName(item.id, e.target.value)}
-                className="w-full bg-transparent text-sm font-medium text-gray-900 focus:outline-none border-b border-transparent focus:border-indigo-400 pb-0.5"
+                className="w-full bg-transparent text-sm font-medium text-gray-900 focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
               />
               <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400 mt-1 mb-0.5">
                 {item.category}
               </span>
               <ItemDetailTags item={item} />
             </div>
-            <button onClick={() => removeItem(item.id)} className="shrink-0 mt-0.5 text-gray-300 hover:text-red-400 transition-colors">
+            <button aria-label="항목 삭제" onClick={() => removeItem(item.id)} className="shrink-0 mt-0.5 text-gray-300 hover:text-red-400 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -429,14 +430,14 @@ function StepConfirm({
       {items.length === 0 && (
         <p className="text-center text-sm text-gray-400 py-6">
           모든 항목이 삭제됐어요.<br />
-          <button onClick={onBack} className="text-indigo-500 underline mt-1">다시 입력하기</button>
+          <button onClick={onBack} className="text-brand-primary underline mt-1">다시 입력하기</button>
         </p>
       )}
 
       <button
         onClick={onConfirm}
         disabled={items.length === 0}
-        className="mt-4 w-full rounded-2xl bg-indigo-600 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-indigo-700 active:scale-95 transition-all"
+        className="mt-4 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
         {items.length > 0 ? `${items.length}개 추가하기` : '항목을 선택하세요'}
       </button>
@@ -551,7 +552,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
           <>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-bold text-gray-900">사진/스크린샷으로 자동 분석</h2>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
+              <button aria-label="닫기" onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>

@@ -65,7 +65,7 @@ export default function CartItemCard({ item, wide, isFavorite, onReorder, onDisc
       <div className="absolute inset-0 flex items-center justify-between px-5 pointer-events-none">
         <motion.div style={{ opacity: reorderOpacity }} className="flex flex-col items-center gap-1">
           <span className="text-2xl">🔄</span>
-          <span className="text-[10px] font-semibold text-indigo-500">재구매</span>
+          <span className="text-[10px] font-semibold text-brand-primary">재구매</span>
         </motion.div>
         <motion.div style={{ opacity: discardOpacity }} className="flex flex-col items-center gap-1">
           <span className="text-2xl">🗑️</span>
@@ -94,6 +94,7 @@ export default function CartItemCard({ item, wide, isFavorite, onReorder, onDisc
           <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
             {onToggleFavorite && (
               <button
+                aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
                 onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }}
                 className="text-base leading-none hover:scale-110 transition-transform"
               >

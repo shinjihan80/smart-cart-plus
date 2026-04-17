@@ -230,7 +230,7 @@ function FridgeCarousel({ onToast }: { onToast: (msg: string) => void }) {
             <span className="text-base">🧊</span>
             <span className="text-xs text-gray-400 font-medium">스마트 냉장고</span>
           </div>
-          <Link href="/fridge" className="text-xs text-indigo-500 font-medium flex items-center gap-0.5">
+          <Link href="/fridge" className="text-xs text-brand-primary font-medium flex items-center gap-0.5">
             전체보기 <ChevronRight size={14} />
           </Link>
         </div>
