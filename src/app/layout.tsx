@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingAdd from "@/components/layout/FloatingAdd";
+import Providers from "@/components/layout/Providers";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -25,11 +26,13 @@ export default function RootLayout({
       className={`${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-gray-50">
-        <main className="flex-1 pb-20 max-w-md mx-auto w-full">
-          {children}
-        </main>
-        <FloatingAdd />
-        <BottomNav />
+        <Providers>
+          <main className="flex-1 pb-20 max-w-md mx-auto w-full">
+            {children}
+          </main>
+          <FloatingAdd />
+          <BottomNav />
+        </Providers>
       </body>
     </html>
   );

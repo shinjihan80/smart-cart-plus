@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import TextImportModal from '@/components/TextImportModal';
+import { useCart } from '@/context/CartContext';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 
 export default function FloatingAdd() {
+  const { addItems } = useCart();
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast]         = useState<string | null>(null);
 
@@ -36,8 +38,9 @@ export default function FloatingAdd() {
       {showModal && (
         <TextImportModal
           onClose={() => setShowModal(false)}
-          onImport={(items) => {
-            showToast(`${items.length}개 상품이 추가됐어요!`);
+          onImport={(newItems) => {
+            addItems(newItems);
+            showToast(`${newItems.length}개 상품이 추가됐어요!`);
           }}
         />
       )}

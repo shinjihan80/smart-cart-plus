@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { foodItems, clothingItems, mockCartItems } from '@/data/mockData';
+import { isFoodItem, isClothingItem } from '@/types';
+import { useCart } from '@/context/CartContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { ChevronRight } from 'lucide-react';
 
@@ -42,13 +43,17 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 }
 
 export default function MyPage() {
-  const urgentCount = foodItems.filter(
+  const { items, discardCount } = useCart();
+  const foodItemsList     = items.filter(isFoodItem);
+  const clothingItemsList = items.filter(isClothingItem);
+
+  const urgentCount = foodItemsList.filter(
     (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
   ).length;
 
-  const coldCount   = foodItems.filter((f) => f.storageType === '냉장').length;
-  const frozenCount = foodItems.filter((f) => f.storageType === '냉동').length;
-  const roomCount   = foodItems.filter((f) => f.storageType === '실온').length;
+  const coldCount   = foodItemsList.filter((f) => f.storageType === '냉장').length;
+  const frozenCount = foodItemsList.filter((f) => f.storageType === '냉동').length;
+  const roomCount   = foodItemsList.filter((f) => f.storageType === '실온').length;
 
   const menuItems = [
     { label: '알림 설정',       emoji: '🔔', desc: '소비 기한 알림, 코디 추천 알림' },
@@ -96,15 +101,16 @@ export default function MyPage() {
         >
           <h3 className="text-xs text-gray-400 font-medium mb-2">종합 통계</h3>
           <div className="divide-y divide-gray-50">
-            <StatRow emoji="🛍️" label="전체 상품"     value={`${mockCartItems.length}개`} />
-            <StatRow emoji="🥦" label="식품"          value={`${foodItems.length}개`} />
-            <StatRow emoji="👗" label="의류·액세서리"  value={`${clothingItems.length}개`} />
+            <StatRow emoji="🛍️" label="전체 상품"     value={`${items.length}개`} />
+            <StatRow emoji="🥦" label="식품"          value={`${foodItemsList.length}개`} />
+            <StatRow emoji="👗" label="의류·액세서리"  value={`${clothingItemsList.length}개`} />
             <StatRow emoji="⚠️" label="소비 임박"     value={`${urgentCount}개`} accent={urgentCount > 0} />
+            <StatRow emoji="🗑️" label="소진 처리 (누적)" value={`${discardCount}건`} />
           </div>
         </motion.div>
 
         {/* 보관 현황 */}
-        {foodItems.length > 0 && (
+        {foodItemsList.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -114,9 +120,9 @@ export default function MyPage() {
           >
             <h3 className="text-xs text-gray-400 font-medium mb-3">보관 현황</h3>
             <div className="flex flex-col gap-2.5">
-              <StorageBar emoji="❄️" label="냉장" count={coldCount}   total={foodItems.length} />
-              <StorageBar emoji="🧊" label="냉동" count={frozenCount} total={foodItems.length} />
-              <StorageBar emoji="📦" label="실온" count={roomCount}   total={foodItems.length} />
+              <StorageBar emoji="❄️" label="냉장" count={coldCount}   total={foodItemsList.length} />
+              <StorageBar emoji="🧊" label="냉동" count={frozenCount} total={foodItemsList.length} />
+              <StorageBar emoji="📦" label="실온" count={roomCount}   total={foodItemsList.length} />
             </div>
           </motion.div>
         )}

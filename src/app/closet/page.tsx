@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { clothingItems } from '@/data/mockData';
+import { isClothingItem } from '@/types';
+import { useCart } from '@/context/CartContext';
 import { Wind, Thermometer, Droplets } from 'lucide-react';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
@@ -24,7 +25,8 @@ const SEASON_TAG_STYLE: Record<string, string> = {
 };
 
 export default function ClosetPage() {
-  const items = clothingItems;
+  const { items: allItems } = useCart();
+  const items = allItems.filter(isClothingItem);
   const clothesCount    = items.filter((c) => c.category === '의류').length;
   const accessoryCount  = items.filter((c) => c.category === '액세서리').length;
   const thinCount       = items.filter((c) => c.thickness === '얇음').length;

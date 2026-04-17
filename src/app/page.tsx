@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { foodItems, clothingItems, mockCartItems } from '@/data/mockData';
 import { isFoodItem, isClothingItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { useCart } from '@/context/CartContext';
 import { ChevronRight, Sparkles } from 'lucide-react';
 
 // ── 시간대 인사말 ────────────────────────────────────────────────────────────
@@ -70,8 +70,9 @@ function Widget({
 }
 
 // ── [A] 데일리 브리핑 ─────────────────────────────────────────────────────────
-function DailyBriefing() {
-  const recommend = clothingItems.find(
+function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
+  const clothes = items.filter(isClothingItem);
+  const recommend = clothes.find(
     (c) => c.weatherTags?.includes('봄') || c.weatherTags?.includes('여름'),
   );
 
@@ -102,8 +103,8 @@ function DailyBriefing() {
 }
 
 // ── [B-1] 옷장 현황 (1x1) ────────────────────────────────────────────────────
-function ClosetSummary() {
-  const clothes = clothingItems.filter(isClothingItem);
+function ClosetSummary({ items }: { items: import('@/types').CartItem[] }) {
+  const clothes = items.filter(isClothingItem);
   const thinCount  = clothes.filter((c) => c.thickness === '얇음').length;
   const thickCount = clothes.filter((c) => c.thickness === '두꺼움').length;
 
@@ -207,8 +208,8 @@ function FridgeCard({
   );
 }
 
-function FridgeCarousel() {
-  const sorted = foodItems
+function FridgeCarousel({ items }: { items: import('@/types').CartItem[] }) {
+  const sorted = items.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
     .sort((a, b) => a.dDay - b.dDay);
 
@@ -243,9 +244,9 @@ function FridgeCarousel() {
 }
 
 // ── [D] 최근 쇼핑 내역 ────────────────────────────────────────────────────────
-function RecentOrders() {
+function RecentOrders({ items }: { items: import('@/types').CartItem[] }) {
   const total = MOCK_ORDERS.reduce((sum, o) => sum + o.price, 0);
-  const orders = mockCartItems.map((item) => {
+  const orders = items.map((item) => {
     const mock = MOCK_ORDERS.find((o) => o.id === item.id);
     return {
       ...item,
@@ -296,6 +297,7 @@ function RecentOrders() {
 
 // ── 홈 대시보드 ───────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const { items } = useCart();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -322,11 +324,11 @@ export default function HomePage() {
         <Skeleton />
       ) : (
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
-          <DailyBriefing />
-          <ClosetSummary />
+          <DailyBriefing items={items} />
+          <ClosetSummary items={items} />
           <MonthlySpending />
-          <FridgeCarousel />
-          <RecentOrders />
+          <FridgeCarousel items={items} />
+          <RecentOrders items={items} />
         </div>
       )}
     </div>

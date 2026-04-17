@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { foodItems } from '@/data/mockData';
+import { isFoodItem } from '@/types';
+import { useCart } from '@/context/CartContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { Snowflake, Thermometer, Package } from 'lucide-react';
 
@@ -17,7 +18,8 @@ const STORAGE_STYLE = {
 } as const;
 
 export default function FridgePage() {
-  const items = foodItems
+  const { items: allItems } = useCart();
+  const items = allItems.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
     .sort((a, b) => a.dDay - b.dDay);
 
