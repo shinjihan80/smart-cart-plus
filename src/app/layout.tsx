@@ -13,7 +13,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Smart Cart Plus",
-  description: "라이프스타일 쇼핑 관리 앱",
+  description: "라이프스타일 AI 매니저",
+  manifest: "/manifest.json",
+  themeColor: "#4F46E5",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SmartCart",
+  },
 };
 
 export default function RootLayout({
