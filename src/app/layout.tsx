@@ -3,7 +3,6 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingAdd from "@/components/layout/FloatingAdd";
-import PageTransition from "@/components/layout/PageTransition";
 import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 
@@ -40,13 +39,12 @@ export default function RootLayout({
     <html
       lang="ko"
       className={`${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-gray-50">
         <Providers>
           <main className="flex-1 pb-20 max-w-md mx-auto w-full">
-            <PageTransition>
-              {children}
-            </PageTransition>
+            {children}
           </main>
           <FloatingAdd />
           <BottomNav />

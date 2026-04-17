@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Refrigerator, Shirt, User } from 'lucide-react';
@@ -10,17 +11,20 @@ import { calcRemainingDays } from '@/components/FoodTags';
 export default function BottomNav() {
   const pathname = usePathname();
   const { items } = useCart();
+  const [mounted, setMounted] = useState(false);
 
-  const urgentCount   = items.filter(isFoodItem).filter(
+  useEffect(() => setMounted(true), []);
+
+  const urgentCount   = mounted ? items.filter(isFoodItem).filter(
     (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
-  ).length;
-  const clothingCount = items.filter(isClothingItem).length;
+  ).length : 0;
+  const clothingCount = mounted ? items.filter(isClothingItem).length : 0;
 
   const NAV_ITEMS = [
-    { href: '/',       label: '홈',       icon: Home,         badge: 0 },
-    { href: '/fridge', label: '냉장고',   icon: Refrigerator, badge: urgentCount },
-    { href: '/closet', label: '옷장',     icon: Shirt,        badge: clothingCount },
-    { href: '/mypage', label: '마이',     icon: User,         badge: 0 },
+    { href: '/',       label: '홈',     icon: Home,         badge: 0 },
+    { href: '/fridge', label: '냉장고', icon: Refrigerator, badge: urgentCount },
+    { href: '/closet', label: '옷장',   icon: Shirt,        badge: clothingCount },
+    { href: '/mypage', label: '마이',   icon: User,         badge: 0 },
   ] as const;
 
   return (
