@@ -8,72 +8,63 @@ function daysAgo(n: number): string {
 }
 
 // ────────────────────────────────────────────────
-// A. 식품 Mock Data
+// A. 식품 Mock Data (세분화된 카테고리)
 // ────────────────────────────────────────────────
 export const foodItems: FoodItem[] = [
+  // ── 신선식품 ──
   {
-    id:                'f1',
-    name:              '친환경 샐러드 믹스',
-    category:          '식품',
-    storageType:       '냉장',
-    baseShelfLifeDays: 5,
-    purchaseDate:      daysAgo(3),   // D-2 (임박)
-    nutritionFacts: {
-      calories: 20,
-      protein:  1.5,
-      fat:      0.3,
-      carbs:    3.2,
-    },
+    id: 'f1', name: '친환경 샐러드 믹스',
+    category: '식품', foodCategory: '채소·과일', storageType: '냉장', baseShelfLifeDays: 5, purchaseDate: daysAgo(3),
+    nutritionFacts: { calories: 20, protein: 1.5, fat: 0.3, carbs: 3.2 },
   },
   {
-    id:                'f2',
-    name:              '아이용 한우 불고기',
-    category:          '식품',
-    storageType:       '냉동',
-    baseShelfLifeDays: 30,
-    purchaseDate:      daysAgo(7),   // D-23 (여유)
-    nutritionFacts: {
-      calories: 210,
-      protein:  18.0,
-      fat:      13.5,
-      carbs:    2.1,
-    },
+    id: 'f2', name: '아이용 한우 불고기',
+    category: '식품', foodCategory: '정육·계란', storageType: '냉동', baseShelfLifeDays: 30, purchaseDate: daysAgo(7),
+    nutritionFacts: { calories: 210, protein: 18.0, fat: 13.5, carbs: 2.1 },
   },
   {
-    id:                'f3',
-    name:              '국내산 유기농 두부',
-    category:          '식품',
-    storageType:       '냉장',
-    baseShelfLifeDays: 7,
-    purchaseDate:      daysAgo(2),   // D-5 (보통)
-    nutritionFacts: {
-      calories: 75,
-      protein:  8.1,
-      fat:      4.2,
-      carbs:    1.8,
-    },
+    id: 'f3', name: '국내산 유기농 두부',
+    category: '식품', foodCategory: '채소·과일', storageType: '냉장', baseShelfLifeDays: 7, purchaseDate: daysAgo(2),
+    nutritionFacts: { calories: 75, protein: 8.1, fat: 4.2, carbs: 1.8 },
   },
   {
-    id:                'f4',
-    name:              '제주 감귤 주스',
-    category:          '식품',
-    storageType:       '냉장',
-    baseShelfLifeDays: 10,
-    purchaseDate:      daysAgo(9),   // D-1 (긴급)
-    nutritionFacts: {
-      calories: 45,
-      protein:  0.5,
-      fat:      0.1,
-      carbs:    10.5,
-    },
+    id: 'f6', name: '노르웨이 생연어',
+    category: '식품', foodCategory: '수산·해산', storageType: '냉장', baseShelfLifeDays: 3, purchaseDate: daysAgo(1),
+    nutritionFacts: { calories: 180, protein: 20.0, fat: 11.0, carbs: 0 },
   },
   {
-    id:                'f5',
-    name:              '통밀 식빵',
-    category:          '식품',
-    storageType:       '실온',
-    baseShelfLifeDays: 4,
-    purchaseDate:      daysAgo(1),   // D-3 (경고)
+    id: 'f7', name: '무항생제 달걀 15구',
+    category: '식품', foodCategory: '정육·계란', storageType: '냉장', baseShelfLifeDays: 21, purchaseDate: daysAgo(5),
+    nutritionFacts: { calories: 147, protein: 12.6, fat: 9.9, carbs: 0.7 },
+  },
+  {
+    id: 'f8', name: '서울우유 1L',
+    category: '식품', foodCategory: '유제품', storageType: '냉장', baseShelfLifeDays: 10, purchaseDate: daysAgo(6),
+    nutritionFacts: { calories: 65, protein: 3.2, fat: 3.6, carbs: 4.7 },
+  },
+  // ── 음료·간식 ──
+  {
+    id: 'f4', name: '제주 감귤 주스',
+    category: '식품', foodCategory: '음료', storageType: '냉장', baseShelfLifeDays: 10, purchaseDate: daysAgo(9),
+    nutritionFacts: { calories: 45, protein: 0.5, fat: 0.1, carbs: 10.5 },
+  },
+  {
+    id: 'f9', name: '오리온 초코파이',
+    category: '식품', foodCategory: '간식·과자', storageType: '실온', baseShelfLifeDays: 90, purchaseDate: daysAgo(3),
+  },
+  // ── 가공식품 ──
+  {
+    id: 'f5', name: '통밀 식빵',
+    category: '식품', foodCategory: '빵·베이커리', storageType: '실온', baseShelfLifeDays: 4, purchaseDate: daysAgo(1),
+  },
+  {
+    id: 'f10', name: '신라면 멀티팩',
+    category: '식품', foodCategory: '면·즉석', storageType: '실온', baseShelfLifeDays: 180, purchaseDate: daysAgo(10),
+  },
+  {
+    id: 'f11', name: '종가집 맛김치',
+    category: '식품', foodCategory: '채소·과일', storageType: '냉장', baseShelfLifeDays: 30, purchaseDate: daysAgo(4),
+    nutritionFacts: { calories: 18, protein: 1.8, fat: 0.5, carbs: 2.4 },
   },
 ];
 

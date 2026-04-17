@@ -141,6 +141,7 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
       id:                raw.id,
       name:              raw.name,
       category:          '식품',
+      foodCategory:      '기타 식품',
       storageType,
       baseShelfLifeDays: Math.max(1, Math.round(raw.baseShelfLifeDays)),
       purchaseDate:      raw.purchaseDate || new Date().toISOString().split('T')[0],

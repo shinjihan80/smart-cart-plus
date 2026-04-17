@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { isFoodItem, type FoodItem, type StorageType } from '@/types';
+import { isFoodItem, type FoodItem, type StorageType, type FoodGroup, FOOD_GROUP, FOOD_EMOJI } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
@@ -92,8 +92,8 @@ function SwipeFoodCard({
               <Icon size={10} />
               {style.label}
             </span>
-            <span className="text-[10px] text-gray-400 tabular-nums">
-              {item.baseShelfLifeDays}일 보관
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
+              {FOOD_EMOJI[item.foodCategory]} {item.foodCategory}
             </span>
           </div>
           {/* D-Day 프로그레스 바 */}
@@ -232,26 +232,35 @@ function RecipeSection({ foodNames }: { foodNames: string[] }) {
 }
 
 type StorageFilter = '전체' | StorageType;
+type GroupFilter   = '전체' | FoodGroup;
 type SortKey = 'dDay' | 'name';
 
 export default function FridgePage() {
   const { items: allItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
-  const [search, setSearch]   = useState('');
-  const [filter, setFilter]   = useState<StorageFilter>('전체');
-  const [sortBy, setSortBy]   = useState<SortKey>('dDay');
+  const [search, setSearch]         = useState('');
+  const [storageFilter, setStorageFilter] = useState<StorageFilter>('전체');
+  const [groupFilter, setGroupFilter]     = useState<GroupFilter>('전체');
+  const [sortBy, setSortBy]         = useState<SortKey>('dDay');
 
   const allFood = allItems.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }));
 
   const items = allFood
-    .filter((i) => filter === '전체' || i.storageType === filter)
+    .filter((i) => storageFilter === '전체' || i.storageType === storageFilter)
+    .filter((i) => groupFilter === '전체' || FOOD_GROUP[i.foodCategory] === groupFilter)
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'dDay' ? a.dDay - b.dDay : a.name.localeCompare(b.name));
 
   const urgentCount = allFood.filter((i) => i.dDay <= 3).length;
   const coldCount   = allFood.filter((i) => i.storageType === '냉장').length;
   const frozenCount = allFood.filter((i) => i.storageType === '냉동').length;
+  const roomCount   = allFood.filter((i) => i.storageType === '실온').length;
+
+  const foodGroupCounts = (['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => ({
+    group: g,
+    count: allFood.filter((f) => FOOD_GROUP[f.foodCategory] === g).length,
+  })).filter((g) => g.count > 0);
 
   function handleDiscard(id: string) {
     const name = allFood.find((i) => i.id === id)?.name ?? '';
@@ -259,11 +268,18 @@ export default function FridgePage() {
     showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
   }
 
-  const FILTERS: { key: StorageFilter; label: string }[] = [
+  const STORAGE_FILTERS: { key: StorageFilter; label: string }[] = [
     { key: '전체', label: '전체' },
     { key: '냉장', label: '❄️ 냉장' },
     { key: '냉동', label: '🧊 냉동' },
     { key: '실온', label: '📦 실온' },
+  ];
+
+  const GROUP_FILTERS: { key: GroupFilter; label: string }[] = [
+    { key: '전체',     label: '전체' },
+    { key: '신선식품', label: '🥬 신선' },
+    { key: '가공식품', label: '🍜 가공' },
+    { key: '음료·간식', label: '🧃 음료·간식' },
   ];
 
   return (
@@ -284,25 +300,32 @@ export default function FridgePage() {
           className={CARD}
           style={CARD_SHADOW}
         >
-          <div className="grid grid-cols-4 gap-3 text-center">
-            <div>
-              <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{items.length}</p>
+          <div className="flex justify-between text-center mb-3">
+            <div className="flex-1">
+              <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{allFood.length}</p>
               <p className="text-[10px] text-gray-400 mt-0.5">전체</p>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-2xl font-extrabold text-sky-600 tabular-nums">{coldCount}</p>
               <p className="text-[10px] text-gray-400 mt-0.5">냉장</p>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-2xl font-extrabold text-indigo-600 tabular-nums">{frozenCount}</p>
               <p className="text-[10px] text-gray-400 mt-0.5">냉동</p>
             </div>
-            <div>
+            <div className="flex-1">
               <p className={`text-2xl font-extrabold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
                 {urgentCount}
               </p>
               <p className="text-[10px] text-gray-400 mt-0.5">임박</p>
             </div>
+          </div>
+          <div className="flex gap-1.5 flex-wrap">
+            {foodGroupCounts.map(({ group, count }) => (
+              <span key={group} className="text-[9px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
+                {group} {count}
+              </span>
+            ))}
           </div>
         </motion.div>
 
@@ -322,15 +345,40 @@ export default function FridgePage() {
             />
           </div>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2">
+          {/* 보관 타입 필터 */}
+          <div className="flex items-center justify-between">
+            <div className="flex gap-1.5">
+              {STORAGE_FILTERS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setStorageFilter(key)}
+                  className={`px-2.5 py-1 rounded-2xl text-[11px] font-medium transition-colors ${
+                    storageFilter === key
+                      ? 'bg-brand-primary text-white'
+                      : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setSortBy(sortBy === 'dDay' ? 'name' : 'dDay')}
+              className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
+            >
+              {sortBy === 'dDay' ? '📅 임박순' : '🔤 이름순'}
+            </button>
+          </div>
+          {/* 식품 그룹 필터 */}
           <div className="flex gap-1.5">
-            {FILTERS.map(({ key, label }) => (
+            {GROUP_FILTERS.map(({ key, label }) => (
               <button
                 key={key}
-                onClick={() => setFilter(key)}
-                className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
-                  filter === key
-                    ? 'bg-brand-primary text-white'
+                onClick={() => setGroupFilter(key)}
+                className={`px-2.5 py-1 rounded-2xl text-[11px] font-medium transition-colors ${
+                  groupFilter === key
+                    ? 'bg-gray-900 text-white'
                     : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
                 }`}
               >
@@ -338,27 +386,21 @@ export default function FridgePage() {
               </button>
             ))}
           </div>
-          <button
-            onClick={() => setSortBy(sortBy === 'dDay' ? 'name' : 'dDay')}
-            className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
-          >
-            {sortBy === 'dDay' ? '📅 임박순' : '🔤 이름순'}
-          </button>
         </div>
 
         {/* 아이템 리스트 (보관 타입별 그룹 or 필터 결과) */}
-        {filter === '전체' && !search ? (
-          // 보관 타입별 섹션 그룹핑
+        {storageFilter === '전체' && groupFilter === '전체' && !search ? (
+          // 식품 그룹별 섹션 그룹핑
           <>
-            {(['냉장', '냉동', '실온'] as const).map((type) => {
-              const group = items.filter((i) => i.storageType === type);
+            {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
+              const group = items.filter((i) => FOOD_GROUP[i.foodCategory] === grp);
               if (group.length === 0) return null;
-              const st = STORAGE_STYLE[type];
+              const grpEmoji = grp === '신선식품' ? '🥬' : grp === '가공식품' ? '🍜' : grp === '음료·간식' ? '🧃' : '📦';
               return (
-                <div key={type}>
+                <div key={grp}>
                   <div className="flex items-center gap-2 mb-2 mt-1">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${st.bg} ${st.text}`}>
-                      {type === '냉장' ? '❄️' : type === '냉동' ? '🧊' : '📦'} {type} {group.length}
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
+                      {grpEmoji} {grp} {group.length}
                     </span>
                     <div className="flex-1 h-px bg-gray-100" />
                   </div>
@@ -386,7 +428,7 @@ export default function FridgePage() {
           <div className="text-center py-12 text-gray-400">
             <p className="text-3xl mb-2">🔍</p>
             <p className="text-sm font-medium">검색 결과가 없어요</p>
-            <button onClick={() => { setSearch(''); setFilter('전체'); }} className="text-xs text-brand-primary mt-1">
+            <button onClick={() => { setSearch(''); setStorageFilter('전체'); setGroupFilter('전체'); }} className="text-xs text-brand-primary mt-1">
               필터 초기화
             </button>
           </div>
