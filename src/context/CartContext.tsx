@@ -7,25 +7,6 @@ import { mockCartItems } from '@/data/mockData';
 const STORAGE_KEY = 'smart-cart-items';
 const DISCARD_KEY = 'smart-cart-discard-count';
 
-function loadItems(): CartItem[] {
-  if (typeof window === 'undefined') return mockCartItems;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored) as CartItem[];
-      return parsed.length > 0 ? parsed : mockCartItems;
-    }
-  } catch { /* ignore */ }
-  return mockCartItems;
-}
-
-function loadDiscardCount(): number {
-  if (typeof window === 'undefined') return 0;
-  try {
-    return parseInt(localStorage.getItem(DISCARD_KEY) ?? '0', 10);
-  } catch { return 0; }
-}
-
 interface CartContextValue {
   items:         CartItem[];
   addItems:      (newItems: CartItem[]) => void;
@@ -37,17 +18,35 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems]               = useState<CartItem[]>(loadItems);
-  const [discardCount, setDiscardCount] = useState<number>(loadDiscardCount);
+  // SSR/클라이언트 동일 초기값 (hydration 불일치 방지)
+  const [items, setItems]               = useState<CartItem[]>(mockCartItems);
+  const [discardCount, setDiscardCount] = useState(0);
+  const [hydrated, setHydrated]         = useState(false);
 
-  // localStorage 동기화
+  // 클라이언트 마운트 후 localStorage에서 복원
   useEffect(() => {
+    try {
+      const storedItems = localStorage.getItem(STORAGE_KEY);
+      if (storedItems) {
+        const parsed = JSON.parse(storedItems) as CartItem[];
+        if (parsed.length > 0) setItems(parsed);
+      }
+      const storedCount = localStorage.getItem(DISCARD_KEY);
+      if (storedCount) setDiscardCount(parseInt(storedCount, 10));
+    } catch { /* ignore */ }
+    setHydrated(true);
+  }, []);
+
+  // localStorage 동기화 (hydration 완료 후에만)
+  useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+  }, [items, hydrated]);
 
   useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem(DISCARD_KEY, String(discardCount));
-  }, [discardCount]);
+  }, [discardCount, hydrated]);
 
   const addItems = useCallback((newItems: CartItem[]) => {
     setItems((prev) => [...prev, ...newItems]);
