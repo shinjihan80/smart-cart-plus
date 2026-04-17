@@ -52,7 +52,7 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 }
 
 export default function MyPage() {
-  const { items, discardCount, discardHistory, resetData } = useCart();
+  const { items, archived, discardCount, discardHistory, resetData, archiveExpired } = useCart();
   const { showToast } = useToast();
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
@@ -99,7 +99,14 @@ export default function MyPage() {
     }
   }
 
+  function handleArchive() {
+    const count = archiveExpired();
+    if (count > 0) showToast(`${count}개 만료 식품이 아카이브됐어요.`);
+    else showToast('아카이브할 만료 식품이 없어요.');
+  }
+
   const menuItems = [
+    { label: '만료 식품 정리',   emoji: '📦', desc: '보관 기한 +7일 초과 항목 아카이브', action: handleArchive },
     { label: '패밀리 관리',     emoji: '👨‍👩‍👧', desc: '가족 구성원 추가 및 공유', action: undefined },
     { label: '데이터 초기화',   emoji: '💾', desc: '샘플 데이터로 복원', action: handleReset },
     { label: '고객센터',        emoji: '💬', desc: '문의 및 피드백', action: undefined },
@@ -234,6 +241,64 @@ export default function MyPage() {
             })()}
           </div>
         </motion.div>
+
+        {/* 쇼핑몰 연동 */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.28 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <h3 className="text-xs text-gray-400 font-medium mb-3">쇼핑몰 자동 연동</h3>
+          <div className="flex flex-col gap-2.5">
+            {[
+              { name: '쿠팡',    mallBg: 'bg-mall-coupang',    status: '준비 중' },
+              { name: '네이버',   mallBg: 'bg-mall-naver',      status: '준비 중' },
+              { name: '마켓컬리', mallBg: 'bg-mall-kurly',      status: '준비 중' },
+              { name: '무신사',   mallBg: 'bg-mall-musinsa',    status: '준비 중' },
+            ].map((mall) => (
+              <div key={mall.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-7 h-7 rounded-full ${mall.mallBg} flex items-center justify-center`}>
+                    <span className="text-white text-[9px] font-bold">{mall.name.charAt(0)}</span>
+                  </div>
+                  <span className="text-sm text-gray-700">{mall.name}</span>
+                </div>
+                <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                  {mall.status}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
+            이메일 파싱으로 구매 내역을 자동 가져오는 기능이 곧 추가됩니다.
+          </p>
+        </motion.div>
+
+        {/* 아카이브 */}
+        {archived.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...springTransition, delay: 0.29 }}
+            className={CARD}
+            style={CARD_SHADOW}
+          >
+            <h3 className="text-xs text-gray-400 font-medium mb-2">아카이브 ({archived.length}개)</h3>
+            <div className="flex flex-col gap-1.5">
+              {archived.slice(0, 5).map((item, i) => (
+                <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{item.category === '식품' ? '🥦' : '👗'}</span>
+                    <span className="text-sm text-gray-500 truncate">{item.name}</span>
+                  </div>
+                  <span className="text-[10px] text-gray-300">{item.category}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* 알림 설정 */}
         <motion.div

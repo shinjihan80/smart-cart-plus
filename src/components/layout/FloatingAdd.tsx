@@ -30,8 +30,12 @@ export default function FloatingAdd() {
         <TextImportModal
           onClose={() => setShowModal(false)}
           onImport={(newItems) => {
-            addItems(newItems);
-            showToast(`${newItems.length}개 상품이 추가됐어요!`);
+            const { added, skipped } = addItems(newItems);
+            if (skipped > 0) {
+              showToast(`${added}개 추가 (${skipped}개 중복 건너뜀)`);
+            } else {
+              showToast(`${added}개 상품이 추가됐어요!`);
+            }
           }}
         />
       )}

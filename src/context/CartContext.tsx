@@ -1,11 +1,14 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
-import { CartItem } from '@/types';
+import { CartItem, isFoodItem } from '@/types';
 import { mockCartItems } from '@/data/mockData';
+import { calcRemainingDays } from '@/components/FoodTags';
 
-const STORAGE_KEY = 'smart-cart-items';
-const DISCARD_KEY = 'smart-cart-discard-count';
+const STORAGE_KEY  = 'smart-cart-items';
+const DISCARD_KEY  = 'smart-cart-discard-count';
+const ARCHIVE_KEY  = 'smart-cart-archive';
+const HISTORY_KEY  = 'smart-cart-history';
 
 interface DiscardRecord {
   name:      string;
@@ -15,10 +18,12 @@ interface DiscardRecord {
 
 interface CartContextValue {
   items:           CartItem[];
-  addItems:        (newItems: CartItem[]) => void;
+  archived:        CartItem[];
+  addItems:        (newItems: CartItem[]) => { added: number; skipped: number };
   removeItem:      (id: string) => void;
   undoRemove:      () => void;
   resetData:       () => void;
+  archiveExpired:  () => number;
   discardCount:    number;
   discardHistory:  DiscardRecord[];
 }
@@ -26,14 +31,14 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  // SSR/클라이언트 동일 초기값 (hydration 불일치 방지)
   const [items, setItems]               = useState<CartItem[]>(mockCartItems);
+  const [archived, setArchived]         = useState<CartItem[]>([]);
   const [discardCount, setDiscardCount] = useState(0);
   const [hydrated, setHydrated]         = useState(false);
   const [lastRemoved, setLastRemoved]   = useState<{ item: CartItem; index: number } | null>(null);
   const [discardHistory, setDiscardHistory] = useState<DiscardRecord[]>([]);
 
-  // 클라이언트 마운트 후 localStorage에서 복원
+  // 클라이언트 마운트 후 localStorage 복원
   useEffect(() => {
     try {
       const storedItems = localStorage.getItem(STORAGE_KEY);
@@ -43,11 +48,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       const storedCount = localStorage.getItem(DISCARD_KEY);
       if (storedCount) setDiscardCount(parseInt(storedCount, 10));
+      const storedArchive = localStorage.getItem(ARCHIVE_KEY);
+      if (storedArchive) setArchived(JSON.parse(storedArchive));
+      const storedHistory = localStorage.getItem(HISTORY_KEY);
+      if (storedHistory) setDiscardHistory(JSON.parse(storedHistory));
     } catch { /* ignore */ }
     setHydrated(true);
   }, []);
 
-  // localStorage 동기화 (hydration 완료 후에만)
+  // localStorage 동기화
   useEffect(() => {
     if (!hydrated) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
@@ -58,8 +67,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(DISCARD_KEY, String(discardCount));
   }, [discardCount, hydrated]);
 
-  const addItems = useCallback((newItems: CartItem[]) => {
-    setItems((prev) => [...prev, ...newItems]);
+  useEffect(() => {
+    if (!hydrated) return;
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archived));
+  }, [archived, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(discardHistory));
+  }, [discardHistory, hydrated]);
+
+  // 중복 방지 addItems — 같은 이름+카테고리면 스킵
+  const addItems = useCallback((newItems: CartItem[]): { added: number; skipped: number } => {
+    let added = 0;
+    let skipped = 0;
+    setItems((prev) => {
+      const unique = newItems.filter((ni) => {
+        const isDuplicate = prev.some(
+          (existing) => existing.name === ni.name && existing.category === ni.category,
+        );
+        if (isDuplicate) { skipped++; return false; }
+        added++;
+        return true;
+      });
+      return [...prev, ...unique];
+    });
+    return { added, skipped };
   }, []);
 
   const removeItem = useCallback((id: string) => {
@@ -71,7 +104,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setDiscardHistory((h) => [
           { name: item.name, category: item.category, date: new Date().toLocaleDateString('ko-KR') },
           ...h,
-        ].slice(0, 20));
+        ].slice(0, 30));
       }
       return prev.filter((i) => i.id !== id);
     });
@@ -89,17 +122,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setLastRemoved(null);
   }, [lastRemoved]);
 
+  // 만료된 식품 자동 아카이브 (보관 기한 + 7일 초과)
+  const archiveExpired = useCallback((): number => {
+    let count = 0;
+    setItems((prev) => {
+      const toArchive: CartItem[] = [];
+      const remaining = prev.filter((item) => {
+        if (isFoodItem(item)) {
+          const dDay = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
+          if (dDay < -7) {
+            toArchive.push(item);
+            count++;
+            return false;
+          }
+        }
+        return true;
+      });
+      if (toArchive.length > 0) {
+        setArchived((a) => [...toArchive, ...a].slice(0, 50));
+      }
+      return remaining;
+    });
+    return count;
+  }, []);
+
   const resetData = useCallback(() => {
     setItems(mockCartItems);
+    setArchived([]);
     setDiscardCount(0);
     setDiscardHistory([]);
     setLastRemoved(null);
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(DISCARD_KEY);
+    localStorage.removeItem(ARCHIVE_KEY);
+    localStorage.removeItem(HISTORY_KEY);
   }, []);
 
   return (
-    <CartContext.Provider value={{ items, addItems, removeItem, undoRemove, resetData, discardCount, discardHistory }}>
+    <CartContext.Provider value={{
+      items, archived, addItems, removeItem, undoRemove, resetData, archiveExpired,
+      discardCount, discardHistory,
+    }}>
       {children}
     </CartContext.Provider>
   );
