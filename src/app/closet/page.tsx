@@ -179,6 +179,35 @@ export default function ClosetPage() {
           </div>
         </motion.div>
 
+        {/* 계절 추천 */}
+        {(() => {
+          const month = new Date().getMonth() + 1;
+          const season = month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
+          const seasonItems = allClothing.filter((c) => c.weatherTags?.includes(season));
+          if (seasonItems.length === 0) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...springTransition, delay: 0.08 }}
+              className={`${CARD} !py-3 !px-4`}
+              style={CARD_SHADOW}
+            >
+              <p className="text-xs text-gray-400 font-medium mb-2">
+                {season === '봄' ? '🌸' : season === '여름' ? '☀️' : season === '가을' ? '🍂' : '❄️'} 지금 입기 좋은 옷
+              </p>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                {seasonItems.map((item) => (
+                  <div key={item.id} className="shrink-0 flex items-center gap-2 bg-brand-primary/5 rounded-2xl px-3 py-1.5">
+                    <span className="text-sm">{CATEGORY_EMOJI[item.category] ?? '📦'}</span>
+                    <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          );
+        })()}
+
         {/* 검색 + 필터 */}
         <div className="flex gap-2">
           <div className="flex-1 relative">

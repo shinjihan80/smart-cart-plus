@@ -545,7 +545,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-2xl px-5 pt-5 pb-8 shadow-xl">
+      <div className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] px-5 pt-5 pb-8" style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.1)' }}>
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200 sm:hidden" />
 
         {step === 'input' ? (

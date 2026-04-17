@@ -91,6 +91,17 @@ function SwipeFoodCard({
               {item.baseShelfLifeDays}일 보관
             </span>
           </div>
+          {item.nutritionFacts && (
+            <div className="flex gap-2 mt-2">
+              <span className="text-[9px] text-gray-400 tabular-nums">{item.nutritionFacts.calories}kcal</span>
+              <span className="text-[9px] text-gray-300">|</span>
+              <span className="text-[9px] text-gray-400 tabular-nums">단 {item.nutritionFacts.protein}g</span>
+              <span className="text-[9px] text-gray-300">|</span>
+              <span className="text-[9px] text-gray-400 tabular-nums">지 {item.nutritionFacts.fat}g</span>
+              <span className="text-[9px] text-gray-300">|</span>
+              <span className="text-[9px] text-gray-400 tabular-nums">탄 {item.nutritionFacts.carbs}g</span>
+            </div>
+          )}
         </div>
 
         <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
