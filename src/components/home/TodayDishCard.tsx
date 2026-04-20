@@ -4,19 +4,21 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
-import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { Widget } from './shared';
 
 export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const foods = items.filter(isFoodItem);
-  const matched = matchRecipes(foods, 1);
+  const season = currentSeasonByMonth();
+  const matched = matchRecipes(foods, 1, season);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 
   if (matched.length === 0) return null;
-  const { recipe, matchedItems, urgentBoosted } = matched[0];
+  const { recipe, matchedItems, urgentBoosted, seasonBoosted } = matched[0];
 
   return (
     <>
@@ -42,6 +44,11 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                   {urgentBoosted && (
                     <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold">
                       ⚠️ 임박
+                    </span>
+                  )}
+                  {seasonBoosted && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+                      {SEASON_EMOJI[season]} {season}철
                     </span>
                   )}
                 </div>

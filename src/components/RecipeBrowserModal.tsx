@@ -3,20 +3,12 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
-import { RECIPES, recipeGradient, type Recipe } from '@/lib/recipes';
+import { RECIPES, recipeGradient, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useModalA11y } from '@/lib/useModalA11y';
+import { currentSeasonByMonth } from '@/lib/season';
 
-type FilterKey = '전체' | '즐겨찾기' | '간단' | '아침' | '점심' | '간식';
-
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: '전체',     label: '전체' },
-  { key: '즐겨찾기', label: '♥ 즐겨찾기' },
-  { key: '간단',     label: '간단' },
-  { key: '아침',     label: '아침' },
-  { key: '점심',     label: '점심' },
-  { key: '간식',     label: '간식' },
-];
+type FilterKey = '전체' | '이번계절' | '즐겨찾기' | '간단' | '아침' | '점심' | '간식';
 
 interface RecipeBrowserModalProps {
   onSelect: (recipe: Recipe) => void;
@@ -26,14 +18,26 @@ interface RecipeBrowserModalProps {
 export default function RecipeBrowserModal({ onSelect, onClose }: RecipeBrowserModalProps) {
   useModalA11y(onClose);
   const { isFavorite } = useRecipeFavorites();
+  const season = currentSeasonByMonth();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterKey>('전체');
+
+  const FILTERS: { key: FilterKey; label: string }[] = [
+    { key: '전체',     label: '전체' },
+    { key: '이번계절', label: `${SEASON_EMOJI[season]} 이번 계절` },
+    { key: '즐겨찾기', label: '♥ 즐겨찾기' },
+    { key: '간단',     label: '간단' },
+    { key: '아침',     label: '아침' },
+    { key: '점심',     label: '점심' },
+    { key: '간식',     label: '간식' },
+  ];
 
   const results = useMemo(() => {
     const q = search.trim().toLowerCase();
     return RECIPES
       .filter((r) => {
         if (filter === '즐겨찾기') return isFavorite(r.id);
+        if (filter === '이번계절') return r.seasons?.includes(season) ?? false;
         if (filter === '간단')     return r.difficulty === '간단';
         if (filter === '아침' || filter === '점심' || filter === '간식')
           return r.tags?.includes(filter) ?? false;
@@ -50,7 +54,7 @@ export default function RecipeBrowserModal({ onSelect, onClose }: RecipeBrowserM
         if (aFav !== bFav) return aFav - bFav;
         return a.name.localeCompare(b.name);
       });
-  }, [search, filter, isFavorite]);
+  }, [search, filter, isFavorite, season]);
 
   return (
     <AnimatePresence>
@@ -142,6 +146,9 @@ export default function RecipeBrowserModal({ onSelect, onClose }: RecipeBrowserM
                         <div className="flex items-center gap-1.5">
                           <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
                           {fav && <span className="text-[11px] text-brand-warning shrink-0">♥</span>}
+                          {recipe.seasons?.includes(season) && (
+                            <span className="text-[10px] shrink-0" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>
+                          )}
                         </div>
                         <p className="text-[10px] text-gray-400 mt-0.5 truncate">
                           ⏱ {recipe.time} · {recipe.difficulty}{recipe.tags && recipe.tags.length > 0 ? ` · ${recipe.tags.join(', ')}` : ''}

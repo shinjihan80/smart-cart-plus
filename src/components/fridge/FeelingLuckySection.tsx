@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
-import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
-  const matched = matchRecipes(foods, 12);
+  const season = currentSeasonByMonth();
+  const matched = matchRecipes(foods, 12, season);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [pickIndex, setPickIndex] = useState(() => Math.floor(Math.random() * Math.max(1, matched.length)));
   const [selected, setSelected]   = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
@@ -79,6 +81,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
             <p className="text-[10px] text-gray-500 mt-0.5">
               ⏱ {pick.recipe.time} · {pick.recipe.difficulty}
               {pick.urgentBoosted && <span className="text-brand-warning ml-1">· ⚠️ 임박 재료</span>}
+              {pick.seasonBoosted && <span className="text-gray-500 ml-1">· {SEASON_EMOJI[season]} {season}철</span>}
             </p>
             {pick.recipe.blurb && (
               <p className="text-[10px] text-gray-400 mt-1 leading-relaxed line-clamp-1">

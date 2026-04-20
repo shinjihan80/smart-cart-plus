@@ -3,14 +3,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
-import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
-  const rawMatched = matchRecipes(foods, 12);
+  const season = currentSeasonByMonth();
+  const rawMatched = matchRecipes(foods, 12, season);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);
@@ -61,7 +63,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
           </div>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
-          {matched.map(({ recipe, matchedItems, urgentBoosted }) => {
+          {matched.map(({ recipe, matchedItems, urgentBoosted, seasonBoosted }) => {
             const fav = isFavorite(recipe.id);
             return (
               <button
@@ -77,6 +79,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                   <span className="text-2xl">{recipe.emoji}</span>
                   <div className="flex items-center gap-0.5">
                     {fav && <span className="text-[10px] text-brand-warning">♥</span>}
+                    {seasonBoosted && <span className="text-[9px]" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>}
                     {urgentBoosted && <span className="text-[9px]">⚠️</span>}
                   </div>
                 </div>
