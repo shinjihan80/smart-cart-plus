@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FOOD_EMOJI, type CartItem } from '@/types';
+import type { CartItem } from '@/types';
 import { useShoppingList } from '@/lib/shoppingList';
-import { createFoodItemFromIngredient, inferFoodCategory } from '@/lib/ingredientInference';
+import { createFoodItemFromIngredient, inferFoodCategory, getFoodEmoji } from '@/lib/ingredientInference';
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -80,7 +80,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           .sort((a, b) => b.createdAt - a.createdAt)
           .map((it) => {
             const category = inferFoodCategory(it.name);
-            const emoji    = FOOD_EMOJI[category] ?? '📦';
+            const emoji    = getFoodEmoji(it.name, category);
             return (
               <div key={it.id} className="flex items-center gap-2 py-1.5">
                 <span className="text-sm shrink-0">{emoji}</span>

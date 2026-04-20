@@ -62,3 +62,11 @@ export function isSeasonalProduce(name: string, season: Season): boolean {
     (p) => p.seasons.includes(season) && (p.name === name || name.includes(p.name)),
   );
 }
+
+/** 이름으로 제철 재료를 찾아 구체 이모지를 돌려준다 (예: "딸기" → 🍓). 없으면 null. */
+export function lookupSeasonalEmoji(name: string): string | null {
+  const hit = SEASONAL_PRODUCE.find(
+    (p) => p.name === name || name.includes(p.name),
+  );
+  return hit?.emoji ?? null;
+}

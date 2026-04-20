@@ -1,4 +1,5 @@
-import type { FoodCategory, FoodItem, StorageType } from '@/types';
+import { FOOD_EMOJI, type FoodCategory, type FoodItem, type StorageType } from '@/types';
+import { lookupSeasonalEmoji } from './seasonalProduce';
 
 /** 키워드별 우선 매핑 (긴 단어 우선 매칭) */
 const KEYWORD_MAP: Array<{ category: FoodCategory; keywords: readonly string[] }> = [
@@ -20,6 +21,18 @@ export function inferFoodCategory(name: string): FoodCategory {
     if (entry.keywords.some((kw) => name.includes(kw))) return entry.category;
   }
   return '기타 식품';
+}
+
+/**
+ * 이름 기반 통일 이모지 — 제철 구체 이모지(🍓) 우선, 없으면 카테고리 이모지(🥬).
+ * 쇼핑 리스트/장볼 거 추천/재구매 등에서 일관되게 쓰려면 이 헬퍼 호출.
+ */
+export function getFoodEmoji(name: string, category?: FoodCategory): string {
+  return (
+    lookupSeasonalEmoji(name)
+    ?? FOOD_EMOJI[category ?? inferFoodCategory(name)]
+    ?? '📦'
+  );
 }
 
 /** 카테고리별 합리적 기본 보관 방식과 기한 */

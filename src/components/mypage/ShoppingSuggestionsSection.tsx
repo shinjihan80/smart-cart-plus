@@ -2,12 +2,12 @@
 
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { isFoodItem, FOOD_EMOJI, type CartItem } from '@/types';
+import { isFoodItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
-import { inferFoodCategory } from '@/lib/ingredientInference';
+import { getFoodEmoji } from '@/lib/ingredientInference';
 import { SEASON_EMOJI } from '@/lib/recipes';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -44,7 +44,7 @@ export default function ShoppingSuggestionsSection({
           name: f.name,
           reason: d === 0 ? '오늘이 마지막' : `${d}일 뒤 만료`,
           badge: '⚠️ 임박',
-          emoji: FOOD_EMOJI[f.foodCategory] ?? '📦',
+          emoji: getFoodEmoji(f.name, f.foodCategory),
           source: '임박 재구매',
         });
       }
@@ -62,7 +62,7 @@ export default function ShoppingSuggestionsSection({
         name: h.name,
         reason: '최근에 다 썼어요',
         badge: '🔄 재구매',
-        emoji: FOOD_EMOJI[inferFoodCategory(h.name)] ?? '📦',
+        emoji: getFoodEmoji(h.name),
         source: '소진 이력',
       });
       if (seenRebuy.size >= 4) break;
@@ -78,7 +78,7 @@ export default function ShoppingSuggestionsSection({
         name: p.name,
         reason: p.peak === season ? `${season}철 피크` : `${season} 제철`,
         badge: SEASON_EMOJI[season],
-        emoji: p.emoji,
+        emoji: getFoodEmoji(p.name, p.foodCategory),
         source: '제철 재료',
       });
     }
