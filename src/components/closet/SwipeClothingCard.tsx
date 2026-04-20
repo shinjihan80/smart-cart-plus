@@ -8,6 +8,7 @@ import type { MatchBadge } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { useToast } from '@/context/ToastContext';
 import { useProfiles } from '@/lib/profile';
+import { compareSize } from '@/lib/sizeRecommend';
 import { springTransition, CARD_SHADOW, THICKNESS_STYLE, SEASON_TAG_STYLE, MATCH_STYLE } from './shared';
 
 interface SwipeClothingCardProps {
@@ -25,6 +26,9 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
   const { showToast } = useToast();
   const { profiles } = useProfiles();
   const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
+  // 사이즈 매칭 — 소유자가 지정되어 있으면 해당 프로필 기준, 아니면 본인(isMain)
+  const sizeReference = owner ?? profiles.find((p) => p.isMain) ?? null;
+  const sizeMatch = sizeReference ? compareSize(item.category, item.size, sizeReference.body) : { status: 'unknown' as const, label: '' };
   const wear = getEntry(item.id);
   const wornToday = wear.lastWorn === new Date().toISOString().split('T')[0];
   const daysAgo = wear.lastWorn ? daysSince(wear.lastWorn) : null;
@@ -112,6 +116,18 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               {owner && (
                 <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
                   {owner.name}
+                </span>
+              )}
+              {sizeMatch.status !== 'unknown' && sizeMatch.label && (
+                <span
+                  className={`shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${
+                    sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
+                    sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
+                    'bg-brand-warning/10 text-brand-warning'
+                  }`}
+                  title={sizeMatch.detail}
+                >
+                  {sizeMatch.label}
                 </span>
               )}
             </div>
@@ -229,7 +245,14 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                         className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
                       />
                     ) : (
-                      <p className="text-gray-700 font-medium mt-0.5">{item.size}</p>
+                      <p className="text-gray-700 font-medium mt-0.5">
+                        {item.size}
+                        {sizeMatch.detail && (
+                          <span className="ml-1 text-[9px] text-gray-400 font-normal">
+                            · {sizeReference?.name ?? '본인'} {sizeMatch.detail}
+                          </span>
+                        )}
+                      </p>
                     )}
                   </div>
                   <div>
