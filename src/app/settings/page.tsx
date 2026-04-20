@@ -15,6 +15,7 @@ import {
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import NotificationSettings from '@/components/mypage/NotificationSettings';
 import AppInfo              from '@/components/mypage/AppInfo';
+import ProfilesSection      from '@/components/settings/ProfilesSection';
 
 export default function SettingsPage() {
   const { items, resetData, archiveExpired, restoreAll } = useCart();
@@ -72,6 +73,9 @@ export default function SettingsPage() {
       if (snap.cookLog && typeof snap.cookLog === 'object' && !Array.isArray(snap.cookLog)) {
         const cookCount = Object.keys(snap.cookLog as Record<string, unknown>).length;
         if (cookCount > 0) summary.push(`조리 로그 ${cookCount}개`);
+      }
+      if (Array.isArray(snap.profiles) && snap.profiles.length > 0) {
+        summary.push(`프로필 ${snap.profiles.length}명`);
       }
       if (!confirm(`백업을 복원할까요?\n생성: ${new Date(snap.createdAt).toLocaleString('ko-KR')}\n${summary.join(' · ')}\n\n현재 데이터는 모두 덮어쓰여요.`)) return;
 
@@ -149,6 +153,8 @@ export default function SettingsPage() {
             지금 백업
           </button>
         </motion.div>
+
+        <ProfilesSection />
 
         <NotificationSettings />
 

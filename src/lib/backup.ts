@@ -21,6 +21,7 @@ export interface BackupSnapshot {
   noti?:       unknown;
   wearLog?:    unknown;  // v2+ clothing id → ISO date[]
   cookLog?:    unknown;  // v2+ recipe id → ISO date[]
+  profiles?:   unknown[]; // v2+ 사용자 프로필 (본인 + 가족)
 }
 
 function readTimestamp(): number | null {
@@ -64,6 +65,7 @@ export function buildSnapshot(): BackupSnapshot {
     noti:      safe('smart-cart-noti',        null),
     wearLog:   safe('nemoa-wear-log',         {}),
     cookLog:   safe('nemoa-cook-log',         {}),
+    profiles:  safe('nemoa-profiles',         []),
   };
 }
 
@@ -115,6 +117,8 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
       localStorage.setItem('nemoa-wear-log',         JSON.stringify(snap.wearLog));
     if (snap.cookLog && typeof snap.cookLog === 'object' && !Array.isArray(snap.cookLog))
       localStorage.setItem('nemoa-cook-log',         JSON.stringify(snap.cookLog));
+    if (Array.isArray(snap.profiles) && snap.profiles.length > 0)
+      localStorage.setItem('nemoa-profiles',         JSON.stringify(snap.profiles));
   } catch { /* quota */ }
   writeTimestamp(Date.now());
 }
