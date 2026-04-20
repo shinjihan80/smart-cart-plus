@@ -10,6 +10,7 @@ import NemoaLogo from '@/components/layout/NemoaLogo';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
+import TodayActivity   from '@/components/home/TodayActivity';
 import UrgentAlert     from '@/components/home/UrgentAlert';
 import QuickStats      from '@/components/home/QuickStats';
 import DailyBriefing   from '@/components/home/DailyBriefing';
@@ -61,11 +62,12 @@ export default function HomePage() {
             </span>
           </div>
         </div>
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-3 flex flex-col gap-1">
           <p className="text-[11px] text-gray-500 flex items-center gap-1">
             <Sparkles size={11} className="text-brand-primary" />
             <span>네모아가 전하는 인사 — {getGreeting()}</span>
           </p>
+          <TodayActivity />
         </div>
       </header>
 
