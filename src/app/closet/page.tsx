@@ -20,6 +20,7 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared'
 import OutfitPreview      from '@/components/closet/OutfitPreview';
 import OutfitSection      from '@/components/closet/OutfitSection';
 import SwipeClothingCard  from '@/components/closet/SwipeClothingCard';
+import SeasonalUnstowBanner from '@/components/closet/SeasonalUnstowBanner';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 
 type GroupFilter = '전체' | FashionGroup;
@@ -160,6 +161,11 @@ export default function ClosetPage() {
             ))}
           </div>
         </motion.div>
+
+        {/* 계절 꺼내기 CTA — 보관 중 + 현재 계절 맞는 옷 있을 때만 */}
+        <SectionErrorBoundary label="계절 꺼내기">
+          <SeasonalUnstowBanner items={allItems} />
+        </SectionErrorBoundary>
 
         {/* 계절 추천 */}
         {(() => {
