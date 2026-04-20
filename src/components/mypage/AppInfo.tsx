@@ -16,7 +16,7 @@ export default function AppInfo() {
       <div className="flex flex-col gap-1.5 text-xs text-gray-400">
         <div className="flex justify-between">
           <span>버전</span>
-          <span className="text-gray-600 font-medium">NEMOA v1.3</span>
+          <span className="text-gray-600 font-medium">NEMOA v1.4</span>
         </div>
         <div className="flex justify-between">
           <span>AI 비서</span>
