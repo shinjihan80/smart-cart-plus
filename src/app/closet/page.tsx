@@ -1,456 +1,47 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type FashionGroup, FASHION_GROUP, FASHION_EMOJI } from '@/types';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  isClothingItem,
+  FASHION_GROUP, FASHION_EMOJI,
+  type FashionGroup,
+} from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { Wind, Thermometer, Droplets, Search } from 'lucide-react';
-import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
-import { fetchWeather, weatherEmoji, recommendedThickness, seasonFromTemp, clothingMatch, type WeatherSnapshot, type MatchBadge } from '@/lib/weather';
+import { Search } from 'lucide-react';
+import {
+  fetchWeather, clothingMatch,
+  type WeatherSnapshot,
+} from '@/lib/weather';
 
-const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
-const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
-const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
-
-const THICKNESS_STYLE = {
-  얇음:   { bg: 'bg-sky-50',    text: 'text-sky-600',    icon: Wind },
-  보통:   { bg: 'bg-slate-100', text: 'text-slate-600',  icon: Thermometer },
-  두꺼움: { bg: 'bg-purple-50', text: 'text-purple-600', icon: Droplets },
-} as const;
-
-const SEASON_TAG_STYLE: Record<string, string> = {
-  봄: 'bg-pink-50 text-pink-500',
-  여름: 'bg-amber-50 text-amber-500',
-  가을: 'bg-orange-50 text-orange-500',
-  겨울: 'bg-blue-50 text-blue-500',
-};
-
-// ── 가상 코디 미리보기 ────────────────────────────────────────────────────────
-function OutfitPreview({ items }: { items: ClothingItem[] }) {
-  const [selected, setSelected] = useState<Record<string, string | null>>({
-    상의: null, 하의: null, 아우터: null, 신발: null, 액세서리: null,
-  });
-
-  const slots: { key: string; label: string; groups: import('@/types').FashionGroup[]; emoji: string }[] = [
-    { key: '상의',     label: '상의',     groups: ['의류'],    emoji: '👕' },
-    { key: '하의',     label: '하의',     groups: ['의류'],    emoji: '👖' },
-    { key: '신발',     label: '신발',     groups: ['신발'],    emoji: '👟' },
-    { key: '액세서리', label: '액세서리', groups: ['액세서리'], emoji: '✨' },
-  ];
-
-  // 이미지가 있는 아이템만 사용 가능
-  const hasImages = items.filter((i) => i.imageUrl);
-  if (hasImages.length < 2) return null;
-
-  function getItemsForSlot(key: string): ClothingItem[] {
-    switch (key) {
-      case '상의': return hasImages.filter((i) => ['상의', '원피스'].includes(i.category));
-      case '하의': return hasImages.filter((i) => i.category === '하의');
-      case '신발': return hasImages.filter((i) => i.category === '신발');
-      case '액세서리': return hasImages.filter((i) => FASHION_GROUP[i.category] === '액세서리');
-      default: return [];
-    }
-  }
-
-  function cycleItem(key: string) {
-    const pool = getItemsForSlot(key);
-    if (pool.length === 0) return;
-    const currentIdx = pool.findIndex((i) => i.id === selected[key]);
-    const nextIdx = (currentIdx + 1) % pool.length;
-    setSelected((prev) => ({ ...prev, [key]: pool[nextIdx].id }));
-  }
-
-  const selectedItems = slots
-    .map((s) => {
-      const pool = getItemsForSlot(s.key);
-      const item = pool.find((i) => i.id === selected[s.key]) ?? pool[0];
-      return item ? { ...s, item } : null;
-    })
-    .filter(Boolean) as { key: string; label: string; emoji: string; item: ClothingItem }[];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: 0.08 }}
-      className={CARD}
-      style={CARD_SHADOW}
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">👗</span>
-        <span className="text-xs text-gray-400 font-medium">코디 미리보기</span>
-      </div>
-
-      <div className="flex gap-2 justify-center">
-        {selectedItems.map(({ key, emoji, item }) => (
-          <button
-            key={key}
-            onClick={() => cycleItem(key)}
-            className="flex flex-col items-center gap-1 group"
-          >
-            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 group-hover:border-brand-primary/30 transition-colors">
-              {item.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl">{emoji}</div>
-              )}
-            </div>
-            <span className="text-[9px] text-gray-400 truncate max-w-[64px]">{item.name}</span>
-          </button>
-        ))}
-      </div>
-
-      {selectedItems.length > 0 && (
-        <p className="text-[9px] text-gray-300 text-center mt-2">탭해서 다른 아이템으로 교체</p>
-      )}
-    </motion.div>
-  );
-}
-
-// ── 코디 추천 ────────────────────────────────────────────────────────────────
-function OutfitSection({ items }: { items: ClothingItem[] }) {
-  const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchWeather()
-      .then((w) => { if (!cancelled && w) setWeather(w); })
-      .catch(() => { /* 폴백은 아래 계절 기반 */ });
-    return () => { cancelled = true; };
-  }, []);
-
-  // 1순위: 실 기온 기반. 2순위: 월 기반 계절 폴백.
-  const useLive = weather !== null;
-  const season  = useLive
-    ? seasonFromTemp(weather.tempC)
-    : (() => {
-        const month = new Date().getMonth() + 1;
-        return month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
-      })();
-  const thickOK = useLive ? recommendedThickness(weather.tempC) : null;
-
-  // 매칭 점수로 정렬: weatherTags 일치(+2) > thickness 일치(+1)
-  const scored = items
-    .filter((c) => FASHION_GROUP[c.category] === '의류')
-    .map((c) => {
-      let score = 0;
-      if (c.weatherTags?.includes(season)) score += 2;
-      if (thickOK && thickOK.includes(c.thickness)) score += 1;
-      return { item: c, score };
-    })
-    .sort((a, b) => b.score - a.score);
-
-  const topMatches = scored.filter((s) => s.score > 0).slice(0, 3).map((s) => s.item);
-
-  if (topMatches.length === 0) return null;
-
-  const outfits: { name: string; items: string[]; tip: string }[] = [];
-  outfits.push({
-    name: useLive ? `${weather.tempC}°C 추천` : '오늘의 추천',
-    items: topMatches.slice(0, 2).map((i) => i.name),
-    tip: useLive
-      ? `${season} 기온(${weather.tempC}°)에 어울려요`
-      : `${season} 날씨에 딱 맞는 조합이에요`,
-  });
-
-  if (topMatches.length >= 3) {
-    outfits.push({
-      name: '레이어드 코디',
-      items: [topMatches[0].name, topMatches[2].name],
-      tip: useLive && weather.tempC < 18
-        ? '쌀쌀한 날씨엔 겹쳐 입기가 좋아요'
-        : '얇은 옷 위에 겹쳐 입기 좋아요',
-    });
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: 0.12 }}
-      className={CARD}
-      style={CARD_SHADOW}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-base">👗</span>
-          <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 코디</span>
-        </div>
-        {useLive && (
-          <span className="inline-flex items-center gap-1 text-[10px] text-gray-500">
-            <span>{weatherEmoji(weather.condition, weather.isDay)}</span>
-            <span className="tabular-nums">{weather.tempC}°</span>
-            <span className="text-gray-300">·</span>
-            <span>{weather.condition}</span>
-          </span>
-        )}
-      </div>
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
-        {outfits.map((outfit) => (
-          <div key={outfit.name} className="shrink-0 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3.5 py-2.5 min-w-[150px]">
-            <p className="text-xs font-semibold text-gray-800">{outfit.name}</p>
-            <div className="flex flex-col gap-0.5 mt-1.5">
-              {outfit.items.map((name) => (
-                <span key={name} className="text-[10px] text-brand-primary truncate">
-                  • {name}
-                </span>
-              ))}
-            </div>
-            <p className="text-[9px] text-gray-400 mt-1.5">{outfit.tip}</p>
-          </div>
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
-// ── 스와이프 의류 카드 ────────────────────────────────────────────────────────
-const MATCH_STYLE = {
-  perfect:  'bg-brand-success/10 text-brand-success',
-  good:     'bg-brand-primary/10 text-brand-primary',
-  mismatch: 'bg-gray-100 text-gray-400',
-} as const;
-
-function SwipeClothingCard({
-  item, index, onRemove, onUpdate, matchBadge,
-}: {
-  item: ClothingItem; index: number; onRemove: (id: string) => void; onUpdate: (id: string, updates: Partial<ClothingItem>) => void;
-  matchBadge?: MatchBadge;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const x = useMotionValue(0);
-  const bgColor = useTransform(
-    x, [-120, -30, 0],
-    ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)'],
-  );
-  const removeOpacity = useTransform(x, [-120, -40], [1, 0]);
-
-  const thick = THICKNESS_STYLE[item.thickness];
-  const ThickIcon = thick.icon;
-
-  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -80) {
-      navigator.vibrate?.(30);
-      onRemove(item.id);
-    }
-  }
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -200, transition: { duration: 0.2 } }}
-      transition={{ ...springTransition, delay: 0.1 + index * 0.04 }}
-      className="relative overflow-hidden rounded-[32px]"
-    >
-      <div className="absolute inset-0 flex items-center justify-end px-6 pointer-events-none">
-        <motion.div style={{ opacity: removeOpacity }} className="flex flex-col items-center gap-0.5">
-          <span className="text-xl">🗑️</span>
-          <span className="text-[9px] font-semibold text-brand-warning">삭제</span>
-        </motion.div>
-      </div>
-
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: -130, right: 0 }}
-        dragElastic={0.12}
-        style={{ x, backgroundColor: bgColor, ...CARD_SHADOW }}
-        onDragEnd={handleDragEnd}
-        onClick={() => setExpanded(!expanded)}
-        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
-      >
-        <div className="flex items-center gap-3">
-          {/* 썸네일 */}
-          <div className="shrink-0 w-11 h-11 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
-            {item.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-lg">{FASHION_EMOJI[item.category] ?? '📦'}</span>
-            )}
-          </div>
-          {/* 사이즈 */}
-          <div className="shrink-0 w-10 text-center">
-            <p className="text-lg font-extrabold tracking-tight text-gray-900">{item.size}</p>
-            <p className="text-[8px] text-gray-400">사이즈</p>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-              {matchBadge && (
-                <span
-                  className={`shrink-0 inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${MATCH_STYLE[matchBadge.level]}`}
-                  title={matchBadge.label}
-                >
-                  <span>{matchBadge.emoji}</span>
-                  <span>{matchBadge.label}</span>
-                </span>
-              )}
-            </div>
-            {item.memo && <p className="text-[9px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
-                <ThickIcon size={10} />
-                {item.thickness}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
-                {item.material}
-              </span>
-              {item.weatherTags?.map((tag) => (
-                <span
-                  key={tag}
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* 펼침 상세 */}
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
-                {/* 이미지 */}
-                {item.imageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                    <div className="absolute bottom-1.5 right-1.5 flex gap-1">
-                      <button
-                        aria-label="사진 변경"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          const file = await pickImage();
-                          if (!file) return;
-                          const dataUrl = await resizeAndEncode(file);
-                          onUpdate(item.id, { imageUrl: dataUrl });
-                        }}
-                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                      >📷</button>
-                      <button
-                        aria-label="사진 삭제"
-                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
-                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                      >✕</button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      const file = await pickImage();
-                      if (!file) return;
-                      const dataUrl = await resizeAndEncode(file);
-                      onUpdate(item.id, { imageUrl: dataUrl });
-                    }}
-                    className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
-                  >
-                    <span className="text-lg">📷</span>
-                    <span className="text-[10px] font-medium">사진 추가</span>
-                  </button>
-                )}
-                {/* 이름 수정 */}
-                <div>
-                  <span className="text-gray-400">상품명</span>
-                  <input
-                    type="text"
-                    defaultValue={item.name}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v && v !== item.name) onUpdate(item.id, { name: v });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-gray-50 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <span className="text-gray-400">카테고리</span>
-                  <p className="text-gray-700 font-medium mt-0.5">{item.category}</p>
-                </div>
-                <div>
-                  <span className="text-gray-400">소재</span>
-                  <p className="text-gray-700 font-medium mt-0.5">{item.material}</p>
-                </div>
-                <div>
-                  <span className="text-gray-400">두께</span>
-                  <p className="text-gray-700 font-medium mt-0.5">{item.thickness}</p>
-                </div>
-                {item.colorFamily && (
-                  <div>
-                    <span className="text-gray-400">컬러 패밀리</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{item.colorFamily}</p>
-                  </div>
-                )}
-                {isEnrichedClothingItem(item) && item.washingTip && (
-                  <div className="col-span-2">
-                    <span className="text-gray-400">세탁 방법</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{item.washingTip}</p>
-                  </div>
-                )}
-                {item.weatherTags && item.weatherTags.length > 0 && (
-                  <div className="col-span-2">
-                    <span className="text-gray-400">추천 시즌</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{item.weatherTags.join(', ')}</p>
-                  </div>
-                )}
-                </div>
-                {/* 메모 */}
-                <div>
-                  <span className="text-gray-400">메모</span>
-                  <input
-                    type="text"
-                    defaultValue={item.memo ?? ''}
-                    placeholder="메모를 입력하세요"
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
-                  />
-                </div>
-                {/* 공유 */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const text = `👕 ${item.name}\n📏 ${item.size} · ${item.material}\n${item.memo ? `📝 ${item.memo}` : ''}`.trim();
-                    navigator.clipboard.writeText(text);
-                    navigator.vibrate?.(15);
-                  }}
-                  className="w-full py-1.5 rounded-xl bg-gray-50 text-[10px] text-gray-500 hover:bg-gray-100 transition-colors"
-                >
-                  📋 정보 복사하기
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
-  );
-}
+import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
+import OutfitPreview      from '@/components/closet/OutfitPreview';
+import OutfitSection      from '@/components/closet/OutfitSection';
+import SwipeClothingCard  from '@/components/closet/SwipeClothingCard';
 
 type GroupFilter = '전체' | FashionGroup;
-type ClosetSort = 'name' | 'thickness' | 'match';
+type ClosetSort  = 'name' | 'thickness' | 'match';
 
-const MATCH_RANK = { perfect: 0, good: 1, mismatch: 2 } as const;
-
+const MATCH_RANK      = { perfect: 0, good: 1, mismatch: 2 } as const;
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
 const GROUP_EMOJI: Record<FashionGroup, string> = { 의류: '👕', 신발: '👟', 가방: '👜', 액세서리: '✨' };
+
+const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string; img: string }[] = [
+  { name: '반팔 티셔츠', category: '상의',       size: 'M',    material: '면',     img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop' },
+  { name: '청바지',      category: '하의',       size: '32',   material: '데님',   img: 'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=300&h=300&fit=crop' },
+  { name: '운동화',      category: '신발',       size: '260',  material: '메쉬',   img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop' },
+  { name: '에코백',      category: '가방',       size: 'Free', material: '캔버스', img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&h=300&fit=crop' },
+  { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면',   img: 'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=300&h=300&fit=crop' },
+];
+
+const FILTERS: { key: GroupFilter; label: string }[] = [
+  { key: '전체',     label: '전체' },
+  { key: '의류',     label: '👕 의류' },
+  { key: '신발',     label: '👟 신발' },
+  { key: '가방',     label: '👜 가방' },
+  { key: '액세서리', label: '✨ 액세서리' },
+];
 
 export default function ClosetPage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove } = useCart();
@@ -493,14 +84,6 @@ export default function ClosetPage() {
     showToast(`"${name}" 삭제됐어요.`, undoRemove);
   }
 
-  const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string; img: string }[] = [
-    { name: '반팔 티셔츠', category: '상의',   size: 'M',    material: '면',     img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop' },
-    { name: '청바지',      category: '하의',   size: '32',   material: '데님',   img: 'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=300&h=300&fit=crop' },
-    { name: '운동화',      category: '신발',   size: '260',  material: '메쉬',   img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop' },
-    { name: '에코백',      category: '가방',   size: 'Free', material: '캔버스', img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&h=300&fit=crop' },
-    { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면', img: 'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=300&h=300&fit=crop' },
-  ];
-
   function handleQuickAdd(preset: typeof QUICK_ADD_FASHION[number]) {
     const { added } = addItems([{
       id: `qa-${Date.now()}`,
@@ -514,14 +97,6 @@ export default function ClosetPage() {
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
   }
-
-  const FILTERS: { key: GroupFilter; label: string }[] = [
-    { key: '전체',     label: '전체' },
-    { key: '의류',     label: '👕 의류' },
-    { key: '신발',     label: '👟 신발' },
-    { key: '가방',     label: '👜 가방' },
-    { key: '액세서리', label: '✨ 액세서리' },
-  ];
 
   return (
     <div>
@@ -661,7 +236,7 @@ export default function ClosetPage() {
           </button>
         </div>
 
-        {/* 아이템 리스트 (카테고리별 그룹 or 필터 결과) */}
+        {/* 아이템 리스트 */}
         {filter === '전체' && !search ? (
           <>
             {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((grp) => {
@@ -678,7 +253,14 @@ export default function ClosetPage() {
                   <AnimatePresence mode="popLayout">
                     <div className="flex flex-col gap-3">
                       {group.map((item, index) => (
-                        <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined} />
+                        <SwipeClothingCard
+                          key={item.id}
+                          item={item}
+                          index={index}
+                          onRemove={handleRemove}
+                          onUpdate={updateItem}
+                          matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined}
+                        />
                       ))}
                     </div>
                   </AnimatePresence>
@@ -689,7 +271,14 @@ export default function ClosetPage() {
         ) : (
           <AnimatePresence mode="popLayout">
             {items.map((item, index) => (
-              <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined} />
+              <SwipeClothingCard
+                key={item.id}
+                item={item}
+                index={index}
+                onRemove={handleRemove}
+                onUpdate={updateItem}
+                matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined}
+              />
             ))}
           </AnimatePresence>
         )}
@@ -712,7 +301,6 @@ export default function ClosetPage() {
           </div>
         )}
       </div>
-
     </div>
   );
 }
