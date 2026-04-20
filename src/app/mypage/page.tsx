@@ -25,6 +25,7 @@ import FavoriteRecipesSection                     from '@/components/mypage/Favo
 import NotificationSettings                       from '@/components/mypage/NotificationSettings';
 import AppInfo                                    from '@/components/mypage/AppInfo';
 import WearStatsSection                           from '@/components/mypage/WearStatsSection';
+import CookStatsSection                           from '@/components/mypage/CookStatsSection';
 
 export default function MyPage() {
   const { items, archived, discardCount, discardHistory, resetData, archiveExpired, addItems, restoreAll } = useCart();
@@ -255,6 +256,8 @@ export default function MyPage() {
         <ShoppingListSection addItems={addItems} showToast={showToast} />
 
         <WearStatsSection items={items} />
+
+        <CookStatsSection onOpenRecipe={setSelectedRecipe} />
 
         <FavoriteRecipesSection
           onOpenRecipe={setSelectedRecipe}
