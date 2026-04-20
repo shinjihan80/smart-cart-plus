@@ -11,6 +11,7 @@ import NemoaLogo from '@/components/layout/NemoaLogo';
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
 import TodayActivity   from '@/components/home/TodayActivity';
+import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import UrgentAlert     from '@/components/home/UrgentAlert';
 import QuickStats      from '@/components/home/QuickStats';
 import DailyBriefing   from '@/components/home/DailyBriefing';
@@ -118,7 +119,9 @@ export default function HomePage() {
 
       {/* 네모아의 오늘 한 마디 */}
       <div className="px-4 pt-3">
-        <DailyMessage items={items} />
+        <SectionErrorBoundary label="네모아의 오늘 한 마디">
+          <DailyMessage items={items} />
+        </SectionErrorBoundary>
       </div>
 
       {/* 벤토 그리드 */}
@@ -128,8 +131,16 @@ export default function HomePage() {
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <UrgentAlert     items={items} />
           <QuickStats      items={items} />
-          <DailyBriefing   items={items} />
-          <TodayDishCard   items={items} />
+          <div className="col-span-2">
+            <SectionErrorBoundary label="데일리 브리핑">
+              <DailyBriefing items={items} />
+            </SectionErrorBoundary>
+          </div>
+          <div className="col-span-2">
+            <SectionErrorBoundary label="오늘 한 그릇">
+              <TodayDishCard items={items} />
+            </SectionErrorBoundary>
+          </div>
           <ClosetSummary   items={items} />
           <MonthlySpending />
           <FridgeCarousel
