@@ -2,19 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { isFoodItem, isClothingItem, FOOD_EMOJI, FASHION_EMOJI, FASHION_GROUP, type FoodItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { isFoodItem, FOOD_EMOJI, FASHION_EMOJI, type FoodItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { ChevronRight, Sparkles, Search } from 'lucide-react';
 import NemoaLogo from '@/components/layout/NemoaLogo';
-import { fetchWeather, weatherEmoji, dressingTip, clothingMatch, type WeatherSnapshot } from '@/lib/weather';
-import { matchRecipes, type Recipe } from '@/lib/recipes';
-import { useRecipeFavorites } from '@/lib/recipeFavorites';
-import RecipeDetailModal from '@/components/RecipeDetailModal';
 
-// ── 시간대 인사말 ────────────────────────────────────────────────────────────
+import { HomeSkeleton } from '@/components/home/shared';
+import UrgentAlert     from '@/components/home/UrgentAlert';
+import QuickStats      from '@/components/home/QuickStats';
+import DailyBriefing   from '@/components/home/DailyBriefing';
+import TodayDishCard   from '@/components/home/TodayDishCard';
+import ClosetSummary   from '@/components/home/ClosetSummary';
+import MonthlySpending from '@/components/home/MonthlySpending';
+import FridgeCarousel  from '@/components/home/FridgeCarousel';
+import MonthlyHistory  from '@/components/home/MonthlyHistory';
+import WeeklyInsight   from '@/components/home/WeeklyInsight';
+import RecentlyAdded   from '@/components/home/RecentlyAdded';
+import TipOfTheDay     from '@/components/home/TipOfTheDay';
+
 function getGreeting(): string {
   const h = new Date().getHours();
   if (h < 6)  return '새벽이에요, 푹 쉬세요';
@@ -23,707 +29,6 @@ function getGreeting(): string {
   return '오늘 하루 수고했어요';
 }
 
-// ── 디자인 토큰 ──────────────────────────────────────────────────────────────
-const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
-const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
-const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
-
-// ── Mock 주문 데이터 (달별) ────────────────────────────────────────────────────
-interface OrderItem {
-  id: string; name: string; store: string; mallBg: string; price: number; date: string;
-}
-
-const MONTHLY_DATA: { month: number; label: string; total: number; orders: OrderItem[] }[] = [
-  {
-    month: 1, label: '1월', total: 187400,
-    orders: [
-      { id: 'm1-1', name: '유기농 바나나',       store: '마켓컬리', mallBg: 'bg-mall-kurly',   price: 5900, date: '01.08' },
-      { id: 'm1-2', name: '울 코트',            store: '무신사',   mallBg: 'bg-mall-musinsa', price: 139000, date: '01.15' },
-      { id: 'm1-3', name: '세탁세제 대용량',      store: '쿠팡',    mallBg: 'bg-mall-coupang', price: 22500, date: '01.22' },
-      { id: 'm1-4', name: '비타민C',            store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 20000, date: '01.28' },
-    ],
-  },
-  {
-    month: 2, label: '2월', total: 156200,
-    orders: [
-      { id: 'm2-1', name: '딸기 1kg',           store: '마켓컬리', mallBg: 'bg-mall-kurly',   price: 12900, date: '02.03' },
-      { id: 'm2-2', name: '봄 가디건',           store: '무신사',   mallBg: 'bg-mall-musinsa', price: 49900, date: '02.10' },
-      { id: 'm2-3', name: '샴푸 리필팩',         store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 8900, date: '02.14' },
-      { id: 'm2-4', name: '냉동 만두',           store: '쿠팡',    mallBg: 'bg-mall-coupang', price: 7500, date: '02.20' },
-      { id: 'm2-5', name: '런닝화',             store: '네이버',   mallBg: 'bg-mall-naver',   price: 77000, date: '02.25' },
-    ],
-  },
-  {
-    month: 3, label: '3월', total: 203800,
-    orders: [
-      { id: 'm3-1', name: '유기농 두부',         store: '마켓컬리', mallBg: 'bg-mall-kurly',   price: 3200, date: '03.05' },
-      { id: 'm3-2', name: '리넨 원피스',         store: '무신사',   mallBg: 'bg-mall-musinsa', price: 59000, date: '03.12' },
-      { id: 'm3-3', name: '한우 불고기',         store: '쿠팡',    mallBg: 'bg-mall-coupang', price: 15900, date: '03.15' },
-      { id: 'm3-4', name: '선크림 SPF50',       store: '올리브영', mallBg: 'bg-mall-oliveyoung', price: 18700, date: '03.20' },
-      { id: 'm3-5', name: '에어포스 1',          store: '네이버',   mallBg: 'bg-mall-naver',   price: 107000, date: '03.28' },
-    ],
-  },
-  {
-    month: 4, label: '4월', total: 384300,
-    orders: [
-      { id: 'f6', name: '노르웨이 생연어',        store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 18900, date: '04.16' },
-      { id: 'c10', name: 'Ray-Ban 웨이페어러',   store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 185000, date: '04.12' },
-      { id: 'f1', name: '친환경 샐러드 믹스',     store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 4900, date: '04.14' },
-      { id: 'f2', name: '아이용 한우 불고기',     store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 15900, date: '04.10' },
-      { id: 'f8', name: '서울우유 1L',           store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 2800, date: '04.11' },
-      { id: 'c7', name: '버켄스탁 아리조나',      store: '네이버',   mallBg: 'bg-mall-naver',      price: 89000, date: '04.08' },
-      { id: 'f9', name: '오리온 초코파이',        store: '쿠팡',    mallBg: 'bg-mall-coupang',    price: 4800, date: '04.07' },
-      { id: 'c8', name: '캉골 미니 크로스백',     store: '무신사',   mallBg: 'bg-mall-musinsa',    price: 45000, date: '04.05' },
-      { id: 'f7', name: '무항생제 달걀',          store: '마켓컬리', mallBg: 'bg-mall-kurly',      price: 8500, date: '04.03' },
-      { id: 'c9', name: 'New Era 볼캡',         store: '네이버',   mallBg: 'bg-mall-naver',      price: 9500, date: '04.02' },
-    ],
-  },
-];
-
-// ── 스켈레톤 ──────────────────────────────────────────────────────────────────
-function Skeleton() {
-  return (
-    <div className="px-4 py-5 grid grid-cols-2 gap-4">
-      <div className="col-span-2 h-[130px] rounded-[32px] bg-gray-100 animate-pulse" />
-      <div className="h-[120px] rounded-[32px] bg-gray-100 animate-pulse" />
-      <div className="h-[120px] rounded-[32px] bg-gray-100 animate-pulse" />
-      <div className="col-span-2 h-[160px] rounded-[32px] bg-gray-100 animate-pulse" />
-      <div className="col-span-2 h-[200px] rounded-[32px] bg-gray-100 animate-pulse" />
-    </div>
-  );
-}
-
-// ── 위젯 공통 래퍼 (Spring) ──────────────────────────────────────────────────
-function Widget({
-  children,
-  className = '',
-  index = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  index?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: index * 0.1 }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`${CARD} ${className}`}
-      style={CARD_SHADOW}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-// ── [A] 데일리 브리핑 ─────────────────────────────────────────────────────────
-// 실 날씨(Open-Meteo) 연동 — 30분 캐시. 네트워크 실패 시 시간대 기반 폴백.
-function fallbackBriefing(): { emoji: string; headline: string; tip: string } {
-  const h = new Date().getHours();
-  if (h < 6)  return { emoji: '🌙', headline: '새벽 공기가 상쾌해요',        tip: '따뜻한 차 한 잔 어떠세요?' };
-  if (h < 9)  return { emoji: '🌅', headline: '상쾌한 아침이에요',            tip: '얇은 겉옷을 챙기세요.' };
-  if (h < 12) return { emoji: '🌤️', headline: '활기찬 오전이에요',            tip: '오늘 하루 힘내세요.' };
-  if (h < 15) return { emoji: '☀️', headline: '따뜻한 오후에요',              tip: '자외선 차단에 신경 쓰세요.' };
-  if (h < 18) return { emoji: '🌤️', headline: '느긋한 늦은 오후에요',         tip: '잠깐 바람 쐬러 나가볼까요?' };
-  if (h < 21) return { emoji: '🌆', headline: '해가 지는 저녁이에요',          tip: '저녁엔 가디건이 좋아요.' };
-  return           { emoji: '🌙', headline: '포근한 밤이에요',               tip: '따뜻하게 입으세요.' };
-}
-
-function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
-  const clothes = items.filter(isClothingItem);
-
-  const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
-  const [weatherFailed, setWeatherFailed] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchWeather()
-      .then((w) => {
-        if (cancelled) return;
-        if (w) setWeather(w);
-        else setWeatherFailed(true);
-      })
-      .catch(() => {
-        if (!cancelled) setWeatherFailed(true);
-      });
-    return () => { cancelled = true; };
-  }, []);
-
-  const useLive = weather !== null;
-  const emoji    = useLive ? weatherEmoji(weather.condition, weather.isDay) : fallbackBriefing().emoji;
-  const headline = useLive
-    ? `현재 ${weather.tempC}°, ${weather.condition}`
-    : fallbackBriefing().headline;
-  const tip      = useLive
-    ? dressingTip(weather.tempC, weather.condition)
-    : fallbackBriefing().tip;
-
-  // 오늘 날씨 기반 Top 3 매칭 의류 (perfect > good 순)
-  const topMatches = useLive
-    ? clothes
-        .filter((c) => FASHION_GROUP[c.category] === '의류')
-        .map((c) => ({ item: c, match: clothingMatch(c.thickness, c.weatherTags, weather.tempC) }))
-        .filter((x) => x.match.level !== 'mismatch')
-        .sort((a, b) => {
-          if (a.match.level === b.match.level) return 0;
-          return a.match.level === 'perfect' ? -1 : 1;
-        })
-        .slice(0, 3)
-    : [];
-
-  return (
-    <Link href="/closet" className="col-span-2 block">
-      <Widget index={0} className="relative overflow-hidden min-h-[130px]">
-        <div className="absolute -right-4 -top-2 opacity-30 select-none pointer-events-none">
-          <div className="text-[80px] leading-none">{emoji}</div>
-        </div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-1.5 mb-2">
-            <p className="text-xs text-gray-400 font-medium">네모아의 오늘 브리핑</p>
-            {useLive && (
-              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-brand-success/10">
-                <span className="w-1 h-1 rounded-full bg-brand-success" />
-                <span className="text-[9px] font-bold text-brand-success">LIVE</span>
-              </span>
-            )}
-            {weatherFailed && !useLive && (
-              <span className="text-[9px] text-gray-300">· 오프라인</span>
-            )}
-          </div>
-          <h2 className="text-lg font-bold text-gray-900 leading-snug">
-            {headline}
-          </h2>
-          <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-            {tip}
-            {useLive && weather.feelsLikeC !== weather.tempC && (
-              <span className="text-[11px] text-gray-400 ml-1">(체감 {weather.feelsLikeC}°)</span>
-            )}
-          </p>
-
-          {topMatches.length > 0 && (
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-[10px] text-gray-400 shrink-0">오늘의 추천</span>
-              <div className="flex gap-1.5 overflow-hidden">
-                {topMatches.map(({ item, match }) => (
-                  <div
-                    key={item.id}
-                    className="shrink-0 flex items-center gap-1 max-w-[96px] pl-1 pr-2 py-0.5 rounded-full bg-white/80 border border-gray-100"
-                  >
-                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                      {item.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-[10px]">{FASHION_EMOJI[item.category] ?? '👕'}</span>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-gray-700 font-medium truncate">{item.name}</span>
-                    {match.level === 'perfect' && <span className="text-[9px]">✨</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-        <ChevronRight size={16} className="absolute right-5 top-5 text-gray-300" />
-      </Widget>
-    </Link>
-  );
-}
-
-// ── [A-2] 오늘 한 그릇 (col-span-2) ──────────────────────────────────────────
-function TodayDishCard({ items }: { items: import('@/types').CartItem[] }) {
-  const foods = items.filter(isFoodItem);
-  const matched = matchRecipes(foods, 1);
-  const { isFavorite, toggle } = useRecipeFavorites();
-  const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
-
-  if (matched.length === 0) return null;
-  const { recipe, matchedItems, urgentBoosted } = matched[0];
-
-  return (
-    <>
-      <div className="col-span-2">
-        <button
-          onClick={() => setSelected({ recipe, matchedItems })}
-          className="w-full"
-        >
-          <Widget index={1} className="relative overflow-hidden">
-            <div className="flex items-center gap-4">
-              <motion.span
-                key={recipe.id}
-                initial={{ rotate: -10, scale: 0.8, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-                className="text-5xl shrink-0"
-              >
-                {recipe.emoji}
-              </motion.span>
-              <div className="flex-1 min-w-0 text-left">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <p className="text-xs text-gray-400 font-medium">네모아의 오늘 한 그릇</p>
-                  {urgentBoosted && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold">
-                      ⚠️ 임박
-                    </span>
-                  )}
-                </div>
-                <p className="text-lg font-bold text-gray-900 leading-tight truncate">{recipe.name}</p>
-                <p className="text-[11px] text-gray-500 mt-1">
-                  ⏱ {recipe.time} · {recipe.difficulty}
-                  {matchedItems.length > 0 && (
-                    <>
-                      <span className="text-gray-300 mx-1">·</span>
-                      <span className="text-brand-primary font-semibold">
-                        ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
-                      </span>
-                    </>
-                  )}
-                </p>
-              </div>
-              <ChevronRight size={16} className="text-gray-300 shrink-0" />
-            </div>
-          </Widget>
-        </button>
-      </div>
-
-      {selected && (
-        <RecipeDetailModal
-          recipe={selected.recipe}
-          matchedItems={selected.matchedItems}
-          isFavorite={isFavorite(selected.recipe.id)}
-          onToggleFavorite={() => toggle(selected.recipe.id)}
-          onClose={() => setSelected(null)}
-        />
-      )}
-    </>
-  );
-}
-
-// ── [B-1] 옷장 현황 (1x1) ────────────────────────────────────────────────────
-function ClosetSummary({ items }: { items: import('@/types').CartItem[] }) {
-  const clothes = items.filter(isClothingItem);
-  const thinCount  = clothes.filter((c) => c.thickness === '얇음').length;
-  const thickCount = clothes.filter((c) => c.thickness === '두꺼움').length;
-  const withImages = clothes.filter((c) => c.imageUrl).slice(0, 3);
-
-  return (
-    <Link href="/closet" className="block">
-      <Widget index={1}>
-        <div className="flex flex-col h-full justify-between">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-base">👔</span>
-              <span className="text-xs text-gray-400 font-medium">옷장 현황</span>
-            </div>
-            {/* 미니 이미지 프리뷰 */}
-            {withImages.length > 0 && (
-              <div className="flex -space-x-2">
-                {withImages.map((c) => (
-                  <div key={c.id} className="w-6 h-6 rounded-full overflow-hidden border-2 border-white bg-gray-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.imageUrl!} alt="" className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div>
-            <p className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums">
-              {clothes.length}<span className="text-base font-bold text-gray-400 ml-0.5">벌</span>
-            </p>
-            <div className="flex gap-2 mt-2">
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-500 font-medium">
-                얇은 옷 {thinCount}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-500 font-medium">
-                두꺼운 옷 {thickCount}
-              </span>
-            </div>
-          </div>
-        </div>
-      </Widget>
-    </Link>
-  );
-}
-
-// ── [B-2] 이번 달 지출 (1x1) ─────────────────────────────────────────────────
-function MonthlySpending() {
-  const now = new Date();
-  const thisMonth = MONTHLY_DATA.find((m) => m.month === now.getMonth() + 1) ?? MONTHLY_DATA[MONTHLY_DATA.length - 1];
-  const prevMonth = MONTHLY_DATA.find((m) => m.month === now.getMonth()) ?? MONTHLY_DATA[MONTHLY_DATA.length - 2];
-  const diff = prevMonth.total > 0
-    ? Math.round(((thisMonth.total - prevMonth.total) / prevMonth.total) * 100)
-    : 0;
-
-  return (
-    <Widget index={2}>
-      <div className="flex flex-col h-full justify-between">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-base">💰</span>
-          <span className="text-xs text-gray-400 font-medium">이번 달 지출</span>
-        </div>
-        <div>
-          <p className="text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums">
-            ₩{thisMonth.total.toLocaleString()}
-          </p>
-          <p className="text-[10px] text-gray-400 mt-1">
-            지난달 대비{' '}
-            <span className={`font-semibold ${diff <= 0 ? 'text-brand-success' : 'text-brand-warning'}`}>
-              {diff <= 0 ? '' : '+'}{diff}%
-            </span>
-          </p>
-        </div>
-      </div>
-    </Widget>
-  );
-}
-
-// ── [C] 냉장고 카루셀 카드 (스와이프 소진) ───────────────────────────────────
-function FridgeCard({
-  name, dDay, storageType, emoji, imageUrl, onDiscard,
-}: {
-  name: string; dDay: number; storageType: string; emoji: string; imageUrl?: string;
-  onDiscard: () => void;
-}) {
-  const x = useMotionValue(0);
-  const bgColor = useTransform(
-    x, [-100, -30, 0],
-    ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)'],
-  );
-  const discardOpacity = useTransform(x, [-100, -30], [1, 0]);
-
-  const isUrgent  = dDay <= 2;
-  const isWarning = dDay <= 5;
-
-  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -60) {
-      navigator.vibrate?.(30);
-      onDiscard();
-    }
-  }
-
-  return (
-    <div className="relative shrink-0 w-[140px] h-[140px] rounded-3xl overflow-hidden">
-      <div className="absolute inset-0 flex items-center justify-end px-3 pointer-events-none">
-        <motion.div style={{ opacity: discardOpacity }} className="flex flex-col items-center gap-0.5">
-          <span className="text-lg">🗑️</span>
-          <span className="text-[8px] font-semibold text-brand-warning">소진</span>
-        </motion.div>
-      </div>
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: -100, right: 0 }}
-        dragElastic={0.15}
-        style={{ x, backgroundColor: bgColor }}
-        onDragEnd={handleDragEnd}
-        className="relative z-10 w-full h-full rounded-3xl border border-gray-100 p-4 flex flex-col justify-between cursor-grab"
-      >
-        {imageUrl ? (
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
-          </div>
-        ) : (
-          <span className="text-2xl">{emoji}</span>
-        )}
-        <div>
-          <p className={`text-3xl font-extrabold tracking-tight tabular-nums ${
-            isUrgent ? 'text-brand-warning' : isWarning ? 'text-amber-500' : 'text-gray-900'
-          }`}>
-            {dDay <= 0 ? '만료' : `D-${dDay}`}
-          </p>
-          <p className="text-xs text-gray-500 mt-0.5 truncate">{name}</p>
-          <span className="inline-block text-[9px] px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-400 mt-1">
-            {storageType === '냉장' ? '❄️ 냉장' : storageType === '냉동' ? '🧊 냉동' : '📦 실온'}
-          </span>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartItem[]; onDiscard: (id: string) => void }) {
-  const sorted = items.filter(isFoodItem)
-    .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
-    .sort((a, b) => a.dDay - b.dDay);
-
-  return (
-    <div className="col-span-2">
-      <Widget index={3} className="!p-0 overflow-hidden">
-        <div className="px-5 pt-5 pb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-base">🧊</span>
-            <span className="text-xs text-gray-400 font-medium">스마트 냉장고</span>
-            <span className="text-[9px] text-gray-300 tabular-nums">{sorted.length}개</span>
-          </div>
-          <Link href="/fridge" className="text-xs text-brand-primary font-medium flex items-center gap-0.5">
-            전체보기 <ChevronRight size={14} />
-          </Link>
-        </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-5 pt-1 scrollbar-hide">
-          {sorted.length > 0 ? sorted.map((item) => (
-            <FridgeCard
-              key={item.id}
-              name={item.name}
-              dDay={item.dDay}
-              storageType={item.storageType}
-              emoji={FOOD_EMOJI[item.foodCategory] ?? '📦'}
-              imageUrl={item.imageUrl}
-              onDiscard={() => onDiscard(item.id)}
-            />
-          )) : (
-            <div className="flex items-center justify-center w-full py-6 text-gray-400">
-              <p className="text-xs">냉장고에 식품을 추가해보세요</p>
-            </div>
-          )}
-        </div>
-      </Widget>
-    </div>
-  );
-}
-
-// ── 긴급 알림 배너 ───────────────────────────────────────────────────────────
-function UrgentAlert({ items }: { items: import('@/types').CartItem[] }) {
-  const urgent = items.filter(isFoodItem)
-    .map((f) => ({ name: f.name, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
-    .filter((f) => f.dDay <= 1);
-
-  if (urgent.length === 0) return null;
-
-  return (
-    <Link href="/fridge" className="col-span-2 block">
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={springTransition}
-        className="bg-brand-warning/10 border border-brand-warning/20 rounded-[24px] px-4 py-3 flex items-center gap-3"
-      >
-        <span className="text-xl">⚠️</span>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-brand-warning">
-            {urgent.length}개 식품 긴급 소비 필요
-          </p>
-          <p className="text-[10px] text-gray-500 truncate mt-0.5">
-            {urgent.map((u) => u.name).join(', ')}
-          </p>
-        </div>
-        <ChevronRight size={14} className="text-brand-warning/50 shrink-0" />
-      </motion.div>
-    </Link>
-  );
-}
-
-// ── 한눈 요약 바 ─────────────────────────────────────────────────────────────
-function QuickStats({ items }: { items: import('@/types').CartItem[] }) {
-  const food    = items.filter(isFoodItem).length;
-  const clothes = items.filter(isClothingItem).length;
-  const urgent  = items.filter(isFoodItem).filter(
-    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
-  ).length;
-
-  const stats = [
-    { label: '전체',  value: items.length, color: 'text-gray-900' },
-    { label: '식품',  value: food,         color: 'text-sky-600' },
-    { label: '의류',  value: clothes,      color: 'text-brand-primary' },
-    { label: '임박',  value: urgent,       color: urgent > 0 ? 'text-brand-warning' : 'text-gray-900' },
-  ];
-
-  return (
-    <div className="col-span-2">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...springTransition, delay: 0.05 }}
-        className="flex justify-between px-2"
-      >
-        {stats.map((s) => (
-          <div key={s.label} className="flex flex-col items-center gap-0.5">
-            <span className={`text-xl font-extrabold tabular-nums ${s.color}`}>{s.value}</span>
-            <span className="text-[9px] text-gray-400 font-medium">{s.label}</span>
-          </div>
-        ))}
-      </motion.div>
-    </div>
-  );
-}
-
-// ── [E] 주간 인사이트 ─────────────────────────────────────────────────────────
-function WeeklyInsight({ items }: { items: import('@/types').CartItem[] }) {
-  const food    = items.filter(isFoodItem);
-  const clothes = items.filter(isClothingItem);
-  const urgent  = food.filter(
-    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
-  ).length;
-
-  const insights: string[] = [];
-  if (urgent > 0) insights.push(`식품 ${urgent}개가 곧 만료돼요. 빨리 소비해주세요.`);
-  if (food.length > clothes.length * 2) insights.push('식품 비율이 높아요. 의류도 관리해보세요.');
-  if (clothes.length > 5) insights.push(`옷장에 ${clothes.length}벌이에요. 안 입는 옷 정리를 추천해요.`);
-  if (food.length === 0) insights.push('냉장고가 비어있어요. 장을 봐야 할 때예요.');
-  if (insights.length === 0) insights.push('이번 주도 잘 관리하고 있어요!');
-
-  return (
-    <div className="col-span-2">
-      <Widget index={5}>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-base">💡</span>
-          <span className="text-xs text-gray-400 font-medium">네모아의 주간 인사이트</span>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          {insights.map((text, i) => (
-            <p key={i} className="text-sm text-gray-600 leading-relaxed">
-              {text}
-            </p>
-          ))}
-        </div>
-      </Widget>
-    </div>
-  );
-}
-
-// ── 팁 오브 더 데이 ──────────────────────────────────────────────────────────
-const TIPS = [
-  { emoji: '📸', text: '식품 라벨이나 의류 태그를 사진으로 찍으면 네모아가 자동 분석해요.' },
-  { emoji: '⬅️', text: '카드를 왼쪽으로 밀면 소진/삭제 처리, 되돌리기도 가능해요.' },
-  { emoji: '⚡', text: '빠른 추가로 자주 사는 상품을 원탭으로 등록할 수 있어요.' },
-  { emoji: '📊', text: '마이페이지에서 JSON/CSV로 데이터를 내보낼 수 있어요.' },
-  { emoji: '🔍', text: '홈 검색바에서 모든 상품을 한 번에 찾을 수 있어요.' },
-  { emoji: '👗', text: '옷 사진을 등록하면 네모아가 코디 조합을 미리 보여드려요.' },
-  { emoji: '🧊', text: '냉장고 카드의 프로그레스 바로 신선도를 한눈에 파악하세요.' },
-];
-
-function TipOfTheDay() {
-  const tip = TIPS[new Date().getDate() % TIPS.length];
-  return (
-    <div className="col-span-2">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="flex items-start gap-2.5 px-4 py-3 rounded-2xl bg-brand-primary/5 border border-brand-primary/10"
-      >
-        <span className="text-base shrink-0 mt-0.5">{tip.emoji}</span>
-        <p className="text-xs text-gray-600 leading-relaxed">{tip.text}</p>
-      </motion.div>
-    </div>
-  );
-}
-
-// ── [F] 최근 등록 아이템 ──────────────────────────────────────────────────────
-function RecentlyAdded({ items }: { items: import('@/types').CartItem[] }) {
-  const recent = items.slice(-3).reverse();
-  if (recent.length === 0) return null;
-
-  return (
-    <div className="col-span-2">
-      <Widget index={6}>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-base">🆕</span>
-          <span className="text-xs text-gray-400 font-medium">최근 등록</span>
-        </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
-          {recent.map((item) => {
-            const emoji = isFoodItem(item)
-              ? (FOOD_EMOJI[(item as FoodItem).foodCategory] ?? '📦')
-              : (FASHION_EMOJI[item.category as keyof typeof FASHION_EMOJI] ?? '👕');
-            return (
-              <Link
-                key={item.id}
-                href={isFoodItem(item) ? '/fridge' : '/closet'}
-                className="shrink-0 w-24 flex flex-col items-center gap-1.5 p-2 rounded-2xl bg-gray-50 border border-gray-100 hover:border-brand-primary/20 transition-colors"
-              >
-                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white flex items-center justify-center">
-                  {item.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl">{emoji}</span>
-                  )}
-                </div>
-                <span className="text-[10px] text-gray-600 font-medium truncate w-full text-center">{item.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </Widget>
-    </div>
-  );
-}
-
-// ── [D] 달별 소비 내역 (Full Width) ───────────────────────────────────────────
-function MonthlyHistory({ selectedMonth, onChangeMonth }: { selectedMonth: number; onChangeMonth: (m: number) => void }) {
-  const data = MONTHLY_DATA.find((m) => m.month === selectedMonth) ?? MONTHLY_DATA[MONTHLY_DATA.length - 1];
-  const maxTotal = Math.max(...MONTHLY_DATA.map((m) => m.total));
-
-  return (
-    <div className="col-span-2">
-      <Widget index={4} className="!p-0 overflow-hidden">
-        {/* 헤더 */}
-        <div className="px-5 pt-5 pb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-base">📊</span>
-            <span className="text-xs text-gray-400 font-medium">월별 소비 내역</span>
-          </div>
-          <span className="text-xs font-bold text-gray-700 tabular-nums">
-            ₩{data.total.toLocaleString()}
-          </span>
-        </div>
-
-        {/* 월 탭 + 미니 바 차트 */}
-        <div className="flex gap-1 px-5 pb-4">
-          {MONTHLY_DATA.map((m) => {
-            const isActive = m.month === selectedMonth;
-            const barH = Math.max(8, (m.total / maxTotal) * 48);
-            return (
-              <button
-                key={m.month}
-                onClick={() => onChangeMonth(m.month)}
-                className={`flex-1 flex flex-col items-center gap-1 py-1 rounded-2xl transition-colors ${
-                  isActive ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
-                }`}
-              >
-                <div className="w-full flex justify-center items-end h-12">
-                  <div
-                    className={`w-5 rounded-full transition-all duration-300 ${
-                      isActive ? 'bg-brand-primary' : 'bg-gray-200'
-                    }`}
-                    style={{ height: `${barH}px` }}
-                  />
-                </div>
-                <span className={`text-[10px] font-medium ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
-                  {m.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 선택 월 내역 리스트 */}
-        <div className="px-5 pb-5 flex flex-col gap-2.5">
-          {data.orders.map((order) => (
-            <div key={order.id} className="flex items-center gap-3">
-              <div className={`w-7 h-7 rounded-full ${order.mallBg} flex items-center justify-center shrink-0`}>
-                <span className="text-white text-[9px] font-bold">{order.store.charAt(0)}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800 truncate">{order.name}</p>
-                <p className="text-[10px] text-gray-400">{order.store} · {order.date}</p>
-              </div>
-              <span className="text-sm font-bold text-gray-900 shrink-0 tabular-nums">
-                ₩{order.price.toLocaleString()}
-              </span>
-            </div>
-          ))}
-        </div>
-      </Widget>
-    </div>
-  );
-}
-
-// ── 홈 대시보드 ───────────────────────────────────────────────────────────────
 export default function HomePage() {
   const { items, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
@@ -778,25 +83,27 @@ export default function HomePage() {
         {search.trim() && (
           <div className="mt-2 flex flex-col gap-1.5">
             {searchResults.length > 0 ? searchResults.slice(0, 5).map((item) => {
-              const emoji = isFoodItem(item) ? (FOOD_EMOJI[(item as FoodItem).foodCategory] ?? '📦') : (FASHION_EMOJI[item.category as keyof typeof FASHION_EMOJI] ?? '👕');
+              const emoji = isFoodItem(item)
+                ? (FOOD_EMOJI[(item as FoodItem).foodCategory] ?? '📦')
+                : (FASHION_EMOJI[item.category as keyof typeof FASHION_EMOJI] ?? '👕');
               return (
-              <Link
-                key={item.id}
-                href={isFoodItem(item) ? '/fridge' : '/closet'}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-white border border-gray-100 hover:border-brand-primary/20 transition-colors"
-              >
-                <div className="w-8 h-8 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                  {item.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-sm">{emoji}</span>
-                  )}
-                </div>
-                <span className="text-sm text-gray-800 flex-1 truncate">{item.name}</span>
-                <span className="text-[10px] text-gray-400">{isFoodItem(item) ? '냉장고' : '옷장'}</span>
-                <ChevronRight size={12} className="text-gray-300" />
-              </Link>
+                <Link
+                  key={item.id}
+                  href={isFoodItem(item) ? '/fridge' : '/closet'}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-white border border-gray-100 hover:border-brand-primary/20 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                    {item.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-sm">{emoji}</span>
+                    )}
+                  </div>
+                  <span className="text-sm text-gray-800 flex-1 truncate">{item.name}</span>
+                  <span className="text-[10px] text-gray-400">{isFoodItem(item) ? '냉장고' : '옷장'}</span>
+                  <ChevronRight size={12} className="text-gray-300" />
+                </Link>
               );
             }) : (
               <p className="text-xs text-gray-400 text-center py-2">검색 결과가 없어요</p>
@@ -807,23 +114,26 @@ export default function HomePage() {
 
       {/* 벤토 그리드 */}
       {!ready ? (
-        <Skeleton />
+        <HomeSkeleton />
       ) : (
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
-          <UrgentAlert items={items} />
-          <QuickStats items={items} />
-          <DailyBriefing items={items} />
-          <TodayDishCard items={items} />
-          <ClosetSummary items={items} />
+          <UrgentAlert     items={items} />
+          <QuickStats      items={items} />
+          <DailyBriefing   items={items} />
+          <TodayDishCard   items={items} />
+          <ClosetSummary   items={items} />
           <MonthlySpending />
-          <FridgeCarousel items={items} onDiscard={(id) => {
-            const name = items.find((i) => i.id === id)?.name ?? '';
-            removeItem(id);
-            showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
-          }} />
+          <FridgeCarousel
+            items={items}
+            onDiscard={(id) => {
+              const name = items.find((i) => i.id === id)?.name ?? '';
+              removeItem(id);
+              showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
+            }}
+          />
           <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
-          <WeeklyInsight items={items} />
-          <RecentlyAdded items={items} />
+          <WeeklyInsight  items={items} />
+          <RecentlyAdded  items={items} />
           <TipOfTheDay />
         </div>
       )}
