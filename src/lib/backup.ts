@@ -127,17 +127,22 @@ export interface BackupStatus {
 
 /** 마지막 백업 시점을 관찰하고 화면 갱신에 사용. */
 export function useBackupStatus(): BackupStatus & { refresh: () => void } {
+  const [now, setNow]           = useState<number>(0); // 0 = 아직 하이드레이션 전
   const [lastBackupAt, setLast] = useState<number | null>(null);
 
-  const refresh = useCallback(() => { setLast(readTimestamp()); }, []);
+  const refresh = useCallback(() => {
+    setLast(readTimestamp());
+    setNow(Date.now());
+  }, []);
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  const daysSince = lastBackupAt !== null
-    ? Math.floor((Date.now() - lastBackupAt) / (24 * 60 * 60 * 1000))
+  // now === 0일 땐 아직 하이드레이션 전이라 stale 판정 유보 (기본 false → 배너가 안전 상태)
+  const daysSince = lastBackupAt !== null && now > 0
+    ? Math.floor((now - lastBackupAt) / (24 * 60 * 60 * 1000))
     : null;
 
-  const isStale = lastBackupAt === null || (Date.now() - lastBackupAt) > STALE_AFTER_MS;
+  const isStale = now > 0 && (lastBackupAt === null || (now - lastBackupAt) > STALE_AFTER_MS);
 
   return { lastBackupAt, daysSince, isStale, refresh };
 }
