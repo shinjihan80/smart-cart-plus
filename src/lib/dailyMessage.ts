@@ -5,8 +5,9 @@ import type { WearLog } from '@/lib/wearLog';
 import type { CookLog } from '@/lib/recipeCookLog';
 import { daysSince } from '@/lib/wearLog';
 import { analyzeBalance } from '@/lib/nutritionAnalysis';
-import { RECIPES } from '@/lib/recipes';
+import { RECIPES, SEASON_EMOJI } from '@/lib/recipes';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
+import { SEASONAL_PRODUCE, isSeasonalProduce } from '@/lib/seasonalProduce';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
 
@@ -136,6 +137,33 @@ export function pickDailyMessage(
         cta:      { label: '냉장고 열기', href: '/fridge' },
       };
     }
+  }
+
+  // 제철 재료 ― 지금 피크인데 보유 없음 (장보기 유도)
+  const peakNames = SEASONAL_PRODUCE
+    .filter((p) => p.peak === season)
+    .map((p) => p.name);
+  const peakHave = foods.some((f) => peakNames.some((n) => f.name.includes(n)));
+  if (!peakHave && peakNames.length > 0) {
+    const sample = peakNames.slice(0, 3).join('·');
+    return {
+      emoji:    SEASON_EMOJI[season],
+      text:     `지금이 ${sample} 제철 피크예요. 이번 주 한 번 장 보러 가볼까요?`,
+      priority: 'insight',
+      cta:      { label: '제철 보기', href: '/fridge' },
+    };
+  }
+
+  // 보유 중 제철 식품 — 이번 주 안에 먹기 유도
+  const inSeasonOwned = foods.filter((f) => isSeasonalProduce(f.name, season));
+  if (inSeasonOwned.length > 0) {
+    const f = inSeasonOwned[0];
+    return {
+      emoji:    SEASON_EMOJI[season],
+      text:     `"${f.name}"이(가) 지금 제철이에요. 가장 맛있을 때 드셔보세요.`,
+      priority: 'insight',
+      cta:      { label: '레시피 찾기', href: '/fridge' },
+    };
   }
 
   // 쇼핑 리스트 대기 — 주말 아침엔 행동 유도, 평일엔 살짝 알림
