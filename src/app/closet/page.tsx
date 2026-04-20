@@ -445,7 +445,9 @@ function SwipeClothingCard({
 }
 
 type GroupFilter = '전체' | FashionGroup;
-type ClosetSort = 'name' | 'thickness';
+type ClosetSort = 'name' | 'thickness' | 'match';
+
+const MATCH_RANK = { perfect: 0, good: 1, mismatch: 2 } as const;
 
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
 const GROUP_EMOJI: Record<FashionGroup, string> = { 의류: '👕', 신발: '👟', 가방: '👜', 액세서리: '✨' };
@@ -470,10 +472,15 @@ export default function ClosetPage() {
   const items = allClothing
     .filter((i) => filter === '전체' || (FASHION_GROUP[i.category] ?? '의류') === filter)
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sortBy === 'name'
-      ? a.name.localeCompare(b.name)
-      : THICKNESS_ORDER[a.thickness] - THICKNESS_ORDER[b.thickness]
-    );
+    .sort((a, b) => {
+      if (sortBy === 'thickness') return THICKNESS_ORDER[a.thickness] - THICKNESS_ORDER[b.thickness];
+      if (sortBy === 'match' && weather) {
+        const aRank = FASHION_GROUP[a.category] === '의류' ? MATCH_RANK[clothingMatch(a.thickness, a.weatherTags, weather.tempC).level] : 3;
+        const bRank = FASHION_GROUP[b.category] === '의류' ? MATCH_RANK[clothingMatch(b.thickness, b.weatherTags, weather.tempC).level] : 3;
+        if (aRank !== bRank) return aRank - bRank;
+      }
+      return a.name.localeCompare(b.name);
+    });
 
   const groupCounts = (['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => ({
     group: g,
@@ -642,10 +649,15 @@ export default function ClosetPage() {
             ))}
           </div>
           <button
-            onClick={() => setSortBy(sortBy === 'name' ? 'thickness' : 'name')}
-            className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
+            onClick={() => {
+              const next: Record<ClosetSort, ClosetSort> = weather
+                ? { name: 'thickness', thickness: 'match', match: 'name' }
+                : { name: 'thickness', thickness: 'name', match: 'name' };
+              setSortBy(next[sortBy]);
+            }}
+            className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap"
           >
-            {sortBy === 'name' ? '🔤 이름순' : '🧥 두께순'}
+            {sortBy === 'name' ? '🔤 이름순' : sortBy === 'thickness' ? '🧥 두께순' : '✨ 오늘 어울림순'}
           </button>
         </div>
 
