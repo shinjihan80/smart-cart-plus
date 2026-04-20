@@ -122,12 +122,21 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                 className="overflow-hidden"
               >
                 <div className="px-3 pb-3">
-                  <button
-                    onClick={handleStowAll}
-                    className="w-full mb-2 text-[11px] font-semibold py-2 rounded-xl bg-brand-primary text-white hover:opacity-90 transition-opacity"
-                  >
-                    {stowCandidates.length}벌 모두 보관
-                  </button>
+                  <div className="flex gap-1.5 mb-2">
+                    <button
+                      onClick={handleStowAll}
+                      className="flex-1 text-[11px] font-semibold py-2 rounded-xl bg-brand-primary text-white hover:opacity-90 transition-opacity"
+                    >
+                      {stowCandidates.length}벌 모두 앱에서 보관
+                    </button>
+                    <button
+                      disabled
+                      title="곧 연결됩니다 — 세탁특공대·다락 등 짐 보관 업체"
+                      className="text-[11px] font-semibold py-2 px-3 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed whitespace-nowrap"
+                    >
+                      📦 업체 보관 <span className="text-[9px] text-gray-300 block leading-none">준비 중</span>
+                    </button>
+                  </div>
                   <div className="flex flex-col gap-1.5">
                     {stowCandidates.slice(0, 10).map((c) => (
                       <div key={c.id} className="flex items-center gap-2 py-1">

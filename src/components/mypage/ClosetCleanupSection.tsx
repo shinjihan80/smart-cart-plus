@@ -75,6 +75,31 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
             <p className="text-[10px] text-gray-400 mt-3 mb-2 leading-relaxed">
               네모아가 고른 정리 후보예요. 계속 입을 옷은 &ldquo;유지&rdquo;, 정리할 옷은 &ldquo;정리&rdquo;를 눌러주세요.
             </p>
+
+            {/* 파트너 연결 placeholder — Phase 7 */}
+            <div className="flex gap-1.5 mb-3 flex-wrap">
+              <button
+                disabled
+                title="곧 연결됩니다 — 아름다운가게·굿윌스토어 등"
+                className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
+              >
+                ❤️ 기부하기 <span className="text-[9px] text-gray-300">· 준비 중</span>
+              </button>
+              <button
+                disabled
+                title="곧 연결됩니다 — 당근마켓·번개장터 등"
+                className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
+              >
+                💰 중고 판매 <span className="text-[9px] text-gray-300">· 준비 중</span>
+              </button>
+              <button
+                disabled
+                title="곧 연결됩니다 — 세탁특공대·다락 등"
+                className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
+              >
+                📦 짐 보관 <span className="text-[9px] text-gray-300">· 준비 중</span>
+              </button>
+            </div>
             <div className="flex flex-col gap-2">
               {candidates.slice(0, 12).map(({ item, idleDays, reason }) => (
                 <div key={item.id} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
