@@ -5,6 +5,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import { isEnrichedClothingItem, FASHION_EMOJI, type ClothingItem } from '@/types';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import type { MatchBadge } from '@/lib/weather';
+import { useWearLog, daysSince } from '@/lib/wearLog';
 import { springTransition, CARD_SHADOW, THICKNESS_STYLE, SEASON_TAG_STYLE, MATCH_STYLE } from './shared';
 
 interface SwipeClothingCardProps {
@@ -17,6 +18,10 @@ interface SwipeClothingCardProps {
 
 export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge }: SwipeClothingCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const { getEntry, markWorn, undoLast } = useWearLog();
+  const wear = getEntry(item.id);
+  const wornToday = wear.lastWorn === new Date().toISOString().split('T')[0];
+  const daysAgo = wear.lastWorn ? daysSince(wear.lastWorn) : null;
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-120, -30, 0],
@@ -74,7 +79,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
               {matchBadge && (
                 <span
@@ -83,6 +88,19 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 >
                   <span>{matchBadge.emoji}</span>
                   <span>{matchBadge.label}</span>
+                </span>
+              )}
+              {daysAgo !== null && (
+                <span
+                  className={`shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                    daysAgo === 0 ? 'bg-brand-success/10 text-brand-success' :
+                    daysAgo <= 7 ? 'bg-gray-100 text-gray-500' :
+                    daysAgo <= 30 ? 'bg-amber-50 text-amber-600' :
+                    'bg-brand-warning/10 text-brand-warning'
+                  }`}
+                  title={`마지막 착용: ${wear.lastWorn}`}
+                >
+                  {daysAgo === 0 ? '오늘 착용' : `${daysAgo}일 전`}
                 </span>
               )}
             </div>
@@ -213,6 +231,31 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     onClick={(e) => e.stopPropagation()}
                     className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
                   />
+                </div>
+                <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-gray-400">착용 기록</p>
+                    <p className="text-xs font-medium text-gray-700 tabular-nums">
+                      {wear.count}회 · {wear.lastWorn ? `마지막 ${wear.lastWorn}` : '아직 없음'}
+                    </p>
+                  </div>
+                  <div className="flex gap-1.5">
+                    {wornToday ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); undoLast(item.id); navigator.vibrate?.(10); }}
+                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
+                      >
+                        기록 취소
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); markWorn(item.id); navigator.vibrate?.(15); }}
+                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
+                      >
+                        👕 오늘 입었어요
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={(e) => {
