@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { isFoodItem, isClothingItem, FOOD_GROUP, FASHION_GROUP, type FoodGroup, type FashionGroup } from '@/types';
+import { isFoodItem, isClothingItem, FOOD_GROUP, FASHION_GROUP, FOOD_EMOJI, type FoodGroup, type FashionGroup } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
@@ -13,6 +13,7 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import { useShoppingList } from '@/lib/shoppingList';
+import { createFoodItemFromIngredient, inferFoodCategory } from '@/lib/ingredientInference';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -58,7 +59,7 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 }
 
 export default function MyPage() {
-  const { items, archived, discardCount, discardHistory, resetData, archiveExpired } = useCart();
+  const { items, archived, discardCount, discardHistory, resetData, archiveExpired, addItems } = useCart();
   const { showToast } = useToast();
   const { favorites, isFavorite, toggle } = useRecipeFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -375,29 +376,38 @@ export default function MyPage() {
               {shopping.list
                 .slice()
                 .sort((a, b) => b.createdAt - a.createdAt)
-                .map((it) => (
-                  <div key={it.id} className="flex items-center gap-2 py-1.5">
-                    <span className="w-4 h-4 rounded-full bg-brand-primary/10 text-brand-primary text-[10px] flex items-center justify-center shrink-0">
-                      •
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-800 truncate">{it.name}</p>
-                      {it.source && (
-                        <p className="text-[9px] text-gray-400 truncate">{it.source}에서 추가</p>
-                      )}
+                .map((it) => {
+                  const category = inferFoodCategory(it.name);
+                  const emoji    = FOOD_EMOJI[category] ?? '📦';
+                  return (
+                    <div key={it.id} className="flex items-center gap-2 py-1.5">
+                      <span className="text-sm shrink-0">{emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-800 truncate">{it.name}</p>
+                        <p className="text-[9px] text-gray-400 truncate">
+                          {category}
+                          {it.source && <span> · {it.source}에서 추가</span>}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const food = createFoodItemFromIngredient(it.name);
+                          const { added, skipped } = addItems([food]);
+                          shopping.remove(it.id);
+                          if (added > 0) showToast(`"${it.name}" 냉장고에 담았어요.`);
+                          else if (skipped > 0) showToast(`"${it.name}" 이미 있어요. 리스트만 제거했어요.`);
+                        }}
+                        className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
+                      >
+                        담았어요
+                      </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        shopping.remove(it.id);
-                        showToast(`"${it.name}" 담았어요!`);
-                      }}
-                      className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
-                    >
-                      담았어요
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
+            <p className="text-[9px] text-gray-400 mt-2.5 leading-relaxed">
+              "담았어요"를 누르면 네모아가 카테고리·보관 방법을 추론해 냉장고에 자동 추가해요.
+            </p>
           </motion.div>
         )}
 
