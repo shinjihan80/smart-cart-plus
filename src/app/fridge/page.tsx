@@ -288,6 +288,51 @@ function RecipeSection({ foodNames }: { foodNames: string[] }) {
   );
 }
 
+// ── 재구매 추천 ──────────────────────────────────────────────────────────────
+function RebuySection({
+  history, currentNames, onQuickAdd,
+}: {
+  history: { name: string; category: string }[];
+  currentNames: string[];
+  onQuickAdd: (name: string) => void;
+}) {
+  // 소진된 식품 중 현재 보유하지 않은 것만 추천
+  const suggestions = history
+    .filter((h) => h.category === '식품')
+    .filter((h) => !currentNames.includes(h.name))
+    .filter((h, i, arr) => arr.findIndex((a) => a.name === h.name) === i) // 중복 제거
+    .slice(0, 5);
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...springTransition, delay: 0.18 }}
+      className={CARD}
+      style={CARD_SHADOW}
+    >
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="text-base">🔄</span>
+        <span className="text-xs text-gray-400 font-medium">재구매 추천</span>
+        <span className="text-[9px] text-gray-300">소진한 식품 기반</span>
+      </div>
+      <div className="flex gap-1.5 flex-wrap">
+        {suggestions.map((s) => (
+          <button
+            key={s.name}
+            onClick={() => onQuickAdd(s.name)}
+            className="text-[11px] px-2.5 py-1.5 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
+          >
+            🔄 {s.name}
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
 type SortKey = 'dDay' | 'name';
@@ -302,7 +347,7 @@ const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCateg
 ];
 
 export default function FridgePage() {
-  const { items: allItems, addItems, updateItem, removeItem, undoRemove } = useCart();
+  const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory } = useCart();
   const { showToast } = useToast();
   const [search, setSearch]         = useState('');
   const [storageFilter, setStorageFilter] = useState<StorageFilter>('전체');
@@ -347,6 +392,20 @@ export default function FridgePage() {
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
+  }
+
+  function handleRebuy(name: string) {
+    const { added } = addItems([{
+      id: `rb-${Date.now()}`,
+      name,
+      category: '식품',
+      foodCategory: '기타 식품',
+      storageType: '냉장',
+      baseShelfLifeDays: 7,
+      purchaseDate: new Date().toISOString().split('T')[0],
+    }]);
+    if (added > 0) showToast(`"${name}" 재구매 등록됐어요!`);
+    else showToast(`"${name}" 이미 있어요.`);
   }
 
   const STORAGE_FILTERS: { key: StorageFilter; label: string }[] = [
@@ -434,6 +493,13 @@ export default function FridgePage() {
             ))}
           </div>
         </motion.div>
+
+        {/* 재구매 추천 */}
+        <RebuySection
+          history={discardHistory}
+          currentNames={allFood.map((f) => f.name)}
+          onQuickAdd={handleRebuy}
+        />
 
         {/* 레시피 추천 */}
         <RecipeSection foodNames={allFood.map((f) => f.name)} />
