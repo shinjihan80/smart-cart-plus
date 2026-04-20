@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { ChevronRight, Sparkles, Search } from 'lucide-react';
 import NemoaLogo from '@/components/layout/NemoaLogo';
+import { fetchWeather, weatherEmoji, dressingTip, type WeatherSnapshot } from '@/lib/weather';
 
 // ── 시간대 인사말 ────────────────────────────────────────────────────────────
 function getGreeting(): string {
@@ -115,15 +116,16 @@ function Widget({
 }
 
 // ── [A] 데일리 브리핑 ─────────────────────────────────────────────────────────
-function getBriefing(): { emoji: string; headline: string; tip: string } {
+// 실 날씨(Open-Meteo) 연동 — 30분 캐시. 네트워크 실패 시 시간대 기반 폴백.
+function fallbackBriefing(): { emoji: string; headline: string; tip: string } {
   const h = new Date().getHours();
   if (h < 6)  return { emoji: '🌙', headline: '새벽 공기가 상쾌해요',        tip: '따뜻한 차 한 잔 어떠세요?' };
-  if (h < 9)  return { emoji: '🌅', headline: '현재 16도, 선선한 아침이에요', tip: '얇은 겉옷을 챙기세요.' };
-  if (h < 12) return { emoji: '🌤️', headline: '현재 18도, 바람이 차가워요',  tip: '얇은 가디건을 챙기세요.' };
-  if (h < 15) return { emoji: '☀️', headline: '현재 22도, 따뜻한 오후에요',  tip: '자외선 차단에 신경 쓰세요.' };
-  if (h < 18) return { emoji: '🌤️', headline: '현재 20도, 구름이 살짝 껴요', tip: '우산은 필요 없을 거예요.' };
-  if (h < 21) return { emoji: '🌆', headline: '현재 17도, 해가 지고 있어요', tip: '저녁엔 가디건이 좋아요.' };
-  return           { emoji: '🌙', headline: '현재 14도, 쌀쌀한 밤이에요',  tip: '따뜻하게 입으세요.' };
+  if (h < 9)  return { emoji: '🌅', headline: '상쾌한 아침이에요',            tip: '얇은 겉옷을 챙기세요.' };
+  if (h < 12) return { emoji: '🌤️', headline: '활기찬 오전이에요',            tip: '오늘 하루 힘내세요.' };
+  if (h < 15) return { emoji: '☀️', headline: '따뜻한 오후에요',              tip: '자외선 차단에 신경 쓰세요.' };
+  if (h < 18) return { emoji: '🌤️', headline: '느긋한 늦은 오후에요',         tip: '잠깐 바람 쐬러 나가볼까요?' };
+  if (h < 21) return { emoji: '🌆', headline: '해가 지는 저녁이에요',          tip: '저녁엔 가디건이 좋아요.' };
+  return           { emoji: '🌙', headline: '포근한 밤이에요',               tip: '따뜻하게 입으세요.' };
 }
 
 function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
@@ -131,21 +133,56 @@ function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
   const recommend = clothes.find(
     (c) => c.weatherTags?.includes('봄') || c.weatherTags?.includes('여름'),
   );
-  const briefing = getBriefing();
+
+  const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
+  const [weatherFailed, setWeatherFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchWeather().then((w) => {
+      if (cancelled) return;
+      if (w) setWeather(w);
+      else setWeatherFailed(true);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const useLive = weather !== null;
+  const emoji    = useLive ? weatherEmoji(weather.condition, weather.isDay) : fallbackBriefing().emoji;
+  const headline = useLive
+    ? `현재 ${weather.tempC}°, ${weather.condition}`
+    : fallbackBriefing().headline;
+  const tip      = useLive
+    ? dressingTip(weather.tempC, weather.condition)
+    : fallbackBriefing().tip;
 
   return (
     <Link href="/closet" className="col-span-2 block">
       <Widget index={0} className="relative overflow-hidden min-h-[130px]">
         <div className="absolute -right-4 -top-2 opacity-30 select-none pointer-events-none">
-          <div className="text-[80px] leading-none">{briefing.emoji}</div>
+          <div className="text-[80px] leading-none">{emoji}</div>
         </div>
         <div className="relative z-10">
-          <p className="text-xs text-gray-400 font-medium mb-2">오늘의 브리핑</p>
+          <div className="flex items-center gap-1.5 mb-2">
+            <p className="text-xs text-gray-400 font-medium">네모아의 오늘 브리핑</p>
+            {useLive && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-brand-success/10">
+                <span className="w-1 h-1 rounded-full bg-brand-success" />
+                <span className="text-[9px] font-bold text-brand-success">LIVE</span>
+              </span>
+            )}
+            {weatherFailed && !useLive && (
+              <span className="text-[9px] text-gray-300">· 오프라인</span>
+            )}
+          </div>
           <h2 className="text-lg font-bold text-gray-900 leading-snug">
-            {briefing.headline}
+            {headline}
           </h2>
           <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-            {briefing.tip}
+            {tip}
+            {useLive && weather.feelsLikeC !== weather.tempC && (
+              <span className="text-[11px] text-gray-400 ml-1">(체감 {weather.feelsLikeC}°)</span>
+            )}
             {recommend && (
               <>
                 {' '}추천: <span className="font-semibold text-brand-primary">{recommend.name}</span>
