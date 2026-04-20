@@ -43,8 +43,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-gray-50">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-xl focus:bg-brand-primary focus:text-white focus:text-xs focus:font-semibold"
+        >
+          본문으로 건너뛰기
+        </a>
         <Providers>
-          <main className="flex-1 pb-20 max-w-md mx-auto w-full">
+          <main id="main-content" className="flex-1 pb-20 max-w-md mx-auto w-full">
             {children}
           </main>
           <FloatingAdd />

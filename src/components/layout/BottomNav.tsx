@@ -28,24 +28,31 @@ export default function BottomNav() {
   ] as const;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm border-t border-gray-100">
+    <nav aria-label="메인 메뉴" className="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm border-t border-gray-100">
       <div className="max-w-md mx-auto flex">
         {NAV_ITEMS.map(({ href, label, icon: Icon, badge }) => {
           const isActive = pathname === href;
+          const badgeNoun = href === '/fridge' ? '임박 식품' : '의류';
+          const a11yLabel = badge > 0 ? `${label} · ${badgeNoun} ${badge}개` : label;
           return (
             <Link
               key={href}
               href={href}
+              aria-label={a11yLabel}
+              aria-current={isActive ? 'page' : undefined}
               className={`flex-1 flex flex-col items-center justify-center py-3 gap-0.5 transition-colors ${
                 isActive ? 'text-brand-primary' : 'text-gray-400'
               }`}
             >
               <span className="relative">
-                <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} />
+                <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
                 {badge > 0 && (
-                  <span className={`absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-[9px] font-bold flex items-center justify-center ${
-                    href === '/fridge' ? 'bg-brand-warning' : 'bg-brand-primary'
-                  }`}>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-[9px] font-bold flex items-center justify-center ${
+                      href === '/fridge' ? 'bg-brand-warning' : 'bg-brand-primary'
+                    }`}
+                  >
                     {badge}
                   </span>
                 )}

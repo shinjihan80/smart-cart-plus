@@ -58,14 +58,20 @@ export default function NotificationSettings() {
               <span className="text-sm text-gray-600">{item.label}</span>
             </div>
             <button
+              role="switch"
+              aria-checked={state[item.key]}
+              aria-label={`${item.label} 토글`}
               onClick={() => toggle(item.key)}
               className={`w-10 h-6 rounded-full transition-colors relative ${
                 state[item.key] ? 'bg-brand-primary' : 'bg-gray-200'
               }`}
             >
-              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                state[item.key] ? 'translate-x-5' : 'translate-x-1'
-              }`} />
+              <div
+                aria-hidden="true"
+                className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                  state[item.key] ? 'translate-x-5' : 'translate-x-1'
+                }`}
+              />
             </button>
           </div>
         ))}
