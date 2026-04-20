@@ -23,6 +23,7 @@ import MonthlyHistory  from '@/components/home/MonthlyHistory';
 import WeeklyInsight   from '@/components/home/WeeklyInsight';
 import RecentlyAdded   from '@/components/home/RecentlyAdded';
 import TipOfTheDay     from '@/components/home/TipOfTheDay';
+import SeasonalChipRow from '@/components/home/SeasonalChipRow';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -121,6 +122,13 @@ export default function HomePage() {
       <div className="px-4 pt-3">
         <SectionErrorBoundary label="네모아의 오늘 한 마디">
           <DailyMessage items={items} />
+        </SectionErrorBoundary>
+      </div>
+
+      {/* 제철 재료 퀵 칩 */}
+      <div className="px-4 pt-2">
+        <SectionErrorBoundary label="제철 재료">
+          <SeasonalChipRow items={items} />
         </SectionErrorBoundary>
       </div>
 
