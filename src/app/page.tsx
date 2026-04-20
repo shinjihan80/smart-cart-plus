@@ -255,7 +255,10 @@ function FridgeCard({
   const isWarning = dDay <= 5;
 
   function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -60) onDiscard();
+    if (info.offset.x < -60) {
+      navigator.vibrate?.(30);
+      onDiscard();
+    }
   }
 
   return (

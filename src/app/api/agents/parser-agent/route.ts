@@ -26,29 +26,31 @@ const AGENT_INSTRUCTION = `
 
 ## 처리 규칙
 1. 텍스트에서 상품명, 카테고리, 구매일, 수량 등 핵심 정보를 추출한다.
-2. 각 상품이 식품인지 의류/액세서리인지 판단한다:
-   - 식품: storageType을 추론 (냉장/냉동/실온), baseShelfLifeDays를 상식적으로 설정
-   - 의류: size, thickness, material을 텍스트에서 추출 (없으면 합리적 기본값 사용)
-3. id는 "p" + 인덱스(1부터) 형식으로 자동 생성한다. 예: "p1", "p2"
-4. purchaseDate는 텍스트에서 찾을 수 없으면 오늘 날짜(${new Date().toISOString().split('T')[0]})를 사용한다.
+2. 각 상품이 식품인지 패션인지 판단한다:
+   - 식품: foodCategory를 분류하고, storageType 추론, baseShelfLifeDays 설정
+     foodCategory: "채소·과일" | "정육·계란" | "수산·해산" | "유제품" | "음료" | "간식·과자" | "양념·소스" | "면·즉석" | "빵·베이커리" | "건강식품" | "기타 식품"
+   - 패션: category를 세분화, size/thickness/material 추출
+     category: "상의" | "하의" | "아우터" | "원피스" | "신발" | "가방" | "모자" | "스카프" | "안경" | "선글라스" | "시계" | "주얼리" | "기타 액세서리"
+3. id는 "p" + 인덱스(1부터) 형식. 예: "p1", "p2"
+4. purchaseDate는 텍스트에서 없으면 오늘 날짜(${new Date().toISOString().split('T')[0]}) 사용
+5. 금지어: "유통기한", "소비기한" → "보관 가능 기한" 사용
 
 ## 출력 형식 (반드시 이 구조만 반환)
 {
   "items": [
-    // FoodItem 예시
     {
       "id": "p1",
       "name": "...",
       "category": "식품",
+      "foodCategory": "유제품",
       "storageType": "냉장",
-      "baseShelfLifeDays": 7,
+      "baseShelfLifeDays": 10,
       "purchaseDate": "YYYY-MM-DD"
     },
-    // ClothingItem 예시
     {
       "id": "p2",
       "name": "...",
-      "category": "의류",
+      "category": "상의",
       "size": "M",
       "thickness": "보통",
       "material": "면"

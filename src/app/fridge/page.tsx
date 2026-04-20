@@ -47,7 +47,10 @@ function SwipeFoodCard({
   const Icon  = STORAGE_ICON[item.storageType];
 
   function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -80) onDiscard(item.id);
+    if (info.offset.x < -80) {
+      navigator.vibrate?.(30);
+      onDiscard(item.id);
+    }
   }
 
   return (

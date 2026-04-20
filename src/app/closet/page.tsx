@@ -185,7 +185,10 @@ function SwipeClothingCard({
   const ThickIcon = thick.icon;
 
   function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -80) onRemove(item.id);
+    if (info.offset.x < -80) {
+      navigator.vibrate?.(30);
+      onRemove(item.id);
+    }
   }
 
   return (

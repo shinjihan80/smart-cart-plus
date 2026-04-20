@@ -21,12 +21,14 @@ const AGENT_INSTRUCTION = `
 
 ## 처리 규칙
 1. 이미지에서 상품명, 카테고리, 구매일, 보관 방법 등 핵심 정보를 추출한다.
-2. 각 상품이 식품인지 의류/액세서리인지 판단한다:
-   - 식품: storageType(냉장/냉동/실온), baseShelfLifeDays를 라벨 또는 상식으로 추정
-   - 의류: size, thickness(얇음/보통/두꺼움), material을 태그에서 추출
-3. id는 "p" + 인덱스(1부터) 형식. 예: "p1", "p2"
-4. purchaseDate는 이미지에서 찾을 수 없으면 오늘 날짜를 사용한다.
-5. 보관 가능 기한 관련 표현 시 "유통기한", "소비기한" 금지 → "보관 가능 기한" 사용
+2. 각 상품이 식품인지 패션인지 판단한다:
+   - 식품: foodCategory 분류, storageType 추론, baseShelfLifeDays 추정
+     foodCategory: "채소·과일" | "정육·계란" | "수산·해산" | "유제품" | "음료" | "간식·과자" | "양념·소스" | "면·즉석" | "빵·베이커리" | "건강식품" | "기타 식품"
+   - 패션: category 세분화, size/thickness/material 추출
+     category: "상의" | "하의" | "아우터" | "원피스" | "신발" | "가방" | "모자" | "스카프" | "안경" | "선글라스" | "시계" | "주얼리" | "기타 액세서리"
+3. id는 "p" + 인덱스(1부터). 예: "p1", "p2"
+4. purchaseDate는 없으면 오늘 날짜.
+5. 금지어: "유통기한", "소비기한" → "보관 가능 기한" 사용
 
 ## 출력 형식 (반드시 이 구조만 반환)
 {
@@ -35,6 +37,7 @@ const AGENT_INSTRUCTION = `
       "id": "p1",
       "name": "상품명",
       "category": "식품",
+      "foodCategory": "채소·과일",
       "storageType": "냉장",
       "baseShelfLifeDays": 5,
       "purchaseDate": "YYYY-MM-DD"
