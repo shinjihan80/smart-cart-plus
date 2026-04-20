@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Wind, Thermometer, Droplets, Search } from 'lucide-react';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
-import { fetchWeather, weatherEmoji, recommendedThickness, seasonFromTemp, type WeatherSnapshot } from '@/lib/weather';
+import { fetchWeather, weatherEmoji, recommendedThickness, seasonFromTemp, clothingMatch, type WeatherSnapshot, type MatchBadge } from '@/lib/weather';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -207,10 +207,17 @@ function OutfitSection({ items }: { items: ClothingItem[] }) {
 }
 
 // ── 스와이프 의류 카드 ────────────────────────────────────────────────────────
+const MATCH_STYLE = {
+  perfect:  'bg-brand-success/10 text-brand-success',
+  good:     'bg-brand-primary/10 text-brand-primary',
+  mismatch: 'bg-gray-100 text-gray-400',
+} as const;
+
 function SwipeClothingCard({
-  item, index, onRemove, onUpdate,
+  item, index, onRemove, onUpdate, matchBadge,
 }: {
   item: ClothingItem; index: number; onRemove: (id: string) => void; onUpdate: (id: string, updates: Partial<ClothingItem>) => void;
+  matchBadge?: MatchBadge;
 }) {
   const [expanded, setExpanded] = useState(false);
   const x = useMotionValue(0);
@@ -274,6 +281,15 @@ function SwipeClothingCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+              {matchBadge && (
+                <span
+                  className={`shrink-0 inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${MATCH_STYLE[matchBadge.level]}`}
+                  title={matchBadge.label}
+                >
+                  <span>{matchBadge.emoji}</span>
+                  <span>{matchBadge.label}</span>
+                </span>
+              )}
             </div>
             {item.memo && <p className="text-[9px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
@@ -440,6 +456,15 @@ export default function ClosetPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<GroupFilter>('전체');
   const [sortBy, setSortBy] = useState<ClosetSort>('name');
+  const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchWeather()
+      .then((w) => { if (!cancelled && w) setWeather(w); })
+      .catch(() => { /* 뱃지 없이 표시 */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const allClothing = allItems.filter(isClothingItem);
   const items = allClothing
@@ -641,7 +666,7 @@ export default function ClosetPage() {
                   <AnimatePresence mode="popLayout">
                     <div className="flex flex-col gap-3">
                       {group.map((item, index) => (
-                        <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} />
+                        <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined} />
                       ))}
                     </div>
                   </AnimatePresence>
@@ -652,7 +677,7 @@ export default function ClosetPage() {
         ) : (
           <AnimatePresence mode="popLayout">
             {items.map((item, index) => (
-              <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} />
+              <SwipeClothingCard key={item.id} item={item} index={index} onRemove={handleRemove} onUpdate={updateItem} matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined} />
             ))}
           </AnimatePresence>
         )}
