@@ -10,6 +10,7 @@ import { Snowflake, Thermometer, Package, Search } from 'lucide-react';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { matchRecipes, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { analyzeBalance, WEEKLY_TARGET } from '@/lib/nutritionAnalysis';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -295,6 +296,80 @@ function SwipeFoodCard({
           )}
         </AnimatePresence>
       </motion.div>
+    </motion.div>
+  );
+}
+
+// ── 주간 영양 밸런스 ──────────────────────────────────────────────────────────
+function NutritionBalanceSection({ foods }: { foods: FoodItem[] }) {
+  if (foods.length === 0) return null;
+  const balance = analyzeBalance(foods);
+
+  const bars = [
+    { label: '칼로리', key: 'calories' as const, unit: 'kcal', target: WEEKLY_TARGET.calories },
+    { label: '단백질', key: 'protein'  as const, unit: 'g',   target: WEEKLY_TARGET.protein  },
+    { label: '탄수화물', key: 'carbs'  as const, unit: 'g',   target: WEEKLY_TARGET.carbs    },
+    { label: '지방',   key: 'fat'      as const, unit: 'g',   target: WEEKLY_TARGET.fat      },
+  ];
+
+  function coverageTone(cov: number): string {
+    if (cov < 0.3)  return 'bg-brand-warning';
+    if (cov > 1.0)  return 'bg-amber-400';
+    if (cov >= 0.7) return 'bg-brand-success';
+    return 'bg-brand-primary';
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...springTransition, delay: 0.13 }}
+      className={CARD}
+      style={CARD_SHADOW}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-base">📊</span>
+          <span className="text-xs text-gray-400 font-medium">이번 주 영양 밸런스</span>
+        </div>
+        <div className="flex items-center gap-1.5 text-[9px] text-gray-400">
+          <span>🥬 {balance.vegFruitCount}</span>
+          <span className="text-gray-200">·</span>
+          <span>🥩 {balance.proteinCount}</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2.5 mb-3">
+        {bars.map((b) => {
+          const cov = balance.coverage[b.key];
+          const pct = Math.round(cov * 100);
+          const value = Math.round(balance.totals[b.key]);
+          return (
+            <div key={b.key}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] text-gray-600">{b.label}</span>
+                <span className="text-[10px] text-gray-400 tabular-nums">
+                  {value.toLocaleString()} / {b.target.toLocaleString()} {b.unit} · {pct}%
+                </span>
+              </div>
+              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(100, cov * 100)}%` }}
+                  transition={{ ...springTransition, delay: 0.25 }}
+                  className={`h-full rounded-full ${coverageTone(cov)}`}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3 py-2">
+        <p className="text-[11px] text-gray-700 leading-relaxed">
+          <span className="font-semibold text-brand-primary">네모아</span> · {balance.advice}
+        </p>
+      </div>
     </motion.div>
   );
 }
@@ -718,6 +793,9 @@ export default function FridgePage() {
           currentNames={allFood.map((f) => f.name)}
           onQuickAdd={handleRebuy}
         />
+
+        {/* 영양 밸런스 */}
+        <NutritionBalanceSection foods={allFood} />
 
         {/* 레시피 추천 */}
         <RecipeSection foods={allFood} />
