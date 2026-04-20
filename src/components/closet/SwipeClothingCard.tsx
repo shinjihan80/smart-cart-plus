@@ -320,6 +320,13 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                           {p.name}
                         </button>
                       ))}
+                      <a
+                        href="/settings#profiles"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
+                      >
+                        + 추가
+                      </a>
                     </div>
                   ) : (
                     <p className="text-gray-700 font-medium mt-0.5">{owner ? owner.name : '공용'}</p>

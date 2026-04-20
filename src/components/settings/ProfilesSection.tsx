@@ -236,6 +236,7 @@ export default function ProfilesSection() {
 
   return (
     <motion.div
+      id="profiles"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.08 }}
@@ -243,8 +244,11 @@ export default function ProfilesSection() {
       style={CARD_SHADOW}
     >
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs text-gray-400 font-medium">프로필 관리</h3>
-        <span className="text-[10px] text-gray-400">{profiles.length}명</span>
+        <div>
+          <h3 className="text-xs text-gray-400 font-medium">프로필 관리</h3>
+          <p className="text-[9px] text-gray-300 mt-0.5">본인 · 가족 · 공용 구매 물품 분리</p>
+        </div>
+        <span className="text-[10px] text-gray-400 tabular-nums">{profiles.length}명</span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -264,14 +268,18 @@ export default function ProfilesSection() {
       </div>
 
       {/* 가족 추가 폼 */}
-      <div className="mt-3 pt-3 border-t border-gray-100">
-        <p className="text-[10px] text-gray-500 mb-2">가족 / 다른 구성원 추가</p>
+      <div className="mt-4 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 p-3">
+        <div className="flex items-center gap-1.5 mb-2">
+          <Plus size={12} className="text-brand-primary" />
+          <p className="text-[11px] font-semibold text-brand-primary">가족 · 다른 구성원 추가</p>
+        </div>
+        <p className="text-[10px] text-gray-500 mb-2">관계를 고르고 이름을 입력하세요.</p>
         <div className="flex gap-1.5 mb-2 flex-wrap">
           {RELATIONS.filter((r) => r !== '본인').map((r) => (
             <button
               key={r}
               onClick={() => setNewRelation(r)}
-              className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+              className={`text-[10px] px-2.5 py-1 rounded-full transition-colors ${
                 newRelation === r
                   ? 'bg-brand-primary text-white'
                   : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-100'
@@ -289,11 +297,11 @@ export default function ProfilesSection() {
             onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
             placeholder={`${newRelation} 이름 (예: 엄마, 큰아이)`}
             aria-label="새 프로필 이름"
-            className="flex-1 text-xs text-gray-800 bg-gray-50 border border-gray-100 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
+            className="flex-1 text-xs text-gray-800 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
           />
           <button
             onClick={handleAdd}
-            className="flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-xl bg-brand-primary text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-xl bg-brand-primary text-white hover:opacity-90 transition-opacity whitespace-nowrap"
           >
             <Plus size={12} /> 추가
           </button>
