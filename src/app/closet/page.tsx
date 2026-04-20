@@ -368,6 +368,18 @@ function SwipeClothingCard({
                     className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
                   />
                 </div>
+                {/* 공유 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const text = `👕 ${item.name}\n📏 ${item.size} · ${item.material}\n${item.memo ? `📝 ${item.memo}` : ''}`.trim();
+                    navigator.clipboard.writeText(text);
+                    navigator.vibrate?.(15);
+                  }}
+                  className="w-full py-1.5 rounded-xl bg-gray-50 text-[10px] text-gray-500 hover:bg-gray-100 transition-colors"
+                >
+                  📋 정보 복사하기
+                </button>
               </div>
             </motion.div>
           )}

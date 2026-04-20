@@ -246,6 +246,21 @@ function SwipeFoodCard({
                     </div>
                   </div>
                 )}
+                {/* 보관일 수정 */}
+                <div>
+                  <span className="text-gray-400">보관 가능 일수</span>
+                  <input
+                    type="number"
+                    defaultValue={item.baseShelfLifeDays}
+                    min={1}
+                    onBlur={(e) => {
+                      const v = parseInt(e.target.value, 10);
+                      if (v > 0 && v !== item.baseShelfLifeDays) onUpdate(item.id, { baseShelfLifeDays: v });
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-20 mt-0.5 text-xs text-gray-700 font-medium bg-gray-50 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
+                  />
+                </div>
                 {/* 메모 */}
                 <div>
                   <span className="text-gray-400">메모</span>
@@ -261,6 +276,18 @@ function SwipeFoodCard({
                     className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
                   />
                 </div>
+                {/* 공유 */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const text = `🧊 ${item.name}\n📅 D-${dDay} (${item.storageType})\n${item.memo ? `📝 ${item.memo}` : ''}`.trim();
+                    navigator.clipboard.writeText(text);
+                    navigator.vibrate?.(15);
+                  }}
+                  className="w-full py-1.5 rounded-xl bg-gray-50 text-[10px] text-gray-500 hover:bg-gray-100 transition-colors"
+                >
+                  📋 정보 복사하기
+                </button>
               </div>
             </motion.div>
           )}
