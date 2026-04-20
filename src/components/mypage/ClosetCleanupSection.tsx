@@ -8,6 +8,8 @@ import { useWearLog } from '@/lib/wearLog';
 import { findCleanupCandidates } from '@/lib/closetCleanup';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import PartnerChip from '@/components/PartnerChip';
+import { PARTNERS } from '@/lib/partnerLinks';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
@@ -78,27 +80,9 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
 
             {/* 파트너 연결 placeholder — Phase 7 */}
             <div className="flex gap-1.5 mb-3 flex-wrap">
-              <button
-                disabled
-                title="곧 연결됩니다 — 아름다운가게·굿윌스토어 등"
-                className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-              >
-                ❤️ 기부하기 <span className="text-[9px] text-gray-300">· 준비 중</span>
-              </button>
-              <button
-                disabled
-                title="곧 연결됩니다 — 당근마켓·번개장터 등"
-                className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-              >
-                💰 중고 판매 <span className="text-[9px] text-gray-300">· 준비 중</span>
-              </button>
-              <button
-                disabled
-                title="곧 연결됩니다 — 세탁특공대·다락 등"
-                className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-              >
-                📦 짐 보관 <span className="text-[9px] text-gray-300">· 준비 중</span>
-              </button>
+              <PartnerChip partner={PARTNERS.beautiful} />
+              <PartnerChip partner={PARTNERS.karrot} />
+              <PartnerChip partner={PARTNERS.storage_svc} />
             </div>
             <div className="flex flex-col gap-2">
               {candidates.slice(0, 12).map(({ item, idleDays, reason }) => (

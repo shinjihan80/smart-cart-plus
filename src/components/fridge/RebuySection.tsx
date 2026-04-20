@@ -1,6 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import PartnerChip from '@/components/PartnerChip';
+import { PARTNERS } from '@/lib/partnerLinks';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface RebuySectionProps {
@@ -45,13 +47,7 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
       </div>
       <div className="mt-2 pt-2 border-t border-gray-50 flex items-center gap-1.5 flex-wrap">
         <span className="text-[10px] text-gray-400">쇼핑몰 연결:</span>
-        <button
-          disabled
-          title="곧 연결됩니다 — 쿠팡·네이버·마켓컬리 제휴 API"
-          className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-        >
-          🛒 바로 장보기 <span className="text-[9px] text-gray-300">· 준비 중</span>
-        </button>
+        <PartnerChip partner={PARTNERS.quick_mart} />
       </div>
     </motion.div>
   );

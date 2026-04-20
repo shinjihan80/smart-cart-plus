@@ -7,6 +7,7 @@ import { isClothingItem, FASHION_EMOJI, FASHION_GROUP, type CartItem, type Cloth
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
+import { PARTNERS } from '@/lib/partnerLinks';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const SEASON_EMOJI = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' } as const;
@@ -130,8 +131,8 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                       {stowCandidates.length}벌 모두 앱에서 보관
                     </button>
                     <button
-                      disabled
-                      title="곧 연결됩니다 — 세탁특공대·다락 등 짐 보관 업체"
+                      disabled={!PARTNERS.storage_box.enabled}
+                      title={PARTNERS.storage_box.comingSoon}
                       className="text-[11px] font-semibold py-2 px-3 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed whitespace-nowrap"
                     >
                       📦 업체 보관 <span className="text-[9px] text-gray-300 block leading-none">준비 중</span>

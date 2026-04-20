@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { FOOD_EMOJI, type CartItem } from '@/types';
 import { useShoppingList } from '@/lib/shoppingList';
 import { createFoodItemFromIngredient, inferFoodCategory } from '@/lib/ingredientInference';
+import PartnerChip from '@/components/PartnerChip';
+import { PARTNERS } from '@/lib/partnerLinks';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface ShoppingListSectionProps {
@@ -107,34 +109,10 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
       <div className="mt-3 pt-3 border-t border-gray-50">
         <p className="text-[10px] text-gray-400 mb-1.5">🛒 바로 장보기</p>
         <div className="flex gap-1.5 flex-wrap">
-          <button
-            disabled
-            title="곧 연결됩니다 — 쿠팡 로켓배송 제휴 API"
-            className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-          >
-            📦 쿠팡 <span className="text-[9px] text-gray-300">· 준비 중</span>
-          </button>
-          <button
-            disabled
-            title="곧 연결됩니다 — 마켓컬리 새벽배송"
-            className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-          >
-            🌙 마켓컬리 <span className="text-[9px] text-gray-300">· 준비 중</span>
-          </button>
-          <button
-            disabled
-            title="곧 연결됩니다 — 네이버 장보기"
-            className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-          >
-            🛍️ 네이버 장보기 <span className="text-[9px] text-gray-300">· 준비 중</span>
-          </button>
-          <button
-            disabled
-            title="곧 연결됩니다 — SSG·이마트몰·홈플러스"
-            className="text-[10px] px-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed"
-          >
-            🏪 대형마트 <span className="text-[9px] text-gray-300">· 준비 중</span>
-          </button>
+          <PartnerChip partner={PARTNERS.coupang} />
+          <PartnerChip partner={PARTNERS.kurly} />
+          <PartnerChip partner={PARTNERS.naver_shop} />
+          <PartnerChip partner={PARTNERS.mart} />
         </div>
       </div>
     </motion.div>
