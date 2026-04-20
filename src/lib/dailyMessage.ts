@@ -1,0 +1,119 @@
+import { isFoodItem, isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
+import { calcRemainingDays } from '@/components/FoodTags';
+import type { WeatherSnapshot } from '@/lib/weather';
+import type { WearLog } from '@/lib/wearLog';
+import { daysSince } from '@/lib/wearLog';
+import { analyzeBalance } from '@/lib/nutritionAnalysis';
+
+export type MessagePriority = 'urgent' | 'insight' | 'gentle';
+
+export interface DailyMessage {
+  emoji:    string;
+  text:     string;
+  priority: MessagePriority;
+  cta?:     { label: string; href: string };
+}
+
+/**
+ * 여러 시그널을 우선순위대로 평가해 네모아가 할 "하나의" 메시지를 뽑는다.
+ * urgent (긴급) > insight (발견) > gentle (일상) 순.
+ * 결정성을 위해 하루 내에는 같은 시그널이 반복 우선되더라도 단일 메시지만 노출.
+ */
+export function pickDailyMessage(
+  items: CartItem[],
+  weather: WeatherSnapshot | null,
+  wearLog: WearLog,
+): DailyMessage {
+  const foods    = items.filter(isFoodItem);
+  const clothes  = items.filter(isClothingItem);
+  const hour     = new Date().getHours();
+
+  // ── 1. 긴급 — 바로 행동 유도 ─────────────────────────────────────────────
+  const expiringToday = foods.filter(
+    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 1,
+  );
+  if (expiringToday.length > 0) {
+    const firstName = expiringToday[0].name;
+    const extra = expiringToday.length > 1 ? ` 외 ${expiringToday.length - 1}개` : '';
+    return {
+      emoji:    '⚠️',
+      text:     `${firstName}${extra}이(가) 오늘 내로 소비가 필요해요. 레시피로 활용해볼까요?`,
+      priority: 'urgent',
+      cta:      { label: '레시피 찾기', href: '/fridge' },
+    };
+  }
+
+  if (weather?.condition === '비' || weather?.condition === '눈') {
+    const word = weather.condition === '비' ? '비' : '눈';
+    return {
+      emoji:    weather.condition === '비' ? '☔' : '❄️',
+      text:     `오늘 ${word}가 와요. 우산과 방수 신발 챙기세요.`,
+      priority: 'urgent',
+      cta:      { label: '옷장 열기', href: '/closet' },
+    };
+  }
+
+  // ── 2. 인사이트 — 발견/제안 ──────────────────────────────────────────────
+  if (foods.length > 0) {
+    const balance = analyzeBalance(foods);
+    if (balance.coverage.protein < 0.3 && balance.proteinCount < 2) {
+      return {
+        emoji:    '🥩',
+        text:     '이번 주 단백질이 부족해 보여요. 두부·달걀·닭가슴살을 추가해볼까요?',
+        priority: 'insight',
+        cta:      { label: '냉장고 확인', href: '/fridge' },
+      };
+    }
+    if (balance.vegFruitCount < 2) {
+      return {
+        emoji:    '🥬',
+        text:     '채소·과일이 조금 부족해요. 샐러드 재료를 장 볼 시간이에요.',
+        priority: 'insight',
+        cta:      { label: '냉장고 확인', href: '/fridge' },
+      };
+    }
+  }
+
+  // 30일 이상 안 입은 옷이 있으면 재발견 제안
+  const longIdle = clothes
+    .filter((c) => FASHION_GROUP[c.category] === '의류')
+    .map((c) => {
+      const dates = wearLog[c.id] ?? [];
+      const idle = dates.length > 0 ? daysSince(dates[0]) : 0;
+      return { item: c, idle, hasRecord: dates.length > 0 };
+    })
+    .filter((x) => x.hasRecord && x.idle >= 30)
+    .sort((a, b) => b.idle - a.idle);
+
+  if (longIdle.length > 0) {
+    const { item, idle } = longIdle[0];
+    return {
+      emoji:    '🌙',
+      text:     `"${item.name}"을(를) ${idle}일째 안 입었어요. 오늘 한번 꺼내볼까요?`,
+      priority: 'insight',
+      cta:      { label: '옷장 열기', href: '/closet' },
+    };
+  }
+
+  // 날씨 기반 옷차림 조언
+  if (weather) {
+    if (weather.tempC >= 28) {
+      return { emoji: '☀️', text: `오늘 ${weather.tempC}°예요. 얇고 시원한 옷이 좋을 것 같아요.`, priority: 'insight', cta: { label: '옷장 열기', href: '/closet' } };
+    }
+    if (weather.tempC <= 5) {
+      return { emoji: '🧥', text: `오늘 ${weather.tempC}°, 쌀쌀해요. 두꺼운 외투를 챙기세요.`, priority: 'insight', cta: { label: '옷장 열기', href: '/closet' } };
+    }
+  }
+
+  // ── 3. Gentle — 시간대 일상 인사 ─────────────────────────────────────────
+  if (hour < 10) {
+    return { emoji: '☕', text: '좋은 아침이에요. 오늘도 잘 챙겨드세요.',        priority: 'gentle' };
+  }
+  if (hour < 14) {
+    return { emoji: '🍱', text: '점심 시간이에요. 냉장고에 맛있는 거 있나요?',    priority: 'gentle', cta: { label: '냉장고 확인', href: '/fridge' } };
+  }
+  if (hour < 19) {
+    return { emoji: '🌤️', text: '오후 햇살이 좋네요. 잠깐 산책은 어떠세요?',     priority: 'gentle' };
+  }
+  return   { emoji: '🌙', text: '하루 수고하셨어요. 내일을 위해 푹 쉬세요.',      priority: 'gentle' };
+}

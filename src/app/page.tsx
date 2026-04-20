@@ -9,6 +9,7 @@ import { ChevronRight, Sparkles, Search } from 'lucide-react';
 import NemoaLogo from '@/components/layout/NemoaLogo';
 
 import { HomeSkeleton } from '@/components/home/shared';
+import DailyMessage    from '@/components/home/DailyMessage';
 import UrgentAlert     from '@/components/home/UrgentAlert';
 import QuickStats      from '@/components/home/QuickStats';
 import DailyBriefing   from '@/components/home/DailyBriefing';
@@ -110,6 +111,11 @@ export default function HomePage() {
             )}
           </div>
         )}
+      </div>
+
+      {/* 네모아의 오늘 한 마디 */}
+      <div className="px-4 pt-3">
+        <DailyMessage items={items} />
       </div>
 
       {/* 벤토 그리드 */}
