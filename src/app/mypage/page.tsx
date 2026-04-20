@@ -18,6 +18,7 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared'
 import StatsSection                              from '@/components/mypage/StatsSection';
 import SpendingSection                           from '@/components/mypage/SpendingSection';
 import ShoppingListSection                       from '@/components/mypage/ShoppingListSection';
+import ShoppingSuggestionsSection                 from '@/components/mypage/ShoppingSuggestionsSection';
 import FavoriteRecipesSection                    from '@/components/mypage/FavoriteRecipesSection';
 import WearStatsSection                          from '@/components/mypage/WearStatsSection';
 import CookStatsSection                          from '@/components/mypage/CookStatsSection';
@@ -179,6 +180,14 @@ export default function MyPage() {
             이메일 파싱으로 구매 내역을 자동 가져오는 기능이 곧 추가됩니다.
           </p>
         </motion.div>
+
+        <SectionErrorBoundary label="장볼 거 추천">
+          <ShoppingSuggestionsSection
+            items={items}
+            discardHistory={discardHistory}
+            showToast={showToast}
+          />
+        </SectionErrorBoundary>
 
         <SectionErrorBoundary label="쇼핑 리스트">
           <ShoppingListSection addItems={addItems} showToast={showToast} />
