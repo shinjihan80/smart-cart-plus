@@ -435,17 +435,38 @@ export default function MyPage() {
               <h3 className="text-xs text-gray-400 font-medium">
                 🛒 쇼핑 리스트 <span className="tabular-nums">({shopping.list.length})</span>
               </h3>
-              <button
-                onClick={() => {
-                  if (confirm('쇼핑 리스트를 모두 비울까요?')) {
-                    shopping.clear();
-                    showToast('쇼핑 리스트를 비웠어요.');
-                  }
-                }}
-                className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                전체 비우기
-              </button>
+              <div className="flex items-center gap-1">
+                {shopping.list.length >= 2 && (
+                  <button
+                    onClick={() => {
+                      if (!confirm(`${shopping.list.length}개를 모두 냉장고에 담을까요?`)) return;
+                      const names = shopping.list.map((it) => it.name);
+                      const newFoods = names.map((n) => createFoodItemFromIngredient(n));
+                      const { added, skipped } = addItems(newFoods);
+                      shopping.clear();
+                      showToast(
+                        skipped > 0
+                          ? `${added}개 담았어요 · ${skipped}개는 이미 있었어요.`
+                          : `${added}개 모두 냉장고에 담았어요.`,
+                      );
+                    }}
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
+                  >
+                    모두 담기
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    if (confirm('쇼핑 리스트를 모두 비울까요?')) {
+                      shopping.clear();
+                      showToast('쇼핑 리스트를 비웠어요.');
+                    }
+                  }}
+                  className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  전체 비우기
+                </button>
+              </div>
             </div>
             <div className="flex flex-col gap-1.5">
               {shopping.list
