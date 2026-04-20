@@ -209,7 +209,16 @@ function SwipeFoodCard({
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <span className="text-gray-400">구매일</span>
-                    <p className="text-gray-700 font-medium tabular-nums mt-0.5">{item.purchaseDate}</p>
+                    <input
+                      type="date"
+                      defaultValue={item.purchaseDate}
+                      onBlur={(e) => {
+                        const v = e.target.value;
+                        if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full mt-0.5 text-xs text-gray-700 font-medium bg-gray-50 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
+                    />
                   </div>
                   <div>
                     <span className="text-gray-400">보관 만료</span>
