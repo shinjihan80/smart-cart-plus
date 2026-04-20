@@ -6,13 +6,15 @@ import type { FoodItem } from '@/types';
 import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { useCookLog } from '@/lib/recipeCookLog';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const season = currentSeasonByMonth();
-  const rawMatched = matchRecipes(foods, 12, season);
+  const { cookCounts } = useCookLog();
+  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts });
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);
@@ -28,6 +30,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
 
   const urgentCount = matched.filter((m) => m.urgentBoosted).length;
   const favoriteCount = matched.filter((m) => isFavorite(m.recipe.id)).length;
+  const loveCount = matched.filter((m) => m.loveBoosted).length;
 
   return (
     <>
@@ -49,6 +52,11 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 ♥ {favoriteCount}
               </span>
             )}
+            {loveCount > 0 && (
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">
+                🏆 단골 {loveCount}
+              </span>
+            )}
             {urgentCount > 0 && (
               <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
                 ⚠️ 소비 임박 {urgentCount}
@@ -63,7 +71,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
           </div>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
-          {matched.map(({ recipe, matchedItems, urgentBoosted, seasonBoosted }) => {
+          {matched.map(({ recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount }) => {
             const fav = isFavorite(recipe.id);
             return (
               <button
@@ -72,13 +80,16 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 className={`shrink-0 rounded-2xl px-3.5 py-2.5 min-w-[140px] max-w-[160px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform ${
                   urgentBoosted
                     ? 'bg-brand-warning/5 border border-brand-warning/20'
-                    : 'bg-brand-primary/5 border border-brand-primary/10'
+                    : loveBoosted
+                      ? 'bg-rose-50 border border-rose-100'
+                      : 'bg-brand-primary/5 border border-brand-primary/10'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <span className="text-2xl">{recipe.emoji}</span>
                   <div className="flex items-center gap-0.5">
                     {fav && <span className="text-[10px] text-brand-warning">♥</span>}
+                    {loveBoosted && <span className="text-[9px]" title={`${cookCount}번 만든 단골`}>🏆</span>}
                     {seasonBoosted && <span className="text-[9px]" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>}
                     {urgentBoosted && <span className="text-[9px]">⚠️</span>}
                   </div>

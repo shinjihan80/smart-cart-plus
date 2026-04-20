@@ -209,9 +209,16 @@ export const RECIPES: readonly Recipe[] = [
 export interface MatchedRecipe {
   recipe:         Recipe;
   matchedItems:   string[];
-  matchScore:     number;  // 매칭 개수 + 임박(+2) + 계절(+1.5)
+  matchScore:     number;  // 매칭 개수 + 임박(+2) + 계절(+1.5) + 선호(+최대3)
   urgentBoosted:  boolean; // 소비 임박 아이템 포함
   seasonBoosted:  boolean; // 현재 계절과 매칭
+  loveBoosted:    boolean; // 사용자가 자주 만든 레시피 (3회 이상)
+  cookCount:      number;  // 조리 횟수
+}
+
+export interface MatchOptions {
+  currentSeason?: Season;
+  cookCounts?:    Record<string, number>;
 }
 
 /**
@@ -219,13 +226,17 @@ export interface MatchedRecipe {
  * - 부분 일치 허용 ("딸기 한 팩" ∋ "딸기")
  * - 소비 임박(D-Day ≤ 3) 식품이 매칭되면 +2 보너스 + urgentBoosted=true
  * - 레시피가 현재 계절에 맞으면 +1.5 보너스 + seasonBoosted=true
+ * - 조리 횟수 1회당 +1 (최대 +3). 3회 이상이면 loveBoosted=true
  * - matchScore 높은 순, 동점 시 난이도 쉬운 순
  */
 export function matchRecipes(
   foods: FoodItem[],
   maxResults = 8,
-  currentSeason?: Season,
+  opts: MatchOptions | Season = {},
 ): MatchedRecipe[] {
+  const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
+  const { currentSeason, cookCounts } = options;
+
   const nameIndex = foods.map((f) => ({
     name:  f.name,
     urgent: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
@@ -249,12 +260,18 @@ export function matchRecipes(
     const seasonBoosted = !!(currentSeason && recipe.seasons && recipe.seasons.includes(currentSeason));
     const seasonBoost   = seasonBoosted ? 1.5 : 0;
 
+    const cookCount  = cookCounts?.[recipe.id] ?? 0;
+    const loveBoost  = Math.min(cookCount, 3);
+    const loveBoosted = cookCount >= 3;
+
     results.push({
       recipe,
       matchedItems,
-      matchScore:     matchedItems.length + urgentBoost + seasonBoost,
+      matchScore:     matchedItems.length + urgentBoost + seasonBoost + loveBoost,
       urgentBoosted:  urgentBoost > 0,
       seasonBoosted,
+      loveBoosted,
+      cookCount,
     });
   }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { createSharedStore } from './sharedStore';
 
 const STORAGE_KEY = 'nemoa-cook-log';
@@ -49,5 +49,12 @@ export function useCookLog() {
     return { id, count: dates.length, lastCooked: dates[0] };
   }, [log]);
 
-  return { log, markCooked, undoLast, getEntry };
+  /** recipe id → 조리 횟수 맵. matchRecipes에 전달. */
+  const cookCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const [id, dates] of Object.entries(log)) map[id] = dates.length;
+    return map;
+  }, [log]);
+
+  return { log, cookCounts, markCooked, undoLast, getEntry };
 }

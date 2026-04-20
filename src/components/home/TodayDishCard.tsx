@@ -7,18 +7,20 @@ import { isFoodItem, type CartItem } from '@/types';
 import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { useCookLog } from '@/lib/recipeCookLog';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { Widget } from './shared';
 
 export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const foods = items.filter(isFoodItem);
   const season = currentSeasonByMonth();
-  const matched = matchRecipes(foods, 1, season);
+  const { cookCounts } = useCookLog();
+  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts });
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 
   if (matched.length === 0) return null;
-  const { recipe, matchedItems, urgentBoosted, seasonBoosted } = matched[0];
+  const { recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount } = matched[0];
 
   return (
     <>
@@ -49,6 +51,11 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                   {seasonBoosted && (
                     <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
                       {SEASON_EMOJI[season]} {season}철
+                    </span>
+                  )}
+                  {loveBoosted && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600 font-semibold" title={`${cookCount}번 만든 단골`}>
+                      🏆 단골
                     </span>
                   )}
                 </div>
