@@ -14,7 +14,6 @@ import { runWithDualReview } from '@/lib/agentPipeline';
 import {
   StorageType,
   Thickness,
-  WeatherTag,
   FoodItem,
   EnrichedClothingItem,
   CartItem,
@@ -22,6 +21,7 @@ import {
   FASHION_GROUP,
   FOOD_GROUP,
 } from '@/types';
+import { inferWeatherTagsFallback, sanitizeWeatherTags } from '@/lib/clothingInference';
 import Anthropic from '@anthropic-ai/sdk';
 
 // ─── API 내부 전용 타입 (export 없음) ─────────────────────────────────────────
@@ -175,29 +175,9 @@ const AGENT_INSTRUCTION = `
 
 const VALID_STORAGE_TYPES: StorageType[] = ['냉장', '냉동', '실온'];
 const VALID_THICKNESSES:   Thickness[]   = ['얇음', '보통', '두꺼움'];
-const VALID_WEATHER_TAGS:  WeatherTag[]  = ['봄', '여름', '가을', '겨울', '우천', '맑음'];
 const ALLOWED_MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
 type AllowedMediaType = typeof ALLOWED_MEDIA_TYPES[number];
 const MAX_SIZE_MB = 5;
-
-// ─── AI 누락 시 thickness·category 기반 weatherTags 추론 ──────────────────────
-
-function inferWeatherTagsFallback(
-  thickness: Thickness,
-  category: FashionCategory,
-  lining?: boolean,
-): WeatherTag[] {
-  // 액세서리류는 계절 영향이 낮아 빈 배열 반환 (UI에서 뱃지 생략)
-  if (FASHION_GROUP[category] !== '의류') return [];
-  if (category === '아우터') {
-    return thickness === '얇음' ? ['봄', '가을'] : ['가을', '겨울'];
-  }
-  switch (thickness) {
-    case '얇음':   return ['봄', '여름'];
-    case '두꺼움': return lining ? ['겨울'] : ['가을', '겨울'];
-    default:       return ['봄', '가을'];
-  }
-}
 
 // ─── 변환 경계: VisionRawItem → CartItem ─────────────────────────────────────
 
@@ -235,10 +215,7 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
     ? (raw.category as FashionCategory)
     : '상의';
 
-  const cleanedTags = (raw.weatherTags ?? [])
-    .filter((t): t is WeatherTag => VALID_WEATHER_TAGS.includes(t as WeatherTag));
-
-  // 폴백: AI가 태그를 누락했거나 정제 후 0개면 thickness + category 기반으로 추정
+  const cleanedTags = sanitizeWeatherTags(raw.weatherTags);
   const weatherTags = cleanedTags.length > 0
     ? cleanedTags
     : inferWeatherTagsFallback(thickness, category, raw.attributes?.lining);

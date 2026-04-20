@@ -16,6 +16,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateInput, validateOutput } from '@/lib/harness';
 import { runWithDualReview } from '@/lib/agentPipeline';
+import { inferWeatherTagsFallback, sanitizeWeatherTags } from '@/lib/clothingInference';
+import { FASHION_GROUP, type FashionCategory, type Thickness, type WeatherTag } from '@/types';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **데이터 엔지니어 에이전트(parser-agent)**다.
@@ -34,6 +36,13 @@ const AGENT_INSTRUCTION = `
 3. id는 "p" + 인덱스(1부터) 형식. 예: "p1", "p2"
 4. purchaseDate는 텍스트에서 없으면 오늘 날짜(${new Date().toISOString().split('T')[0]}) 사용
 5. 금지어: "유통기한", "소비기한" → "보관 가능 기한" 사용
+6. **패션 아이템은 weatherTags(["봄"|"여름"|"가을"|"겨울"|"우천"|"맑음"] 중 1~3개)를 반드시 부여한다:**
+   - thickness "얇음" → ["봄","여름"] 또는 ["여름"]
+   - thickness "보통" → ["봄","가을"]
+   - thickness "두꺼움" → ["가을","겨울"] 또는 ["겨울"]
+   - 아우터는 계절 하나 아래로 포함 (예: 얇은 아우터도 "가을" 포함)
+   - 레인코트·방수 등은 "우천", 선글라스·썬캡 등은 "맑음" 추가
+   - 신발·가방·액세서리는 계절 영향 낮으면 생략 가능
 
 ## 출력 형식 (반드시 이 구조만 반환)
 {
@@ -53,7 +62,8 @@ const AGENT_INSTRUCTION = `
       "category": "상의",
       "size": "M",
       "thickness": "보통",
-      "material": "면"
+      "material": "면",
+      "weatherTags": ["봄","가을"]
     }
   ]
 }
@@ -85,7 +95,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: outputCheck.error }, { status: 400 });
     }
 
-    return NextResponse.json(result);
+    // Step 5: 의류 weatherTags 보정 — AI가 누락한 경우 thickness 기반 폴백
+    const resultObj = result as { items?: unknown[] };
+    if (Array.isArray(resultObj.items)) {
+      resultObj.items = resultObj.items.map((item) => {
+        const rec = item as Record<string, unknown>;
+        if (rec.category === '식품') return rec;
+        const cat = rec.category as FashionCategory | undefined;
+        if (!cat || FASHION_GROUP[cat] === undefined) return rec;
+        const cleaned: WeatherTag[] = sanitizeWeatherTags(rec.weatherTags);
+        if (cleaned.length === 0) {
+          const thickness = (rec.thickness as Thickness) ?? '보통';
+          const fallback = inferWeatherTagsFallback(thickness, cat);
+          if (fallback.length > 0) rec.weatherTags = fallback;
+          else delete rec.weatherTags;
+        } else {
+          rec.weatherTags = cleaned;
+        }
+        return rec;
+      });
+    }
+
+    return NextResponse.json(resultObj);
   } catch (err) {
     const message = err instanceof Error ? err.message : '알 수 없는 오류';
     return NextResponse.json({ error: `parser-agent 처리 실패: ${message}` }, { status: 500 });
