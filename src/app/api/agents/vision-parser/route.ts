@@ -109,18 +109,63 @@ const AGENT_INSTRUCTION = `
   - waistBanding: 밴딩 여부 (boolean)
 - washingTip: 세탁 주의사항 요약 (예: "손세탁 권장, 단독 세탁")
 
+### weatherTags 자동 부여 (필수 — 최소 1개)
+아래 규칙대로 thickness·material·category·lining·sheerness를 종합해
+허용값 ["봄","여름","가을","겨울","우천","맑음"] 중 **1~4개**를 반드시 부여한다.
+
+**계절 태그 (필수, thickness 중심):**
+- thickness "얇음" + sheerness true: → ["여름"]
+- thickness "얇음" (sheer 없음): → ["봄","여름"] 또는 ["여름"] (소재가 리넨·메쉬·에어리면 여름 단독)
+- thickness "보통" + lining 없음: → ["봄","가을"]
+- thickness "보통" + lining true: → ["가을"]
+- thickness "두꺼움" + lining true 또는 털/기모/패딩/울 소재: → ["겨울"]
+- thickness "두꺼움" (lining 불명): → ["가을","겨울"]
+- 카테고리 보정: 아우터는 항상 ["가을","겨울"] 이상 포함, 원피스 얇음은 ["여름"]
+
+**조건 태그 (선택, 추가 허용):**
+- 레인코트·방수 재킷·우산 이미지: "우천" 추가
+- 선글라스·챙 넓은 모자·UV 차단 표기: "맑음" 추가
+
+**예시:**
+- 반팔 면 티셔츠 (얇음, 면 100%): ["여름"] 또는 ["봄","여름"]
+- 울 니트 (두꺼움, 안감 없음): ["가을","겨울"]
+- 패딩 점퍼 (두꺼움, lining true): ["겨울"]
+- 트렌치코트 (보통, lining true): ["가을"]
+- 레인 부츠: ["가을","겨울","우천"]
+
+확실히 분류 불가한 아이템은 thickness 기반으로 최소 1개라도 부여한다.
+빈 배열이나 weatherTags 필드 누락은 금지한다.
+
+### colorFamily 자동 부여 (선택)
+이미지의 주색 계열을 아래 중 하나로 분류:
+"파스텔" | "어스톤" | "비비드" | "메탈릭" | "무채색"
+확실치 않으면 생략한다.
+
 ## 출력 형식 (반드시 이 구조만 반환, 설명 없이 순수 JSON)
 {
-  "domain_summary": { "food": 0, "fashion": 0 },
+  "domain_summary": { "food": 1, "fashion": 1 },
   "items": [
     {
       "domain": "food",
       "id": "p1",
-      "name": "상품명",
+      "name": "유기농 딸기",
       "foodCategory": "채소·과일",
       "storageType": "냉장",
       "baseShelfLifeDays": 5,
-      "purchaseDate": "YYYY-MM-DD"
+      "purchaseDate": "2026-04-20"
+    },
+    {
+      "domain": "fashion",
+      "id": "p2",
+      "name": "캐시미어 터틀넥",
+      "category": "상의",
+      "size": "M",
+      "thickness": "두꺼움",
+      "material": "캐시미어 100%",
+      "weatherTags": ["가을","겨울"],
+      "colorFamily": "어스톤",
+      "attributes": { "stretch": true },
+      "washingTip": "드라이클리닝 권장"
     }
   ]
 }
@@ -134,6 +179,25 @@ const VALID_WEATHER_TAGS:  WeatherTag[]  = ['봄', '여름', '가을', '겨울',
 const ALLOWED_MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
 type AllowedMediaType = typeof ALLOWED_MEDIA_TYPES[number];
 const MAX_SIZE_MB = 5;
+
+// ─── AI 누락 시 thickness·category 기반 weatherTags 추론 ──────────────────────
+
+function inferWeatherTagsFallback(
+  thickness: Thickness,
+  category: FashionCategory,
+  lining?: boolean,
+): WeatherTag[] {
+  // 액세서리류는 계절 영향이 낮아 빈 배열 반환 (UI에서 뱃지 생략)
+  if (FASHION_GROUP[category] !== '의류') return [];
+  if (category === '아우터') {
+    return thickness === '얇음' ? ['봄', '가을'] : ['가을', '겨울'];
+  }
+  switch (thickness) {
+    case '얇음':   return ['봄', '여름'];
+    case '두꺼움': return lining ? ['겨울'] : ['가을', '겨울'];
+    default:       return ['봄', '가을'];
+  }
+}
 
 // ─── 변환 경계: VisionRawItem → CartItem ─────────────────────────────────────
 
@@ -171,8 +235,13 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
     ? (raw.category as FashionCategory)
     : '상의';
 
-  const weatherTags = (raw.weatherTags ?? [])
+  const cleanedTags = (raw.weatherTags ?? [])
     .filter((t): t is WeatherTag => VALID_WEATHER_TAGS.includes(t as WeatherTag));
+
+  // 폴백: AI가 태그를 누락했거나 정제 후 0개면 thickness + category 기반으로 추정
+  const weatherTags = cleanedTags.length > 0
+    ? cleanedTags
+    : inferWeatherTagsFallback(thickness, category, raw.attributes?.lining);
 
   const item: EnrichedClothingItem = {
     id:          raw.id,
