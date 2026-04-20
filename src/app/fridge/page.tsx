@@ -9,6 +9,7 @@ import { calcRemainingDays } from '@/components/FoodTags';
 import { Snowflake, Thermometer, Package, Search } from 'lucide-react';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { useRecipeFavorites } from '@/lib/recipeFavorites';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -300,9 +301,13 @@ function SwipeFoodCard({
 
 // ── 레시피 상세 모달 ──────────────────────────────────────────────────────────
 function RecipeDetailModal({
-  recipe, matchedItems, onClose,
+  recipe, matchedItems, isFavorite, onToggleFavorite, onClose,
 }: {
-  recipe: Recipe; matchedItems: string[]; onClose: () => void;
+  recipe: Recipe;
+  matchedItems: string[];
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  onClose: () => void;
 }) {
   return (
     <AnimatePresence>
@@ -323,15 +328,28 @@ function RecipeDetailModal({
           style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)' }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            onClick={onClose}
-            aria-label="닫기"
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
-          >
-            ✕
-          </button>
+          <div className="absolute top-4 right-4 flex gap-2">
+            <button
+              onClick={onToggleFavorite}
+              aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                isFavorite
+                  ? 'bg-brand-warning/10 text-brand-warning'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-400'
+              }`}
+            >
+              {isFavorite ? '♥' : '♡'}
+            </button>
+            <button
+              onClick={onClose}
+              aria-label="닫기"
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
 
-          <div className="flex items-start gap-3 mb-4">
+          <div className="flex items-start gap-3 mb-4 pr-16">
             <span className="text-5xl shrink-0">{recipe.emoji}</span>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold text-gray-900 leading-tight">{recipe.name}</h2>
@@ -395,12 +413,21 @@ function RecipeDetailModal({
 
 // ── 레시피 추천 ──────────────────────────────────────────────────────────────
 function RecipeSection({ foods }: { foods: FoodItem[] }) {
-  const matched = matchRecipes(foods, 8);
+  const rawMatched = matchRecipes(foods, 12);
+  const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
+
+  // 즐겨찾기를 최상단으로 안정 정렬
+  const matched = [...rawMatched].sort((a, b) => {
+    const aFav = isFavorite(a.recipe.id) ? 0 : 1;
+    const bFav = isFavorite(b.recipe.id) ? 0 : 1;
+    return aFav - bFav;
+  }).slice(0, 8);
 
   if (matched.length === 0) return null;
 
   const urgentCount = matched.filter((m) => m.urgentBoosted).length;
+  const favoriteCount = matched.filter((m) => isFavorite(m.recipe.id)).length;
 
   return (
     <>
@@ -416,36 +443,49 @@ function RecipeSection({ foods }: { foods: FoodItem[] }) {
             <span className="text-base">👨‍🍳</span>
             <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 메뉴</span>
           </div>
-          {urgentCount > 0 && (
-            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning shrink-0">
-              ⚠️ 소비 임박 {urgentCount}
-            </span>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {favoriteCount > 0 && (
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
+                ♥ {favoriteCount}
+              </span>
+            )}
+            {urgentCount > 0 && (
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
+                ⚠️ 소비 임박 {urgentCount}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
-          {matched.map(({ recipe, matchedItems, urgentBoosted }) => (
-            <button
-              key={recipe.id}
-              onClick={() => setSelected({ recipe, matchedItems })}
-              className={`shrink-0 rounded-2xl px-3.5 py-2.5 min-w-[140px] max-w-[160px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform ${
-                urgentBoosted
-                  ? 'bg-brand-warning/5 border border-brand-warning/20'
-                  : 'bg-brand-primary/5 border border-brand-primary/10'
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <span className="text-2xl">{recipe.emoji}</span>
-                {urgentBoosted && <span className="text-[9px]">⚠️</span>}
-              </div>
-              <p className="text-xs font-semibold text-gray-800 mt-1.5 truncate">{recipe.name}</p>
-              <p className="text-[9px] text-gray-400 mt-0.5">
-                ⏱ {recipe.time} · {recipe.difficulty}
-              </p>
-              <p className="text-[9px] text-brand-primary truncate mt-0.5" title={matchedItems.join(', ')}>
-                ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
-              </p>
-            </button>
-          ))}
+          {matched.map(({ recipe, matchedItems, urgentBoosted }) => {
+            const fav = isFavorite(recipe.id);
+            return (
+              <button
+                key={recipe.id}
+                onClick={() => setSelected({ recipe, matchedItems })}
+                className={`shrink-0 rounded-2xl px-3.5 py-2.5 min-w-[140px] max-w-[160px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform ${
+                  urgentBoosted
+                    ? 'bg-brand-warning/5 border border-brand-warning/20'
+                    : 'bg-brand-primary/5 border border-brand-primary/10'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <span className="text-2xl">{recipe.emoji}</span>
+                  <div className="flex items-center gap-0.5">
+                    {fav && <span className="text-[10px] text-brand-warning">♥</span>}
+                    {urgentBoosted && <span className="text-[9px]">⚠️</span>}
+                  </div>
+                </div>
+                <p className="text-xs font-semibold text-gray-800 mt-1.5 truncate">{recipe.name}</p>
+                <p className="text-[9px] text-gray-400 mt-0.5">
+                  ⏱ {recipe.time} · {recipe.difficulty}
+                </p>
+                <p className="text-[9px] text-brand-primary truncate mt-0.5" title={matchedItems.join(', ')}>
+                  ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
+                </p>
+              </button>
+            );
+          })}
         </div>
       </motion.div>
 
@@ -453,6 +493,8 @@ function RecipeSection({ foods }: { foods: FoodItem[] }) {
         <RecipeDetailModal
           recipe={selected.recipe}
           matchedItems={selected.matchedItems}
+          isFavorite={isFavorite(selected.recipe.id)}
+          onToggleFavorite={() => toggle(selected.recipe.id)}
           onClose={() => setSelected(null)}
         />
       )}
