@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type FashionGroup, FASHION_GROUP, FASHION_EMOJI } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Wind, Thermometer, Droplets, Search } from 'lucide-react';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
+import { fetchWeather, weatherEmoji, recommendedThickness, seasonFromTemp, type WeatherSnapshot } from '@/lib/weather';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -110,31 +111,59 @@ function OutfitPreview({ items }: { items: ClothingItem[] }) {
 
 // ── 코디 추천 ────────────────────────────────────────────────────────────────
 function OutfitSection({ items }: { items: ClothingItem[] }) {
-  const month = new Date().getMonth() + 1;
-  const season = month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
-  const seasonItems = items.filter((c) => c.weatherTags?.includes(season));
-  const otherItems  = items.filter((c) => !c.weatherTags?.includes(season) && FASHION_GROUP[c.category] === '의류');
+  const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
 
-  if (seasonItems.length === 0 && otherItems.length === 0) return null;
+  useEffect(() => {
+    let cancelled = false;
+    fetchWeather()
+      .then((w) => { if (!cancelled && w) setWeather(w); })
+      .catch(() => { /* 폴백은 아래 계절 기반 */ });
+    return () => { cancelled = true; };
+  }, []);
 
-  // 간단한 코디 조합: 계절 아이템 + 보완 아이템
+  // 1순위: 실 기온 기반. 2순위: 월 기반 계절 폴백.
+  const useLive = weather !== null;
+  const season  = useLive
+    ? seasonFromTemp(weather.tempC)
+    : (() => {
+        const month = new Date().getMonth() + 1;
+        return month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
+      })();
+  const thickOK = useLive ? recommendedThickness(weather.tempC) : null;
+
+  // 매칭 점수로 정렬: weatherTags 일치(+2) > thickness 일치(+1)
+  const scored = items
+    .filter((c) => FASHION_GROUP[c.category] === '의류')
+    .map((c) => {
+      let score = 0;
+      if (c.weatherTags?.includes(season)) score += 2;
+      if (thickOK && thickOK.includes(c.thickness)) score += 1;
+      return { item: c, score };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const topMatches = scored.filter((s) => s.score > 0).slice(0, 3).map((s) => s.item);
+
+  if (topMatches.length === 0) return null;
+
   const outfits: { name: string; items: string[]; tip: string }[] = [];
-  if (seasonItems.length >= 1) {
-    outfits.push({
-      name: '오늘의 추천',
-      items: seasonItems.slice(0, 2).map((i) => i.name),
-      tip: `${season} 날씨에 딱 맞는 조합이에요`,
-    });
-  }
-  if (seasonItems.length >= 1 && otherItems.length >= 1) {
+  outfits.push({
+    name: useLive ? `${weather.tempC}°C 추천` : '오늘의 추천',
+    items: topMatches.slice(0, 2).map((i) => i.name),
+    tip: useLive
+      ? `${season} 기온(${weather.tempC}°)에 어울려요`
+      : `${season} 날씨에 딱 맞는 조합이에요`,
+  });
+
+  if (topMatches.length >= 3) {
     outfits.push({
       name: '레이어드 코디',
-      items: [seasonItems[0].name, otherItems[0].name],
-      tip: '얇은 옷 위에 겹쳐 입기 좋아요',
+      items: [topMatches[0].name, topMatches[2].name],
+      tip: useLive && weather.tempC < 18
+        ? '쌀쌀한 날씨엔 겹쳐 입기가 좋아요'
+        : '얇은 옷 위에 겹쳐 입기 좋아요',
     });
   }
-
-  if (outfits.length === 0) return null;
 
   return (
     <motion.div
@@ -144,9 +173,19 @@ function OutfitSection({ items }: { items: ClothingItem[] }) {
       className={CARD}
       style={CARD_SHADOW}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">👗</span>
-        <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 코디</span>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-base">👗</span>
+          <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 코디</span>
+        </div>
+        {useLive && (
+          <span className="inline-flex items-center gap-1 text-[10px] text-gray-500">
+            <span>{weatherEmoji(weather.condition, weather.isDay)}</span>
+            <span className="tabular-nums">{weather.tempC}°</span>
+            <span className="text-gray-300">·</span>
+            <span>{weather.condition}</span>
+          </span>
+        )}
       </div>
       <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
         {outfits.map((outfit) => (

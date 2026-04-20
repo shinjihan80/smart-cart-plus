@@ -130,6 +130,23 @@ export function weatherEmoji(condition: WeatherCondition, isDay: boolean): strin
   }
 }
 
+/** 기온별 권장 thickness — 의류 매칭에 사용. */
+export function recommendedThickness(tempC: number): Array<'얇음' | '보통' | '두꺼움'> {
+  if (tempC >= 23) return ['얇음'];
+  if (tempC >= 17) return ['얇음', '보통'];
+  if (tempC >= 10) return ['보통'];
+  if (tempC >= 5)  return ['보통', '두꺼움'];
+  return ['두꺼움'];
+}
+
+/** 기온 → 계절 태그 매핑. */
+export function seasonFromTemp(tempC: number): '봄' | '여름' | '가을' | '겨울' {
+  if (tempC >= 25) return '여름';
+  if (tempC >= 15) return '봄';
+  if (tempC >= 5)  return '가을';
+  return '겨울';
+}
+
 /** 온도 기반 간단 코디 힌트 (네모아 화자 톤). */
 export function dressingTip(tempC: number, condition: WeatherCondition): string {
   if (condition === '비')  return '우산 챙기는 걸 잊지 마세요.';
