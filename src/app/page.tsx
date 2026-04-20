@@ -139,11 +139,15 @@ function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetchWeather().then((w) => {
-      if (cancelled) return;
-      if (w) setWeather(w);
-      else setWeatherFailed(true);
-    });
+    fetchWeather()
+      .then((w) => {
+        if (cancelled) return;
+        if (w) setWeather(w);
+        else setWeatherFailed(true);
+      })
+      .catch(() => {
+        if (!cancelled) setWeatherFailed(true);
+      });
     return () => { cancelled = true; };
   }, []);
 

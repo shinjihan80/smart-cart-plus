@@ -75,7 +75,17 @@ export async function fetchWeather(
     url.searchParams.set('timezone',   'Asia/Seoul');
     url.searchParams.set('wind_speed_unit', 'kmh');
 
-    const res = await fetch(url.toString(), { signal: AbortSignal.timeout(6000) });
+    // AbortSignal.timeout이 없는 환경(구 브라우저·Node < 17.3)에선 수동 AbortController로 폴백.
+    let signal: AbortSignal | undefined;
+    if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+      signal = AbortSignal.timeout(6000);
+    } else if (typeof AbortController !== 'undefined') {
+      const ac = new AbortController();
+      setTimeout(() => ac.abort(), 6000);
+      signal = ac.signal;
+    }
+
+    const res = await fetch(url.toString(), signal ? { signal } : undefined);
     if (!res.ok) return null;
 
     const json = await res.json() as {
