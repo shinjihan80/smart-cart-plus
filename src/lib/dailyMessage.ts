@@ -6,6 +6,7 @@ import type { CookLog } from '@/lib/recipeCookLog';
 import { daysSince } from '@/lib/wearLog';
 import { analyzeBalance } from '@/lib/nutritionAnalysis';
 import { RECIPES } from '@/lib/recipes';
+import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
 
@@ -54,6 +55,23 @@ export function pickDailyMessage(
       text:     `오늘 ${word}가 와요. 우산과 방수 신발 챙기세요.`,
       priority: 'urgent',
       cta:      { label: '옷장 열기', href: '/closet' },
+    };
+  }
+
+  // 계절 보관 중인 옷 중 현재 계절에 맞는 게 있으면 꺼내라 알림
+  const season = currentSeasonByMonth();
+  const dueToUnstow = clothes.filter(
+    (c) => c.hibernating
+      && FASHION_GROUP[c.category] === '의류'
+      && matchesSeason(c.weatherTags, season) === true,
+  );
+  if (dueToUnstow.length > 0) {
+    const seasonEmoji = season === '봄' ? '🌸' : season === '여름' ? '☀️' : season === '가을' ? '🍂' : '❄️';
+    return {
+      emoji:    seasonEmoji,
+      text:     `${season}이 왔어요! 보관해뒀던 ${season}철 옷 ${dueToUnstow.length}벌을 꺼낼 때예요.`,
+      priority: 'insight',
+      cta:      { label: '꺼내기', href: '/mypage' },
     };
   }
 

@@ -55,6 +55,7 @@ export default function ClosetPage() {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [ownerFilter, setOwnerFilter] = useState<string>('전체');  // 'id' | '전체' | '공용'
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
+  const [showHibernating, setShowHibernating] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,7 +66,10 @@ export default function ClosetPage() {
   }, []);
 
   const allClothing = allItems.filter(isClothingItem);
+  const hibernatingCount = allClothing.filter((i) => i.hibernating).length;
+  const activeClothing = allClothing.filter((i) => !i.hibernating);  // 추천·미리보기 등에 사용
   const items = allClothing
+    .filter((i) => showHibernating || !i.hibernating)
     .filter((i) => filter === '전체' || (FASHION_GROUP[i.category] ?? '의류') === filter)
     .filter((i) => {
       if (ownerFilter === '전체') return true;
@@ -112,9 +116,25 @@ export default function ClosetPage() {
   return (
     <div>
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
-        <div className="px-4 py-3.5">
-          <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
-          <p className="text-[10px] text-gray-400 mt-0.5">패션 {allClothing.length}개 관리 중 · ← 밀어서 삭제</p>
+        <div className="px-4 py-3.5 flex items-center justify-between">
+          <div>
+            <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
+            <p className="text-[10px] text-gray-400 mt-0.5">
+              패션 {activeClothing.length}개 관리 중{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''} · ← 밀어서 삭제
+            </p>
+          </div>
+          {hibernatingCount > 0 && (
+            <button
+              onClick={() => setShowHibernating(!showHibernating)}
+              className={`shrink-0 text-[10px] font-semibold px-2.5 py-1 rounded-full transition-colors ${
+                showHibernating
+                  ? 'bg-brand-primary text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              {showHibernating ? '보관 숨기기' : '🗃️ 보관 포함'}
+            </button>
+          )}
         </div>
       </header>
 
@@ -145,7 +165,7 @@ export default function ClosetPage() {
         {(() => {
           const month = new Date().getMonth() + 1;
           const season = month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
-          const seasonItems = allClothing.filter((c) => c.weatherTags?.includes(season));
+          const seasonItems = activeClothing.filter((c) => c.weatherTags?.includes(season));
           if (seasonItems.length === 0) return null;
           return (
             <motion.div
@@ -172,7 +192,7 @@ export default function ClosetPage() {
 
         {/* 코디 미리보기 */}
         <SectionErrorBoundary label="코디 미리보기">
-          <OutfitPreview items={allClothing} />
+          <OutfitPreview items={activeClothing} />
         </SectionErrorBoundary>
 
         {/* 빠른 추가 */}
@@ -234,7 +254,7 @@ export default function ClosetPage() {
 
         {/* 코디 추천 */}
         <SectionErrorBoundary label="오늘의 코디">
-          <OutfitSection items={allClothing} />
+          <OutfitSection items={activeClothing} />
         </SectionErrorBoundary>
 
         {/* 검색 + 필터 */}

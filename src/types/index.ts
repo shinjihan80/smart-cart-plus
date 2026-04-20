@@ -113,7 +113,8 @@ export interface ClothingItem {
   memo?:         string;
   weatherTags?:  WeatherTag[];
   colorFamily?:  string;
-  ownerId?:      string;  // 프로필 id — undefined면 공용
+  ownerId?:      string;   // 프로필 id — undefined면 공용
+  hibernating?:  boolean;  // 계절 보관 중 — 옷장 메인에서 숨김
 }
 
 // ────────────────────────────────────────────────
