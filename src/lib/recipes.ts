@@ -32,6 +32,14 @@ export function recipeGradient(recipe: Recipe): string {
   return 'from-brand-primary/5 to-brand-success/10';
 }
 
+/** 주어진 식재료(부분 일치)를 키워드로 하는 레시피 개수. */
+export function countRecipesByIngredient(ingredient: string): number {
+  if (!ingredient) return 0;
+  return RECIPES.filter((r) =>
+    r.keywords.some((kw) => kw.includes(ingredient) || ingredient.includes(kw)),
+  ).length;
+}
+
 /** 레시피 time 문자열("15분", "1시간 10분" 등)을 초로 환산. 파싱 실패 시 null. */
 export function parseRecipeSeconds(time: string): number | null {
   const m = time.match(/(?:(\d+)\s*시간)?\s*(\d+)?\s*분?/);

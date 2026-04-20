@@ -11,15 +11,16 @@ import { currentSeasonByMonth } from '@/lib/season';
 type FilterKey = '전체' | '이번계절' | '즐겨찾기' | '간단' | '아침' | '점심' | '간식';
 
 interface RecipeBrowserModalProps {
-  onSelect: (recipe: Recipe) => void;
-  onClose:  () => void;
+  onSelect:      (recipe: Recipe) => void;
+  onClose:       () => void;
+  initialSearch?: string;
 }
 
-export default function RecipeBrowserModal({ onSelect, onClose }: RecipeBrowserModalProps) {
+export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }: RecipeBrowserModalProps) {
   useModalA11y(onClose);
   const { isFavorite } = useRecipeFavorites();
   const season = currentSeasonByMonth();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch ?? '');
   const [filter, setFilter] = useState<FilterKey>('전체');
 
   const FILTERS: { key: FilterKey; label: string }[] = [
