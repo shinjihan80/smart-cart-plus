@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import type { CartItem } from '@/types';
 import { fetchWeather, type WeatherSnapshot } from '@/lib/weather';
 import { useWearLog } from '@/lib/wearLog';
+import { useCookLog } from '@/lib/recipeCookLog';
+import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { pickDailyMessage } from '@/lib/dailyMessage';
 
 const TONE = {
@@ -16,7 +18,9 @@ const TONE = {
 
 export default function DailyMessage({ items }: { items: CartItem[] }) {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
-  const { log } = useWearLog();
+  const { log: wearLog } = useWearLog();
+  const { log: cookLog } = useCookLog();
+  const { favorites }    = useRecipeFavorites();
 
   useEffect(() => {
     let cancelled = false;
@@ -26,7 +30,7 @@ export default function DailyMessage({ items }: { items: CartItem[] }) {
     return () => { cancelled = true; };
   }, []);
 
-  const msg = pickDailyMessage(items, weather, log);
+  const msg = pickDailyMessage(items, weather, wearLog, cookLog, favorites);
   const tone = TONE[msg.priority];
 
   return (

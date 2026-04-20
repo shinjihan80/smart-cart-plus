@@ -2,8 +2,10 @@ import { isFoodItem, isClothingItem, FASHION_GROUP, type CartItem } from '@/type
 import { calcRemainingDays } from '@/components/FoodTags';
 import type { WeatherSnapshot } from '@/lib/weather';
 import type { WearLog } from '@/lib/wearLog';
+import type { CookLog } from '@/lib/recipeCookLog';
 import { daysSince } from '@/lib/wearLog';
 import { analyzeBalance } from '@/lib/nutritionAnalysis';
+import { RECIPES } from '@/lib/recipes';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
 
@@ -23,6 +25,8 @@ export function pickDailyMessage(
   items: CartItem[],
   weather: WeatherSnapshot | null,
   wearLog: WearLog,
+  cookLog: CookLog = {},
+  favorites: readonly string[] = [],
 ): DailyMessage {
   const foods    = items.filter(isFoodItem);
   const clothes  = items.filter(isClothingItem);
@@ -70,6 +74,46 @@ export function pickDailyMessage(
         text:     '채소·과일이 조금 부족해요. 샐러드 재료를 장 볼 시간이에요.',
         priority: 'insight',
         cta:      { label: '냉장고 확인', href: '/fridge' },
+      };
+    }
+  }
+
+  // 최근 7일 내 자주 만든 레시피 (3번 이상) — 또 만들기 제안
+  if (Object.keys(cookLog).length > 0) {
+    const weekAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recentFrequent = Object.entries(cookLog)
+      .map(([id, dates]) => {
+        const recent = Array.isArray(dates) ? dates.filter((d) => new Date(d).getTime() >= weekAgoMs) : [];
+        return { id, recentCount: recent.length };
+      })
+      .filter((x) => x.recentCount >= 3)
+      .sort((a, b) => b.recentCount - a.recentCount);
+    if (recentFrequent.length > 0) {
+      const recipe = RECIPES.find((r) => r.id === recentFrequent[0].id);
+      if (recipe) {
+        return {
+          emoji:    recipe.emoji,
+          text:     `이번 주 ${recipe.name}을(를) ${recentFrequent[0].recentCount}번 만드셨네요! 또 어떠세요?`,
+          priority: 'insight',
+          cta:      { label: '냉장고 열기', href: '/fridge' },
+        };
+      }
+    }
+  }
+
+  // 즐겨찾기 했는데 아직 만들어보지 않은 레시피 — 도전 제안
+  const unmadeFavorite = favorites.find((id) => {
+    const dates = cookLog[id];
+    return !dates || dates.length === 0;
+  });
+  if (unmadeFavorite) {
+    const recipe = RECIPES.find((r) => r.id === unmadeFavorite);
+    if (recipe) {
+      return {
+        emoji:    recipe.emoji,
+        text:     `즐겨찾기해둔 "${recipe.name}"을(를) 아직 안 만들어봤어요. 오늘 도전해볼까요?`,
+        priority: 'insight',
+        cta:      { label: '냉장고 열기', href: '/fridge' },
       };
     }
   }
