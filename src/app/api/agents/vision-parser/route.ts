@@ -71,7 +71,7 @@ type VisionRawItem = VisionRawFoodItem | VisionRawFashionItem;
 // ─── System Prompt ────────────────────────────────────────────────────────────
 
 const AGENT_INSTRUCTION = `
-당신은 Smart Cart Plus의 **통합 Vision 파서(vision-parser)**다.
+당신은 NEMOA(네모아)의 **통합 Vision 파서(vision-parser)**다.
 
 ## 역할
 식품 라벨, 의류 사이즈표, 세탁 주의사항 등 다양한 제품 이미지를 분석해

@@ -8,6 +8,7 @@ import { calcRemainingDays } from '@/components/FoodTags';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { ChevronRight, Sparkles, Search } from 'lucide-react';
+import NemoaLogo from '@/components/layout/NemoaLogo';
 
 // ── 시간대 인사말 ────────────────────────────────────────────────────────────
 function getGreeting(): string {
@@ -426,7 +427,7 @@ function WeeklyInsight({ items }: { items: import('@/types').CartItem[] }) {
       <Widget index={5}>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-base">💡</span>
-          <span className="text-xs text-gray-400 font-medium">AI 인사이트</span>
+          <span className="text-xs text-gray-400 font-medium">네모아의 주간 인사이트</span>
         </div>
         <div className="flex flex-col gap-1.5">
           {insights.map((text, i) => (
@@ -442,13 +443,13 @@ function WeeklyInsight({ items }: { items: import('@/types').CartItem[] }) {
 
 // ── 팁 오브 더 데이 ──────────────────────────────────────────────────────────
 const TIPS = [
-  { emoji: '📸', text: '식품 라벨이나 의류 태그를 사진으로 찍으면 AI가 자동 분석해요.' },
+  { emoji: '📸', text: '식품 라벨이나 의류 태그를 사진으로 찍으면 네모아가 자동 분석해요.' },
   { emoji: '⬅️', text: '카드를 왼쪽으로 밀면 소진/삭제 처리, 되돌리기도 가능해요.' },
   { emoji: '⚡', text: '빠른 추가로 자주 사는 상품을 원탭으로 등록할 수 있어요.' },
   { emoji: '📊', text: '마이페이지에서 JSON/CSV로 데이터를 내보낼 수 있어요.' },
   { emoji: '🔍', text: '홈 검색바에서 모든 상품을 한 번에 찾을 수 있어요.' },
-  { emoji: '👗', text: '옷 사진을 등록하면 코디 미리보기에서 조합을 확인할 수 있어요.' },
-  { emoji: '🧊', text: '냉장고에서 D-Day 프로그레스 바로 신선도를 한눈에 파악하세요.' },
+  { emoji: '👗', text: '옷 사진을 등록하면 네모아가 코디 조합을 미리 보여드려요.' },
+  { emoji: '🧊', text: '냉장고 카드의 프로그레스 바로 신선도를 한눈에 파악하세요.' },
 ];
 
 function TipOfTheDay() {
@@ -598,16 +599,11 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* 헤더 */}
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
-        <div className="px-4 py-3.5 flex items-center justify-between">
-          <div>
-            <h1 className="text-base font-bold text-gray-900 tracking-tight">Smart Cart Plus</h1>
-            <p className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-1">
-              <Sparkles size={10} /> {getGreeting()}
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-0.5">
+      {/* 브랜드 헤더 */}
+      <header className="sticky top-0 z-10 bg-white/85 backdrop-blur-sm border-b border-gray-50">
+        <div className="px-4 pt-3.5 pb-3 flex items-center justify-between gap-3">
+          <NemoaLogo size="md" withTagline />
+          <div className="flex flex-col items-end gap-0.5 shrink-0">
             <span className="text-[10px] text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
               {items.length}개 관리 중
             </span>
@@ -615,6 +611,12 @@ export default function HomePage() {
               {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
             </span>
           </div>
+        </div>
+        <div className="px-4 pb-3">
+          <p className="text-[11px] text-gray-500 flex items-center gap-1">
+            <Sparkles size={11} className="text-brand-primary" />
+            <span>네모아가 전하는 인사 — {getGreeting()}</span>
+          </p>
         </div>
       </header>
 

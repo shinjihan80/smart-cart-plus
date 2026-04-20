@@ -14,7 +14,7 @@ import { validateInput, validateOutput } from '@/lib/harness';
 import { routeData, runWithDualReview } from '@/lib/agentPipeline';
 
 const AGENT_INSTRUCTION = `
-당신은 Smart Cart Plus의 **영양사 에이전트(nutrition-agent)**다.
+당신은 NEMOA(네모아)의 **영양사 에이전트(nutrition-agent)**다.
 
 ## 역할
 사용자가 구매한 식품 목록을 분석해 보관 가능 기한 D-Day를 계산하고,

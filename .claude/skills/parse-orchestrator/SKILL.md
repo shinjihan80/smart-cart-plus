@@ -1,11 +1,11 @@
 ---
 name: parse-orchestrator
-description: "비정형 텍스트(영수증·이메일·메모)를 Smart Cart Plus FoodItem/ClothingItem JSON으로 변환하는 파서 에이전트 팀 오케스트레이터. '텍스트 파싱', '쇼핑 정보 추가', '영수증 분석', '구매 내역 입력' 요청 시 사용. 후속 작업: 파싱 결과 수정, 누락 항목 보완, 재파싱 요청 시에도 반드시 이 스킬 사용."
+description: "비정형 텍스트(영수증·이메일·메모)를 NEMOA FoodItem/ClothingItem JSON으로 변환하는 파서 에이전트 팀 오케스트레이터. '텍스트 파싱', '쇼핑 정보 추가', '영수증 분석', '구매 내역 입력' 요청 시 사용. 후속 작업: 파싱 결과 수정, 누락 항목 보완, 재파싱 요청 시에도 반드시 이 스킬 사용."
 ---
 
 # Parse Orchestrator
 
-비정형 텍스트를 Smart Cart Plus Phase 1 스키마(FoodItem / ClothingItem)로 변환하는 파서 에이전트 팀을 조율한다.
+비정형 텍스트를 NEMOA Phase 1 스키마(FoodItem / ClothingItem)로 변환하는 파서 에이전트 팀을 조율한다.
 
 ## 실행 모드: 에이전트 팀 (생성-검증 패턴)
 

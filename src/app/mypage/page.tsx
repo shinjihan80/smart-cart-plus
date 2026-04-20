@@ -148,8 +148,8 @@ export default function MyPage() {
             <span className="text-2xl">👤</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-base font-bold text-gray-900">Smart Cart 사용자</p>
-            <p className="text-xs text-gray-400 mt-0.5">Pro 플랜 · AI 매니저 활성화</p>
+            <p className="text-base font-bold text-gray-900">네모아 사용자</p>
+            <p className="text-xs text-gray-400 mt-0.5">Pro 플랜 · AI 비서 활성화</p>
           </div>
           <Link
             href="/admin"
@@ -442,10 +442,10 @@ export default function MyPage() {
           <div className="flex flex-col gap-1.5 text-xs text-gray-400">
             <div className="flex justify-between">
               <span>버전</span>
-              <span className="text-gray-600 font-medium">Smart Cart Plus v1.0.0</span>
+              <span className="text-gray-600 font-medium">NEMOA v1.3</span>
             </div>
             <div className="flex justify-between">
-              <span>AI 매니저</span>
+              <span>AI 비서</span>
               <span className="text-gray-600 font-medium">Claude Sonnet 4.6</span>
             </div>
             <div className="flex justify-between">

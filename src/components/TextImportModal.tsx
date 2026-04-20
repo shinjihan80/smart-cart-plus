@@ -129,7 +129,7 @@ function ImageTab({
   return (
     <>
       <p className="text-xs text-gray-400 mb-3">
-        식품 뒷면 라벨, 의류 사이즈표, 세탁 정보 캡처본을 올려주세요. AI가 자동으로 분류해 정보를 추출합니다.
+        식품 뒷면 라벨, 의류 사이즈표, 세탁 정보 캡처본을 올려주세요. 네모아가 자동으로 분류해 정보를 추출합니다.
       </p>
 
       {!preview ? (
@@ -226,7 +226,7 @@ function TextTab({
   return (
     <>
       <p className="text-xs text-gray-400 mb-3">
-        이메일, 영수증, 구매 내역 텍스트를 붙여넣으면 AI가 상품 정보를 추출합니다.
+        이메일, 영수증, 구매 내역 텍스트를 붙여넣으면 네모아가 상품 정보를 추출합니다.
       </p>
       <textarea
         value={text}
@@ -241,7 +241,7 @@ function TextTab({
         disabled={!text.trim() || loading}
         className="mt-3 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
-        {loading ? <LoadingSpinner label="AI 분석 중…" /> : 'AI로 분석하기'}
+        {loading ? <LoadingSpinner label="네모아가 분석 중…" /> : '네모아에게 맡기기'}
       </button>
     </>
   );
@@ -256,7 +256,7 @@ function UrlTab({
   return (
     <>
       <p className="text-xs text-gray-400 mb-3">
-        쇼핑몰 상품 페이지 주소를 붙여넣으면 AI가 상품 정보를 가져옵니다.
+        쇼핑몰 상품 페이지 주소를 붙여넣으면 네모아가 상품 정보를 가져옵니다.
       </p>
       <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-2xl px-3 py-2 mb-3">
         💡 쿠팡·네이버쇼핑·무신사 등에서 상품 페이지를 열고 주소창의 URL을 복사하세요.
@@ -416,7 +416,7 @@ function StepConfirm({
       )}
 
       <p className="text-xs text-gray-400 mb-3">
-        AI가 추출한 목록입니다. 이름 수정 또는 불필요한 항목 삭제 후 추가하세요.
+        네모아가 추출한 목록입니다. 이름 수정 또는 불필요한 항목 삭제 후 추가하세요.
       </p>
 
       <div className="flex flex-col gap-y-2 max-h-64 overflow-y-auto pr-0.5">

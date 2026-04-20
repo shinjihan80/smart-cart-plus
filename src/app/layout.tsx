@@ -21,13 +21,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Smart Cart Plus",
-  description: "라이프스타일 AI 매니저",
+  title: "NEMOA - 일상을 반듯하게 모으다",
+  description: "스마트 냉장고와 옷장을 하나로, AI 라이프스타일 비서 네모아",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "SmartCart",
+    title: "NEMOA",
   },
 };
 

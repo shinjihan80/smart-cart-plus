@@ -13,7 +13,7 @@ import { runWithDualReview } from '@/lib/agentPipeline';
 import Anthropic from '@anthropic-ai/sdk';
 
 const AGENT_INSTRUCTION = `
-당신은 Smart Cart Plus의 **이미지 분석 에이전트(image-agent)**다.
+당신은 NEMOA(네모아)의 **이미지 분석 에이전트(image-agent)**다.
 
 ## 역할
 영수증, 제품 태그, 식품 포장, 택배 송장 등의 이미지를 분석해

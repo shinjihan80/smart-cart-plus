@@ -440,7 +440,7 @@ export default function AdminPage() {
           transition={{ delay: 0.4 }}
           className="text-center py-2"
         >
-          <p className="text-[10px] text-gray-400">Smart Cart Plus · Admin v1.2</p>
+          <p className="text-[10px] text-gray-400">NEMOA · Admin v1.3</p>
           <p className="text-[9px] text-gray-300 mt-0.5">하네스 워크스페이스 · Phase 6</p>
         </motion.div>
       </div>

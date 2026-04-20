@@ -18,7 +18,7 @@ import { validateInput, validateOutput } from '@/lib/harness';
 import { runWithDualReview } from '@/lib/agentPipeline';
 
 const AGENT_INSTRUCTION = `
-당신은 Smart Cart Plus의 **데이터 엔지니어 에이전트(parser-agent)**다.
+당신은 NEMOA(네모아)의 **데이터 엔지니어 에이전트(parser-agent)**다.
 
 ## 역할
 이메일, 영수증, 구매 확인 메시지 등 비정형 텍스트를 분석해

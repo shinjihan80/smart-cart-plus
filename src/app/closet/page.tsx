@@ -146,7 +146,7 @@ function OutfitSection({ items }: { items: ClothingItem[] }) {
     >
       <div className="flex items-center gap-2 mb-3">
         <span className="text-base">👗</span>
-        <span className="text-xs text-gray-400 font-medium">AI 코디 추천</span>
+        <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 코디</span>
       </div>
       <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
         {outfits.map((outfit) => (

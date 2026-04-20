@@ -1,7 +1,7 @@
 {
-  "name": "Smart Cart Plus",
-  "short_name": "SmartCart",
-  "description": "라이프스타일 AI 매니저",
+  "name": "NEMOA - 일상을 반듯하게 모으다",
+  "short_name": "NEMOA",
+  "description": "스마트 냉장고와 옷장을 하나로, AI 라이프스타일 비서 네모아",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F9FAFB",

@@ -14,7 +14,7 @@ import { validateInput, validateOutput } from '@/lib/harness';
 import { routeData, runWithDualReview } from '@/lib/agentPipeline';
 
 const AGENT_INSTRUCTION = `
-당신은 Smart Cart Plus의 **스타일리스트 에이전트(style-agent)**다.
+당신은 NEMOA(네모아)의 **스타일리스트 에이전트(style-agent)**다.
 
 ## 역할
 사용자가 보유한 의류 및 액세서리와 오늘의 날씨 정보를 분석해
