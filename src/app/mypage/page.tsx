@@ -24,6 +24,7 @@ import WearStatsSection                          from '@/components/mypage/WearS
 import CookStatsSection                          from '@/components/mypage/CookStatsSection';
 import ClosetCleanupSection                      from '@/components/mypage/ClosetCleanupSection';
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
+import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
 export default function MyPage() {
@@ -214,6 +215,10 @@ export default function MyPage() {
             onOpenRecipe={setSelectedRecipe}
             onOpenBrowser={() => setBrowserOpen(true)}
           />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary label="파트너 로드맵">
+          <PartnerRoadmapSection />
         </SectionErrorBoundary>
 
         {/* 아카이브 */}
