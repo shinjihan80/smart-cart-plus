@@ -13,8 +13,10 @@ import {
   buildActivityLog,
   measureStorageBytes,
   formatBytes,
+  getRecentLogs,
   type AgentStatus,
 } from '@/lib/adminStats';
+import { clearAgentLogs, type AgentCallLog } from '@/lib/agentLogger';
 
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
 const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
@@ -87,15 +89,19 @@ export default function AdminPage() {
   const { items, archived, discardCount, resetData, archiveExpired } = useCart();
   const { showToast } = useToast();
   const [storageBytes, setStorageBytes] = useState(0);
+  const [realLogs, setRealLogs]         = useState<AgentCallLog[]>([]);
+  const [refreshKey, setRefreshKey]     = useState(0);
 
   useEffect(() => {
     setStorageBytes(measureStorageBytes());
-  }, [items, archived]);
+    setRealLogs(getRecentLogs(24));
+  }, [items, archived, refreshKey]);
 
-  const metrics  = useMemo(() => buildDataMetrics(items),      [items]);
-  const agents   = useMemo(() => buildAgentStatuses(items.length), [items.length]);
-  const tokens   = useMemo(() => buildTokenUsage(agents),      [agents]);
-  const activity = useMemo(() => buildActivityLog(items),      [items]);
+  const hasLive  = realLogs.length > 0;
+  const metrics  = useMemo(() => buildDataMetrics(items),                      [items]);
+  const agents   = useMemo(() => buildAgentStatuses(items.length, realLogs),   [items.length, realLogs]);
+  const tokens   = useMemo(() => buildTokenUsage(agents),                      [agents]);
+  const activity = useMemo(() => buildActivityLog(items, realLogs),            [items, realLogs]);
 
   const totalCalls      = agents.reduce((s, a) => s + a.calls24h, 0);
   const avgSuccess      = agents.length > 0 ? (agents.reduce((s, a) => s + a.successRate, 0) / agents.length).toFixed(1) : '0';
@@ -119,6 +125,12 @@ export default function AdminPage() {
     }
   }
 
+  function handleClearLogs() {
+    clearAgentLogs();
+    setRefreshKey((k) => k + 1);
+    showToast('에이전트 호출 로그를 비웠어요.');
+  }
+
   function handleFullReset() {
     if (confirm('모든 데이터를 초기화합니다. 계속할까요?')) {
       resetData();
@@ -128,8 +140,10 @@ export default function AdminPage() {
 
   function handleDebugExport() {
     const payload = {
-      generatedAt:  new Date().toISOString(),
+      generatedAt:   new Date().toISOString(),
       schemaVersion: '2',
+      dataSource:    hasLive ? 'live' : 'simulated',
+      realLogs,
       metrics,
       agents,
       tokens,
@@ -156,10 +170,24 @@ export default function AdminPage() {
           <Link href="/mypage" className="text-gray-500 hover:text-gray-700 transition-colors" aria-label="뒤로 가기">
             <ArrowLeft size={18} />
           </Link>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-base font-bold text-gray-900 tracking-tight">관리자 대시보드</h1>
             <p className="text-[10px] text-gray-400 mt-0.5">시스템 모니터링 · 에이전트 제어</p>
           </div>
+          {hasLive ? (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-brand-success/10">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-success opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand-success" />
+              </span>
+              <span className="text-[10px] font-bold text-brand-success">LIVE · {realLogs.length}</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100">
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+              <span className="text-[10px] font-medium text-gray-500">시뮬레이션</span>
+            </span>
+          )}
         </div>
       </header>
 
@@ -380,6 +408,21 @@ export default function AdminPage() {
               <p className="text-sm">🧪</p>
               <p className="text-xs font-medium text-gray-800 mt-1">디버그 스냅샷</p>
               <p className="text-[10px] text-gray-400 mt-0.5">JSON 내보내기</p>
+            </button>
+            <button
+              onClick={handleClearLogs}
+              disabled={!hasLive}
+              className={`rounded-2xl py-3 px-3 text-left transition-colors col-span-2 ${
+                hasLive
+                  ? 'bg-gray-50 hover:bg-gray-100'
+                  : 'bg-gray-50/60 opacity-60 cursor-not-allowed'
+              }`}
+            >
+              <p className="text-sm">📋</p>
+              <p className="text-xs font-medium text-gray-800 mt-1">호출 로그 비우기</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">
+                {hasLive ? `${realLogs.length}건 제거` : '누적된 로그 없음'}
+              </p>
             </button>
           </div>
           <button

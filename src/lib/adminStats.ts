@@ -1,5 +1,6 @@
 import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { getRecentLogs, aggregateByAgent, type AgentCallLog } from '@/lib/agentLogger';
 
 // ─── 타입 정의 ────────────────────────────────────────────────────────────────
 export type AgentHealth = 'healthy' | 'degraded' | 'idle';
@@ -67,11 +68,24 @@ function seededRandom(seed: number): () => number {
 }
 
 // ─── 에이전트 상태 생성 ───────────────────────────────────────────────────────
-export function buildAgentStatuses(totalItems: number): AgentStatus[] {
+/**
+ * 실제 호출 로그가 있으면 우선 사용하고, 없는 에이전트는 목업 값으로 채운다.
+ * 실 로그 1건이라도 있는 에이전트는 `health`를 실측 기반으로 계산한다.
+ */
+export function buildAgentStatuses(totalItems: number, realLogs: AgentCallLog[] = []): AgentStatus[] {
   const rnd = seededRandom(totalItems + 1);
   const baseLoad = Math.max(5, Math.min(40, Math.round(totalItems * 1.2)));
+  const agg = aggregateByAgent(realLogs);
 
   return AGENTS.map((a, i) => {
+    const real = agg[a.id];
+    if (real && real.calls > 0) {
+      const successRate = Math.round((real.successes / real.calls) * 1000) / 10;
+      const health: AgentHealth =
+        successRate >= 98 ? 'healthy' :
+        successRate >= 80 ? 'degraded' : 'idle';
+      return { ...a, calls24h: real.calls, avgLatencyMs: real.avgLatencyMs, successRate, health };
+    }
     const calls24h     = Math.round(baseLoad * (0.6 + rnd() * 1.2) + i * 3);
     const avgLatencyMs = Math.round(800 + rnd() * 2400);
     const successRate  = Math.round((0.94 + rnd() * 0.055) * 1000) / 10;
@@ -80,6 +94,10 @@ export function buildAgentStatuses(totalItems: number): AgentStatus[] {
       successRate >= 95 ? 'degraded' : 'idle';
     return { ...a, calls24h, avgLatencyMs, successRate, health };
   });
+}
+
+export function hasRealLogs(realLogs: AgentCallLog[]): boolean {
+  return realLogs.length > 0;
 }
 
 // ─── 데이터 품질 메트릭 ───────────────────────────────────────────────────────
@@ -133,8 +151,48 @@ export function buildTokenUsage(agents: AgentStatus[]): TokenUsage {
   return { inputTokens, outputTokens, cachedHits, cachedMisses, estimatedKRW };
 }
 
-// ─── 최근 활동 로그 (시드 기반 목업) ──────────────────────────────────────────
-export function buildActivityLog(items: CartItem[]): ActivityLog[] {
+// ─── 최근 활동 로그 ───────────────────────────────────────────────────────────
+const AGENT_META: Record<string, { label: string; emoji: string }> = {
+  'vision-parser':    { label: 'Vision 파서',    emoji: '🔮' },
+  'parser-agent':     { label: '영수증 파서',    emoji: '📝' },
+  'nutrition-agent':  { label: '영양사',         emoji: '🥗' },
+  'style-agent':      { label: '스타일리스트',   emoji: '👗' },
+  'url-agent':        { label: 'URL 추출기',     emoji: '🔗' },
+  'image-agent':      { label: '이미지 수집기',  emoji: '📸' },
+};
+
+function relativeTime(msAgo: number): string {
+  if (msAgo < 60_000) return '방금 전';
+  const min = Math.floor(msAgo / 60_000);
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  return `${Math.floor(hr / 24)}일 전`;
+}
+
+/**
+ * 실제 호출 로그가 있으면 그걸 사용, 없으면 아이템 기반 목업.
+ */
+export function buildActivityLog(items: CartItem[], realLogs: AgentCallLog[] = []): ActivityLog[] {
+  if (realLogs.length > 0) {
+    const now = Date.now();
+    return realLogs.slice(0, 12).map((log) => {
+      const meta = AGENT_META[log.agentId] ?? { label: log.agentId, emoji: '🤖' };
+      const status: ActivityLog['status'] = log.ok ? 'success' : 'error';
+      const message = log.ok
+        ? `${meta.label} 호출 · ${log.latencyMs}ms`
+        : `${meta.label} 실패 · ${log.errorMsg ?? `HTTP ${log.status}`}`;
+      return {
+        id:        log.id,
+        agent:     meta.label,
+        emoji:     meta.emoji,
+        message,
+        timeLabel: relativeTime(now - log.timestamp),
+        status,
+      };
+    });
+  }
+
   if (items.length === 0) return [];
   const recent = items.slice(-10).reverse();
   const rnd = seededRandom(items.length * 31);
@@ -164,6 +222,8 @@ export function buildActivityLog(items: CartItem[]): ActivityLog[] {
     };
   });
 }
+
+export { getRecentLogs };
 
 // ─── localStorage 용량 측정 (브라우저 전용) ───────────────────────────────────
 export function measureStorageBytes(): number {

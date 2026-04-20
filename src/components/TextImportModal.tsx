@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingItem } from '@/types';
+import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
 
 interface TextImportModalProps {
   onClose:  () => void;
@@ -495,7 +496,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     body: FormData | Record<string, unknown>,
   ): Promise<{ items?: CartItem[]; domain_summary?: { food: number; fashion: number }; error?: string }> {
     const isFormData = body instanceof FormData;
-    const res = await fetch(endpoint, {
+    const res = await loggedFetch(agentIdFromEndpoint(endpoint), endpoint, {
       method:  'POST',
       headers: isFormData ? undefined : { 'Content-Type': 'application/json' },
       body:    isFormData ? body : JSON.stringify(body),
