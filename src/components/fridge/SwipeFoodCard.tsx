@@ -171,6 +171,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                   <span className="text-gray-400">상품명</span>
                   <input
                     type="text"
+                    aria-label={`${item.name} 상품명 수정`}
                     defaultValue={item.name}
                     onBlur={(e) => {
                       const v = e.target.value.trim();
@@ -185,6 +186,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     <span className="text-gray-400">구매일</span>
                     <input
                       type="date"
+                      aria-label={`${item.name} 구매일 수정`}
                       defaultValue={item.purchaseDate}
                       onBlur={(e) => {
                         const v = e.target.value;
@@ -223,6 +225,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                   <span className="text-gray-400">보관 가능 일수</span>
                   <input
                     type="number"
+                    aria-label={`${item.name} 보관 가능 일수 수정`}
                     defaultValue={item.baseShelfLifeDays}
                     min={1}
                     onBlur={(e) => {
@@ -237,6 +240,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                   <span className="text-gray-400">메모</span>
                   <input
                     type="text"
+                    aria-label={`${item.name} 메모 수정`}
                     defaultValue={item.memo ?? ''}
                     placeholder="메모를 입력하세요"
                     onBlur={(e) => {

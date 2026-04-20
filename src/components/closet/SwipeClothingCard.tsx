@@ -177,6 +177,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   <span className="text-gray-400">상품명</span>
                   <input
                     type="text"
+                    aria-label={`${item.name} 상품명 수정`}
                     defaultValue={item.name}
                     onBlur={(e) => {
                       const v = e.target.value.trim();
@@ -222,6 +223,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   <span className="text-gray-400">메모</span>
                   <input
                     type="text"
+                    aria-label={`${item.name} 메모 수정`}
                     defaultValue={item.memo ?? ''}
                     placeholder="메모를 입력하세요"
                     onBlur={(e) => {
