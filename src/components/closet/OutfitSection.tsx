@@ -7,10 +7,12 @@ import {
   fetchWeather, weatherEmoji, recommendedThickness, seasonFromTemp,
   type WeatherSnapshot,
 } from '@/lib/weather';
+import { useWearLog, daysSince } from '@/lib/wearLog';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function OutfitSection({ items }: { items: ClothingItem[] }) {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
+  const { getEntry } = useWearLog();
 
   useEffect(() => {
     let cancelled = false;
@@ -29,23 +31,30 @@ export default function OutfitSection({ items }: { items: ClothingItem[] }) {
       })();
   const thickOK = useLive ? recommendedThickness(weather.tempC) : null;
 
+  // 1순위: 매칭 점수 내림차순
+  // 2순위: 오래 안 입은 옷 우선 (로테이션 선호)
   const scored = items
     .filter((c) => FASHION_GROUP[c.category] === '의류')
     .map((c) => {
       let score = 0;
       if (c.weatherTags?.includes(season)) score += 2;
       if (thickOK && thickOK.includes(c.thickness)) score += 1;
-      return { item: c, score };
+      const entry = getEntry(c.id);
+      const idleDays = entry.lastWorn ? daysSince(entry.lastWorn) : 9999;
+      return { item: c, score, idleDays };
     })
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+      if (a.score !== b.score) return b.score - a.score;
+      return b.idleDays - a.idleDays;
+    });
 
-  const topMatches = scored.filter((s) => s.score > 0).slice(0, 3).map((s) => s.item);
+  const topMatches = scored.filter((s) => s.score > 0).slice(0, 3);
   if (topMatches.length === 0) return null;
 
-  const outfits: { name: string; items: string[]; tip: string }[] = [];
+  const outfits: { name: string; items: { name: string; idleDays: number }[]; tip: string }[] = [];
   outfits.push({
     name:  useLive ? `${weather.tempC}°C 추천` : '오늘의 추천',
-    items: topMatches.slice(0, 2).map((i) => i.name),
+    items: topMatches.slice(0, 2).map((m) => ({ name: m.item.name, idleDays: m.idleDays })),
     tip:   useLive
       ? `${season} 기온(${weather.tempC}°)에 어울려요`
       : `${season} 날씨에 딱 맞는 조합이에요`,
@@ -54,7 +63,10 @@ export default function OutfitSection({ items }: { items: ClothingItem[] }) {
   if (topMatches.length >= 3) {
     outfits.push({
       name: '레이어드 코디',
-      items: [topMatches[0].name, topMatches[2].name],
+      items: [
+        { name: topMatches[0].item.name, idleDays: topMatches[0].idleDays },
+        { name: topMatches[2].item.name, idleDays: topMatches[2].idleDays },
+      ],
       tip:   useLive && weather.tempC < 18
         ? '쌀쌀한 날씨엔 겹쳐 입기가 좋아요'
         : '얇은 옷 위에 겹쳐 입기 좋아요',
@@ -88,9 +100,10 @@ export default function OutfitSection({ items }: { items: ClothingItem[] }) {
           <div key={outfit.name} className="shrink-0 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3.5 py-2.5 min-w-[150px]">
             <p className="text-xs font-semibold text-gray-800">{outfit.name}</p>
             <div className="flex flex-col gap-0.5 mt-1.5">
-              {outfit.items.map((name) => (
+              {outfit.items.map(({ name, idleDays }) => (
                 <span key={name} className="text-[10px] text-brand-primary truncate">
                   • {name}
+                  {idleDays >= 30 && idleDays < 9999 && <span className="ml-1 text-[9px]">🌙</span>}
                 </span>
               ))}
             </div>
