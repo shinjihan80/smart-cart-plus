@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useModalA11y } from '@/lib/useModalA11y';
 
 // v2: 온보딩 단계 확장에 따라 재노출 유도 (기존 true 값도 재온보딩 1회 수행)
 const ONBOARDING_KEY = 'smart-cart-onboarded-v2';
@@ -39,36 +40,24 @@ const STEPS = [
   },
 ];
 
-export default function OnboardingModal() {
-  const [show, setShow]   = useState(false);
-  const [step, setStep]   = useState(0);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!localStorage.getItem(ONBOARDING_KEY)) {
-      setShow(true);
-    }
-  }, []);
-
-  function handleClose() {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
-    setShow(false);
-  }
+function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: (s: number) => void; onClose: () => void }) {
+  useModalA11y(onClose);
 
   function handleNext() {
     if (step < STEPS.length - 1) setStep(step + 1);
-    else handleClose();
+    else onClose();
   }
-
-  if (!show) return null;
 
   const current = STEPS[step];
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-label="네모아 소개"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
@@ -110,7 +99,7 @@ export default function OnboardingModal() {
 
         {step < STEPS.length - 1 && (
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="mt-2 text-xs text-gray-400 hover:text-gray-600 transition-colors"
           >
             건너뛰기
@@ -119,4 +108,24 @@ export default function OnboardingModal() {
       </motion.div>
     </div>
   );
+}
+
+export default function OnboardingModal() {
+  const [show, setShow] = useState(false);
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!localStorage.getItem(ONBOARDING_KEY)) {
+      setShow(true);
+    }
+  }, []);
+
+  function handleClose() {
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+    setShow(false);
+  }
+
+  if (!show) return null;
+  return <OnboardingContent step={step} setStep={setStep} onClose={handleClose} />;
 }

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { parseRecipeSeconds, recipeGradient, type Recipe } from '@/lib/recipes';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
+import { useModalA11y } from '@/lib/useModalA11y';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -44,6 +45,7 @@ function playChime() {
 export default function RecipeDetailModal({
   recipe, matchedItems = [], isFavorite, onToggleFavorite, onClose,
 }: RecipeDetailModalProps) {
+  useModalA11y(onClose);
   // 쇼핑 리스트
   const { has: inShopping, add: addToShopping } = useShoppingList();
   // 조리 로그
@@ -123,6 +125,9 @@ export default function RecipeDetailModal({
       >
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${recipe.name} 레시피 상세`}
           initial={{ y: 40, opacity: 0, scale: 0.96 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 40, opacity: 0, scale: 0.96 }}

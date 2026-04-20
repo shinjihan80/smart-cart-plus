@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { RECIPES, recipeGradient, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { useModalA11y } from '@/lib/useModalA11y';
 
 type FilterKey = '전체' | '즐겨찾기' | '간단' | '아침' | '점심' | '간식';
 
@@ -23,6 +24,7 @@ interface RecipeBrowserModalProps {
 }
 
 export default function RecipeBrowserModal({ onSelect, onClose }: RecipeBrowserModalProps) {
+  useModalA11y(onClose);
   const { isFavorite } = useRecipeFavorites();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterKey>('전체');
@@ -61,6 +63,9 @@ export default function RecipeBrowserModal({ onSelect, onClose }: RecipeBrowserM
       >
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label="레시피 전체 보기"
           initial={{ y: 40, opacity: 0, scale: 0.96 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 40, opacity: 0, scale: 0.96 }}
