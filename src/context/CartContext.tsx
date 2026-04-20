@@ -29,6 +29,13 @@ interface CartContextValue {
   archiveExpired:  () => number;
   discardCount:    number;
   discardHistory:  DiscardRecord[];
+  /** 백업 복원용 — 카트 상태 전체 교체. 호출 전 유효성 검증은 호출자 책임. */
+  restoreAll: (snapshot: {
+    items?:          CartItem[];
+    archived?:       CartItem[];
+    discardCount?:   number;
+    discardHistory?: DiscardRecord[];
+  }) => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -204,10 +211,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(HISTORY_KEY);
   }, []);
 
+  const restoreAll = useCallback((snapshot: {
+    items?:          CartItem[];
+    archived?:       CartItem[];
+    discardCount?:   number;
+    discardHistory?: DiscardRecord[];
+  }) => {
+    if (Array.isArray(snapshot.items))           setItems(snapshot.items);
+    if (Array.isArray(snapshot.archived))        setArchived(snapshot.archived);
+    if (typeof snapshot.discardCount === 'number') setDiscardCount(snapshot.discardCount);
+    if (Array.isArray(snapshot.discardHistory))  setDiscardHistory(snapshot.discardHistory);
+    setLastRemoved(null);
+    // localStorage 동기화는 기존 useEffect 체인이 items/archived/discardCount/history 변경 시 자동 수행
+  }, []);
+
   return (
     <CartContext.Provider value={{
       items, archived, addItems, updateItem, removeItem, undoRemove, resetData, archiveExpired,
-      discardCount, discardHistory,
+      discardCount, discardHistory, restoreAll,
     }}>
       {children}
     </CartContext.Provider>

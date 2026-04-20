@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem, FOOD_GROUP, FASHION_GROUP, FOOD_EMOJI, type FoodGroup, type FashionGroup } from '@/types';
 import { useCart } from '@/context/CartContext';
@@ -14,6 +14,8 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import { useShoppingList } from '@/lib/shoppingList';
 import { createFoodItemFromIngredient, inferFoodCategory } from '@/lib/ingredientInference';
+import { useBackupStatus, downloadBackup, readBackupFile, applyNonCartFromSnapshot } from '@/lib/backup';
+import type { CartItem } from '@/types';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -59,7 +61,9 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 }
 
 export default function MyPage() {
-  const { items, archived, discardCount, discardHistory, resetData, archiveExpired, addItems } = useCart();
+  const { items, archived, discardCount, discardHistory, resetData, archiveExpired, addItems, restoreAll } = useCart();
+  const backup = useBackupStatus();
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const { showToast } = useToast();
   const { favorites, isFavorite, toggle } = useRecipeFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -127,10 +131,49 @@ export default function MyPage() {
     showToast('CSV 파일로 내보냈어요.');
   }
 
+  function handleBackupNow() {
+    const filename = downloadBackup();
+    backup.refresh();
+    showToast(`백업 완료 — ${filename}`);
+  }
+
+  function handlePickRestoreFile() {
+    fileRef.current?.click();
+  }
+
+  async function handleRestoreFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // 같은 파일 재선택 가능하게 리셋
+    if (!file) return;
+    try {
+      const snap = await readBackupFile(file);
+      const summary: string[] = [];
+      if (Array.isArray(snap.items))    summary.push(`아이템 ${snap.items.length}개`);
+      if (Array.isArray(snap.favorites)) summary.push(`즐겨찾기 ${snap.favorites.length}개`);
+      if (Array.isArray(snap.shopping)) summary.push(`쇼핑 리스트 ${snap.shopping.length}개`);
+      if (!confirm(`백업을 복원할까요?\n생성: ${new Date(snap.createdAt).toLocaleString('ko-KR')}\n${summary.join(' · ')}\n\n현재 데이터는 모두 덮어쓰여요.`)) return;
+
+      restoreAll({
+        items:          snap.items as CartItem[] | undefined,
+        archived:       snap.archived as CartItem[] | undefined,
+        discardCount:   snap.discard?.count,
+        discardHistory: snap.discard?.history as { name: string; category: string; date: string }[] | undefined,
+      });
+      applyNonCartFromSnapshot(snap);
+      backup.refresh();
+      showToast('백업에서 복원됐어요.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '알 수 없는 오류';
+      showToast(`복원 실패: ${msg}`);
+    }
+  }
+
   const menuItems = [
     { label: '만료 식품 정리',   emoji: '📦', desc: '보관 기한 +7일 초과 항목 아카이브', action: handleArchive },
-    { label: 'JSON 내보내기',   emoji: '📄', desc: '전체 데이터를 JSON 파일로 다운로드', action: handleExportJSON },
-    { label: 'CSV 내보내기',    emoji: '📊', desc: '전체 데이터를 CSV 파일로 다운로드', action: handleExportCSV },
+    { label: '지금 백업하기',   emoji: '💾', desc: '전체 상태를 JSON으로 다운로드', action: handleBackupNow },
+    { label: '백업에서 복원',   emoji: '📥', desc: '이전 백업 JSON 파일 불러오기', action: handlePickRestoreFile },
+    { label: 'JSON 내보내기',   emoji: '📄', desc: '현재 아이템만 JSON으로 내보내기', action: handleExportJSON },
+    { label: 'CSV 내보내기',    emoji: '📊', desc: '현재 아이템만 CSV로 내보내기',  action: handleExportCSV },
     { label: '데이터 초기화',   emoji: '🔄', desc: '샘플 데이터로 복원', action: handleReset },
   ];
 
@@ -161,6 +204,38 @@ export default function MyPage() {
             <p className="text-base font-bold text-gray-900">네모아 사용자</p>
             <p className="text-xs text-gray-400 mt-0.5">Pro 플랜 · AI 비서 활성화</p>
           </div>
+        </motion.div>
+
+        {/* 백업 상태 배너 */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.05 }}
+          className={`rounded-[28px] border px-4 py-3 flex items-center gap-3 ${
+            backup.isStale
+              ? 'bg-brand-warning/5 border-brand-warning/15'
+              : 'bg-brand-success/5 border-brand-success/15'
+          }`}
+        >
+          <span className="text-xl shrink-0">{backup.isStale ? '💾' : '✅'}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-gray-800">
+              {backup.isStale
+                ? (backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${backup.daysSince}일 전`)
+                : `백업 ${backup.daysSince}일 전`}
+            </p>
+            <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">
+              {backup.isStale
+                ? '브라우저 캐시가 비면 데이터가 사라질 수 있어요. 지금 백업해두세요.'
+                : '데이터가 안전하게 보관 중이에요.'}
+            </p>
+          </div>
+          <button
+            onClick={handleBackupNow}
+            className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
+          >
+            지금 백업
+          </button>
         </motion.div>
 
         {/* 종합 통계 */}
@@ -595,6 +670,14 @@ export default function MyPage() {
           onClose={() => setBrowserOpen(false)}
         />
       )}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="application/json,.json"
+        onChange={handleRestoreFile}
+        className="hidden"
+      />
     </div>
   );
 }
