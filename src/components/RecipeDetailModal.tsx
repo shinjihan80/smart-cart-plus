@@ -206,7 +206,22 @@ export default function RecipeDetailModal({
 
           {missingKeywords.length > 0 && (
             <div className="bg-amber-50 border border-amber-100 rounded-2xl px-3 py-2.5 mb-4">
-              <p className="text-[10px] text-gray-500 mb-1.5">부족한 재료 · 탭하면 쇼핑 리스트에 추가</p>
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-[10px] text-gray-500">부족한 재료 · 탭하면 쇼핑 리스트에 추가</p>
+                {missingKeywords.filter((kw) => !inShopping(kw)).length >= 2 && (
+                  <button
+                    onClick={() => {
+                      const toAdd = missingKeywords.filter((kw) => !inShopping(kw));
+                      toAdd.forEach((kw) => addToShopping(kw, recipe.name));
+                      navigator.vibrate?.(15);
+                      showToast(`${toAdd.length}개 모두 쇼핑 리스트에 담았어요.`);
+                    }}
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-600 text-white hover:opacity-90 active:scale-95 transition-all"
+                  >
+                    모두 담기
+                  </button>
+                )}
+              </div>
               <div className="flex gap-1.5 flex-wrap">
                 {missingKeywords.map((kw) => {
                   const added = inShopping(kw);
