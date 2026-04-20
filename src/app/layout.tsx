@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
-import FloatingAdd from "@/components/layout/FloatingAdd";
 import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
@@ -53,7 +52,6 @@ export default function RootLayout({
           <main id="main-content" className="flex-1 pb-20 max-w-md mx-auto w-full">
             {children}
           </main>
-          <FloatingAdd />
           <ScrollToTop />
           <BottomNav />
           <OnboardingModal />

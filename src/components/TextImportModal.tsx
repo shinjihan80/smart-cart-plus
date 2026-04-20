@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
+import { useProfiles } from '@/lib/profile';
 
 interface TextImportModalProps {
   onClose:  () => void;
@@ -377,14 +378,22 @@ function StepConfirm({
   items: CartItem[];
   setItems: (v: CartItem[]) => void;
   domainSummary?: { food: number; fashion: number };
-  onConfirm: () => void;
+  onConfirm: (tagged: CartItem[]) => void;
   onBack: () => void;
 }) {
+  const { profiles } = useProfiles();
+  // 모든 아이템 공통 소유자 — undefined = 공용
+  const [ownerId, setOwnerId] = useState<string | undefined>(undefined);
+
   function updateName(id: string, name: string) {
     setItems(items.map((item) => (item.id === id ? { ...item, name } : item)));
   }
   function removeItem(id: string) {
     setItems(items.filter((item) => item.id !== id));
+  }
+  function handleConfirm() {
+    const tagged = items.map((item) => ({ ...item, ownerId }) as CartItem);
+    onConfirm(tagged);
   }
 
   return (
@@ -418,6 +427,38 @@ function StepConfirm({
       <p className="text-xs text-gray-400 mb-3">
         네모아가 추출한 목록입니다. 이름 수정 또는 불필요한 항목 삭제 후 추가하세요.
       </p>
+
+      {/* 소유자 선택 — 프로필 2명 이상일 때 */}
+      {profiles.length >= 2 && (
+        <div className="rounded-2xl bg-gray-50 px-3 py-2 mb-3">
+          <p className="text-[10px] text-gray-500 mb-1.5">누구 것으로 등록할까요?</p>
+          <div className="flex gap-1 flex-wrap">
+            <button
+              onClick={() => setOwnerId(undefined)}
+              className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                !ownerId
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              공용
+            </button>
+            {profiles.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setOwnerId(p.id)}
+                className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                  ownerId === p.id
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-y-2 max-h-64 overflow-y-auto pr-0.5">
         {items.map((item) => (
@@ -454,7 +495,7 @@ function StepConfirm({
       )}
 
       <button
-        onClick={onConfirm}
+        onClick={handleConfirm}
         disabled={items.length === 0}
         className="mt-4 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
@@ -551,8 +592,8 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     }
   }
 
-  function handleConfirm() {
-    onImport(parsedItems);
+  function handleConfirm(tagged: CartItem[]) {
+    onImport(tagged);
     onClose();
   }
 
