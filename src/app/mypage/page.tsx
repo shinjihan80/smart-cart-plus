@@ -8,6 +8,9 @@ import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { ChevronRight } from 'lucide-react';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
+import { RECIPES, type Recipe } from '@/lib/recipes';
+import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import RecipeDetailModal from '@/components/RecipeDetailModal';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -55,8 +58,11 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 export default function MyPage() {
   const { items, archived, discardCount, discardHistory, resetData, archiveExpired } = useCart();
   const { showToast } = useToast();
+  const { favorites, isFavorite, toggle } = useRecipeFavorites();
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
+  const favoriteRecipes   = RECIPES.filter((r) => favorites.includes(r.id));
 
   const urgentCount = foodItemsList.filter(
     (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
@@ -336,6 +342,40 @@ export default function MyPage() {
           </p>
         </motion.div>
 
+        {/* 즐겨찾기 레시피 */}
+        {favoriteRecipes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...springTransition, delay: 0.285 }}
+            className={CARD}
+            style={CARD_SHADOW}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs text-gray-400 font-medium">즐겨찾기 레시피</h3>
+              <span className="text-[10px] text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {favoriteRecipes.map((recipe) => (
+                <button
+                  key={recipe.id}
+                  onClick={() => setSelectedRecipe(recipe)}
+                  className="flex items-center gap-3 w-full py-2 px-2 -mx-2 rounded-2xl hover:bg-gray-50 text-left transition-colors"
+                >
+                  <span className="text-2xl shrink-0">{recipe.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
+                      ⏱ {recipe.time} · {recipe.difficulty}
+                    </p>
+                  </div>
+                  <ChevronRight size={14} className="text-gray-300 shrink-0" />
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* 아카이브 */}
         {archived.length > 0 && (
           <motion.div
@@ -459,6 +499,15 @@ export default function MyPage() {
           </div>
         </motion.div>
       </div>
+
+      {selectedRecipe && (
+        <RecipeDetailModal
+          recipe={selectedRecipe}
+          isFavorite={isFavorite(selectedRecipe.id)}
+          onToggleFavorite={() => toggle(selectedRecipe.id)}
+          onClose={() => setSelectedRecipe(null)}
+        />
+      )}
     </div>
   );
 }
