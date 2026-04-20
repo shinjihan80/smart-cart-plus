@@ -21,6 +21,7 @@ import ShoppingListSection                       from '@/components/mypage/Shopp
 import FavoriteRecipesSection                    from '@/components/mypage/FavoriteRecipesSection';
 import WearStatsSection                          from '@/components/mypage/WearStatsSection';
 import CookStatsSection                          from '@/components/mypage/CookStatsSection';
+import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
 export default function MyPage() {
   const { items, archived, discardCount, discardHistory, addItems } = useCart();
@@ -177,16 +178,24 @@ export default function MyPage() {
           </p>
         </motion.div>
 
-        <ShoppingListSection addItems={addItems} showToast={showToast} />
+        <SectionErrorBoundary label="쇼핑 리스트">
+          <ShoppingListSection addItems={addItems} showToast={showToast} />
+        </SectionErrorBoundary>
 
-        <WearStatsSection items={items} />
+        <SectionErrorBoundary label="착용 로그 분석">
+          <WearStatsSection items={items} />
+        </SectionErrorBoundary>
 
-        <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+        <SectionErrorBoundary label="조리 로그 분석">
+          <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+        </SectionErrorBoundary>
 
-        <FavoriteRecipesSection
-          onOpenRecipe={setSelectedRecipe}
-          onOpenBrowser={() => setBrowserOpen(true)}
-        />
+        <SectionErrorBoundary label="즐겨찾기 레시피">
+          <FavoriteRecipesSection
+            onOpenRecipe={setSelectedRecipe}
+            onOpenBrowser={() => setBrowserOpen(true)}
+          />
+        </SectionErrorBoundary>
 
         {/* 아카이브 */}
         {archived.length > 0 && (

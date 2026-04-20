@@ -14,6 +14,7 @@ import NutritionBalanceSection from '@/components/fridge/NutritionBalanceSection
 import FeelingLuckySection     from '@/components/fridge/FeelingLuckySection';
 import RecipeSection           from '@/components/fridge/RecipeSection';
 import RebuySection            from '@/components/fridge/RebuySection';
+import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
 
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
@@ -187,13 +188,19 @@ export default function FridgePage() {
         />
 
         {/* 영양 밸런스 */}
-        <NutritionBalanceSection foods={allFood} />
+        <SectionErrorBoundary label="영양 밸런스">
+          <NutritionBalanceSection foods={allFood} />
+        </SectionErrorBoundary>
 
         {/* 오늘 뭐 먹지? */}
-        <FeelingLuckySection foods={allFood} />
+        <SectionErrorBoundary label="오늘 뭐 먹지">
+          <FeelingLuckySection foods={allFood} />
+        </SectionErrorBoundary>
 
         {/* 레시피 추천 */}
-        <RecipeSection foods={allFood} />
+        <SectionErrorBoundary label="레시피 추천">
+          <RecipeSection foods={allFood} />
+        </SectionErrorBoundary>
 
         {/* 검색 + 필터 */}
         <div className="flex gap-2">

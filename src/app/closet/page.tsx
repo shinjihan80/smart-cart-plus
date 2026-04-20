@@ -19,6 +19,7 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared'
 import OutfitPreview      from '@/components/closet/OutfitPreview';
 import OutfitSection      from '@/components/closet/OutfitSection';
 import SwipeClothingCard  from '@/components/closet/SwipeClothingCard';
+import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 
 type GroupFilter = '전체' | FashionGroup;
 type ClosetSort  = 'name' | 'thickness' | 'match';
@@ -160,7 +161,9 @@ export default function ClosetPage() {
         })()}
 
         {/* 코디 미리보기 */}
-        <OutfitPreview items={allClothing} />
+        <SectionErrorBoundary label="코디 미리보기">
+          <OutfitPreview items={allClothing} />
+        </SectionErrorBoundary>
 
         {/* 빠른 추가 */}
         <motion.div
@@ -192,7 +195,9 @@ export default function ClosetPage() {
         </motion.div>
 
         {/* 코디 추천 */}
-        <OutfitSection items={allClothing} />
+        <SectionErrorBoundary label="오늘의 코디">
+          <OutfitSection items={allClothing} />
+        </SectionErrorBoundary>
 
         {/* 검색 + 필터 */}
         <div className="flex gap-2">
