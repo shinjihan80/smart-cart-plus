@@ -54,6 +54,7 @@ export default function ClosetPage() {
   const [sortBy, setSortBy] = useState<ClosetSort>('name');
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [ownerFilter, setOwnerFilter] = useState<string>('전체');  // 'id' | '전체' | '공용'
+  const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,6 +103,7 @@ export default function ClosetPage() {
       thickness: '보통' as const,
       material: preset.material,
       imageUrl: preset.img,
+      ownerId: quickAddOwner,
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
@@ -185,6 +187,34 @@ export default function ClosetPage() {
             <span className="text-base">⚡</span>
             <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
           </div>
+          {profiles.length >= 2 && (
+            <div className="flex gap-1 mb-2 flex-wrap items-center">
+              <span className="text-[10px] text-gray-400">누구 것:</span>
+              <button
+                onClick={() => setQuickAddOwner(undefined)}
+                className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                  !quickAddOwner
+                    ? 'bg-gray-500 text-white'
+                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                공용
+              </button>
+              {profiles.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setQuickAddOwner(p.id)}
+                  className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                    quickAddOwner === p.id
+                      ? 'bg-brand-primary text-white'
+                      : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="flex gap-1.5 flex-wrap">
             {QUICK_ADD_FASHION.map((preset) => (
               <button
