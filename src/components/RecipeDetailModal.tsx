@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Recipe } from '@/lib/recipes';
+import { parseRecipeSeconds, type Recipe } from '@/lib/recipes';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -11,9 +12,92 @@ interface RecipeDetailModalProps {
   onClose:          () => void;
 }
 
+function formatMMSS(total: number): string {
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function playChime() {
+  try {
+    // 짧은 비프음 — 외부 리소스 없이 Web Audio로 직접 생성
+    type AudioCtx = typeof window extends { AudioContext: infer C } ? C : never;
+    const Ctx = (window.AudioContext ?? (window as unknown as { webkitAudioContext?: AudioCtx }).webkitAudioContext);
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.7);
+  } catch { /* 음소거 환경 등 — 조용히 실패 */ }
+}
+
 export default function RecipeDetailModal({
   recipe, matchedItems = [], isFavorite, onToggleFavorite, onClose,
 }: RecipeDetailModalProps) {
+  // 타이머 상태
+  const totalSeconds = parseRecipeSeconds(recipe.time);
+  const [remaining, setRemaining] = useState<number>(totalSeconds ?? 0);
+  const [running, setRunning]     = useState(false);
+  const [finished, setFinished]   = useState(false);
+  const deadlineRef = useRef<number | null>(null);
+
+  // 새 레시피로 모달이 열리면 초기화
+  useEffect(() => {
+    setRemaining(totalSeconds ?? 0);
+    setRunning(false);
+    setFinished(false);
+    deadlineRef.current = null;
+  }, [recipe.id, totalSeconds]);
+
+  // 타이머 틱
+  useEffect(() => {
+    if (!running) return;
+    const id = setInterval(() => {
+      if (!deadlineRef.current) return;
+      const left = Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000));
+      setRemaining(left);
+      if (left === 0) {
+        setRunning(false);
+        setFinished(true);
+        navigator.vibrate?.([200, 80, 200]);
+        playChime();
+      }
+    }, 250);
+    return () => clearInterval(id);
+  }, [running]);
+
+  function handleStartPause() {
+    if (finished || remaining === 0) {
+      setRemaining(totalSeconds ?? 0);
+      setFinished(false);
+      deadlineRef.current = Date.now() + (totalSeconds ?? 0) * 1000;
+      setRunning(true);
+      return;
+    }
+    if (running) {
+      setRunning(false);
+      deadlineRef.current = null;
+    } else {
+      deadlineRef.current = Date.now() + remaining * 1000;
+      setRunning(true);
+    }
+  }
+
+  function handleReset() {
+    setRunning(false);
+    setFinished(false);
+    setRemaining(totalSeconds ?? 0);
+    deadlineRef.current = null;
+  }
+
   return (
     <AnimatePresence>
       <motion.div
@@ -86,6 +170,49 @@ export default function RecipeDetailModal({
                     ✓ {name}
                   </span>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {totalSeconds !== null && totalSeconds > 0 && (
+            <div className={`rounded-2xl border px-4 py-3 mb-4 flex items-center gap-3 transition-colors ${
+              finished
+                ? 'bg-brand-warning/10 border-brand-warning/30'
+                : running
+                  ? 'bg-brand-primary/10 border-brand-primary/25'
+                  : 'bg-gray-50 border-gray-100'
+            }`}>
+              <span className="text-xl">{finished ? '🔔' : running ? '⏱️' : '⏰'}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-gray-500">
+                  {finished ? '완성 시간이에요!' : running ? '타이머 진행 중' : '조리 타이머'}
+                </p>
+                <p className={`text-xl font-extrabold tabular-nums leading-tight ${
+                  finished ? 'text-brand-warning' : running ? 'text-brand-primary' : 'text-gray-800'
+                }`}>
+                  {formatMMSS(remaining)}
+                </p>
+              </div>
+              <div className="flex gap-1.5 shrink-0">
+                <button
+                  onClick={handleStartPause}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors ${
+                    running
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-brand-primary text-white hover:opacity-90'
+                  }`}
+                >
+                  {finished ? '다시 시작' : running ? '일시정지' : '시작'}
+                </button>
+                {(running || finished || remaining !== totalSeconds) && (
+                  <button
+                    onClick={handleReset}
+                    aria-label="타이머 초기화"
+                    className="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-500 text-xs hover:bg-gray-50 transition-colors"
+                  >
+                    ⟳
+                  </button>
+                )}
               </div>
             </div>
           )}

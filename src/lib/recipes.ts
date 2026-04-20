@@ -18,6 +18,16 @@ export interface Recipe {
 }
 
 // 24종 레시피 — 범용 식재료 커버
+/** 레시피 time 문자열("15분", "1시간 10분" 등)을 초로 환산. 파싱 실패 시 null. */
+export function parseRecipeSeconds(time: string): number | null {
+  const m = time.match(/(?:(\d+)\s*시간)?\s*(\d+)?\s*분?/);
+  if (!m) return null;
+  const hours   = m[1] ? parseInt(m[1], 10) : 0;
+  const minutes = m[2] ? parseInt(m[2], 10) : 0;
+  if (hours === 0 && minutes === 0) return null;
+  return hours * 3600 + minutes * 60;
+}
+
 export const RECIPES: readonly Recipe[] = [
   {
     id: 'r1', name: '두부 샐러드 볼', emoji: '🥗',
