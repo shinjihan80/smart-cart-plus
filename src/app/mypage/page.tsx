@@ -1,112 +1,48 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { isFoodItem, isClothingItem, FOOD_GROUP, FASHION_GROUP, FOOD_EMOJI, type FoodGroup, type FashionGroup } from '@/types';
+import { isFoodItem, isClothingItem } from '@/types';
+import type { CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { ChevronRight } from 'lucide-react';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
-import { RECIPES, type Recipe } from '@/lib/recipes';
+import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
-import { useShoppingList } from '@/lib/shoppingList';
-import { createFoodItemFromIngredient, inferFoodCategory } from '@/lib/ingredientInference';
-import { useBackupStatus, downloadBackup, readBackupFile, applyNonCartFromSnapshot } from '@/lib/backup';
-import type { CartItem } from '@/types';
+import {
+  useBackupStatus, downloadBackup, readBackupFile, applyNonCartFromSnapshot,
+} from '@/lib/backup';
 
-const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
-const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
-const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
-
-const SPENDING_DATA = [
-  { month: '1월', amount: 187400 },
-  { month: '2월', amount: 156200 },
-  { month: '3월', amount: 203800 },
-  { month: '4월', amount: 272200 },
-];
-
-function StatRow({ emoji, label, value, accent }: { emoji: string; label: string; value: string; accent?: boolean }) {
-  return (
-    <div className="flex items-center justify-between py-2.5">
-      <div className="flex items-center gap-2.5">
-        <span className="text-base">{emoji}</span>
-        <span className="text-sm text-gray-600">{label}</span>
-      </div>
-      <span className={`text-sm font-bold tabular-nums ${accent ? 'text-brand-primary' : 'text-gray-900'}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function StorageBar({ label, emoji, count, total }: { label: string; emoji: string; count: number; total: number }) {
-  const pct = total > 0 ? (count / total) * 100 : 0;
-  return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm w-16 shrink-0">{emoji} {label}</span>
-      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ ...springTransition, delay: 0.3 }}
-          className="h-full bg-brand-primary rounded-full"
-        />
-      </div>
-      <span className="text-xs text-gray-500 w-6 text-right tabular-nums">{count}</span>
-    </div>
-  );
-}
+import { springTransition, CARD, CARD_SHADOW }   from '@/components/mypage/shared';
+import StatsSection                               from '@/components/mypage/StatsSection';
+import SpendingSection                            from '@/components/mypage/SpendingSection';
+import ShoppingListSection                        from '@/components/mypage/ShoppingListSection';
+import FavoriteRecipesSection                     from '@/components/mypage/FavoriteRecipesSection';
+import NotificationSettings                       from '@/components/mypage/NotificationSettings';
+import AppInfo                                    from '@/components/mypage/AppInfo';
 
 export default function MyPage() {
   const { items, archived, discardCount, discardHistory, resetData, archiveExpired, addItems, restoreAll } = useCart();
   const backup = useBackupStatus();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const { showToast } = useToast();
-  const { favorites, isFavorite, toggle } = useRecipeFavorites();
+  const { isFavorite, toggle } = useRecipeFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [browserOpen, setBrowserOpen]       = useState(false);
-  const shopping = useShoppingList();
+
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
-  const favoriteRecipes   = RECIPES.filter((r) => favorites.includes(r.id));
 
   const urgentCount = foodItemsList.filter(
     (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
   ).length;
-
   const coldCount   = foodItemsList.filter((f) => f.storageType === '냉장').length;
   const frozenCount = foodItemsList.filter((f) => f.storageType === '냉동').length;
   const roomCount   = foodItemsList.filter((f) => f.storageType === '실온').length;
-
-  // 알림 설정
-  const [notiExpiry, setNotiExpiry] = useState(true);
-  const [notiCodi, setNotiCodi]     = useState(true);
-  const [notiDeal, setNotiDeal]     = useState(false);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('smart-cart-noti');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setNotiExpiry(parsed.expiry ?? true);
-        setNotiCodi(parsed.codi ?? true);
-        setNotiDeal(parsed.deal ?? false);
-      }
-    } catch { /* ignore */ }
-  }, []);
-
-  function toggleNoti(key: 'expiry' | 'codi' | 'deal') {
-    const next = { expiry: notiExpiry, codi: notiCodi, deal: notiDeal };
-    next[key] = !next[key];
-    setNotiExpiry(next.expiry);
-    setNotiCodi(next.codi);
-    setNotiDeal(next.deal);
-    localStorage.setItem('smart-cart-noti', JSON.stringify(next));
-    showToast(next[key] ? '알림이 켜졌어요.' : '알림이 꺼졌어요.');
-  }
 
   function handleReset() {
     if (confirm('모든 데이터를 초기화하시겠어요? 기본 샘플 데이터로 복원됩니다.')) {
@@ -143,18 +79,18 @@ export default function MyPage() {
 
   async function handleRestoreFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    e.target.value = ''; // 같은 파일 재선택 가능하게 리셋
+    e.target.value = '';
     if (!file) return;
     try {
       const snap = await readBackupFile(file);
       const summary: string[] = [];
-      if (Array.isArray(snap.items))    summary.push(`아이템 ${snap.items.length}개`);
+      if (Array.isArray(snap.items))     summary.push(`아이템 ${snap.items.length}개`);
       if (Array.isArray(snap.favorites)) summary.push(`즐겨찾기 ${snap.favorites.length}개`);
-      if (Array.isArray(snap.shopping)) summary.push(`쇼핑 리스트 ${snap.shopping.length}개`);
+      if (Array.isArray(snap.shopping))  summary.push(`쇼핑 리스트 ${snap.shopping.length}개`);
       if (!confirm(`백업을 복원할까요?\n생성: ${new Date(snap.createdAt).toLocaleString('ko-KR')}\n${summary.join(' · ')}\n\n현재 데이터는 모두 덮어쓰여요.`)) return;
 
       restoreAll({
-        items:          snap.items as CartItem[] | undefined,
+        items:          snap.items    as CartItem[] | undefined,
         archived:       snap.archived as CartItem[] | undefined,
         discardCount:   snap.discard?.count,
         discardHistory: snap.discard?.history as { name: string; category: string; date: string }[] | undefined,
@@ -169,17 +105,16 @@ export default function MyPage() {
   }
 
   const menuItems = [
-    { label: '만료 식품 정리',   emoji: '📦', desc: '보관 기한 +7일 초과 항목 아카이브', action: handleArchive },
-    { label: '지금 백업하기',   emoji: '💾', desc: '전체 상태를 JSON으로 다운로드', action: handleBackupNow },
-    { label: '백업에서 복원',   emoji: '📥', desc: '이전 백업 JSON 파일 불러오기', action: handlePickRestoreFile },
-    { label: 'JSON 내보내기',   emoji: '📄', desc: '현재 아이템만 JSON으로 내보내기', action: handleExportJSON },
-    { label: 'CSV 내보내기',    emoji: '📊', desc: '현재 아이템만 CSV로 내보내기',  action: handleExportCSV },
-    { label: '데이터 초기화',   emoji: '🔄', desc: '샘플 데이터로 복원', action: handleReset },
+    { label: '만료 식품 정리',  emoji: '📦', desc: '보관 기한 +7일 초과 항목 아카이브',  action: handleArchive },
+    { label: '지금 백업하기',   emoji: '💾', desc: '전체 상태를 JSON으로 다운로드',       action: handleBackupNow },
+    { label: '백업에서 복원',   emoji: '📥', desc: '이전 백업 JSON 파일 불러오기',       action: handlePickRestoreFile },
+    { label: 'JSON 내보내기',   emoji: '📄', desc: '현재 아이템만 JSON으로 내보내기',   action: handleExportJSON },
+    { label: 'CSV 내보내기',    emoji: '📊', desc: '현재 아이템만 CSV로 내보내기',      action: handleExportCSV },
+    { label: '데이터 초기화',   emoji: '🔄', desc: '샘플 데이터로 복원',                action: handleReset },
   ];
 
   return (
     <div>
-      {/* 헤더 */}
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
         <div className="px-4 py-3.5">
           <h1 className="text-base font-bold text-gray-900 tracking-tight">마이페이지</h1>
@@ -188,7 +123,6 @@ export default function MyPage() {
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
-
         {/* 프로필 카드 */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -238,90 +172,16 @@ export default function MyPage() {
           </button>
         </motion.div>
 
-        {/* 종합 통계 */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springTransition, delay: 0.1 }}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <h3 className="text-xs text-gray-400 font-medium mb-2">종합 통계</h3>
-          <div className="divide-y divide-gray-50">
-            <StatRow emoji="🛍️" label="전체 상품"     value={`${items.length}개`} />
-            <StatRow emoji="🥦" label="식품"          value={`${foodItemsList.length}개`} />
-            <StatRow emoji="👕" label="패션 전체"  value={`${clothingItemsList.length}개`} />
-            <StatRow emoji="⚠️" label="소비 임박"     value={`${urgentCount}개`} accent={urgentCount > 0} />
-            <StatRow emoji="🗑️" label="소진 처리 (누적)" value={`${discardCount}건`} />
-          </div>
-        </motion.div>
-
-        {/* 보관 현황 */}
-        {foodItemsList.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springTransition, delay: 0.2 }}
-            className={CARD}
-            style={CARD_SHADOW}
-          >
-            <h3 className="text-xs text-gray-400 font-medium mb-3">보관 현황</h3>
-            <div className="flex flex-col gap-2.5">
-              <StorageBar emoji="❄️" label="냉장" count={coldCount}   total={foodItemsList.length} />
-              <StorageBar emoji="🧊" label="냉동" count={frozenCount} total={foodItemsList.length} />
-              <StorageBar emoji="📦" label="실온" count={roomCount}   total={foodItemsList.length} />
-            </div>
-          </motion.div>
-        )}
-
-        {/* 카테고리 분포 */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springTransition, delay: 0.22 }}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <h3 className="text-xs text-gray-400 font-medium mb-3">카테고리 분포</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {/* 식품 그룹 */}
-            <div>
-              <p className="text-[9px] text-gray-400 mb-1.5">🥬 식품</p>
-              {(['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => {
-                const count = foodItemsList.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length;
-                if (count === 0) return null;
-                const pct = foodItemsList.length > 0 ? (count / foodItemsList.length) * 100 : 0;
-                return (
-                  <div key={g} className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[9px] text-gray-500 w-14 truncate">{g}</span>
-                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full bg-brand-success rounded-full" />
-                    </div>
-                    <span className="text-[9px] text-gray-400 tabular-nums w-4 text-right">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-            {/* 패션 그룹 */}
-            <div>
-              <p className="text-[9px] text-gray-400 mb-1.5">👕 패션</p>
-              {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => {
-                const count = clothingItemsList.filter((c) => (FASHION_GROUP[c.category] ?? '의류') === g).length;
-                if (count === 0) return null;
-                const pct = clothingItemsList.length > 0 ? (count / clothingItemsList.length) * 100 : 0;
-                return (
-                  <div key={g} className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[9px] text-gray-500 w-14 truncate">{g}</span>
-                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full bg-brand-primary rounded-full" />
-                    </div>
-                    <span className="text-[9px] text-gray-400 tabular-nums w-4 text-right">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
+        <StatsSection
+          items={items}
+          foodItems={foodItemsList}
+          clothingItems={clothingItemsList}
+          urgentCount={urgentCount}
+          discardCount={discardCount}
+          coldCount={coldCount}
+          frozenCount={frozenCount}
+          roomCount={roomCount}
+        />
 
         {/* 소진 히스토리 */}
         {discardHistory.length > 0 && (
@@ -347,46 +207,7 @@ export default function MyPage() {
           </motion.div>
         )}
 
-        {/* 월별 지출 */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springTransition, delay: 0.25 }}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs text-gray-400 font-medium">월별 지출 추이</h3>
-            <span className="text-xs font-bold text-gray-700 tabular-nums">
-              총 ₩{SPENDING_DATA.reduce((s, d) => s + d.amount, 0).toLocaleString()}
-            </span>
-          </div>
-          <div className="flex items-end gap-2 h-24">
-            {(() => {
-              const max = Math.max(...SPENDING_DATA.map((d) => d.amount));
-              return SPENDING_DATA.map((d, i) => {
-                const h = Math.max(12, (d.amount / max) * 88);
-                const isLast = i === SPENDING_DATA.length - 1;
-                return (
-                  <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5">
-                    <span className={`text-[9px] font-bold tabular-nums ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
-                      {(d.amount / 10000).toFixed(1)}만
-                    </span>
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: h }}
-                      transition={{ ...springTransition, delay: 0.3 + i * 0.08 }}
-                      className={`w-full rounded-xl ${isLast ? 'bg-brand-primary' : 'bg-gray-200'}`}
-                    />
-                    <span className={`text-[10px] font-medium ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
-                      {d.month}
-                    </span>
-                  </div>
-                );
-              });
-            })()}
-          </div>
-        </motion.div>
+        <SpendingSection />
 
         {/* 쇼핑몰 연동 */}
         <motion.div
@@ -399,7 +220,7 @@ export default function MyPage() {
           <h3 className="text-xs text-gray-400 font-medium mb-3">쇼핑몰 자동 연동</h3>
           <div className="flex flex-col gap-2.5">
             {[
-              { name: '쿠팡',    mallBg: 'bg-mall-coupang',    status: '준비 중' },
+              { name: '쿠팡',     mallBg: 'bg-mall-coupang',    status: '준비 중' },
               { name: '네이버',   mallBg: 'bg-mall-naver',      status: '준비 중' },
               { name: '마켓컬리', mallBg: 'bg-mall-kurly',      status: '준비 중' },
               { name: '무신사',   mallBg: 'bg-mall-musinsa',    status: '준비 중' },
@@ -422,132 +243,12 @@ export default function MyPage() {
           </p>
         </motion.div>
 
-        {/* 쇼핑 리스트 */}
-        {shopping.list.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springTransition, delay: 0.28 }}
-            className={CARD}
-            style={CARD_SHADOW}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs text-gray-400 font-medium">
-                🛒 쇼핑 리스트 <span className="tabular-nums">({shopping.list.length})</span>
-              </h3>
-              <div className="flex items-center gap-1">
-                {shopping.list.length >= 2 && (
-                  <button
-                    onClick={() => {
-                      if (!confirm(`${shopping.list.length}개를 모두 냉장고에 담을까요?`)) return;
-                      const names = shopping.list.map((it) => it.name);
-                      const newFoods = names.map((n) => createFoodItemFromIngredient(n));
-                      const { added, skipped } = addItems(newFoods);
-                      shopping.clear();
-                      showToast(
-                        skipped > 0
-                          ? `${added}개 담았어요 · ${skipped}개는 이미 있었어요.`
-                          : `${added}개 모두 냉장고에 담았어요.`,
-                      );
-                    }}
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
-                  >
-                    모두 담기
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    if (confirm('쇼핑 리스트를 모두 비울까요?')) {
-                      shopping.clear();
-                      showToast('쇼핑 리스트를 비웠어요.');
-                    }
-                  }}
-                  className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  전체 비우기
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              {shopping.list
-                .slice()
-                .sort((a, b) => b.createdAt - a.createdAt)
-                .map((it) => {
-                  const category = inferFoodCategory(it.name);
-                  const emoji    = FOOD_EMOJI[category] ?? '📦';
-                  return (
-                    <div key={it.id} className="flex items-center gap-2 py-1.5">
-                      <span className="text-sm shrink-0">{emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 truncate">{it.name}</p>
-                        <p className="text-[9px] text-gray-400 truncate">
-                          {category}
-                          {it.source && <span> · {it.source}에서 추가</span>}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const food = createFoodItemFromIngredient(it.name);
-                          const { added, skipped } = addItems([food]);
-                          shopping.remove(it.id);
-                          if (added > 0) showToast(`"${it.name}" 냉장고에 담았어요.`);
-                          else if (skipped > 0) showToast(`"${it.name}" 이미 있어요. 리스트만 제거했어요.`);
-                        }}
-                        className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
-                      >
-                        담았어요
-                      </button>
-                    </div>
-                  );
-                })}
-            </div>
-            <p className="text-[9px] text-gray-400 mt-2.5 leading-relaxed">
-              "담았어요"를 누르면 네모아가 카테고리·보관 방법을 추론해 냉장고에 자동 추가해요.
-            </p>
-          </motion.div>
-        )}
+        <ShoppingListSection addItems={addItems} showToast={showToast} />
 
-        {/* 즐겨찾기 레시피 */}
-        {favoriteRecipes.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springTransition, delay: 0.285 }}
-            className={CARD}
-            style={CARD_SHADOW}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs text-gray-400 font-medium">즐겨찾기 레시피</h3>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
-                <button
-                  onClick={() => setBrowserOpen(true)}
-                  className="text-[10px] text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors"
-                >
-                  전체 보기 →
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              {favoriteRecipes.map((recipe) => (
-                <button
-                  key={recipe.id}
-                  onClick={() => setSelectedRecipe(recipe)}
-                  className="flex items-center gap-3 w-full py-2 px-2 -mx-2 rounded-2xl hover:bg-gray-50 text-left transition-colors"
-                >
-                  <span className="text-2xl shrink-0">{recipe.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">
-                      ⏱ {recipe.time} · {recipe.difficulty}
-                    </p>
-                  </div>
-                  <ChevronRight size={14} className="text-gray-300 shrink-0" />
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        <FavoriteRecipesSection
+          onOpenRecipe={setSelectedRecipe}
+          onOpenBrowser={() => setBrowserOpen(true)}
+        />
 
         {/* 아카이브 */}
         {archived.length > 0 && (
@@ -573,40 +274,7 @@ export default function MyPage() {
           </motion.div>
         )}
 
-        {/* 알림 설정 */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springTransition, delay: 0.3 }}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <h3 className="text-xs text-gray-400 font-medium mb-2">알림 설정</h3>
-          <div className="divide-y divide-gray-50">
-            {([
-              { key: 'expiry' as const, emoji: '⏰', label: '보관 기한 임박 알림', value: notiExpiry },
-              { key: 'codi' as const,   emoji: '👗', label: '코디 추천 알림',     value: notiCodi },
-              { key: 'deal' as const,   emoji: '🏷️', label: '할인 정보 알림',     value: notiDeal },
-            ]).map((item) => (
-              <div key={item.key} className="flex items-center justify-between py-2.5">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-base">{item.emoji}</span>
-                  <span className="text-sm text-gray-600">{item.label}</span>
-                </div>
-                <button
-                  onClick={() => toggleNoti(item.key)}
-                  className={`w-10 h-6 rounded-full transition-colors relative ${
-                    item.value ? 'bg-brand-primary' : 'bg-gray-200'
-                  }`}
-                >
-                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                    item.value ? 'translate-x-5' : 'translate-x-1'
-                  }`} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+        <NotificationSettings />
 
         {/* 설정 메뉴 */}
         <motion.div
@@ -635,42 +303,7 @@ export default function MyPage() {
           </div>
         </motion.div>
 
-        {/* 앱 정보 */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springTransition, delay: 0.4 }}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <h3 className="text-xs text-gray-400 font-medium mb-2">앱 정보</h3>
-          <div className="flex flex-col gap-1.5 text-xs text-gray-400">
-            <div className="flex justify-between">
-              <span>버전</span>
-              <span className="text-gray-600 font-medium">NEMOA v1.3</span>
-            </div>
-            <div className="flex justify-between">
-              <span>AI 비서</span>
-              <span className="text-gray-600 font-medium">Claude Sonnet 4.6</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Vision 파서</span>
-              <span className="text-gray-600 font-medium">통합 Multimodal</span>
-            </div>
-            <div className="flex justify-between">
-              <span>데이터 저장</span>
-              <span className="text-gray-600 font-medium">로컬 (localStorage)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>식품 카테고리</span>
-              <span className="text-gray-600 font-medium tabular-nums">11종</span>
-            </div>
-            <div className="flex justify-between">
-              <span>패션 카테고리</span>
-              <span className="text-gray-600 font-medium tabular-nums">13종</span>
-            </div>
-          </div>
-        </motion.div>
+        <AppInfo />
       </div>
 
       {selectedRecipe && (
