@@ -12,6 +12,7 @@ import { matchRecipes, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { analyzeBalance, WEEKLY_TARGET } from '@/lib/nutritionAnalysis';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -380,6 +381,7 @@ function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const rawMatched = matchRecipes(foods, 12);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
+  const [browserOpen, setBrowserOpen] = useState(false);
 
   // 즐겨찾기를 최상단으로 안정 정렬
   const matched = [...rawMatched].sort((a, b) => {
@@ -418,6 +420,12 @@ function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 ⚠️ 소비 임박 {urgentCount}
               </span>
             )}
+            <button
+              onClick={() => setBrowserOpen(true)}
+              className="text-[10px] text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors whitespace-nowrap"
+            >
+              전체 보기 →
+            </button>
           </div>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
@@ -460,6 +468,18 @@ function RecipeSection({ foods }: { foods: FoodItem[] }) {
           isFavorite={isFavorite(selected.recipe.id)}
           onToggleFavorite={() => toggle(selected.recipe.id)}
           onClose={() => setSelected(null)}
+        />
+      )}
+
+      {browserOpen && (
+        <RecipeBrowserModal
+          onSelect={(recipe) => {
+            setBrowserOpen(false);
+            // 전체 보기에서 고른 레시피는 현재 재고와의 매칭을 그대로 표시
+            const hit = rawMatched.find((m) => m.recipe.id === recipe.id);
+            setSelected({ recipe, matchedItems: hit?.matchedItems ?? [] });
+          }}
+          onClose={() => setBrowserOpen(false)}
         />
       )}
     </>

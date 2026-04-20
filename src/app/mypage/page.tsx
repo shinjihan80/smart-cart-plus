@@ -11,6 +11,7 @@ import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import { RECIPES, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -60,6 +61,7 @@ export default function MyPage() {
   const { showToast } = useToast();
   const { favorites, isFavorite, toggle } = useRecipeFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [browserOpen, setBrowserOpen]       = useState(false);
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
   const favoriteRecipes   = RECIPES.filter((r) => favorites.includes(r.id));
@@ -353,7 +355,15 @@ export default function MyPage() {
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs text-gray-400 font-medium">즐겨찾기 레시피</h3>
-              <span className="text-[10px] text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
+                <button
+                  onClick={() => setBrowserOpen(true)}
+                  className="text-[10px] text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors"
+                >
+                  전체 보기 →
+                </button>
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               {favoriteRecipes.map((recipe) => (
@@ -506,6 +516,16 @@ export default function MyPage() {
           isFavorite={isFavorite(selectedRecipe.id)}
           onToggleFavorite={() => toggle(selectedRecipe.id)}
           onClose={() => setSelectedRecipe(null)}
+        />
+      )}
+
+      {browserOpen && (
+        <RecipeBrowserModal
+          onSelect={(recipe) => {
+            setBrowserOpen(false);
+            setSelectedRecipe(recipe);
+          }}
+          onClose={() => setBrowserOpen(false)}
         />
       )}
     </div>
