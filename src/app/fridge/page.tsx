@@ -14,7 +14,9 @@ import NutritionBalanceSection from '@/components/fridge/NutritionBalanceSection
 import FeelingLuckySection     from '@/components/fridge/FeelingLuckySection';
 import RecipeSection           from '@/components/fridge/RecipeSection';
 import RebuySection            from '@/components/fridge/RebuySection';
+import SeasonalProduceSection  from '@/components/fridge/SeasonalProduceSection';
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
+import type { SeasonalProduce } from '@/lib/seasonalProduce';
 import { useProfiles }         from '@/lib/profile';
 
 type StorageFilter = '전체' | StorageType;
@@ -112,6 +114,21 @@ export default function FridgePage() {
     }]);
     if (added > 0) showToast(`"${name}" 재구매 등록됐어요!`);
     else showToast(`"${name}" 이미 있어요.`);
+  }
+
+  function handleSeasonalAdd(p: SeasonalProduce) {
+    const { added } = addItems([{
+      id: `sp-${Date.now()}`,
+      name: p.name,
+      category: '식품',
+      foodCategory: p.foodCategory,
+      storageType: p.storageType,
+      baseShelfLifeDays: p.baseShelfLifeDays,
+      purchaseDate: new Date().toISOString().split('T')[0],
+      ownerId: quickAddOwner,
+    }]);
+    if (added > 0) showToast(`"${p.name}" 담았어요! 제철이라 가장 맛있을 때예요.`);
+    else showToast(`"${p.name}" 이미 있어요.`);
   }
 
   return (
@@ -218,6 +235,14 @@ export default function FridgePage() {
             ))}
           </div>
         </motion.div>
+
+        {/* 제철 재료 추천 */}
+        <SectionErrorBoundary label="제철 재료">
+          <SeasonalProduceSection
+            currentNames={allFood.map((f) => f.name)}
+            onQuickAdd={handleSeasonalAdd}
+          />
+        </SectionErrorBoundary>
 
         {/* 재구매 추천 */}
         <RebuySection
