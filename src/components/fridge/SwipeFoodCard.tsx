@@ -6,6 +6,9 @@ import { FOOD_EMOJI, type FoodItem } from '@/types';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
+import { currentSeasonByMonth } from '@/lib/season';
+import { isSeasonalProduce } from '@/lib/seasonalProduce';
+import { SEASON_EMOJI } from '@/lib/recipes';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
@@ -32,6 +35,8 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
 
   const style = STORAGE_STYLE[item.storageType];
   const Icon  = STORAGE_ICON[item.storageType];
+  const season  = currentSeasonByMonth();
+  const inSeason = isSeasonalProduce(item.name, season);
 
   function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
     if (info.offset.x < -80) {
@@ -85,6 +90,14 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+              {inSeason && (
+                <span
+                  className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-brand-primary/10 text-brand-primary"
+                  title={`${season}철 제철 재료 — 지금이 가장 맛있어요`}
+                >
+                  {SEASON_EMOJI[season]} 제철
+                </span>
+              )}
               {owner && (
                 <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
                   {owner.name}
