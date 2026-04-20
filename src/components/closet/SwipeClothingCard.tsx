@@ -6,6 +6,7 @@ import { isEnrichedClothingItem, FASHION_EMOJI, type ClothingItem } from '@/type
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import type { MatchBadge } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
+import { useToast } from '@/context/ToastContext';
 import { springTransition, CARD_SHADOW, THICKNESS_STYLE, SEASON_TAG_STYLE, MATCH_STYLE } from './shared';
 
 interface SwipeClothingCardProps {
@@ -19,6 +20,7 @@ interface SwipeClothingCardProps {
 export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge }: SwipeClothingCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { getEntry, markWorn, undoLast } = useWearLog();
+  const { showToast } = useToast();
   const wear = getEntry(item.id);
   const wornToday = wear.lastWorn === new Date().toISOString().split('T')[0];
   const daysAgo = wear.lastWorn ? daysSince(wear.lastWorn) : null;
@@ -244,14 +246,24 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   <div className="flex gap-1.5">
                     {wornToday ? (
                       <button
-                        onClick={(e) => { e.stopPropagation(); undoLast(item.id); navigator.vibrate?.(10); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          undoLast(item.id);
+                          navigator.vibrate?.(10);
+                          showToast(`"${item.name}" 오늘 착용 기록을 취소했어요.`);
+                        }}
                         className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
                       >
                         기록 취소
                       </button>
                     ) : (
                       <button
-                        onClick={(e) => { e.stopPropagation(); markWorn(item.id); navigator.vibrate?.(15); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markWorn(item.id);
+                          navigator.vibrate?.(15);
+                          showToast(`"${item.name}" 오늘 착용 기록 완료 👕`);
+                        }}
                         className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
                       >
                         👕 오늘 입었어요

@@ -6,6 +6,7 @@ import { parseRecipeSeconds, recipeGradient, type Recipe } from '@/lib/recipes';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useModalA11y } from '@/lib/useModalA11y';
+import { useToast } from '@/context/ToastContext';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -46,6 +47,7 @@ export default function RecipeDetailModal({
   recipe, matchedItems = [], isFavorite, onToggleFavorite, onClose,
 }: RecipeDetailModalProps) {
   useModalA11y(onClose);
+  const { showToast } = useToast();
   // 쇼핑 리스트
   const { has: inShopping, add: addToShopping } = useShoppingList();
   // 조리 로그
@@ -288,6 +290,7 @@ export default function RecipeDetailModal({
             onClick={() => {
               markCooked(recipe.id);
               navigator.vibrate?.(15);
+              showToast(`"${recipe.name}" ${cook.count + 1}번째 조리 기록 완료 🍲`);
               onClose();
             }}
             className="w-full mt-6 rounded-2xl bg-brand-primary text-white text-sm font-semibold py-3 hover:opacity-90 active:scale-95 transition-all"
