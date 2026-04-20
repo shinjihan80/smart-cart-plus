@@ -8,6 +8,7 @@ import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { Snowflake, Thermometer, Package, Search } from 'lucide-react';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
+import { matchRecipes } from '@/lib/recipes';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -297,23 +298,12 @@ function SwipeFoodCard({
   );
 }
 
-// ── 레시피 추천 데이터 ────────────────────────────────────────────────────────
-const RECIPES = [
-  { id: 'r1', name: '두부 샐러드 볼',       emoji: '🥗', ingredients: ['두부', '샐러드'], time: '10분' },
-  { id: 'r2', name: '불고기 덮밥',          emoji: '🍚', ingredients: ['불고기'],        time: '15분' },
-  { id: 'r3', name: '감귤 스무디',          emoji: '🧃', ingredients: ['감귤'],          time: '5분' },
-  { id: 'r4', name: '토스트 & 스크램블',     emoji: '🍞', ingredients: ['식빵', '달걀'],  time: '10분' },
-  { id: 'r5', name: '연어 포케 볼',         emoji: '🐟', ingredients: ['연어', '샐러드'], time: '15분' },
-  { id: 'r6', name: '김치찌개',             emoji: '🍲', ingredients: ['김치', '두부'],   time: '20분' },
-  { id: 'r7', name: '우유 시리얼',          emoji: '🥛', ingredients: ['우유'],          time: '3분' },
-  { id: 'r8', name: '라면 + 달걀',          emoji: '🍜', ingredients: ['라면', '달걀'],   time: '5분' },
-];
-
-function RecipeSection({ foodNames }: { foodNames: string[] }) {
-  const matched = RECIPES.filter((r) =>
-    r.ingredients.some((ing) => foodNames.some((name) => name.includes(ing))),
-  );
+// ── 레시피 추천 ──────────────────────────────────────────────────────────────
+function RecipeSection({ foods }: { foods: FoodItem[] }) {
+  const matched = matchRecipes(foods, 8);
   if (matched.length === 0) return null;
+
+  const urgentCount = matched.filter((m) => m.urgentBoosted).length;
 
   return (
     <motion.div
@@ -323,16 +313,38 @@ function RecipeSection({ foodNames }: { foodNames: string[] }) {
       className={CARD}
       style={CARD_SHADOW}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">👨‍🍳</span>
-        <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 메뉴</span>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-base">👨‍🍳</span>
+          <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 메뉴</span>
+        </div>
+        {urgentCount > 0 && (
+          <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning shrink-0">
+            ⚠️ 소비 임박 {urgentCount}
+          </span>
+        )}
       </div>
       <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
-        {matched.map((r) => (
-          <div key={r.id} className="shrink-0 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3.5 py-2.5 min-w-[120px]">
-            <span className="text-2xl">{r.emoji}</span>
-            <p className="text-xs font-semibold text-gray-800 mt-1.5">{r.name}</p>
-            <p className="text-[9px] text-gray-400 mt-0.5">⏱ {r.time}</p>
+        {matched.map(({ recipe, matchedItems, urgentBoosted }) => (
+          <div
+            key={recipe.id}
+            className={`shrink-0 rounded-2xl px-3.5 py-2.5 min-w-[140px] max-w-[160px] ${
+              urgentBoosted
+                ? 'bg-brand-warning/5 border border-brand-warning/20'
+                : 'bg-brand-primary/5 border border-brand-primary/10'
+            }`}
+          >
+            <div className="flex items-start justify-between">
+              <span className="text-2xl">{recipe.emoji}</span>
+              {urgentBoosted && <span className="text-[9px]">⚠️</span>}
+            </div>
+            <p className="text-xs font-semibold text-gray-800 mt-1.5 truncate">{recipe.name}</p>
+            <p className="text-[9px] text-gray-400 mt-0.5">
+              ⏱ {recipe.time} · {recipe.difficulty}
+            </p>
+            <p className="text-[9px] text-brand-primary truncate mt-0.5" title={matchedItems.join(', ')}>
+              ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
+            </p>
           </div>
         ))}
       </div>
@@ -558,7 +570,7 @@ export default function FridgePage() {
         />
 
         {/* 레시피 추천 */}
-        <RecipeSection foodNames={allFood.map((f) => f.name)} />
+        <RecipeSection foods={allFood} />
 
         {/* 검색 + 필터 */}
         <div className="flex gap-2">
