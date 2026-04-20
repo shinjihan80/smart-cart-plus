@@ -1,4 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="128" fill="#4F46E5"/>
-  <text x="256" y="320" font-family="Arial, sans-serif" font-size="280" font-weight="bold" text-anchor="middle" fill="white">S</text>
+  <rect width="512" height="512" rx="128" fill="#F9FAFB"/>
+  <g transform="translate(256 256)">
+    <rect x="-170" y="-110" width="220" height="220" rx="48" fill="#4F46E5" opacity="0.22" transform="rotate(-8)"/>
+    <rect x="-50" y="-110" width="220" height="220" rx="56" fill="#4F46E5"/>
+    <rect x="-20" y="-80" width="160" height="160" rx="36" fill="#FFFFFF" opacity="0.18"/>
+  </g>
 </svg>
