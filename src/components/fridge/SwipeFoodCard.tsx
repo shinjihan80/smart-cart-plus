@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { FOOD_EMOJI, type FoodItem } from '@/types';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
+import { useProfiles } from '@/lib/profile';
+import { useToast } from '@/context/ToastContext';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
@@ -16,6 +18,10 @@ interface SwipeFoodCardProps {
 
 export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }: SwipeFoodCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing]   = useState(false);
+  const { profiles } = useProfiles();
+  const { showToast } = useToast();
+  const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-120, -30, 0],
@@ -77,7 +83,14 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+              {owner && (
+                <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
+                  {owner.name}
+                </span>
+              )}
+            </div>
             {item.memo && <p className="text-[9px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
             <div className="flex items-center gap-2 mt-1">
               <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${style.bg} ${style.text}`}>
@@ -129,30 +142,33 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
               className="overflow-hidden"
             >
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
+                {/* 이미지 — 편집 모드에서만 변경/삭제·추가 */}
                 {item.imageUrl ? (
                   <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                    <div className="absolute bottom-1.5 right-1.5 flex gap-1">
-                      <button
-                        aria-label="사진 변경"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          const file = await pickImage();
-                          if (!file) return;
-                          const dataUrl = await resizeAndEncode(file);
-                          onUpdate(item.id, { imageUrl: dataUrl });
-                        }}
-                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                      >📷</button>
-                      <button
-                        aria-label="사진 삭제"
-                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
-                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                      >✕</button>
-                    </div>
+                    {editing && (
+                      <div className="absolute bottom-1.5 right-1.5 flex gap-1">
+                        <button
+                          aria-label="사진 변경"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const file = await pickImage();
+                            if (!file) return;
+                            const dataUrl = await resizeAndEncode(file);
+                            onUpdate(item.id, { imageUrl: dataUrl });
+                          }}
+                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
+                        >📷</button>
+                        <button
+                          aria-label="사진 삭제"
+                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
+                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
+                        >✕</button>
+                      </div>
+                    )}
                   </div>
-                ) : (
+                ) : editing ? (
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -166,35 +182,47 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     <span className="text-lg">📷</span>
                     <span className="text-[10px] font-medium">사진 추가</span>
                   </button>
-                )}
+                ) : null}
+
+                {/* 상품명 */}
                 <div>
                   <span className="text-gray-400">상품명</span>
-                  <input
-                    type="text"
-                    aria-label={`${item.name} 상품명 수정`}
-                    defaultValue={item.name}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v && v !== item.name) onUpdate(item.id, { name: v });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-gray-50 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
-                  />
+                  {editing ? (
+                    <input
+                      type="text"
+                      aria-label={`${item.name} 상품명 수정`}
+                      defaultValue={item.name}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v && v !== item.name) onUpdate(item.id, { name: v });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                    />
+                  ) : (
+                    <p className="text-xs text-gray-800 font-medium mt-0.5">{item.name}</p>
+                  )}
                 </div>
+
+                {/* 구매일 · 보관 만료 */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <span className="text-gray-400">구매일</span>
-                    <input
-                      type="date"
-                      aria-label={`${item.name} 구매일 수정`}
-                      defaultValue={item.purchaseDate}
-                      onBlur={(e) => {
-                        const v = e.target.value;
-                        if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full mt-0.5 text-xs text-gray-700 font-medium bg-gray-50 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
-                    />
+                    {editing ? (
+                      <input
+                        type="date"
+                        aria-label={`${item.name} 구매일 수정`}
+                        defaultValue={item.purchaseDate}
+                        onBlur={(e) => {
+                          const v = e.target.value;
+                          if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v });
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full mt-0.5 text-xs text-gray-700 font-medium bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 tabular-nums"
+                      />
+                    ) : (
+                      <p className="text-gray-700 font-medium mt-0.5 tabular-nums">{item.purchaseDate}</p>
+                    )}
                   </div>
                   <div>
                     <span className="text-gray-400">보관 만료</span>
@@ -207,6 +235,8 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     </p>
                   </div>
                 </div>
+
+                {/* 영양소 */}
                 {item.nutritionFacts && (
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -221,46 +251,101 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     </div>
                   </div>
                 )}
+
+                {/* 보관 가능 일수 */}
                 <div>
                   <span className="text-gray-400">보관 가능 일수</span>
-                  <input
-                    type="number"
-                    aria-label={`${item.name} 보관 가능 일수 수정`}
-                    defaultValue={item.baseShelfLifeDays}
-                    min={1}
-                    onBlur={(e) => {
-                      const v = parseInt(e.target.value, 10);
-                      if (v > 0 && v !== item.baseShelfLifeDays) onUpdate(item.id, { baseShelfLifeDays: v });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-20 mt-0.5 text-xs text-gray-700 font-medium bg-gray-50 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
-                  />
+                  {editing ? (
+                    <input
+                      type="number"
+                      aria-label={`${item.name} 보관 가능 일수 수정`}
+                      defaultValue={item.baseShelfLifeDays}
+                      min={1}
+                      onBlur={(e) => {
+                        const v = parseInt(e.target.value, 10);
+                        if (v > 0 && v !== item.baseShelfLifeDays) onUpdate(item.id, { baseShelfLifeDays: v });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-20 mt-0.5 text-xs text-gray-700 font-medium bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 tabular-nums"
+                    />
+                  ) : (
+                    <p className="text-gray-700 font-medium mt-0.5 tabular-nums">{item.baseShelfLifeDays}일</p>
+                  )}
                 </div>
+
+                {/* 소유자 */}
+                <div>
+                  <span className="text-gray-400">소유자</span>
+                  {editing ? (
+                    <div className="flex gap-1 mt-0.5 flex-wrap">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: undefined }); }}
+                        className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                          !item.ownerId
+                            ? 'bg-gray-500 text-white'
+                            : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        공용
+                      </button>
+                      {profiles.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: p.id }); }}
+                          className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                            item.ownerId === p.id
+                              ? 'bg-brand-primary text-white'
+                              : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                          }`}
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-700 font-medium mt-0.5">{owner ? owner.name : '공용'}</p>
+                  )}
+                </div>
+
+                {/* 메모 */}
                 <div>
                   <span className="text-gray-400">메모</span>
-                  <input
-                    type="text"
-                    aria-label={`${item.name} 메모 수정`}
-                    defaultValue={item.memo ?? ''}
-                    placeholder="메모를 입력하세요"
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
-                  />
+                  {editing ? (
+                    <input
+                      type="text"
+                      aria-label={`${item.name} 메모 수정`}
+                      defaultValue={item.memo ?? ''}
+                      placeholder="메모를 입력하세요"
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                    />
+                  ) : (
+                    <p className="text-gray-700 mt-0.5">{item.memo || <span className="text-gray-300">—</span>}</p>
+                  )}
                 </div>
+
+                {/* 수정 토글 */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const text = `🧊 ${item.name}\n📅 D-${dDay} (${item.storageType})\n${item.memo ? `📝 ${item.memo}` : ''}`.trim();
-                    navigator.clipboard.writeText(text);
-                    navigator.vibrate?.(15);
+                    if (editing) {
+                      showToast(`"${item.name}" 저장됐어요.`);
+                      setEditing(false);
+                    } else {
+                      setEditing(true);
+                    }
                   }}
-                  className="w-full py-1.5 rounded-xl bg-gray-50 text-[10px] text-gray-500 hover:bg-gray-100 transition-colors"
+                  className={`w-full py-2 rounded-xl text-[11px] font-semibold transition-colors ${
+                    editing
+                      ? 'bg-brand-primary text-white hover:opacity-90'
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                  }`}
                 >
-                  📋 정보 복사하기
+                  {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
                 </button>
               </div>
             </motion.div>

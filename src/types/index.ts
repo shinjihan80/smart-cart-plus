@@ -61,6 +61,7 @@ export interface FoodItem {
   memo?:           string;
   nutritionFacts?: NutritionFacts;
   openedDate?:     string;
+  ownerId?:        string;  // 프로필 id — undefined면 공용
 }
 
 // ────────────────────────────────────────────────
@@ -112,6 +113,7 @@ export interface ClothingItem {
   memo?:         string;
   weatherTags?:  WeatherTag[];
   colorFamily?:  string;
+  ownerId?:      string;  // 프로필 id — undefined면 공용
 }
 
 // ────────────────────────────────────────────────

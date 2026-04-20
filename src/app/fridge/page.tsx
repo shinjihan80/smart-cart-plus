@@ -15,6 +15,7 @@ import FeelingLuckySection     from '@/components/fridge/FeelingLuckySection';
 import RecipeSection           from '@/components/fridge/RecipeSection';
 import RebuySection            from '@/components/fridge/RebuySection';
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
+import { useProfiles }         from '@/lib/profile';
 
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
@@ -46,10 +47,12 @@ const GROUP_FILTERS: { key: GroupFilter; label: string }[] = [
 export default function FridgePage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory } = useCart();
   const { showToast } = useToast();
+  const { profiles } = useProfiles();
   const [search, setSearch]         = useState('');
   const [storageFilter, setStorageFilter] = useState<StorageFilter>('전체');
   const [groupFilter, setGroupFilter]     = useState<GroupFilter>('전체');
   const [sortBy, setSortBy]         = useState<SortKey>('dDay');
+  const [ownerFilter, setOwnerFilter] = useState<string>('전체');
 
   const allFood = allItems.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }));
@@ -57,6 +60,11 @@ export default function FridgePage() {
   const items = allFood
     .filter((i) => storageFilter === '전체' || i.storageType === storageFilter)
     .filter((i) => groupFilter === '전체' || (FOOD_GROUP[i.foodCategory] ?? '기타') === groupFilter)
+    .filter((i) => {
+      if (ownerFilter === '전체') return true;
+      if (ownerFilter === '공용') return !i.ownerId;
+      return i.ownerId === ownerFilter;
+    })
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'dDay' ? a.dDay - b.dDay : a.name.localeCompare(b.name));
 
@@ -216,6 +224,45 @@ export default function FridgePage() {
             />
           </div>
         </div>
+        {/* 프로필 필터 */}
+        {profiles.length >= 2 && (
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
+            <button
+              onClick={() => setOwnerFilter('전체')}
+              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                ownerFilter === '전체'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              전체 보기
+            </button>
+            {profiles.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setOwnerFilter(p.id)}
+                className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                  ownerFilter === p.id
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
+            <button
+              onClick={() => setOwnerFilter('공용')}
+              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                ownerFilter === '공용'
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              공용
+            </button>
+          </div>
+        )}
+
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <div className="flex gap-1.5">

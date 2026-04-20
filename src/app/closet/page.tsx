@@ -14,6 +14,7 @@ import {
   fetchWeather, clothingMatch,
   type WeatherSnapshot,
 } from '@/lib/weather';
+import { useProfiles } from '@/lib/profile';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
@@ -47,10 +48,12 @@ const FILTERS: { key: GroupFilter; label: string }[] = [
 export default function ClosetPage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
+  const { profiles } = useProfiles();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<GroupFilter>('전체');
   const [sortBy, setSortBy] = useState<ClosetSort>('name');
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
+  const [ownerFilter, setOwnerFilter] = useState<string>('전체');  // 'id' | '전체' | '공용'
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +66,11 @@ export default function ClosetPage() {
   const allClothing = allItems.filter(isClothingItem);
   const items = allClothing
     .filter((i) => filter === '전체' || (FASHION_GROUP[i.category] ?? '의류') === filter)
+    .filter((i) => {
+      if (ownerFilter === '전체') return true;
+      if (ownerFilter === '공용') return !i.ownerId;
+      return i.ownerId === ownerFilter;
+    })
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === 'thickness') return THICKNESS_ORDER[a.thickness] - THICKNESS_ORDER[b.thickness];
@@ -213,6 +221,45 @@ export default function ClosetPage() {
             />
           </div>
         </div>
+        {/* 프로필 필터 (프로필 2명 이상일 때만) */}
+        {profiles.length >= 2 && (
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
+            <button
+              onClick={() => setOwnerFilter('전체')}
+              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                ownerFilter === '전체'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              전체 보기
+            </button>
+            {profiles.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setOwnerFilter(p.id)}
+                className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                  ownerFilter === p.id
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
+            <button
+              onClick={() => setOwnerFilter('공용')}
+              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                ownerFilter === '공용'
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              공용
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <div className="flex gap-1.5">
             {FILTERS.map(({ key, label }) => (

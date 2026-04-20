@@ -7,6 +7,7 @@ import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import type { MatchBadge } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { useToast } from '@/context/ToastContext';
+import { useProfiles } from '@/lib/profile';
 import { springTransition, CARD_SHADOW, THICKNESS_STYLE, SEASON_TAG_STYLE, MATCH_STYLE } from './shared';
 
 interface SwipeClothingCardProps {
@@ -19,8 +20,11 @@ interface SwipeClothingCardProps {
 
 export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge }: SwipeClothingCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing]   = useState(false);
   const { getEntry, markWorn, undoLast } = useWearLog();
   const { showToast } = useToast();
+  const { profiles } = useProfiles();
+  const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
   const wear = getEntry(item.id);
   const wornToday = wear.lastWorn === new Date().toISOString().split('T')[0];
   const daysAgo = wear.lastWorn ? daysSince(wear.lastWorn) : null;
@@ -105,6 +109,11 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   {daysAgo === 0 ? '오늘 착용' : `${daysAgo}일 전`}
                 </span>
               )}
+              {owner && (
+                <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
+                  {owner.name}
+                </span>
+              )}
             </div>
             {item.memo && <p className="text-[9px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
@@ -137,30 +146,33 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               className="overflow-hidden"
             >
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
+                {/* 이미지 — 편집 모드에서만 변경/삭제 버튼, 없으면 "사진 추가" 버튼 */}
                 {item.imageUrl ? (
                   <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                    <div className="absolute bottom-1.5 right-1.5 flex gap-1">
-                      <button
-                        aria-label="사진 변경"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          const file = await pickImage();
-                          if (!file) return;
-                          const dataUrl = await resizeAndEncode(file);
-                          onUpdate(item.id, { imageUrl: dataUrl });
-                        }}
-                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                      >📷</button>
-                      <button
-                        aria-label="사진 삭제"
-                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
-                        className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                      >✕</button>
-                    </div>
+                    {editing && (
+                      <div className="absolute bottom-1.5 right-1.5 flex gap-1">
+                        <button
+                          aria-label="사진 변경"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const file = await pickImage();
+                            if (!file) return;
+                            const dataUrl = await resizeAndEncode(file);
+                            onUpdate(item.id, { imageUrl: dataUrl });
+                          }}
+                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
+                        >📷</button>
+                        <button
+                          aria-label="사진 삭제"
+                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
+                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
+                        >✕</button>
+                      </div>
+                    )}
                   </div>
-                ) : (
+                ) : editing ? (
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -174,33 +186,91 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     <span className="text-lg">📷</span>
                     <span className="text-[10px] font-medium">사진 추가</span>
                   </button>
-                )}
+                ) : null}
+
+                {/* 상품명 */}
                 <div>
                   <span className="text-gray-400">상품명</span>
-                  <input
-                    type="text"
-                    aria-label={`${item.name} 상품명 수정`}
-                    defaultValue={item.name}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v && v !== item.name) onUpdate(item.id, { name: v });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-gray-50 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
-                  />
+                  {editing ? (
+                    <input
+                      type="text"
+                      aria-label={`${item.name} 상품명 수정`}
+                      defaultValue={item.name}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v && v !== item.name) onUpdate(item.id, { name: v });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                    />
+                  ) : (
+                    <p className="text-xs text-gray-800 font-medium mt-0.5">{item.name}</p>
+                  )}
                 </div>
+
+                {/* 사이즈 · 소재 · 두께 */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <span className="text-gray-400">카테고리</span>
                     <p className="text-gray-700 font-medium mt-0.5">{item.category}</p>
                   </div>
                   <div>
+                    <span className="text-gray-400">사이즈</span>
+                    {editing ? (
+                      <input
+                        type="text"
+                        aria-label={`${item.name} 사이즈 수정`}
+                        defaultValue={item.size}
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v && v !== item.size) onUpdate(item.id, { size: v });
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                      />
+                    ) : (
+                      <p className="text-gray-700 font-medium mt-0.5">{item.size}</p>
+                    )}
+                  </div>
+                  <div>
                     <span className="text-gray-400">소재</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{item.material}</p>
+                    {editing ? (
+                      <input
+                        type="text"
+                        aria-label={`${item.name} 소재 수정`}
+                        defaultValue={item.material}
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v && v !== item.material) onUpdate(item.id, { material: v });
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                      />
+                    ) : (
+                      <p className="text-gray-700 font-medium mt-0.5">{item.material}</p>
+                    )}
                   </div>
                   <div>
                     <span className="text-gray-400">두께</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{item.thickness}</p>
+                    {editing ? (
+                      <div className="flex gap-1 mt-0.5">
+                        {(['얇음', '보통', '두꺼움'] as const).map((t) => (
+                          <button
+                            key={t}
+                            onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { thickness: t }); }}
+                            className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                              item.thickness === t
+                                ? 'bg-brand-primary text-white'
+                                : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-700 font-medium mt-0.5">{item.thickness}</p>
+                    )}
                   </div>
                   {item.colorFamily && (
                     <div>
@@ -221,20 +291,60 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     </div>
                   )}
                 </div>
+
+                {/* 소유자 */}
+                <div>
+                  <span className="text-gray-400">소유자</span>
+                  {editing ? (
+                    <div className="flex gap-1 mt-0.5 flex-wrap">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: undefined }); }}
+                        className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                          !item.ownerId
+                            ? 'bg-gray-500 text-white'
+                            : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        공용
+                      </button>
+                      {profiles.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: p.id }); }}
+                          className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                            item.ownerId === p.id
+                              ? 'bg-brand-primary text-white'
+                              : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                          }`}
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-700 font-medium mt-0.5">{owner ? owner.name : '공용'}</p>
+                  )}
+                </div>
+
+                {/* 메모 */}
                 <div>
                   <span className="text-gray-400">메모</span>
-                  <input
-                    type="text"
-                    aria-label={`${item.name} 메모 수정`}
-                    defaultValue={item.memo ?? ''}
-                    placeholder="메모를 입력하세요"
-                    onBlur={(e) => {
-                      const v = e.target.value.trim();
-                      if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
-                  />
+                  {editing ? (
+                    <input
+                      type="text"
+                      aria-label={`${item.name} 메모 수정`}
+                      defaultValue={item.memo ?? ''}
+                      placeholder="메모를 입력하세요"
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                    />
+                  ) : (
+                    <p className="text-gray-700 mt-0.5">{item.memo || <span className="text-gray-300">—</span>}</p>
+                  )}
                 </div>
                 <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
                   <div className="min-w-0">
@@ -274,13 +384,20 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const text = `👕 ${item.name}\n📏 ${item.size} · ${item.material}\n${item.memo ? `📝 ${item.memo}` : ''}`.trim();
-                    navigator.clipboard.writeText(text);
-                    navigator.vibrate?.(15);
+                    if (editing) {
+                      showToast(`"${item.name}" 저장됐어요.`);
+                      setEditing(false);
+                    } else {
+                      setEditing(true);
+                    }
                   }}
-                  className="w-full py-1.5 rounded-xl bg-gray-50 text-[10px] text-gray-500 hover:bg-gray-100 transition-colors"
+                  className={`w-full py-2 rounded-xl text-[11px] font-semibold transition-colors ${
+                    editing
+                      ? 'bg-brand-primary text-white hover:opacity-90'
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                  }`}
                 >
-                  📋 정보 복사하기
+                  {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
                 </button>
               </div>
             </motion.div>
