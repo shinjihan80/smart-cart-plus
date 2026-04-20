@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Cart Plus v1.1
 
-## Getting Started
+**라이프스타일 AI 매니저** - 식품과 패션을 하나의 앱에서 스마트하게 관리
 
-First, run the development server:
+---
+
+## 주요 기능
+
+### 홈 대시보드 (9개 위젯)
+- 데일리 브리핑 (7시간대별 날씨 + 코디 추천)
+- 냉장고 카루셀 (D-Day + 이미지 + 스와이프 소진)
+- 월별 소비 내역 (바 차트 + 탭 전환)
+- AI 인사이트 (보유 데이터 기반 맞춤 팁)
+- 전체 상품 검색 (썸네일 + 실시간 필터링)
+
+### 스마트 냉장고
+- 식품 11종 카테고리 (채소, 정육, 수산, 유제품 등)
+- D-Day 프로그레스 바 + 영양 정보 + 이미지
+- 2단 필터 (보관 타입 + 식품 그룹) + 정렬
+- 레시피 추천 (8종, 보유 식재료 매칭)
+- 재구매 추천 (소진 히스토리 기반)
+- 빠른 추가 (이미지 포함 원탭 등록)
+
+### 스마트 옷장
+- 패션 13종 카테고리 (상의, 하의, 신발, 가방, 액세서리 등)
+- 계절 추천 + AI 코디 추천
+- 가상 코디 미리보기 (이미지 슬롯)
+- 빠른 추가 (이미지 포함 원탭 등록)
+
+### 마이페이지
+- 종합 통계 + 카테고리 분포 차트
+- 월별 지출 추이 (spring 바 차트)
+- 알림 토글 3종 + 데이터 내보내기 (JSON/CSV)
+- 쇼핑몰 연동 설정 (준비 중)
+
+### 상품 등록 (4가지 방법)
+| 방법 | 이미지 | 설명 |
+|------|--------|------|
+| 사진 분석 | 자동 첨부 | AI Vision으로 식품/패션 자동 분류 |
+| URL 분석 | og:image 자동 | 쇼핑몰 페이지에서 상품 정보 추출 |
+| 빠른 추가 | Unsplash 자동 | 자주 구매하는 아이템 원탭 등록 |
+| 텍스트 입력 | 수동 | 영수증/이메일 텍스트 AI 파싱 |
+
+---
+
+## 기술 스택
+
+| 영역 | 기술 |
+|------|------|
+| 프레임워크 | Next.js 16.2.4 (App Router) |
+| 언어 | TypeScript (strict) |
+| 스타일 | Tailwind CSS v4 + SUIT 폰트 |
+| 애니메이션 | Framer Motion (spring) |
+| 아이콘 | Lucide React |
+| AI | Anthropic Claude API |
+| 상태 관리 | React Context + localStorage |
+| PWA | manifest.json + standalone |
+
+## 시작하기
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 프로젝트 구조
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/           # 4 페이지 + 8 API 라우트
+├── components/    # UI 컴포넌트 (6개)
+├── context/       # CartContext + ToastContext
+├── types/         # 24종 카테고리 타입 시스템
+├── lib/           # AI 파이프라인 + 유틸
+└── data/          # Mock 데이터 (22개 아이템)
+```
