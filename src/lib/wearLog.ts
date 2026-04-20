@@ -1,27 +1,18 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { createSharedStore } from './sharedStore';
 
 const STORAGE_KEY = 'nemoa-wear-log';
 
 /** clothing id → 착용 날짜(YYYY-MM-DD) 배열. 최신순 유지. */
 export type WearLog = Record<string, string[]>;
 
-function readLog(): WearLog {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch { return {}; }
-}
-
-function writeLog(log: WearLog) {
-  if (typeof window === 'undefined') return;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(log)); }
-  catch { /* quota */ }
-}
+const store = createSharedStore<WearLog>({
+  storageKey: STORAGE_KEY,
+  initial:    {},
+  validate:   (raw) => (raw && typeof raw === 'object' && !Array.isArray(raw) ? raw as WearLog : null),
+});
 
 function today(): string {
   return new Date().toISOString().split('T')[0];
@@ -38,36 +29,26 @@ export function daysSince(iso: string): number {
 export interface WearEntry {
   id:        string;
   count:     number;
-  lastWorn?: string; // YYYY-MM-DD
+  lastWorn?: string;
 }
 
 export function useWearLog() {
-  const [log, setLog] = useState<WearLog>({});
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setLog(readLog());
-    setHydrated(true);
-  }, []);
+  const log = store.useStore();
 
   const markWorn = useCallback((id: string) => {
-    setLog((prev) => {
+    store.setState((prev) => {
       const dates = prev[id] ?? [];
       const d = today();
-      if (dates[0] === d) return prev; // 같은 날 중복 기록 방지
-      const next = { ...prev, [id]: [d, ...dates].slice(0, 365) }; // 1년치만 보관
-      writeLog(next);
-      return next;
+      if (dates[0] === d) return prev;
+      return { ...prev, [id]: [d, ...dates].slice(0, 365) };
     });
   }, []);
 
   const undoLast = useCallback((id: string) => {
-    setLog((prev) => {
+    store.setState((prev) => {
       const dates = prev[id];
       if (!dates || dates.length === 0) return prev;
-      const next = { ...prev, [id]: dates.slice(1) };
-      writeLog(next);
-      return next;
+      return { ...prev, [id]: dates.slice(1) };
     });
   }, []);
 
@@ -82,5 +63,5 @@ export function useWearLog() {
     }));
   }, [log]);
 
-  return { log, markWorn, undoLast, getEntry, getAllEntries, hydrated };
+  return { log, markWorn, undoLast, getEntry, getAllEntries };
 }
