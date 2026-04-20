@@ -144,21 +144,31 @@
 
 ---
 
-### ⏳ Phase 6 — 하네스 워크스페이스 대시보드 (관리자 모드)
+### ✅ Phase 6 — 하네스 워크스페이스 대시보드 (관리자 모드)
 
 **목표:** 전체 시스템 모니터링 + AI 에이전트 통제
 
-#### 주요 기능
+#### 구현 현황
 
-- 각 에이전트 API 토큰 사용량·에러 로그 시각화 (Recharts)
-- 데이터 처리 현황 + 사용자 트래픽 통계 대시보드
-- 에이전트 추가·규칙 수정 가능한 관리자 제어판
+- [x] `/admin` 라우트 + 마이페이지 진입점 (`ShieldCheck` 배지)
+- [x] 시스템 KPI (호출·성공률·데이터) + 에이전트 6종 헬스체크 (`vision-parser`, `parser-agent`, `nutrition-agent`, `style-agent`, `url-agent`, `image-agent`)
+- [x] 데이터 품질 (이미지·메모·Vision·영양 태깅·소비 임박 진행률)
+- [x] 토큰/비용 추정 (Opus 4.6 기준) + 프롬프트 캐시 히트율
+- [x] 스키마 v2 + localStorage 용량 게이지
+- [x] 최근 활동 피드 (시드 기반 의사 이벤트)
+- [x] 시스템 제어 (만료 아카이브·스키마 재검증·캐시 초기화·디버그 JSON 내보내기·전체 리셋)
 
-#### 기술 계획
+#### 구현 파일
 
-- `/admin` 라우트 (인증 게이트 필요)
-- 에이전트 호출 로그를 `localStorage` 또는 DB에 누적
-- `recharts` 라이브러리 (`LineChart`, `BarChart`, `PieChart`)
+- `src/app/admin/page.tsx` — 대시보드 본체
+- `src/app/admin/loading.tsx` — 스켈레톤
+- `src/lib/adminStats.ts` — 에이전트 상태·메트릭·토큰·로그 빌더
+
+#### 향후 과제
+
+- 실제 에이전트 호출 로그 누적 (`src/lib/harness.ts` 미들웨어에서 localStorage append)
+- Recharts 기반 시계열 차트 (현재는 인라인 motion 바)
+- 멀티유저 대응 시 인증 게이트 추가
 
 ---
 
@@ -201,4 +211,4 @@
 
 ---
 
-*최종 업데이트: 2026-04-16*
+*최종 업데이트: 2026-04-20 — Phase 6 관리자 대시보드 v1.2*

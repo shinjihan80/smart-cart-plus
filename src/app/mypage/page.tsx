@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { isFoodItem, isClothingItem, FOOD_GROUP, FASHION_GROUP, type FoodGroup, type FashionGroup } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ShieldCheck } from 'lucide-react';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
@@ -146,10 +147,17 @@ export default function MyPage() {
           <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
             <span className="text-2xl">👤</span>
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="text-base font-bold text-gray-900">Smart Cart 사용자</p>
             <p className="text-xs text-gray-400 mt-0.5">Pro 플랜 · AI 매니저 활성화</p>
           </div>
+          <Link
+            href="/admin"
+            aria-label="관리자 대시보드"
+            className="shrink-0 w-9 h-9 rounded-full bg-brand-primary/10 hover:bg-brand-primary/15 flex items-center justify-center transition-colors"
+          >
+            <ShieldCheck size={16} className="text-brand-primary" />
+          </Link>
         </motion.div>
 
         {/* 종합 통계 */}
