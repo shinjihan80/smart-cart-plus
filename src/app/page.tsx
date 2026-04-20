@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { isFoodItem, isClothingItem, FOOD_EMOJI, FASHION_EMOJI, type FoodItem } from '@/types';
+import { isFoodItem, isClothingItem, FOOD_EMOJI, FASHION_EMOJI, FASHION_GROUP, type FoodItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { ChevronRight, Sparkles, Search } from 'lucide-react';
 import NemoaLogo from '@/components/layout/NemoaLogo';
-import { fetchWeather, weatherEmoji, dressingTip, type WeatherSnapshot } from '@/lib/weather';
+import { fetchWeather, weatherEmoji, dressingTip, clothingMatch, type WeatherSnapshot } from '@/lib/weather';
 
 // ── 시간대 인사말 ────────────────────────────────────────────────────────────
 function getGreeting(): string {
@@ -130,9 +130,6 @@ function fallbackBriefing(): { emoji: string; headline: string; tip: string } {
 
 function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
   const clothes = items.filter(isClothingItem);
-  const recommend = clothes.find(
-    (c) => c.weatherTags?.includes('봄') || c.weatherTags?.includes('여름'),
-  );
 
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [weatherFailed, setWeatherFailed] = useState(false);
@@ -159,6 +156,19 @@ function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
   const tip      = useLive
     ? dressingTip(weather.tempC, weather.condition)
     : fallbackBriefing().tip;
+
+  // 오늘 날씨 기반 Top 3 매칭 의류 (perfect > good 순)
+  const topMatches = useLive
+    ? clothes
+        .filter((c) => FASHION_GROUP[c.category] === '의류')
+        .map((c) => ({ item: c, match: clothingMatch(c.thickness, c.weatherTags, weather.tempC) }))
+        .filter((x) => x.match.level !== 'mismatch')
+        .sort((a, b) => {
+          if (a.match.level === b.match.level) return 0;
+          return a.match.level === 'perfect' ? -1 : 1;
+        })
+        .slice(0, 3)
+    : [];
 
   return (
     <Link href="/closet" className="col-span-2 block">
@@ -187,12 +197,32 @@ function DailyBriefing({ items }: { items: import('@/types').CartItem[] }) {
             {useLive && weather.feelsLikeC !== weather.tempC && (
               <span className="text-[11px] text-gray-400 ml-1">(체감 {weather.feelsLikeC}°)</span>
             )}
-            {recommend && (
-              <>
-                {' '}추천: <span className="font-semibold text-brand-primary">{recommend.name}</span>
-              </>
-            )}
           </p>
+
+          {topMatches.length > 0 && (
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-[10px] text-gray-400 shrink-0">오늘의 추천</span>
+              <div className="flex gap-1.5 overflow-hidden">
+                {topMatches.map(({ item, match }) => (
+                  <div
+                    key={item.id}
+                    className="shrink-0 flex items-center gap-1 max-w-[96px] pl-1 pr-2 py-0.5 rounded-full bg-white/80 border border-gray-100"
+                  >
+                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                      {item.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[10px]">{FASHION_EMOJI[item.category] ?? '👕'}</span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-gray-700 font-medium truncate">{item.name}</span>
+                    {match.level === 'perfect' && <span className="text-[9px]">✨</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <ChevronRight size={16} className="absolute right-5 top-5 text-gray-300" />
       </Widget>
