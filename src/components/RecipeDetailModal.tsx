@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseRecipeSeconds, type Recipe } from '@/lib/recipes';
+import { useShoppingList } from '@/lib/shoppingList';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -42,6 +43,15 @@ function playChime() {
 export default function RecipeDetailModal({
   recipe, matchedItems = [], isFavorite, onToggleFavorite, onClose,
 }: RecipeDetailModalProps) {
+  // 쇼핑 리스트
+  const { has: inShopping, add: addToShopping } = useShoppingList();
+
+  // 부족 재료 = 레시피 키워드 - 매칭된 이름에 포함된 키워드
+  const missingKeywords = useMemo(() => {
+    const matchedHit = (kw: string) => matchedItems.some((name) => name.includes(kw));
+    return recipe.keywords.filter((kw) => !matchedHit(kw));
+  }, [recipe.keywords, matchedItems]);
+
   // 타이머 상태
   const totalSeconds = parseRecipeSeconds(recipe.time);
   const [remaining, setRemaining] = useState<number>(totalSeconds ?? 0);
@@ -162,7 +172,7 @@ export default function RecipeDetailModal({
           </div>
 
           {matchedItems.length > 0 && (
-            <div className="bg-brand-success/5 border border-brand-success/15 rounded-2xl px-3 py-2.5 mb-4">
+            <div className="bg-brand-success/5 border border-brand-success/15 rounded-2xl px-3 py-2.5 mb-3">
               <p className="text-[10px] text-gray-500 mb-1">보유 중인 재료</p>
               <div className="flex gap-1 flex-wrap">
                 {matchedItems.map((name) => (
@@ -170,6 +180,31 @@ export default function RecipeDetailModal({
                     ✓ {name}
                   </span>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {missingKeywords.length > 0 && (
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl px-3 py-2.5 mb-4">
+              <p className="text-[10px] text-gray-500 mb-1.5">부족한 재료 · 탭하면 쇼핑 리스트에 추가</p>
+              <div className="flex gap-1.5 flex-wrap">
+                {missingKeywords.map((kw) => {
+                  const added = inShopping(kw);
+                  return (
+                    <button
+                      key={kw}
+                      onClick={() => addToShopping(kw, recipe.name)}
+                      disabled={added}
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors ${
+                        added
+                          ? 'bg-gray-100 text-gray-400 cursor-default'
+                          : 'bg-white border border-amber-200 text-amber-700 hover:bg-amber-100 active:scale-95'
+                      }`}
+                    >
+                      {added ? `✓ ${kw}` : `+ ${kw}`}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

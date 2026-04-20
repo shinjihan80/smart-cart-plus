@@ -12,6 +12,7 @@ import { RECIPES, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
+import { useShoppingList } from '@/lib/shoppingList';
 
 const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
 const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
@@ -62,6 +63,7 @@ export default function MyPage() {
   const { favorites, isFavorite, toggle } = useRecipeFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [browserOpen, setBrowserOpen]       = useState(false);
+  const shopping = useShoppingList();
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
   const favoriteRecipes   = RECIPES.filter((r) => favorites.includes(r.id));
@@ -343,6 +345,61 @@ export default function MyPage() {
             이메일 파싱으로 구매 내역을 자동 가져오는 기능이 곧 추가됩니다.
           </p>
         </motion.div>
+
+        {/* 쇼핑 리스트 */}
+        {shopping.list.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...springTransition, delay: 0.28 }}
+            className={CARD}
+            style={CARD_SHADOW}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs text-gray-400 font-medium">
+                🛒 쇼핑 리스트 <span className="tabular-nums">({shopping.list.length})</span>
+              </h3>
+              <button
+                onClick={() => {
+                  if (confirm('쇼핑 리스트를 모두 비울까요?')) {
+                    shopping.clear();
+                    showToast('쇼핑 리스트를 비웠어요.');
+                  }
+                }}
+                className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                전체 비우기
+              </button>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {shopping.list
+                .slice()
+                .sort((a, b) => b.createdAt - a.createdAt)
+                .map((it) => (
+                  <div key={it.id} className="flex items-center gap-2 py-1.5">
+                    <span className="w-4 h-4 rounded-full bg-brand-primary/10 text-brand-primary text-[10px] flex items-center justify-center shrink-0">
+                      •
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-800 truncate">{it.name}</p>
+                      {it.source && (
+                        <p className="text-[9px] text-gray-400 truncate">{it.source}에서 추가</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        shopping.remove(it.id);
+                        showToast(`"${it.name}" 담았어요!`);
+                      }}
+                      className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
+                    >
+                      담았어요
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* 즐겨찾기 레시피 */}
         {favoriteRecipes.length > 0 && (
