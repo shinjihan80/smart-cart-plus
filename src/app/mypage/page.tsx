@@ -21,6 +21,7 @@ import ShoppingListSection                       from '@/components/mypage/Shopp
 import FavoriteRecipesSection                    from '@/components/mypage/FavoriteRecipesSection';
 import WearStatsSection                          from '@/components/mypage/WearStatsSection';
 import CookStatsSection                          from '@/components/mypage/CookStatsSection';
+import ClosetCleanupSection                      from '@/components/mypage/ClosetCleanupSection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
 export default function MyPage() {
@@ -184,6 +185,10 @@ export default function MyPage() {
 
         <SectionErrorBoundary label="착용 로그 분석">
           <WearStatsSection items={items} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary label="옷장 정리 제안">
+          <ClosetCleanupSection items={items} />
         </SectionErrorBoundary>
 
         <SectionErrorBoundary label="조리 로그 분석">
