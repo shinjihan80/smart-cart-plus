@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ONBOARDING_KEY = 'smart-cart-onboarded';
+// v2: 온보딩 단계 확장에 따라 재노출 유도 (기존 true 값도 재온보딩 1회 수행)
+const ONBOARDING_KEY = 'smart-cart-onboarded-v2';
 
 const STEPS = [
   {
@@ -13,18 +14,28 @@ const STEPS = [
   },
   {
     emoji: '📸',
-    title: '사진으로 자동 등록',
-    desc: '식품 라벨이나 의류 사이즈표를\n네모아가 자동으로 분석해요.',
+    title: '사진 한 장이면 충분해요',
+    desc: '식품 라벨이나 의류 사이즈표를\n네모아가 자동 분류·등록해요.',
   },
   {
     emoji: '🧊',
     title: '스마트 냉장고',
-    desc: '보관 가능 기한 추적, 레시피 추천까지.\n네모아가 식재료를 챙겨드려요.',
+    desc: '보관 기한·영양 밸런스부터\n오늘 만들 레시피까지 챙겨드려요.',
   },
   {
-    emoji: '👗',
+    emoji: '👕',
     title: '스마트 옷장',
-    desc: '날씨에 맞는 코디 추천.\n네모아가 오늘의 스타일을 제안해요.',
+    desc: '실시간 날씨로 오늘의 코디 매칭.\n오래 안 입은 옷도 다시 꺼내볼까요?',
+  },
+  {
+    emoji: '📝',
+    title: '오늘 뭘 입고, 뭘 만들었는지 기록해요',
+    desc: '간단한 한 탭으로 착용·조리 로그가 쌓이고\n자주 쓰는 옷과 요리가 드러나요.',
+  },
+  {
+    emoji: '💾',
+    title: '데이터는 언제나 안전하게',
+    desc: '마이페이지에서 한 번에 백업하고\n새 기기에서 그대로 복원할 수 있어요.',
   },
 ];
 
