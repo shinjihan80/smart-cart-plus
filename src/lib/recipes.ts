@@ -18,6 +18,15 @@ export interface Recipe {
 }
 
 // 24종 레시피 — 범용 식재료 커버
+/** 레시피 난이도·태그에 맞는 은은한 Tailwind 그라데이션 클래스를 돌려준다. */
+export function recipeGradient(recipe: Recipe): string {
+  if (recipe.difficulty === '간단')  return 'from-sky-50 to-brand-success/15';
+  if (recipe.difficulty === '도전')  return 'from-amber-50 to-rose-100';
+  if (recipe.tags?.includes('아침')) return 'from-amber-50 to-pink-50';
+  if (recipe.tags?.includes('간식')) return 'from-pink-50 to-purple-50';
+  return 'from-brand-primary/5 to-brand-success/10';
+}
+
 /** 레시피 time 문자열("15분", "1시간 10분" 등)을 초로 환산. 파싱 실패 시 null. */
 export function parseRecipeSeconds(time: string): number | null {
   const m = time.match(/(?:(\d+)\s*시간)?\s*(\d+)?\s*분?/);

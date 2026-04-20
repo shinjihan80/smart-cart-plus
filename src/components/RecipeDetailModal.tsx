@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { parseRecipeSeconds, type Recipe } from '@/lib/recipes';
+import { parseRecipeSeconds, recipeGradient, type Recipe } from '@/lib/recipes';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
 
@@ -152,22 +152,31 @@ export default function RecipeDetailModal({
             </button>
           </div>
 
-          <div className="flex items-start gap-3 mb-4 pr-16">
-            <span className="text-5xl shrink-0">{recipe.emoji}</span>
+          <div className={`rounded-[28px] bg-gradient-to-br ${recipeGradient(recipe)} px-5 py-5 mb-4 flex items-center gap-4 pr-20 overflow-hidden`}>
+            <motion.div
+              key={recipe.id}
+              initial={{ scale: 0.7, rotate: -8, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+              className="w-16 h-16 rounded-2xl bg-white/70 backdrop-blur-sm flex items-center justify-center shrink-0"
+              style={{ boxShadow: '0 4px 20px -6px rgba(0,0,0,0.08)' }}
+            >
+              <span className="text-4xl">{recipe.emoji}</span>
+            </motion.div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold text-gray-900 leading-tight">{recipe.name}</h2>
               {recipe.blurb && (
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">{recipe.blurb}</p>
+                <p className="text-xs text-gray-600 mt-1 leading-relaxed">{recipe.blurb}</p>
               )}
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
+              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/80 text-gray-600 font-medium">
                   ⏱ {recipe.time}
                 </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/80 text-brand-primary font-medium">
                   {recipe.difficulty}
                 </span>
                 {recipe.tags?.map((tag) => (
-                  <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500">
+                  <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-white/60 text-gray-500">
                     {tag}
                   </span>
                 ))}

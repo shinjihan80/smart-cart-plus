@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
-import { RECIPES, type Recipe } from '@/lib/recipes';
+import { RECIPES, recipeGradient, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 
 type FilterKey = '전체' | '즐겨찾기' | '간단' | '아침' | '점심' | '간식';
@@ -127,9 +127,11 @@ export default function RecipeBrowserModal({ onSelect, onClose }: RecipeBrowserM
                     <button
                       key={recipe.id}
                       onClick={() => onSelect(recipe)}
-                      className="flex items-center gap-3 py-2.5 px-3 rounded-2xl bg-gray-50 hover:bg-gray-100 text-left transition-colors"
+                      className="flex items-center gap-3 py-2 px-2 rounded-2xl hover:bg-gray-50 text-left transition-colors"
                     >
-                      <span className="text-2xl shrink-0">{recipe.emoji}</span>
+                      <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${recipeGradient(recipe)} flex items-center justify-center shrink-0`}>
+                        <span className="text-xl">{recipe.emoji}</span>
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
