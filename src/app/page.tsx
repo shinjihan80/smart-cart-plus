@@ -320,7 +320,7 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
           </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto px-5 pb-5 pt-1 scrollbar-hide">
-          {sorted.map((item) => (
+          {sorted.length > 0 ? sorted.map((item) => (
             <FridgeCard
               key={item.id}
               name={item.name}
@@ -330,7 +330,11 @@ function FridgeCarousel({ items, onDiscard }: { items: import('@/types').CartIte
               imageUrl={item.imageUrl}
               onDiscard={() => onDiscard(item.id)}
             />
-          ))}
+          )) : (
+            <div className="flex items-center justify-center w-full py-6 text-gray-400">
+              <p className="text-xs">냉장고에 식품을 추가해보세요</p>
+            </div>
+          )}
         </div>
       </Widget>
     </div>

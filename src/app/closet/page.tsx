@@ -505,9 +505,13 @@ export default function ClosetPage() {
               <button
                 key={preset.name}
                 onClick={() => handleQuickAdd(preset)}
-                className="text-[11px] px-2.5 py-1.5 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
+                className="flex items-center gap-1.5 text-[11px] pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
               >
-                {FASHION_EMOJI[preset.category]} {preset.name}
+                <div className="w-6 h-6 rounded-lg overflow-hidden bg-white shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={preset.img} alt="" className="w-full h-full object-cover" />
+                </div>
+                {preset.name}
               </button>
             ))}
           </div>
