@@ -28,10 +28,12 @@ export function pickDailyMessage(
   wearLog: WearLog,
   cookLog: CookLog = {},
   favorites: readonly string[] = [],
+  shoppingCount = 0,
 ): DailyMessage {
   const foods    = items.filter(isFoodItem);
   const clothes  = items.filter(isClothingItem);
   const hour     = new Date().getHours();
+  const dow      = new Date().getDay();  // 0: Sun, 6: Sat
 
   // ── 1. 긴급 — 바로 행동 유도 ─────────────────────────────────────────────
   const expiringToday = foods.filter(
@@ -132,6 +134,28 @@ export function pickDailyMessage(
         text:     `즐겨찾기해둔 "${recipe.name}"을(를) 아직 안 만들어봤어요. 오늘 도전해볼까요?`,
         priority: 'insight',
         cta:      { label: '냉장고 열기', href: '/fridge' },
+      };
+    }
+  }
+
+  // 쇼핑 리스트 대기 — 주말 아침엔 행동 유도, 평일엔 살짝 알림
+  if (shoppingCount >= 3) {
+    const isWeekend = dow === 0 || dow === 6;
+    const isMorning = hour >= 8 && hour < 12;
+    if (isWeekend && isMorning) {
+      return {
+        emoji:    '🛒',
+        text:     `장볼 거 ${shoppingCount}개가 기다려요. 오늘 한번에 처리해볼까요?`,
+        priority: 'insight',
+        cta:      { label: '쇼핑 리스트', href: '/mypage' },
+      };
+    }
+    if (shoppingCount >= 5) {
+      return {
+        emoji:    '🛒',
+        text:     `쇼핑 리스트에 ${shoppingCount}개가 쌓였어요. 슬슬 장 보러 갈 때예요.`,
+        priority: 'insight',
+        cta:      { label: '쇼핑 리스트', href: '/mypage' },
       };
     }
   }

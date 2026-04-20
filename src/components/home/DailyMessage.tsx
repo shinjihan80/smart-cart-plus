@@ -8,6 +8,7 @@ import { fetchWeather, type WeatherSnapshot } from '@/lib/weather';
 import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { useShoppingList } from '@/lib/shoppingList';
 import { pickDailyMessage } from '@/lib/dailyMessage';
 
 const TONE = {
@@ -21,6 +22,7 @@ export default function DailyMessage({ items }: { items: CartItem[] }) {
   const { log: wearLog } = useWearLog();
   const { log: cookLog } = useCookLog();
   const { favorites }    = useRecipeFavorites();
+  const { list: shopping } = useShoppingList();
 
   useEffect(() => {
     let cancelled = false;
@@ -30,7 +32,7 @@ export default function DailyMessage({ items }: { items: CartItem[] }) {
     return () => { cancelled = true; };
   }, []);
 
-  const msg = pickDailyMessage(items, weather, wearLog, cookLog, favorites);
+  const msg = pickDailyMessage(items, weather, wearLog, cookLog, favorites, shopping.length);
   const tone = TONE[msg.priority];
 
   return (
