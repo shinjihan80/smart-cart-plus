@@ -88,6 +88,10 @@ export default function MyPage() {
       if (Array.isArray(snap.items))     summary.push(`아이템 ${snap.items.length}개`);
       if (Array.isArray(snap.favorites)) summary.push(`즐겨찾기 ${snap.favorites.length}개`);
       if (Array.isArray(snap.shopping))  summary.push(`쇼핑 리스트 ${snap.shopping.length}개`);
+      if (snap.wearLog && typeof snap.wearLog === 'object' && !Array.isArray(snap.wearLog)) {
+        const wearCount = Object.keys(snap.wearLog as Record<string, unknown>).length;
+        if (wearCount > 0) summary.push(`착용 로그 ${wearCount}벌`);
+      }
       if (!confirm(`백업을 복원할까요?\n생성: ${new Date(snap.createdAt).toLocaleString('ko-KR')}\n${summary.join(' · ')}\n\n현재 데이터는 모두 덮어쓰여요.`)) return;
 
       restoreAll({

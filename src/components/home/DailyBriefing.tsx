@@ -8,6 +8,7 @@ import {
   fetchWeather, weatherEmoji, dressingTip, clothingMatch,
   type WeatherSnapshot,
 } from '@/lib/weather';
+import { useWearLog, daysSince } from '@/lib/wearLog';
 import { Widget } from './shared';
 
 function fallbackBriefing(): { emoji: string; headline: string; tip: string } {
@@ -23,6 +24,7 @@ function fallbackBriefing(): { emoji: string; headline: string; tip: string } {
 
 export default function DailyBriefing({ items }: { items: CartItem[] }) {
   const clothes = items.filter(isClothingItem);
+  const { getEntry } = useWearLog();
 
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [weatherFailed, setWeatherFailed] = useState(false);
@@ -50,14 +52,21 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
     ? dressingTip(weather.tempC, weather.condition)
     : fallbackBriefing().tip;
 
+  // 매칭 등급(perfect > good) + 로테이션 선호(오래 안 입은 옷 우선)
   const topMatches = useLive
     ? clothes
         .filter((c) => FASHION_GROUP[c.category] === '의류')
-        .map((c) => ({ item: c, match: clothingMatch(c.thickness, c.weatherTags, weather.tempC) }))
+        .map((c) => {
+          const entry = getEntry(c.id);
+          const idleDays = entry.lastWorn ? daysSince(entry.lastWorn) : 9999;
+          return { item: c, match: clothingMatch(c.thickness, c.weatherTags, weather.tempC), idleDays };
+        })
         .filter((x) => x.match.level !== 'mismatch')
         .sort((a, b) => {
-          if (a.match.level === b.match.level) return 0;
-          return a.match.level === 'perfect' ? -1 : 1;
+          // 1순위: match 등급 (perfect > good)
+          if (a.match.level !== b.match.level) return a.match.level === 'perfect' ? -1 : 1;
+          // 2순위: 오래 안 입은 옷 우선 (idleDays 내림차순)
+          return b.idleDays - a.idleDays;
         })
         .slice(0, 3)
     : [];
@@ -95,10 +104,11 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
             <div className="mt-3 flex items-center gap-2">
               <span className="text-[10px] text-gray-400 shrink-0">오늘의 추천</span>
               <div className="flex gap-1.5 overflow-hidden">
-                {topMatches.map(({ item, match }) => (
+                {topMatches.map(({ item, match, idleDays }) => (
                   <div
                     key={item.id}
                     className="shrink-0 flex items-center gap-1 max-w-[96px] pl-1 pr-2 py-0.5 rounded-full bg-white/80 border border-gray-100"
+                    title={idleDays >= 30 ? `${idleDays}일째 안 입은 옷` : undefined}
                   >
                     <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
                       {item.imageUrl ? (
@@ -110,6 +120,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                     </div>
                     <span className="text-[10px] text-gray-700 font-medium truncate">{item.name}</span>
                     {match.level === 'perfect' && <span className="text-[9px]">✨</span>}
+                    {idleDays >= 30 && idleDays < 9999 && <span className="text-[9px]">🌙</span>}
                   </div>
                 ))}
               </div>

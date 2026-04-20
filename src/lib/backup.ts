@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 const LAST_BACKUP_KEY = 'nemoa-last-backup-at';
-const BACKUP_VERSION  = 1;
+const BACKUP_VERSION  = 2;  // v2: wearLog 추가
 const STALE_AFTER_MS  = 7 * 24 * 60 * 60 * 1000; // 7일
 
 export interface BackupSnapshot {
@@ -19,6 +19,7 @@ export interface BackupSnapshot {
   favorites?:  unknown[];
   shopping?:   unknown[];
   noti?:       unknown;
+  wearLog?:    unknown;  // v2+ clothing id → ISO date[]
 }
 
 function readTimestamp(): number | null {
@@ -60,6 +61,7 @@ export function buildSnapshot(): BackupSnapshot {
     favorites: safe('nemoa-recipe-favorites', []),
     shopping:  safe('nemoa-shopping-list',    []),
     noti:      safe('smart-cart-noti',        null),
+    wearLog:   safe('nemoa-wear-log',         {}),
   };
 }
 
@@ -97,7 +99,7 @@ export async function readBackupFile(file: File): Promise<BackupSnapshot> {
   return p as BackupSnapshot;
 }
 
-/** 스냅샷을 localStorage 즐겨찾기·쇼핑·알림 쪽에 적용. 카트 상태는 호출자가 restoreAll로 별도 처리. */
+/** 스냅샷을 localStorage 즐겨찾기·쇼핑·알림·착용로그 쪽에 적용. 카트 상태는 호출자가 restoreAll로 별도 처리. */
 export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
   if (typeof window === 'undefined') return;
   try {
@@ -107,6 +109,8 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
       localStorage.setItem('nemoa-shopping-list',    JSON.stringify(snap.shopping));
     if (snap.noti && typeof snap.noti === 'object')
       localStorage.setItem('smart-cart-noti',        JSON.stringify(snap.noti));
+    if (snap.wearLog && typeof snap.wearLog === 'object' && !Array.isArray(snap.wearLog))
+      localStorage.setItem('nemoa-wear-log',         JSON.stringify(snap.wearLog));
   } catch { /* quota */ }
   writeTimestamp(Date.now());
 }
