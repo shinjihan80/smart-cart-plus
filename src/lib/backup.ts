@@ -20,6 +20,7 @@ export interface BackupSnapshot {
   shopping?:   unknown[];
   noti?:       unknown;
   wearLog?:    unknown;  // v2+ clothing id → ISO date[]
+  cookLog?:    unknown;  // v2+ recipe id → ISO date[]
 }
 
 function readTimestamp(): number | null {
@@ -62,6 +63,7 @@ export function buildSnapshot(): BackupSnapshot {
     shopping:  safe('nemoa-shopping-list',    []),
     noti:      safe('smart-cart-noti',        null),
     wearLog:   safe('nemoa-wear-log',         {}),
+    cookLog:   safe('nemoa-cook-log',         {}),
   };
 }
 
@@ -111,6 +113,8 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
       localStorage.setItem('smart-cart-noti',        JSON.stringify(snap.noti));
     if (snap.wearLog && typeof snap.wearLog === 'object' && !Array.isArray(snap.wearLog))
       localStorage.setItem('nemoa-wear-log',         JSON.stringify(snap.wearLog));
+    if (snap.cookLog && typeof snap.cookLog === 'object' && !Array.isArray(snap.cookLog))
+      localStorage.setItem('nemoa-cook-log',         JSON.stringify(snap.cookLog));
   } catch { /* quota */ }
   writeTimestamp(Date.now());
 }

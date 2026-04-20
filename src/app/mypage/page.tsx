@@ -92,6 +92,10 @@ export default function MyPage() {
         const wearCount = Object.keys(snap.wearLog as Record<string, unknown>).length;
         if (wearCount > 0) summary.push(`착용 로그 ${wearCount}벌`);
       }
+      if (snap.cookLog && typeof snap.cookLog === 'object' && !Array.isArray(snap.cookLog)) {
+        const cookCount = Object.keys(snap.cookLog as Record<string, unknown>).length;
+        if (cookCount > 0) summary.push(`조리 로그 ${cookCount}개`);
+      }
       if (!confirm(`백업을 복원할까요?\n생성: ${new Date(snap.createdAt).toLocaleString('ko-KR')}\n${summary.join(' · ')}\n\n현재 데이터는 모두 덮어쓰여요.`)) return;
 
       restoreAll({

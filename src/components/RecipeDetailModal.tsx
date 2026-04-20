@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseRecipeSeconds, type Recipe } from '@/lib/recipes';
 import { useShoppingList } from '@/lib/shoppingList';
+import { useCookLog } from '@/lib/recipeCookLog';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -45,6 +46,9 @@ export default function RecipeDetailModal({
 }: RecipeDetailModalProps) {
   // 쇼핑 리스트
   const { has: inShopping, add: addToShopping } = useShoppingList();
+  // 조리 로그
+  const { getEntry: getCookEntry, markCooked } = useCookLog();
+  const cook = getCookEntry(recipe.id);
 
   // 부족 재료 = 레시피 키워드 - 매칭된 이름에 포함된 키워드
   const missingKeywords = useMemo(() => {
@@ -267,11 +271,20 @@ export default function RecipeDetailModal({
           </div>
 
           <button
-            onClick={onClose}
+            onClick={() => {
+              markCooked(recipe.id);
+              navigator.vibrate?.(15);
+              onClose();
+            }}
             className="w-full mt-6 rounded-2xl bg-brand-primary text-white text-sm font-semibold py-3 hover:opacity-90 active:scale-95 transition-all"
           >
-            좋아요, 만들어볼게요
+            {cook.count > 0 ? `만들었어요 (${cook.count + 1}회차)` : '좋아요, 만들어볼게요'}
           </button>
+          {cook.count > 0 && (
+            <p className="text-[10px] text-gray-400 text-center mt-2">
+              지금까지 {cook.count}번 만들었어요{cook.lastCooked ? ` · 마지막 ${cook.lastCooked}` : ''}
+            </p>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>

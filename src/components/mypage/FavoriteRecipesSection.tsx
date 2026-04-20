@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { RECIPES, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { useCookLog } from '@/lib/recipeCookLog';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface FavoriteRecipesSectionProps {
@@ -13,6 +14,7 @@ interface FavoriteRecipesSectionProps {
 
 export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: FavoriteRecipesSectionProps) {
   const { favorites } = useRecipeFavorites();
+  const { getEntry } = useCookLog();
   const favoriteRecipes = RECIPES.filter((r) => favorites.includes(r.id));
   if (favoriteRecipes.length === 0) return null;
 
@@ -37,22 +39,31 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {favoriteRecipes.map((recipe) => (
-          <button
-            key={recipe.id}
-            onClick={() => onOpenRecipe(recipe)}
-            className="flex items-center gap-3 w-full py-2 px-2 -mx-2 rounded-2xl hover:bg-gray-50 text-left transition-colors"
-          >
-            <span className="text-2xl shrink-0">{recipe.emoji}</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">
-                ⏱ {recipe.time} · {recipe.difficulty}
-              </p>
-            </div>
-            <ChevronRight size={14} className="text-gray-300 shrink-0" />
-          </button>
-        ))}
+        {favoriteRecipes.map((recipe) => {
+          const cook = getEntry(recipe.id);
+          return (
+            <button
+              key={recipe.id}
+              onClick={() => onOpenRecipe(recipe)}
+              className="flex items-center gap-3 w-full py-2 px-2 -mx-2 rounded-2xl hover:bg-gray-50 text-left transition-colors"
+            >
+              <span className="text-2xl shrink-0">{recipe.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">
+                  ⏱ {recipe.time} · {recipe.difficulty}
+                  {cook.count > 0 && (
+                    <>
+                      <span className="text-gray-300 mx-1">·</span>
+                      <span className="text-brand-primary font-semibold">{cook.count}회 조리</span>
+                    </>
+                  )}
+                </p>
+              </div>
+              <ChevronRight size={14} className="text-gray-300 shrink-0" />
+            </button>
+          );
+        })}
       </div>
     </motion.div>
   );
