@@ -9,6 +9,8 @@ const STORAGE_KEY  = 'smart-cart-items';
 const DISCARD_KEY  = 'smart-cart-discard-count';
 const ARCHIVE_KEY  = 'smart-cart-archive';
 const HISTORY_KEY  = 'smart-cart-history';
+const SCHEMA_VERSION_KEY = 'smart-cart-schema-version';
+const CURRENT_SCHEMA_VERSION = '2'; // 카테고리 세분화 (v1→v2)
 
 interface DiscardRecord {
   name:      string;
@@ -42,22 +44,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
   useEffect(() => {
     try {
+      // 스키마 버전 불일치 시 자동 초기화
+      const storedVersion = localStorage.getItem(SCHEMA_VERSION_KEY);
+      if (storedVersion !== CURRENT_SCHEMA_VERSION) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(ARCHIVE_KEY);
+        localStorage.setItem(SCHEMA_VERSION_KEY, CURRENT_SCHEMA_VERSION);
+        setHydrated(true);
+        return;
+      }
+
       const storedItems = localStorage.getItem(STORAGE_KEY);
       if (storedItems) {
         const parsed = JSON.parse(storedItems) as CartItem[];
         // 마이그레이션: 구 버전 데이터 보정
         const migrated = parsed.map((item) => {
           const cat = item.category as string;
-          // 식품: foodCategory 누락 보정
           if (cat === '식품' && !('foodCategory' in item)) {
             return Object.assign({}, item, { foodCategory: '기타 식품' }) as CartItem;
           }
-          // 패션: 구 카테고리('의류'/'액세서리') → 새 카테고리로 변환
           if (cat === '의류') return Object.assign({}, item, { category: '상의' }) as CartItem;
           if (cat === '액세서리') return Object.assign({}, item, { category: '주얼리' }) as CartItem;
           return item;
         });
-        if (migrated.length > 0) setItems(migrated);
+        // 유효성 검증: 모든 아이템에 필수 필드가 있는지 확인
+        const valid = migrated.every((item) => {
+          if (!item.id || !item.name || !item.category) return false;
+          if (item.category === '식품' && !('foodCategory' in item)) return false;
+          return true;
+        });
+        if (valid && migrated.length > 0) {
+          setItems(migrated);
+        } else {
+          // 유효하지 않은 데이터 → 초기화
+          localStorage.removeItem(STORAGE_KEY);
+        }
       }
       const storedCount = localStorage.getItem(DISCARD_KEY);
       if (storedCount) setDiscardCount(parseInt(storedCount, 10));
@@ -65,7 +86,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (storedArchive) setArchived(JSON.parse(storedArchive));
       const storedHistory = localStorage.getItem(HISTORY_KEY);
       if (storedHistory) setDiscardHistory(JSON.parse(storedHistory));
-    } catch { /* ignore */ }
+    } catch {
+      // 복원 실패 시 localStorage 클리어 → mockData 사용
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DISCARD_KEY);
+      localStorage.removeItem(ARCHIVE_KEY);
+      localStorage.removeItem(HISTORY_KEY);
+    }
     setHydrated(true);
   }, []);
 
