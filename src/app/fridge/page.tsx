@@ -101,7 +101,8 @@ function SwipeFoodCard({
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-          <div className="flex items-center gap-2 mt-1.5">
+          {item.memo && <p className="text-[9px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
+          <div className="flex items-center gap-2 mt-1">
             <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${style.bg} ${style.text}`}>
               <Icon size={10} />
               {style.label}
@@ -245,6 +246,21 @@ function SwipeFoodCard({
                     </div>
                   </div>
                 )}
+                {/* 메모 */}
+                <div>
+                  <span className="text-gray-400">메모</span>
+                  <input
+                    type="text"
+                    defaultValue={item.memo ?? ''}
+                    placeholder="메모를 입력하세요"
+                    onBlur={(e) => {
+                      const v = e.target.value.trim();
+                      if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
+                  />
+                </div>
               </div>
             </motion.div>
           )}

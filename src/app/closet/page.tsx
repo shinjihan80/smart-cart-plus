@@ -236,7 +236,8 @@ function SwipeClothingCard({
             <div className="flex items-center gap-1.5">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
             </div>
-            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            {item.memo && <p className="text-[9px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
                 <ThickIcon size={10} />
                 {item.thickness}
@@ -351,6 +352,21 @@ function SwipeClothingCard({
                     <p className="text-gray-700 font-medium mt-0.5">{item.weatherTags.join(', ')}</p>
                   </div>
                 )}
+                </div>
+                {/* 메모 */}
+                <div>
+                  <span className="text-gray-400">메모</span>
+                  <input
+                    type="text"
+                    defaultValue={item.memo ?? ''}
+                    placeholder="메모를 입력하세요"
+                    onBlur={(e) => {
+                      const v = e.target.value.trim();
+                      if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full mt-0.5 text-xs text-gray-800 bg-gray-50 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
+                  />
                 </div>
               </div>
             </motion.div>

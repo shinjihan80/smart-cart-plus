@@ -58,6 +58,7 @@ export interface FoodItem {
   purchaseDate:      string;
 
   imageUrl?:       string;
+  memo?:           string;
   nutritionFacts?: NutritionFacts;
   openedDate?:     string;
 }
@@ -108,6 +109,7 @@ export interface ClothingItem {
   material:      string;
 
   imageUrl?:     string;
+  memo?:         string;
   weatherTags?:  WeatherTag[];
   colorFamily?:  string;
 }
