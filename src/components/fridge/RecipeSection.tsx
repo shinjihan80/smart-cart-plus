@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
-import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { matchRecipes, SEASON_EMOJI, RECIPES, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
@@ -21,7 +21,21 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
     : balance.vegFruitCount < 3
       ? 'veg' as const
       : undefined;
-  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, nutritionHint });
+
+  // 도전 레시피 회피자 감지 — 총 조리 5회+ 쌓였는데 '도전' 난이도 0회면 simple 편향
+  const difficultyHint = (() => {
+    const totalCooks = Object.values(cookCounts).reduce((s, n) => s + n, 0);
+    if (totalCooks < 5) return undefined;
+    const challengeCooks = Object.entries(cookCounts).reduce((s, [id, count]) => {
+      const r = RECIPES.find((x) => x.id === id);
+      return s + (r?.difficulty === '도전' ? count : 0);
+    }, 0);
+    if (challengeCooks === 0) return 'simple' as const;
+    if (challengeCooks >= totalCooks * 0.3) return 'challenge' as const;
+    return undefined;
+  })();
+
+  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, nutritionHint, difficultyHint });
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);

@@ -362,6 +362,11 @@ export interface MatchOptions {
   cookCounts?:    Record<string, number>;
   /** 영양 편향 보정 — 'protein' → 단백질 레시피 +1, 'veg' → 채소·과일 위주 레시피 +1 */
   nutritionHint?: 'protein' | 'veg';
+  /**
+   * 난이도 선호 — 'simple'이면 '간단' +0.5 / '도전' -1 (조리를 덜 하는 사용자용)
+   * 'challenge'면 '도전' +1 (도전을 즐기는 사용자용)
+   */
+  difficultyHint?: 'simple' | 'challenge';
 }
 
 const PROTEIN_KEYWORDS = ['두부', '달걀', '계란', '닭', '소고기', '돼지', '생선', '연어', '참치', '새우', '오징어', '고등어', '꽁치', '굴', '방어', '전어', '민어', '대구', '햄', '소시지', '치즈'];
@@ -391,7 +396,7 @@ export function matchRecipes(
   opts: MatchOptions | Season = {},
 ): MatchedRecipe[] {
   const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
-  const { currentSeason, cookCounts, nutritionHint } = options;
+  const { currentSeason, cookCounts, nutritionHint, difficultyHint } = options;
 
   const nameIndex = foods.map((f) => ({
     name:  f.name,
@@ -427,10 +432,18 @@ export function matchRecipes(
       if (nutritionHint === 'veg'     && isVeg)     nutritionBoost = 1;
     }
 
+    let difficultyBoost = 0;
+    if (difficultyHint === 'simple') {
+      if (recipe.difficulty === '간단') difficultyBoost = 0.5;
+      if (recipe.difficulty === '도전') difficultyBoost = -1;
+    } else if (difficultyHint === 'challenge') {
+      if (recipe.difficulty === '도전') difficultyBoost = 1;
+    }
+
     results.push({
       recipe,
       matchedItems,
-      matchScore:     matchedItems.length + urgentBoost + seasonBoost + loveBoost + nutritionBoost,
+      matchScore:     matchedItems.length + urgentBoost + seasonBoost + loveBoost + nutritionBoost + difficultyBoost,
       urgentBoosted:  urgentBoost > 0,
       seasonBoosted,
       loveBoosted,
