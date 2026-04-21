@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { ChevronRight, Sparkles, Search } from 'lucide-react';
 import NemoaLogo from '@/components/layout/NemoaLogo';
+import PaletteButton from '@/components/PaletteButton';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
@@ -115,15 +116,7 @@ export default function HomePage() {
         <div className="px-4 pt-3.5 pb-3 flex items-center justify-between gap-3">
           <NemoaLogo size="md" withTagline />
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette'))}
-              aria-label="빠른 탐색 열기 (⌘K)"
-              title="빠른 탐색 (⌘K)"
-              className="relative flex items-center gap-1 pl-2 pr-2.5 h-8 rounded-full bg-gray-100 hover:bg-brand-primary/10 text-gray-500 hover:text-brand-primary transition-colors"
-            >
-              <Search size={14} />
-              <kbd className="hidden sm:inline-flex items-center text-[9px] text-gray-400 bg-white border border-gray-200 rounded px-1 py-0 font-mono pointer-events-none">⌘K</kbd>
-            </button>
+            <PaletteButton />
             <div className="flex flex-col items-end gap-0.5">
               <span className="text-[10px] text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
                 {items.length}개 관리 중

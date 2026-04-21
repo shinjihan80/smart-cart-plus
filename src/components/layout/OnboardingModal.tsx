@@ -38,6 +38,11 @@ const STEPS = [
     title: '데이터는 언제나 안전하게',
     desc: '마이페이지에서 한 번에 백업하고\n새 기기에서 그대로 복원할 수 있어요.',
   },
+  {
+    emoji: '🔍',
+    title: '어디서든 빠른 탐색',
+    desc: '⌘K (또는 / · Esc) 단축키와\n홈 우측 상단 탐색 버튼으로\n레시피·제철·페이지를 즉시 찾아요.',
+  },
 ];
 
 function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: (s: number) => void; onClose: () => void }) {

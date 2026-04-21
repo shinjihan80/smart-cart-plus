@@ -18,6 +18,7 @@ import { useProfiles } from '@/lib/profile';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
+import PaletteButton from '@/components/PaletteButton';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
@@ -161,18 +162,21 @@ export default function ClosetPage() {
               패션 {activeClothing.length}개 관리 중{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''} · ← 밀어서 삭제
             </p>
           </div>
-          {hibernatingCount > 0 && (
-            <button
-              onClick={() => setShowHibernating(!showHibernating)}
-              className={`shrink-0 text-[10px] font-semibold px-2.5 py-1 rounded-full transition-colors ${
-                showHibernating
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-              }`}
-            >
-              {showHibernating ? '보관 숨기기' : '🗃️ 보관 포함'}
-            </button>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {hibernatingCount > 0 && (
+              <button
+                onClick={() => setShowHibernating(!showHibernating)}
+                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full transition-colors ${
+                  showHibernating
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                }`}
+              >
+                {showHibernating ? '보관 숨기기' : '🗃️ 보관 포함'}
+              </button>
+            )}
+            <PaletteButton />
+          </div>
         </div>
       </header>
 

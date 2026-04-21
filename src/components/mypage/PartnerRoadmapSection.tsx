@@ -27,6 +27,7 @@ export default function PartnerRoadmapSection() {
 
   return (
     <motion.div
+      id="partners"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.32 }}

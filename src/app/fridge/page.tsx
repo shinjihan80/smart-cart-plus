@@ -8,6 +8,7 @@ import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { Search } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
+import PaletteButton from '@/components/PaletteButton';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/fridge/shared';
 import SwipeFoodCard           from '@/components/fridge/SwipeFoodCard';
@@ -174,9 +175,12 @@ export default function FridgePage() {
   return (
     <div>
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
-        <div className="px-4 py-3.5">
-          <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
-          <p className="text-[10px] text-gray-400 mt-0.5">식품 {allFood.length}개 관리 중 · ← 밀어서 소진</p>
+        <div className="px-4 py-3.5 flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
+            <p className="text-[10px] text-gray-400 mt-0.5">식품 {allFood.length}개 관리 중 · ← 밀어서 소진</p>
+          </div>
+          <PaletteButton />
         </div>
       </header>
 

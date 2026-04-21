@@ -17,6 +17,7 @@ import NotificationSettings from '@/components/mypage/NotificationSettings';
 import AppInfo              from '@/components/mypage/AppInfo';
 import ProfilesSection      from '@/components/settings/ProfilesSection';
 import KnowledgeSummary     from '@/components/settings/KnowledgeSummary';
+import PaletteButton        from '@/components/PaletteButton';
 
 export default function SettingsPage() {
   const { items, resetData, archiveExpired, restoreAll } = useCart();
@@ -159,10 +160,11 @@ export default function SettingsPage() {
           >
             <ChevronLeft size={18} />
           </Link>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-base font-bold text-gray-900 tracking-tight">설정</h1>
             <p className="text-[10px] text-gray-400 mt-0.5">알림 · 백업 · 데이터 관리</p>
           </div>
+          <PaletteButton />
         </div>
       </header>
 
