@@ -13,6 +13,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { downloadBackup } from '@/lib/backup';
+import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 
 /**
  * 전역 명령 팔레트 — 어디서든 ⌘K로 호출.
@@ -28,7 +29,7 @@ type Cmd =
 
 export default function CommandPalette() {
   const router = useRouter();
-  const { items } = useCart();
+  const { items, archiveExpired } = useCart();
   const { showToast } = useToast();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
@@ -96,6 +97,24 @@ export default function CommandPalette() {
         kind: 'action', id: 'a-register', emoji: '➕',
         label: '상품 등록 열기', sub: '텍스트·영수증에서 추가',
         run: () => window.dispatchEvent(new CustomEvent('nemoa:open-register')),
+      },
+      {
+        kind: 'action', id: 'a-archive', emoji: '📦',
+        label: '만료 식품 정리', sub: '보관 기한 +7일 초과 아카이브',
+        run: () => {
+          const n = archiveExpired();
+          showToast(n > 0 ? `${n}개 만료 식품이 아카이브됐어요.` : '아카이브할 만료 식품이 없어요.');
+        },
+      },
+      {
+        kind: 'action', id: 'a-export-json', emoji: '📄',
+        label: 'JSON 내보내기', sub: '현재 아이템만',
+        run: () => { exportAsJSON(items); showToast('JSON 파일로 내보냈어요.'); },
+      },
+      {
+        kind: 'action', id: 'a-export-csv', emoji: '📊',
+        label: 'CSV 내보내기', sub: '현재 아이템만',
+        run: () => { exportAsCSV(items); showToast('CSV 파일로 내보냈어요.'); },
       },
     ];
     if (!query) {
@@ -232,27 +251,55 @@ export default function CommandPalette() {
             <div className="max-h-[50vh] overflow-y-auto py-1">
               {commands.length === 0 ? (
                 <p className="text-xs text-gray-400 text-center py-6">검색 결과가 없어요</p>
-              ) : (
-                commands.map((cmd, i) => (
-                  <button
-                    key={cmd.id}
-                    onClick={() => execute(cmd)}
-                    onMouseEnter={() => setCursor(i)}
-                    className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${
-                      i === cursor ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <span className="text-lg shrink-0">{cmd.emoji}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-800 truncate">{cmd.label}</p>
-                      {cmd.sub && <p className="text-[10px] text-gray-400 truncate">{cmd.sub}</p>}
-                    </div>
-                    {i === cursor && (
-                      <kbd className="text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono shrink-0">↵</kbd>
-                    )}
-                  </button>
-                ))
-              )}
+              ) : (() => {
+                const GROUP_LABEL: Record<Cmd['kind'], string> = {
+                  recipe:   '레시피',
+                  seasonal: '제철 재료',
+                  nav:      '이동',
+                  action:   '액션',
+                };
+                const rendered: React.ReactNode[] = [];
+                let lastKind: Cmd['kind'] | null = null;
+                let lastRecent = false;
+                commands.forEach((cmd, i) => {
+                  const isRecent = typeof cmd.sub === 'string' && cmd.sub.endsWith('최근');
+                  // '최근' 섹션 + 일반 섹션 헤더 분리
+                  if (isRecent && !lastRecent) {
+                    rendered.push(
+                      <p key="h-recent" className="text-[9px] font-semibold text-gray-400 px-4 pt-2 pb-0.5 uppercase tracking-wider">최근</p>,
+                    );
+                    lastKind = null; // 최근 이후 다시 종류별 헤더 띄우도록
+                  } else if (!isRecent && lastKind !== cmd.kind) {
+                    rendered.push(
+                      <p key={`h-${cmd.kind}-${i}`} className="text-[9px] font-semibold text-gray-400 px-4 pt-2 pb-0.5 uppercase tracking-wider">
+                        {GROUP_LABEL[cmd.kind]}
+                      </p>,
+                    );
+                    lastKind = cmd.kind;
+                  }
+                  lastRecent = isRecent;
+                  rendered.push(
+                    <button
+                      key={cmd.id}
+                      onClick={() => execute(cmd)}
+                      onMouseEnter={() => setCursor(i)}
+                      className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${
+                        i === cursor ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="text-lg shrink-0">{cmd.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-800 truncate">{cmd.label}</p>
+                        {cmd.sub && <p className="text-[10px] text-gray-400 truncate">{cmd.sub}</p>}
+                      </div>
+                      {i === cursor && (
+                        <kbd className="text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono shrink-0">↵</kbd>
+                      )}
+                    </button>,
+                  );
+                });
+                return rendered;
+              })()}
             </div>
             <div className="px-4 py-2 border-t border-gray-100 flex items-center justify-between text-[9px] text-gray-400">
               <span>↑↓ 탐색 · ↵ 선택</span>
