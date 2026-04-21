@@ -25,6 +25,7 @@ import CookStatsSection                          from '@/components/mypage/CookS
 import ClosetCleanupSection                      from '@/components/mypage/ClosetCleanupSection';
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
 import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
+import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
 export default function MyPage() {
@@ -208,6 +209,10 @@ export default function MyPage() {
 
         <SectionErrorBoundary label="조리 로그 분석">
           <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary label="제철 식탁 히스토리">
+          <SeasonalHistorySection history={discardHistory} />
         </SectionErrorBoundary>
 
         <SectionErrorBoundary label="즐겨찾기 레시피">

@@ -19,3 +19,12 @@ export function matchesSeason(tags: WeatherTag[] | undefined, season: Season): b
   if (!tags || tags.length === 0) return null;
   return tags.includes(season);
 }
+
+/**
+ * 올해 해당 계절의 시작일(1일)을 YYYY-MM-DD로 돌려준다.
+ * 봄 3월, 여름 6월, 가을 9월, 겨울 12월 기준.
+ */
+export function seasonStart(season: Season, year = new Date().getFullYear()): string {
+  const month = season === '봄' ? 3 : season === '여름' ? 6 : season === '가을' ? 9 : 12;
+  return `${year}-${String(month).padStart(2, '0')}-01`;
+}
