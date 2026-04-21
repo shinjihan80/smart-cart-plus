@@ -9,11 +9,29 @@ interface WearStatsSectionProps {
   items: CartItem[];
 }
 
+const DOW_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+
 export default function WearStatsSection({ items }: WearStatsSectionProps) {
-  const { getEntry } = useWearLog();
+  const { log, getEntry } = useWearLog();
   const clothes = items.filter(isClothingItem);
 
   const annotated = clothes.map((c) => ({ item: c, ...getEntry(c.id) }));
+
+  // 최근 4주 요일별 착용 빈도
+  const dowCounts = (() => {
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+    const cutoffMs = Date.now() - 28 * 24 * 60 * 60 * 1000;
+    for (const dates of Object.values(log)) {
+      for (const d of dates) {
+        const t = new Date(d).getTime();
+        if (t < cutoffMs || isNaN(t)) continue;
+        counts[new Date(d).getDay()] += 1;
+      }
+    }
+    return counts;
+  })();
+  const dowTotal = dowCounts.reduce((a, b) => a + b, 0);
+  const maxDow   = Math.max(...dowCounts, 1);
 
   const topWorn = annotated
     .filter((x) => x.count > 0)
@@ -29,7 +47,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
     .sort((a, b) => daysSince(b.lastWorn!) - daysSince(a.lastWorn!))
     .slice(0, 3);
 
-  if (topWorn.length === 0 && neverWorn.length === 0 && longIdle.length === 0) return null;
+  if (topWorn.length === 0 && neverWorn.length === 0 && longIdle.length === 0 && dowTotal === 0) return null;
 
   return (
     <motion.div
@@ -43,6 +61,39 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         <span className="text-base">👕</span>
         <span className="text-xs text-gray-400 font-medium">착용 로그 분석</span>
       </div>
+
+      {dowTotal > 0 && (() => {
+        const peakIdx = dowCounts.indexOf(Math.max(...dowCounts));
+        return (
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-[10px] text-brand-primary font-semibold">🗓️ 요일별 착용 패턴 (최근 4주)</p>
+              <span className="text-[10px] text-gray-400 tabular-nums">{dowTotal}회 · 피크 {DOW_LABELS[peakIdx]}요일</span>
+            </div>
+            <div className="flex items-end justify-between gap-1 h-14">
+              {dowCounts.map((c, i) => {
+                const pct  = Math.round((c / maxDow) * 100);
+                const isPk = c === maxDow && c > 0;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="w-full flex-1 flex items-end">
+                      <div
+                        className={`w-full rounded-t-md transition-all ${
+                          isPk ? 'bg-brand-primary' : c > 0 ? 'bg-brand-primary/40' : 'bg-gray-100'
+                        }`}
+                        style={{ height: `${pct}%`, minHeight: c > 0 ? '4px' : '2px' }}
+                      />
+                    </div>
+                    <span className={`text-[9px] tabular-nums ${
+                      isPk ? 'text-brand-primary font-bold' : 'text-gray-400'
+                    }`}>{DOW_LABELS[i]}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {topWorn.length > 0 && (
         <div className="mb-3">
