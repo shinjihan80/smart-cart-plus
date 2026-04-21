@@ -6,6 +6,8 @@ interface Props {
   children: ReactNode;
   /** 섹션 이름 (에러 메시지에 노출) */
   label?:   string;
+  /** 그리드에서 전체 폭으로 렌더해야 하는 경우 'full'. 기본값은 단일 셀. */
+  colSpan?: 'full';
 }
 
 interface State {
@@ -40,8 +42,9 @@ export default class SectionErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const spanClass = this.props.colSpan === 'full' ? 'col-span-2' : '';
       return (
-        <div className="rounded-2xl border border-brand-warning/20 bg-brand-warning/5 px-4 py-3 flex items-start gap-3">
+        <div className={`${spanClass} rounded-2xl border border-brand-warning/20 bg-brand-warning/5 px-4 py-3 flex items-start gap-3`}>
           <span className="text-lg">⚠️</span>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-brand-warning">

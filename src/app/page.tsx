@@ -141,22 +141,18 @@ export default function HomePage() {
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <UrgentAlert     items={items} />
           <QuickStats      items={items} />
-          <SectionErrorBoundary label="제철 힌트">
+          <SectionErrorBoundary label="제철 힌트" colSpan="full">
             <SeasonalHintWidget items={items} />
           </SectionErrorBoundary>
-          <SectionErrorBoundary label="제철 체크리스트">
+          <SectionErrorBoundary label="제철 체크리스트" colSpan="full">
             <SeasonalChecklistWidget items={items} history={discardHistory} />
           </SectionErrorBoundary>
-          <div className="col-span-2">
-            <SectionErrorBoundary label="데일리 브리핑">
-              <DailyBriefing items={items} />
-            </SectionErrorBoundary>
-          </div>
-          <div className="col-span-2">
-            <SectionErrorBoundary label="오늘 한 그릇">
-              <TodayDishCard items={items} />
-            </SectionErrorBoundary>
-          </div>
+          <SectionErrorBoundary label="데일리 브리핑" colSpan="full">
+            <DailyBriefing items={items} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary label="오늘 한 그릇" colSpan="full">
+            <TodayDishCard items={items} />
+          </SectionErrorBoundary>
           <ClosetSummary   items={items} />
           <MonthlySpending />
           <FridgeCarousel
