@@ -88,7 +88,10 @@ export default function CommandPalette() {
     if (raw.startsWith('>')) { mode = 'action';   body = raw.slice(1).trim(); }
     else if (raw.startsWith('#')) { mode = 'nav';    body = raw.slice(1).trim(); }
     else if (raw.startsWith('?')) { mode = 'recipe'; body = raw.slice(1).trim(); }
-    const query = body.toLowerCase();
+    // 공백·한글 조합문자 제거해 약간의 오타 허용
+    const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '');
+    const query = normalize(body);
+    const includesFuzzy = (text: string) => normalize(text).includes(query);
     const navs: Cmd[] = [
       { kind: 'nav', id: 'n-home',     emoji: '🏠', label: '홈',         sub: '오늘의 한 마디·벤토',    href: '/' },
       { kind: 'nav', id: 'n-fridge',   emoji: '🧊', label: '스마트 냉장고', sub: '보관 기한·레시피·제철', href: '/fridge' },
@@ -153,11 +156,11 @@ export default function CommandPalette() {
       ];
     }
 
-    // 레시피 — 이름 일치 우선, 키워드 일치 후순위
-    const recipeNameHits = RECIPES.filter((r) => r.name.toLowerCase().includes(query));
+    // 레시피 — 이름 일치 우선, 키워드 일치 후순위 (공백 무시 fuzzy)
+    const recipeNameHits = RECIPES.filter((r) => includesFuzzy(r.name));
     const recipeKwHits   = RECIPES.filter((r) =>
-      !r.name.toLowerCase().includes(query)
-      && r.keywords.some((k) => k.toLowerCase().includes(query)),
+      !includesFuzzy(r.name)
+      && r.keywords.some((k) => includesFuzzy(k)),
     );
     const recipeMatches: Cmd[] = [...recipeNameHits, ...recipeKwHits]
       .slice(0, 8)
@@ -167,12 +170,9 @@ export default function CommandPalette() {
         recipeId: r.id,
       }));
 
-    // 제철 재료 — 이름 + blurb 모두 검색
+    // 제철 재료 — 이름 + blurb 모두 검색 (fuzzy)
     const seasonMatches: Cmd[] = SEASONAL_PRODUCE
-      .filter((p) =>
-        p.name.toLowerCase().includes(query)
-        || (p.blurb?.toLowerCase().includes(query) ?? false),
-      )
+      .filter((p) => includesFuzzy(p.name) || (p.blurb ? includesFuzzy(p.blurb) : false))
       .slice(0, 6)
       .map((p) => ({
         kind: 'seasonal', id: `s-${p.name}`,
@@ -183,9 +183,9 @@ export default function CommandPalette() {
         ingredient: p.name,
       }));
 
-    // 보유 아이템 — 5개로 확대
+    // 보유 아이템 — 5개로 확대 (fuzzy)
     const itemMatches: Cmd[] = items
-      .filter((it) => it.name.toLowerCase().includes(query))
+      .filter((it) => includesFuzzy(it.name))
       .slice(0, 5)
       .map((it) => ({
         kind: 'nav' as const, id: `i-${it.id}`,
@@ -195,10 +195,10 @@ export default function CommandPalette() {
       }));
 
     const filteredNavs = navs.filter((n) =>
-      n.label.toLowerCase().includes(query) || (n.sub?.toLowerCase().includes(query) ?? false),
+      includesFuzzy(n.label) || (n.sub ? includesFuzzy(n.sub) : false),
     );
     const filteredActions = actions.filter((a) =>
-      a.label.toLowerCase().includes(query) || (a.sub?.toLowerCase().includes(query) ?? false),
+      includesFuzzy(a.label) || (a.sub ? includesFuzzy(a.sub) : false),
     );
 
     // mode 필터 적용

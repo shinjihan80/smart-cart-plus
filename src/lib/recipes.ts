@@ -75,6 +75,7 @@ export const RECIPES: readonly Recipe[] = [
   {
     id: 'r4', name: '토스트 & 스크램블', emoji: '🍞',
     keywords: ['식빵', '빵', '달걀', '계란'], time: '10분', difficulty: '간단', tags: ['아침'],
+    seasons: ['봄', '여름', '가을', '겨울'],
     blurb: '반숙 스크램블과 바삭한 토스트.',
     steps: ['달걀 2개에 우유 1큰술·소금 한 꼬집 풀어주기', '약불에 버터 녹인 팬에 천천히 저으며 익히기', '구운 식빵 위에 얹고 후추 살짝'],
   },
@@ -95,6 +96,7 @@ export const RECIPES: readonly Recipe[] = [
   {
     id: 'r7', name: '우유 시리얼', emoji: '🥛',
     keywords: ['우유', '시리얼', '그래놀라'], time: '3분', difficulty: '간단', tags: ['아침'],
+    seasons: ['봄', '여름', '가을', '겨울'],
     blurb: '가장 빠른 아침 한 끼.',
     steps: ['그릇에 시리얼을 담기', '차가운 우유를 붓기', '바나나·베리 등 과일을 취향껏 올리기'],
   },
@@ -108,6 +110,7 @@ export const RECIPES: readonly Recipe[] = [
   {
     id: 'r9', name: '볶음밥', emoji: '🍳',
     keywords: ['밥', '달걀', '계란', '햄', '양파'], time: '15분', difficulty: '간단',
+    seasons: ['봄', '여름', '가을', '겨울'],
     blurb: '냉장고 털이 만능 한 그릇.',
     steps: ['팬에 기름 두르고 양파·햄 볶기', '달걀을 풀어 스크램블 만들기', '식은 밥을 넣고 간장·소금으로 간해 센 불에 볶기'],
   },
@@ -121,6 +124,7 @@ export const RECIPES: readonly Recipe[] = [
   {
     id: 'r11', name: '미역국', emoji: '🍲',
     keywords: ['미역', '소고기'], time: '25분', difficulty: '보통',
+    seasons: ['봄', '여름', '가을', '겨울'],
     blurb: '담백하고 속 편한 국.',
     steps: ['미역을 물에 10분 불려 물기 짜기', '참기름에 소고기·미역 볶기', '물 700ml와 간장 1큰술 넣고 15분 끓이기'],
   },
@@ -155,6 +159,7 @@ export const RECIPES: readonly Recipe[] = [
   {
     id: 'r16', name: '잡채', emoji: '🥘',
     keywords: ['당면', '시금치', '소고기', '양파'], time: '30분', difficulty: '도전',
+    seasons: ['가을', '겨울'],
     blurb: '특별한 날의 잡채.',
     steps: ['당면을 10분 삶아 찬물에 헹구기', '시금치·양파·당근·소고기를 각각 볶기', '간장·참기름·설탕으로 재료를 한데 버무리기'],
   },
@@ -168,12 +173,14 @@ export const RECIPES: readonly Recipe[] = [
   {
     id: 'r18', name: '카레라이스', emoji: '🍛',
     keywords: ['카레', '감자', '당근', '양파', '고기'], time: '25분', difficulty: '보통',
+    seasons: ['가을', '겨울'],
     blurb: '든든한 한 그릇.',
     steps: ['양파·당근·감자·고기를 큼직하게 썰어 볶기', '물 600ml 부어 15분 끓이기', '카레 고형분을 녹여 5분 더 끓인 뒤 밥에 얹기'],
   },
   {
     id: 'r19', name: '프렌치토스트', emoji: '🥞',
     keywords: ['식빵', '빵', '달걀', '우유'], time: '10분', difficulty: '간단', tags: ['아침'],
+    seasons: ['가을', '겨울'],
     blurb: '달콤한 브런치.',
     steps: ['달걀·우유·설탕을 볼에 잘 섞기', '식빵을 달걀물에 30초 적시기', '버터 두른 팬에 앞뒤로 노릇하게 굽기'],
   },
@@ -211,6 +218,48 @@ export const RECIPES: readonly Recipe[] = [
     seasons: ['가을', '겨울'],
     blurb: '달큰한 가을·겨울 수프.',
     steps: ['단호박을 쪄서 숟가락으로 긁어 살만 모으기', '블렌더에 단호박·우유·버터를 갈기', '냄비에 옮겨 소금·후추로 간하고 5분 데우기'],
+  },
+  {
+    id: 'r25', name: '전어 구이', emoji: '🐟',
+    keywords: ['전어', '생선'], time: '15분', difficulty: '보통',
+    seasons: ['가을'],
+    blurb: '"가을 전어 굽는 냄새에 집 나간 며느리 돌아온다".',
+    steps: ['전어 비늘 벗겨 깨끗이 씻기', '소금 뿌려 10분 숙성', '예열된 그릴에 앞뒤로 5분씩 굽기'],
+  },
+  {
+    id: 'r26', name: '굴전', emoji: '🦪',
+    keywords: ['굴', '계란', '달걀', '밀가루'], time: '15분', difficulty: '간단',
+    seasons: ['겨울'],
+    blurb: '싱싱한 겨울 굴로 만드는 전.',
+    steps: ['굴을 소금물에 씻고 물기 제거', '밀가루·계란물 순서로 입히기', '기름 두른 팬에 앞뒤로 노릇하게 부치기'],
+  },
+  {
+    id: 'r27', name: '방어회', emoji: '🍣',
+    keywords: ['방어', '회'], time: '10분', difficulty: '보통',
+    seasons: ['겨울'],
+    blurb: '대방어 지방의 깊은 풍미.',
+    steps: ['방어를 얇게 저미기', '접시에 부채 모양으로 올리기', '간장·고추냉이 곁들여 내기'],
+  },
+  {
+    id: 'r28', name: '사과잼 토스트', emoji: '🍏',
+    keywords: ['사과', '식빵', '빵'], time: '20분', difficulty: '간단', tags: ['아침'],
+    seasons: ['가을'],
+    blurb: '햇사과로 만드는 홈메이드 잼.',
+    steps: ['사과를 잘게 썰어 설탕·레몬즙과 15분 졸이기', '구운 식빵에 두껍게 바르기', '시나몬 한 꼬집 뿌려 마무리'],
+  },
+  {
+    id: 'r29', name: '감 샐러드', emoji: '🍂',
+    keywords: ['감', '샐러드', '과일'], time: '10분', difficulty: '간단',
+    seasons: ['가을'],
+    blurb: '단감의 아삭함을 살린 샐러드.',
+    steps: ['단감 껍질 벗겨 얇게 슬라이스', '샐러드 채소·호두와 볼에 담기', '올리브유·발사믹 드레싱으로 마무리'],
+  },
+  {
+    id: 'r30', name: '팥죽', emoji: '🫘',
+    keywords: ['팥', '새알심', '찹쌀'], time: '60분', difficulty: '도전',
+    seasons: ['겨울'],
+    blurb: '동지의 따뜻한 한 그릇.',
+    steps: ['팥을 물에 담가 3시간 이상 불리기', '새 물로 1시간 푹 끓여 으깨기', '찹쌀 새알심을 넣고 10분 더 끓이기'],
   },
 ];
 
