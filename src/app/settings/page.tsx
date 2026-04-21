@@ -16,6 +16,7 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared'
 import NotificationSettings from '@/components/mypage/NotificationSettings';
 import AppInfo              from '@/components/mypage/AppInfo';
 import ProfilesSection      from '@/components/settings/ProfilesSection';
+import KnowledgeSummary     from '@/components/settings/KnowledgeSummary';
 
 export default function SettingsPage() {
   const { items, resetData, archiveExpired, restoreAll } = useCart();
@@ -184,6 +185,8 @@ export default function SettingsPage() {
             ))}
           </div>
         </motion.div>
+
+        <KnowledgeSummary />
 
         <AppInfo />
       </div>
