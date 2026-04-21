@@ -20,6 +20,7 @@ import { isSeasonalProduce, SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib
 import { currentSeasonByMonth } from '@/lib/season';
 import { SEASON_EMOJI }         from '@/lib/recipes';
 import { useProfiles }         from '@/lib/profile';
+import { usePersistedState }   from '@/lib/usePersistedState';
 
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
@@ -59,12 +60,27 @@ export default function FridgePage() {
   const { showToast } = useToast();
   const { profiles } = useProfiles();
   const [search, setSearch]         = useState('');
-  const [storageFilter, setStorageFilter] = useState<StorageFilter>('전체');
-  const [groupFilter, setGroupFilter]     = useState<GroupFilter>('전체');
-  const [sortBy, setSortBy]         = useState<SortKey>('dDay');
-  const [ownerFilter, setOwnerFilter] = useState<string>('전체');
+  const [storageFilter, setStorageFilter] = usePersistedState<StorageFilter>(
+    'nemoa-fridge-storage', '전체',
+    (raw) => (raw === '전체' || raw === '냉장' || raw === '냉동' || raw === '실온') ? raw : null,
+  );
+  const [groupFilter, setGroupFilter] = usePersistedState<GroupFilter>(
+    'nemoa-fridge-group', '전체',
+    (raw) => (raw === '전체' || raw === '신선식품' || raw === '가공식품' || raw === '음료·간식' || raw === '기타') ? raw : null,
+  );
+  const [sortBy, setSortBy] = usePersistedState<SortKey>(
+    'nemoa-fridge-sort', 'dDay',
+    (raw) => (raw === 'dDay' || raw === 'name' || raw === 'seasonal') ? raw : null,
+  );
+  const [ownerFilter, setOwnerFilter] = usePersistedState<string>(
+    'nemoa-fridge-owner', '전체',
+    (raw) => typeof raw === 'string' ? raw : null,
+  );
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
-  const [seasonalOnly, setSeasonalOnly]   = useState(false);
+  const [seasonalOnly, setSeasonalOnly] = usePersistedState<boolean>(
+    'nemoa-fridge-seasonal-only', false,
+    (raw) => typeof raw === 'boolean' ? raw : null,
+  );
   const season = currentSeasonByMonth();
 
   const allFood = allItems.filter(isFoodItem)

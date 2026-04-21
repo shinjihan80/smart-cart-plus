@@ -16,6 +16,7 @@ import {
 } from '@/lib/weather';
 import { useProfiles } from '@/lib/profile';
 import { useWearLog, daysSince } from '@/lib/wearLog';
+import { usePersistedState } from '@/lib/usePersistedState';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
@@ -61,17 +62,11 @@ export default function ClosetPage() {
   const { profiles } = useProfiles();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<GroupFilter>('전체');
-  const [sortBy, setSortBy] = useState<ClosetSort>(() => {
-    if (typeof window === 'undefined') return 'name';
-    const saved = window.localStorage.getItem('nemoa-closet-sort');
-    if (saved === 'name' || saved === 'thickness' || saved === 'match'
-        || saved === 'wornMost' || saved === 'wornLeast') return saved;
-    return 'name';
-  });
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem('nemoa-closet-sort', sortBy);
-  }, [sortBy]);
+  const [sortBy, setSortBy] = usePersistedState<ClosetSort>(
+    'nemoa-closet-sort', 'name',
+    (raw) => (raw === 'name' || raw === 'thickness' || raw === 'match'
+      || raw === 'wornMost' || raw === 'wornLeast') ? raw : null,
+  );
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [ownerFilter, setOwnerFilter] = useState<string>('전체');  // 'id' | '전체' | '공용'
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
