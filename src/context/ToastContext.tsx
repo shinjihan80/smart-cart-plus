@@ -34,6 +34,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
 
+      {/* 스크린리더용 aria-live 영역 — toast가 나오는 즉시 읽힘 */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {toast?.msg ?? ''}
+      </div>
+
       <AnimatePresence>
         {toast && (
           <motion.div

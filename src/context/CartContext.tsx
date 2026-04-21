@@ -27,6 +27,8 @@ interface CartContextValue {
   undoRemove:      () => void;
   resetData:       () => void;
   archiveExpired:  () => number;
+  /** 아카이브에서 items로 되돌림. 식품은 구매일을 오늘로 갱신해 신선도 회복. */
+  restoreFromArchive: (id: string) => boolean;
   discardCount:    number;
   discardHistory:  DiscardRecord[];
   /** 백업 복원용 — 카트 상태 전체 교체. 호출 전 유효성 검증은 호출자 책임. */
@@ -199,6 +201,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return count;
   }, []);
 
+  const restoreFromArchive = useCallback((id: string): boolean => {
+    let ok = false;
+    setArchived((prev) => {
+      const target = prev.find((x) => x.id === id);
+      if (!target) return prev;
+      setItems((cur) => {
+        if (cur.some((x) => x.id === id)) return cur;
+        // 식품은 구매일을 오늘로 갱신해 보관 기한 리셋
+        const restored = isFoodItem(target)
+          ? { ...target, purchaseDate: new Date().toISOString().split('T')[0] }
+          : target;
+        return [restored, ...cur];
+      });
+      ok = true;
+      return prev.filter((x) => x.id !== id);
+    });
+    return ok;
+  }, []);
+
   const resetData = useCallback(() => {
     setItems(mockCartItems);
     setArchived([]);
@@ -227,7 +248,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider value={{
-      items, archived, addItems, updateItem, removeItem, undoRemove, resetData, archiveExpired,
+      items, archived, addItems, updateItem, removeItem, undoRemove, resetData, archiveExpired, restoreFromArchive,
       discardCount, discardHistory, restoreAll,
     }}>
       {children}

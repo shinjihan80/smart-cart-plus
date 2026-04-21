@@ -31,7 +31,7 @@ import SeasonalHistorySection                    from '@/components/mypage/Seaso
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
 export default function MyPage() {
-  const { items, archived, discardCount, discardHistory, addItems } = useCart();
+  const { items, archived, discardCount, discardHistory, addItems, restoreFromArchive } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
   const backup = useBackupStatus();
@@ -247,12 +247,25 @@ export default function MyPage() {
             <h3 className="text-xs text-gray-400 font-medium mb-2">아카이브 ({archived.length}개)</h3>
             <div className="flex flex-col gap-1.5">
               {archived.slice(0, 5).map((item, i) => (
-                <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{item.category === '식품' ? '🥦' : '👗'}</span>
+                <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1 gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm shrink-0">{item.category === '식품' ? '🥦' : '👗'}</span>
                     <span className="text-sm text-gray-500 truncate">{item.name}</span>
                   </div>
-                  <span className="text-[10px] text-gray-300">{item.category}</span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] text-gray-300">{item.category}</span>
+                    <button
+                      onClick={() => {
+                        const ok = restoreFromArchive(item.id);
+                        if (ok) {
+                          showToast(`"${item.name}" 복원했어요${item.category === '식품' ? ' (구매일 오늘로)' : ''}.`);
+                        }
+                      }}
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                    >
+                      복원
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

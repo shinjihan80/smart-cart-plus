@@ -51,7 +51,7 @@ export default function RootLayout({
           본문으로 건너뛰기
         </a>
         <Providers>
-          <main id="main-content" className="flex-1 pb-20 max-w-md mx-auto w-full">
+          <main id="main-content" className="flex-1 pb-20 max-w-md sm:max-w-lg mx-auto w-full">
             {children}
           </main>
           <ScrollToTop />

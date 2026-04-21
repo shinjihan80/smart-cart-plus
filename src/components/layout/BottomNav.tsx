@@ -46,7 +46,7 @@ export default function BottomNav() {
   return (
     <>
       <nav aria-label="메인 메뉴" className="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm border-t border-gray-100">
-        <div className="max-w-md mx-auto flex">
+        <div className="max-w-md sm:max-w-lg mx-auto flex">
           {NAV_ITEMS.map((entry) => {
             if (entry.kind === 'action') {
               const Icon = entry.icon;
