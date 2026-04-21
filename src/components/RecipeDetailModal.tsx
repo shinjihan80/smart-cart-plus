@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { parseRecipeSeconds, recipeGradient, type Recipe } from '@/lib/recipes';
+import { parseRecipeSeconds, recipeGradient, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { useToast } from '@/context/ToastContext';
+import { currentSeasonByMonth } from '@/lib/season';
+import { isSeasonalProduce } from '@/lib/seasonalProduce';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -53,6 +55,13 @@ export default function RecipeDetailModal({
   // 조리 로그
   const { getEntry: getCookEntry, markCooked } = useCookLog();
   const cook = getCookEntry(recipe.id);
+
+  const season = currentSeasonByMonth();
+  const isSeasonRecipe = !!recipe.seasons?.includes(season);
+  const seasonalKeywords = useMemo(
+    () => new Set(recipe.keywords.filter((kw) => isSeasonalProduce(kw, season))),
+    [recipe.keywords, season],
+  );
 
   // 부족 재료 = 레시피 키워드 - 매칭된 이름에 포함된 키워드
   const missingKeywords = useMemo(() => {
@@ -182,6 +191,14 @@ export default function RecipeDetailModal({
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/80 text-brand-primary font-medium">
                   {recipe.difficulty}
                 </span>
+                {isSeasonRecipe && (
+                  <span
+                    className="text-[10px] px-2 py-0.5 rounded-full bg-white/90 text-brand-primary font-semibold"
+                    title={`${season}철 추천 레시피 — 제철 재료로 가장 맛있어요`}
+                  >
+                    {SEASON_EMOJI[season]} {season}철
+                  </span>
+                )}
                 {recipe.tags?.map((tag) => (
                   <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-white/60 text-gray-500">
                     {tag}
@@ -195,11 +212,22 @@ export default function RecipeDetailModal({
             <div className="bg-brand-success/5 border border-brand-success/15 rounded-2xl px-3 py-2.5 mb-3">
               <p className="text-[10px] text-gray-500 mb-1">보유 중인 재료</p>
               <div className="flex gap-1 flex-wrap">
-                {matchedItems.map((name) => (
-                  <span key={name} className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-brand-success/20 text-brand-success font-medium">
-                    ✓ {name}
-                  </span>
-                ))}
+                {matchedItems.map((name) => {
+                  const inSeason = isSeasonalProduce(name, season);
+                  return (
+                    <span
+                      key={name}
+                      className={`text-[10px] px-2 py-0.5 rounded-full bg-white border font-medium ${
+                        inSeason
+                          ? 'border-brand-primary/30 text-brand-primary'
+                          : 'border-brand-success/20 text-brand-success'
+                      }`}
+                    >
+                      ✓ {name}
+                      {inSeason && <span className="ml-1">{SEASON_EMOJI[season]}</span>}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -225,18 +253,23 @@ export default function RecipeDetailModal({
               <div className="flex gap-1.5 flex-wrap">
                 {missingKeywords.map((kw) => {
                   const added = inShopping(kw);
+                  const inSeason = seasonalKeywords.has(kw);
                   return (
                     <button
                       key={kw}
                       onClick={() => addToShopping(kw, recipe.name)}
                       disabled={added}
+                      title={inSeason ? `${season}철 제철 재료` : undefined}
                       className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors ${
                         added
                           ? 'bg-gray-100 text-gray-400 cursor-default'
-                          : 'bg-white border border-amber-200 text-amber-700 hover:bg-amber-100 active:scale-95'
+                          : inSeason
+                            ? 'bg-white border border-brand-primary/30 text-brand-primary hover:bg-brand-primary/5 active:scale-95'
+                            : 'bg-white border border-amber-200 text-amber-700 hover:bg-amber-100 active:scale-95'
                       }`}
                     >
                       {added ? `✓ ${kw}` : `+ ${kw}`}
+                      {inSeason && !added && <span className="ml-1">{SEASON_EMOJI[season]}</span>}
                     </button>
                   );
                 })}
