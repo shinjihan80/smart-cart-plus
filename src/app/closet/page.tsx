@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
@@ -17,6 +17,7 @@ import {
 import { useProfiles } from '@/lib/profile';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { usePersistedState } from '@/lib/usePersistedState';
+import { useSearchShortcut } from '@/lib/useSearchShortcut';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
@@ -78,6 +79,8 @@ export default function ClosetPage() {
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [showHibernating, setShowHibernating] = useState(false);
   const { log: wearLog } = useWearLog();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  useSearchShortcut(searchInputRef, () => setSearch(''));
 
   useEffect(() => {
     let cancelled = false;
@@ -319,13 +322,15 @@ export default function ClosetPage() {
           <div className="flex-1 relative">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
             <input
+              ref={searchInputRef}
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="상품 검색"
-              aria-label="옷장 상품 검색"
-              className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+              aria-label="옷장 상품 검색 (⌘K)"
+              className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
             />
+            <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">⌘K</kbd>
           </div>
         </div>
         {/* 프로필 필터 (프로필 2명 이상일 때만) */}

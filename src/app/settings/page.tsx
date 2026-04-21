@@ -31,6 +31,23 @@ export default function SettingsPage() {
     }
   }
 
+  /** 안전한 초기화 — 백업 다운로드 후 전체 초기화. 복원 가능한 지점 확보. */
+  function handleBackupAndReset() {
+    if (!confirm('전체 상태를 백업한 뒤 데이터를 초기화할까요?\n\n1) JSON 백업 파일이 다운로드됩니다.\n2) 확인되면 샘플 데이터로 복원됩니다.')) return;
+    try {
+      const filename = downloadBackup();
+      backup.refresh();
+      // 다운로드 시작은 즉시, 파일 저장은 브라우저가 비동기로 처리 — 짧은 지연 후 초기화
+      setTimeout(() => {
+        resetData();
+        showToast(`백업 저장(${filename}) + 초기화 완료`);
+      }, 300);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '알 수 없는 오류';
+      showToast(`백업 실패 — 초기화 중단: ${msg}`);
+    }
+  }
+
   function handleArchive() {
     const count = archiveExpired();
     if (count > 0) showToast(`${count}개 만료 식품이 아카이브됐어요.`);
@@ -127,6 +144,7 @@ export default function SettingsPage() {
     { label: 'JSON 내보내기',   emoji: '📄', desc: '현재 아이템만 JSON으로 내보내기',   action: handleExportJSON },
     { label: 'CSV 내보내기',    emoji: '📊', desc: '현재 아이템만 CSV로 내보내기',      action: handleExportCSV },
     { label: '검색어·필터 초기화', emoji: '🧹', desc: '최근 검색어·필터·정렬 설정 비우기',  action: handleClearPreferences },
+    { label: '백업 후 초기화',   emoji: '🛡️', desc: '자동 백업 → 샘플 데이터로 안전 초기화',  action: handleBackupAndReset },
     { label: '전체 데이터 초기화', emoji: '🔄', desc: '샘플 데이터로 복원 (주의: 아이템 삭제)', action: handleReset },
   ];
 

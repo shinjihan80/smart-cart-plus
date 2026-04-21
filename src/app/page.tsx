@@ -11,9 +11,10 @@ import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { countRecipesByIngredient, type Recipe } from '@/lib/recipes';
-import { isSeasonalProduce } from '@/lib/seasonalProduce';
+import { isSeasonalProduce, SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { usePersistedState } from '@/lib/usePersistedState';
+import { useSearchShortcut } from '@/lib/useSearchShortcut';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
@@ -44,7 +45,7 @@ function getGreeting(): string {
 }
 
 export default function HomePage() {
-  const { items, removeItem, undoRemove, discardHistory } = useCart();
+  const { items, addItems, removeItem, undoRemove, discardHistory } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
   const [ready, setReady] = useState(false);
@@ -70,8 +71,33 @@ export default function HomePage() {
   const searchResults = searchQ
     ? items.filter((i) => i.name.toLowerCase().includes(searchQ.toLowerCase()))
     : [];
+  const season         = currentSeasonByMonth();
   const recipeHits     = searchQ ? countRecipesByIngredient(searchQ) : 0;
-  const isSeasonSearch = searchQ ? isSeasonalProduce(searchQ, currentSeasonByMonth()) : false;
+  const isSeasonSearch = searchQ ? isSeasonalProduce(searchQ, season) : false;
+  // 검색어와 부분 일치하는 제철 재료 (미보유 우선)
+  const seasonalHit = searchQ
+    ? SEASONAL_PRODUCE.find((p) =>
+        p.seasons.includes(season)
+        && (p.name.toLowerCase().includes(searchQ.toLowerCase()) || searchQ.toLowerCase().includes(p.name.toLowerCase()))
+        && !items.some((i) => i.name === p.name),
+      ) ?? null
+    : null;
+
+  function handleAddSeasonal(p: typeof SEASONAL_PRODUCE[number]) {
+    const { added } = addItems([{
+      id: `hs-${Date.now()}`,
+      name: p.name,
+      category: '식품',
+      foodCategory: p.foodCategory,
+      storageType: p.storageType,
+      baseShelfLifeDays: p.baseShelfLifeDays,
+      purchaseDate: new Date().toISOString().split('T')[0],
+    }]);
+    if (added > 0) showToast(`"${p.name}" 냉장고에 담았어요! 제철이라 가장 맛있을 때예요.`);
+    else showToast(`"${p.name}" 이미 있어요.`);
+    setSearch('');
+    pushRecent(p.name);
+  }
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,38 +106,7 @@ export default function HomePage() {
     return () => clearTimeout(t);
   }, []);
 
-  // 키보드 단축키: ⌘K/Ctrl+K 또는 / → 포커스, Esc → 비우기 + 블러
-  useEffect(() => {
-    function isEditable(el: EventTarget | null): boolean {
-      if (!(el instanceof HTMLElement)) return false;
-      const tag = el.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-      return el.isContentEditable;
-    }
-    function onKey(e: KeyboardEvent) {
-      // ⌘K / Ctrl+K — 항상 동작
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        searchInputRef.current?.select();
-        return;
-      }
-      // '/' — 입력 중이 아닐 때만
-      if (e.key === '/' && !isEditable(e.target)) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-        return;
-      }
-      // Esc — 검색창에 포커스돼 있을 때만 비우기 + 블러
-      if (e.key === 'Escape' && document.activeElement === searchInputRef.current) {
-        e.preventDefault();
-        setSearch('');
-        searchInputRef.current?.blur();
-      }
-    }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  useSearchShortcut(searchInputRef, () => setSearch(''));
 
   return (
     <div>
@@ -202,6 +197,19 @@ export default function HomePage() {
                 </Link>
               );
             })}
+            {seasonalHit && (
+              <button
+                onClick={() => handleAddSeasonal(seasonalHit)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-brand-success/5 border border-brand-success/20 hover:bg-brand-success/10 transition-colors text-left"
+              >
+                <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-sm">{seasonalHit.emoji}</div>
+                <span className="text-sm text-brand-success font-semibold flex-1 truncate">
+                  🌸 제철 {seasonalHit.name} 냉장고에 담기
+                  {seasonalHit.peak === season && <span className="text-[10px] ml-1 opacity-80">· 피크</span>}
+                </span>
+                <ChevronRight size={12} className="text-brand-success/60" />
+              </button>
+            )}
             {recipeHits > 0 && (
               <button
                 onClick={() => { pushRecent(searchQ); setRecipeBrowser(searchQ); }}
@@ -215,7 +223,7 @@ export default function HomePage() {
                 <ChevronRight size={12} className="text-brand-primary/60" />
               </button>
             )}
-            {searchResults.length === 0 && recipeHits === 0 && (
+            {searchResults.length === 0 && recipeHits === 0 && !seasonalHit && (
               <p className="text-xs text-gray-400 text-center py-2">검색 결과가 없어요</p>
             )}
           </div>

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isFoodItem, type StorageType, type FoodGroup, FOOD_GROUP } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { Search } from 'lucide-react';
+import { useSearchShortcut } from '@/lib/useSearchShortcut';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/fridge/shared';
 import SwipeFoodCard           from '@/components/fridge/SwipeFoodCard';
@@ -81,6 +82,8 @@ export default function FridgePage() {
     'nemoa-fridge-seasonal-only', false,
     (raw) => typeof raw === 'boolean' ? raw : null,
   );
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  useSearchShortcut(searchInputRef, () => setSearch(''));
   const season = currentSeasonByMonth();
 
   const allFood = allItems.filter(isFoodItem)
@@ -309,13 +312,15 @@ export default function FridgePage() {
             <div className="flex-1 relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
               <input
+                ref={searchInputRef}
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="상품 검색"
-                aria-label="냉장고 상품 검색"
-                className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                aria-label="냉장고 상품 검색 (⌘K)"
+                className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
               />
+              <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">⌘K</kbd>
             </div>
           </div>
           {/* 제철 자동완성 — 검색어에 매칭되는 제철 재료 + 현재 미보유 */}
