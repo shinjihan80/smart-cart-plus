@@ -7,6 +7,12 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { ChevronRight, Sparkles, Search } from 'lucide-react';
 import NemoaLogo from '@/components/layout/NemoaLogo';
+import RecipeBrowserModal from '@/components/RecipeBrowserModal';
+import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { countRecipesByIngredient, type Recipe } from '@/lib/recipes';
+import { isSeasonalProduce } from '@/lib/seasonalProduce';
+import { currentSeasonByMonth } from '@/lib/season';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
@@ -39,13 +45,19 @@ function getGreeting(): string {
 export default function HomePage() {
   const { items, removeItem, undoRemove, discardHistory } = useCart();
   const { showToast } = useToast();
+  const { isFavorite, toggle } = useRecipeFavorites();
   const [ready, setReady] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [search, setSearch] = useState('');
+  const [recipeBrowser, setRecipeBrowser] = useState<string | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
-  const searchResults = search.trim()
-    ? items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
+  const searchQ = search.trim();
+  const searchResults = searchQ
+    ? items.filter((i) => i.name.toLowerCase().includes(searchQ.toLowerCase()))
     : [];
+  const recipeHits     = searchQ ? countRecipesByIngredient(searchQ) : 0;
+  const isSeasonSearch = searchQ ? isSeasonalProduce(searchQ, currentSeasonByMonth()) : false;
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
@@ -89,9 +101,9 @@ export default function HomePage() {
             className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
         </div>
-        {search.trim() && (
+        {searchQ && (
           <div className="mt-2 flex flex-col gap-1.5">
-            {searchResults.length > 0 ? searchResults.slice(0, 5).map((item) => {
+            {searchResults.slice(0, 5).map((item) => {
               const emoji = isFoodItem(item)
                 ? (FOOD_EMOJI[(item as FoodItem).foodCategory] ?? '📦')
                 : (FASHION_EMOJI[item.category as keyof typeof FASHION_EMOJI] ?? '👕');
@@ -114,7 +126,21 @@ export default function HomePage() {
                   <ChevronRight size={12} className="text-gray-300" />
                 </Link>
               );
-            }) : (
+            })}
+            {recipeHits > 0 && (
+              <button
+                onClick={() => setRecipeBrowser(searchQ)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 hover:bg-brand-primary/10 transition-colors text-left"
+              >
+                <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-sm">📖</div>
+                <span className="text-sm text-brand-primary font-semibold flex-1 truncate">
+                  &ldquo;{searchQ}&rdquo; 레시피 {recipeHits}개 보기
+                </span>
+                {isSeasonSearch && <span className="text-[10px] text-brand-primary shrink-0">🌸 제철</span>}
+                <ChevronRight size={12} className="text-brand-primary/60" />
+              </button>
+            )}
+            {searchResults.length === 0 && recipeHits === 0 && (
               <p className="text-xs text-gray-400 text-center py-2">검색 결과가 없어요</p>
             )}
           </div>
@@ -176,6 +202,27 @@ export default function HomePage() {
           <RecentlyAdded  items={items} />
           <TipOfTheDay />
         </div>
+      )}
+
+      {recipeBrowser && (
+        <RecipeBrowserModal
+          initialSearch={recipeBrowser}
+          onSelect={(recipe) => {
+            setRecipeBrowser(null);
+            setSelectedRecipe(recipe);
+          }}
+          onClose={() => setRecipeBrowser(null)}
+        />
+      )}
+
+      {selectedRecipe && (
+        <RecipeDetailModal
+          recipe={selectedRecipe}
+          matchedItems={[]}
+          isFavorite={isFavorite(selectedRecipe.id)}
+          onToggleFavorite={() => toggle(selectedRecipe.id)}
+          onClose={() => setSelectedRecipe(null)}
+        />
       )}
     </div>
   );
