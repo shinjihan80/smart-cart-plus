@@ -1,13 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
-import { useRecipeFavorites } from '@/lib/recipeFavorites';
-import RecipeBrowserModal from '@/components/RecipeBrowserModal';
-import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { SEASON_EMOJI, countRecipesByIngredient } from '@/lib/recipes';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface SeasonalProduceSectionProps {
@@ -17,9 +13,6 @@ interface SeasonalProduceSectionProps {
 
 export default function SeasonalProduceSection({ currentNames, onQuickAdd }: SeasonalProduceSectionProps) {
   const season = currentSeasonByMonth();
-  const { isFavorite, toggle } = useRecipeFavorites();
-  const [browserIngredient, setBrowserIngredient] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Recipe | null>(null);
 
   const suggestions = currentSeasonalProduce(season, 10)
     .filter((p) => !currentNames.some((n) => n === p.name || n.includes(p.name)))
@@ -62,7 +55,7 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
                 </button>
                 {recipeCount > 0 && (
                   <button
-                    onClick={() => setBrowserIngredient(p.name)}
+                    onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: `?${p.name}` } }))}
                     title={`${p.name}(으)로 만드는 요리 보기`}
                     className="text-[10px] px-2 py-1 border-l border-brand-primary/15 text-brand-primary/80 hover:bg-brand-primary/10 transition-colors"
                   >
@@ -74,27 +67,6 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
           })}
         </div>
       </motion.div>
-
-      {browserIngredient && (
-        <RecipeBrowserModal
-          initialSearch={browserIngredient}
-          onSelect={(recipe) => {
-            setBrowserIngredient(null);
-            setSelected(recipe);
-          }}
-          onClose={() => setBrowserIngredient(null)}
-        />
-      )}
-
-      {selected && (
-        <RecipeDetailModal
-          recipe={selected}
-          matchedItems={[]}
-          isFavorite={isFavorite(selected.id)}
-          onToggleFavorite={() => toggle(selected.id)}
-          onClose={() => setSelected(null)}
-        />
-      )}
     </>
   );
 }

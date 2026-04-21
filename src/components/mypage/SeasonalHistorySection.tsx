@@ -8,10 +8,7 @@ import {
   isSeasonalProduce,
   lookupSeasonalEmoji,
 } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
-import { useRecipeFavorites } from '@/lib/recipeFavorites';
-import RecipeBrowserModal from '@/components/RecipeBrowserModal';
-import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { SEASON_EMOJI, countRecipesByIngredient } from '@/lib/recipes';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useToast } from '@/context/ToastContext';
@@ -27,10 +24,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
   const season = currentSeasonByMonth();
   const { has, add } = useShoppingList();
   const { showToast } = useToast();
-  const { isFavorite, toggle } = useRecipeFavorites();
   const [missedOpen, setMissedOpen] = useState(false);
-  const [browserIngredient, setBrowserIngredient] = useState<string | null>(null);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   const { ranked, total, distinct, missed, totalInSeason } = useMemo(() => {
     const winStart = seasonStart(season);
@@ -194,7 +188,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                         </button>
                         {recipeCount > 0 && (
                           <button
-                            onClick={() => setBrowserIngredient(p.name)}
+                            onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: `?${p.name}` } }))}
                             title={`${p.name}(으)로 만드는 요리 보기`}
                             className="text-[10px] px-2 py-1 border-l border-amber-100 text-amber-700/80 hover:bg-amber-100 transition-colors"
                           >
@@ -217,27 +211,6 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
         </div>
       )}
     </motion.div>
-
-    {browserIngredient && (
-      <RecipeBrowserModal
-        initialSearch={browserIngredient}
-        onSelect={(recipe) => {
-          setBrowserIngredient(null);
-          setSelectedRecipe(recipe);
-        }}
-        onClose={() => setBrowserIngredient(null)}
-      />
-    )}
-
-    {selectedRecipe && (
-      <RecipeDetailModal
-        recipe={selectedRecipe}
-        matchedItems={[]}
-        isFavorite={isFavorite(selectedRecipe.id)}
-        onToggleFavorite={() => toggle(selectedRecipe.id)}
-        onClose={() => setSelectedRecipe(null)}
-      />
-    )}
     </>
   );
 }
