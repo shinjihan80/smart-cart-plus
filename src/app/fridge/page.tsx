@@ -23,7 +23,13 @@ import { useProfiles }         from '@/lib/profile';
 
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
-type SortKey       = 'dDay' | 'name';
+type SortKey       = 'dDay' | 'name' | 'seasonal';
+
+const SORT_CYCLE: Record<SortKey, { next: SortKey; label: string }> = {
+  dDay:     { next: 'name',     label: '📅 임박순' },
+  name:     { next: 'seasonal', label: '🔤 이름순' },
+  seasonal: { next: 'dDay',     label: '🌸 제철 먼저' },
+};
 
 const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType; days: number; img: string }[] = [
   { name: '우유 1L',    foodCategory: '유제품',      storageType: '냉장', days: 10, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop' },
@@ -74,7 +80,15 @@ export default function FridgePage() {
     })
     .filter((i) => !seasonalOnly || isSeasonalProduce(i.name, season))
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sortBy === 'dDay' ? a.dDay - b.dDay : a.name.localeCompare(b.name));
+    .sort((a, b) => {
+      if (sortBy === 'dDay') return a.dDay - b.dDay;
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      // seasonal: 제철 먼저 → 동률이면 임박순
+      const aSeason = isSeasonalProduce(a.name, season) ? 0 : 1;
+      const bSeason = isSeasonalProduce(b.name, season) ? 0 : 1;
+      if (aSeason !== bSeason) return aSeason - bSeason;
+      return a.dDay - b.dDay;
+    });
 
   const seasonalCount = allFood.filter((i) => isSeasonalProduce(i.name, season)).length;
 
@@ -344,10 +358,10 @@ export default function FridgePage() {
               ))}
             </div>
             <button
-              onClick={() => setSortBy(sortBy === 'dDay' ? 'name' : 'dDay')}
+              onClick={() => setSortBy(SORT_CYCLE[sortBy].next)}
               className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
             >
-              {sortBy === 'dDay' ? '📅 임박순' : '🔤 이름순'}
+              {SORT_CYCLE[sortBy].label}
             </button>
           </div>
           <div className="flex gap-1.5 items-center flex-wrap">
