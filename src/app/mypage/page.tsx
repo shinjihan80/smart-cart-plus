@@ -26,6 +26,7 @@ import ClosetCleanupSection                      from '@/components/mypage/Close
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
 import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
 import PaletteButton                              from '@/components/PaletteButton';
+import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
 import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
@@ -152,6 +153,10 @@ export default function MyPage() {
         )}
 
         <SpendingSection />
+
+        <SectionErrorBoundary label="올해 활동 요약">
+          <AnnualSummarySection discardHistory={discardHistory} />
+        </SectionErrorBoundary>
 
         {/* 쇼핑몰 연동 */}
         <motion.div
