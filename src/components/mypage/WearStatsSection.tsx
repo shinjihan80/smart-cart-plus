@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { isClothingItem, FASHION_EMOJI, type CartItem } from '@/types';
 import { useWearLog, daysSince } from '@/lib/wearLog';
+import { FASHION_GROUP, type FashionGroup } from '@/types';
 import WeekdayPatternChart from './WeekdayPatternChart';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -107,6 +108,49 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
       )}
 
       <WeekdayPatternChart datesByKey={log} label="요일별 착용 패턴" />
+
+      {(() => {
+        // 카테고리별 착용 횟수 — 의류/신발/가방/액세서리
+        const catCounts: Record<FashionGroup, number> = {
+          '의류': 0, '신발': 0, '가방': 0, '액세서리': 0,
+        };
+        for (const c of clothes) {
+          const count = log[c.id]?.length ?? 0;
+          catCounts[FASHION_GROUP[c.category] ?? '의류'] += count;
+        }
+        const total = Object.values(catCounts).reduce((a, b) => a + b, 0);
+        if (total === 0) return null;
+        const bars: Array<{ key: FashionGroup; emoji: string; color: string }> = [
+          { key: '의류',     emoji: '👕', color: 'bg-brand-primary' },
+          { key: '신발',     emoji: '👟', color: 'bg-brand-success' },
+          { key: '가방',     emoji: '👜', color: 'bg-amber-400' },
+          { key: '액세서리', emoji: '✨', color: 'bg-rose-400' },
+        ];
+        return (
+          <div className="mb-3">
+            <p className="text-[10px] text-brand-primary font-semibold mb-1.5">👗 카테고리 분포</p>
+            <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100">
+              {bars.map((b) => {
+                const pct = Math.round((catCounts[b.key] / total) * 100);
+                if (pct === 0) return null;
+                return (
+                  <div
+                    key={b.key}
+                    className={b.color}
+                    style={{ width: `${pct}%` }}
+                    title={`${b.emoji} ${b.key} ${catCounts[b.key]}회`}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex justify-between mt-1 text-[9px] text-gray-400 tabular-nums flex-wrap gap-1">
+              {bars.filter((b) => catCounts[b.key] > 0).map((b) => (
+                <span key={b.key}>{b.emoji} {catCounts[b.key]}</span>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {topWorn.length > 0 && (
         <div className="mb-3">

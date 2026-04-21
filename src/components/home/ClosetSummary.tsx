@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { isClothingItem, type CartItem } from '@/types';
 import { useProfiles } from '@/lib/profile';
+import { useWearLog } from '@/lib/wearLog';
 import { Widget } from './shared';
 
 export default function ClosetSummary({ items }: { items: CartItem[] }) {
   const { profiles } = useProfiles();
+  const { log: wearLog } = useWearLog();
   const allClothes = items.filter(isClothingItem);
   const clothes    = allClothes.filter((c) => !c.hibernating);
   const hibernatingCount = allClothes.length - clothes.length;
@@ -20,6 +22,17 @@ export default function ClosetSummary({ items }: { items: CartItem[] }) {
         count: clothes.filter((c) => c.ownerId === p.id).length,
       })).filter((o) => o.count > 0)
     : [];
+
+  // 로테이션 밸런스 뱃지 — 기록 있는 옷이 5벌+ 일 때만 계산
+  const rotationBadge = (() => {
+    const counts = clothes.map((c) => wearLog[c.id]?.length ?? 0).filter((n) => n > 0);
+    if (counts.length < 5) return null;
+    const mean = counts.reduce((s, n) => s + n, 0) / counts.length;
+    const variance = counts.reduce((s, n) => s + (n - mean) ** 2, 0) / counts.length;
+    const cv = mean > 0 ? Math.sqrt(variance) / mean : 0;
+    const score = Math.round(Math.max(0, Math.min(100, (1 - cv / 1.5) * 100)));
+    return score;
+  })();
 
   return (
     <Link href="/closet" className="block">
@@ -65,6 +78,20 @@ export default function ClosetSummary({ items }: { items: CartItem[] }) {
                   {o.name} {o.count}
                 </span>
               ))}
+              {rotationBadge !== null && (
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full font-medium tabular-nums ${
+                    rotationBadge >= 70
+                      ? 'bg-brand-success/10 text-brand-success'
+                      : rotationBadge >= 40
+                        ? 'bg-brand-primary/10 text-brand-primary'
+                        : 'bg-brand-warning/10 text-brand-warning'
+                  }`}
+                  title="로테이션 밸런스 — 옷을 얼마나 고루 입나"
+                >
+                  🔄 {rotationBadge}
+                </span>
+              )}
             </div>
           </div>
         </div>
