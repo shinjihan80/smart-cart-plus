@@ -157,7 +157,7 @@ export default function HomePage() {
       {/* 퀵 링크 4개 */}
       <div className="px-4 pt-3">
         <SectionErrorBoundary label="퀵 링크">
-          <QuickLinks />
+          <QuickLinks items={items} history={discardHistory} />
         </SectionErrorBoundary>
       </div>
 

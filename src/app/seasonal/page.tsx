@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 import { SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
@@ -41,16 +42,36 @@ function produceForMonth(month: number): SeasonalProduce[] {
 
 type ViewMode = 'season' | 'month';
 
-export default function SeasonalPage() {
+function isSeason(v: unknown): v is Season {
+  return v === '봄' || v === '여름' || v === '가을' || v === '겨울';
+}
+
+function SeasonalPageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const currentSeason = currentSeasonByMonth();
   const currentMonth  = new Date().getMonth() + 1;
-  const [view, setView] = useState<ViewMode>('season');
-  const [selected, setSelected] = useState<Season>(currentSeason);
+
+  const initialView: ViewMode = searchParams.get('view') === 'month' ? 'month' : 'season';
+  const qSeason = searchParams.get('season');
+  const initialSelected: Season = isSeason(qSeason) ? qSeason : currentSeason;
+
+  const [view, setView] = useState<ViewMode>(initialView);
+  const [selected, setSelected] = useState<Season>(initialSelected);
   const { has, add } = useShoppingList();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
   const [browserIngredient, setBrowserIngredient] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+
+  // URL 쿼리 동기화
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (view !== 'season') params.set('view', view);
+    if (selected !== currentSeason) params.set('season', selected);
+    const qs = params.toString();
+    router.replace(qs ? `/seasonal?${qs}` : '/seasonal', { scroll: false });
+  }, [view, selected, currentSeason, router]);
 
   const items = SEASONAL_PRODUCE
     .filter((p) => p.seasons.includes(selected))
@@ -291,5 +312,13 @@ export default function SeasonalPage() {
         />
       )}
     </>
+  );
+}
+
+export default function SeasonalPage() {
+  return (
+    <Suspense fallback={null}>
+      <SeasonalPageInner />
+    </Suspense>
   );
 }
