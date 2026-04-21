@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { parseRecipeSeconds, recipeGradient, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { parseRecipeSeconds, recipeGradient, SEASON_EMOJI, RECIPES, type Recipe } from '@/lib/recipes';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useModalA11y } from '@/lib/useModalA11y';
@@ -54,8 +54,14 @@ export default function RecipeDetailModal({
   // 쇼핑 리스트
   const { has: inShopping, add: addToShopping } = useShoppingList();
   // 조리 로그
-  const { getEntry: getCookEntry, markCooked } = useCookLog();
+  const { getEntry: getCookEntry, markCooked, getCoCookedWith } = useCookLog();
   const cook = getCookEntry(recipe.id);
+  const coCooked = getCoCookedWith(recipe.id, 3)
+    .map((co) => {
+      const r = RECIPES.find((x) => x.id === co.id);
+      return r ? { recipe: r, count: co.count } : null;
+    })
+    .filter((x): x is { recipe: Recipe; count: number } => x !== null);
 
   const season = currentSeasonByMonth();
   const isSeasonRecipe = !!recipe.seasons?.includes(season);
@@ -334,6 +340,25 @@ export default function RecipeDetailModal({
               ))}
             </ol>
           </div>
+
+          {coCooked.length > 0 && (
+            <div className="mt-4">
+              <p className="text-[11px] font-semibold text-gray-500 mb-2">🍳 같이 만들었던 메뉴</p>
+              <div className="flex gap-1.5 flex-wrap">
+                {coCooked.map((co) => (
+                  <button
+                    key={co.recipe.id}
+                    onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: co.recipe.id } }))}
+                    className="flex items-center gap-1 text-[11px] pl-1.5 pr-2 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                  >
+                    <span>{co.recipe.emoji}</span>
+                    <span className="font-medium">{co.recipe.name}</span>
+                    <span className="text-[9px] text-brand-primary/60 tabular-nums">· {co.count}회</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <button
             onClick={() => {
