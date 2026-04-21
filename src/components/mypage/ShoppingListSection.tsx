@@ -74,33 +74,69 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           </button>
         </div>
       </div>
-      <div className="flex flex-col gap-1.5">
-        {shopping.list
-          .slice()
-          .sort((a, b) => b.createdAt - a.createdAt)
-          .map((it) => {
-            const category = inferFoodCategory(it.name);
-            const emoji    = getFoodEmoji(it.name, category);
-            return (
-              <div key={it.id} className="flex items-center gap-2 py-1.5">
-                <span className="text-sm shrink-0">{emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 truncate">{it.name}</p>
-                  <p className="text-[9px] text-gray-400 truncate">
-                    {category}
-                    {it.source && <span> · {it.source}에서 추가</span>}
-                  </p>
+      {(() => {
+        // source별 그룹화 — 우선순위 순 + 직접 추가(source 없음)는 마지막
+        const SOURCE_ORDER: { key: string; label: string; emoji: string }[] = [
+          { key: '임박 재구매', label: '임박 재구매',   emoji: '⚠️' },
+          { key: '소진 이력',   label: '소진 재구매',   emoji: '🔄' },
+          { key: '제철 놓친 것', label: '놓친 제철',     emoji: '🫥' },
+          { key: '제철 추천',   label: '제철 추천',     emoji: '🌸' },
+          { key: '제철 재료',   label: '제철 재료',     emoji: '🌱' },
+          { key: '',            label: '직접 추가',     emoji: '✏️' },
+        ];
+        const byKey = new Map<string, typeof shopping.list>();
+        for (const it of shopping.list) {
+          const key = SOURCE_ORDER.find((s) => s.key === (it.source ?? ''))?.key ?? '';
+          const bucket = byKey.get(key) ?? [];
+          bucket.push(it);
+          byKey.set(key, bucket);
+        }
+        const groups = SOURCE_ORDER
+          .map((meta) => ({
+            ...meta,
+            items: (byKey.get(meta.key) ?? []).sort((a, b) => b.createdAt - a.createdAt),
+          }))
+          .filter((g) => g.items.length > 0);
+
+        return (
+          <div className="flex flex-col gap-3">
+            {groups.map((g) => (
+              <div key={g.key || 'direct'}>
+                {groups.length > 1 && (
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-xs">{g.emoji}</span>
+                    <span className="text-[10px] font-semibold text-gray-500">{g.label}</span>
+                    <span className="text-[9px] text-gray-300 tabular-nums">· {g.items.length}</span>
+                  </div>
+                )}
+                <div className="flex flex-col gap-1.5">
+                  {g.items.map((it) => {
+                    const category = inferFoodCategory(it.name);
+                    const emoji    = getFoodEmoji(it.name, category);
+                    return (
+                      <div key={it.id} className="flex items-center gap-2 py-1.5">
+                        <span className="text-sm shrink-0">{emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-800 truncate">{it.name}</p>
+                          <p className="text-[9px] text-gray-400 truncate">
+                            {category}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleSingleAdd(it.id, it.name)}
+                          className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
+                        >
+                          담았어요
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
-                <button
-                  onClick={() => handleSingleAdd(it.id, it.name)}
-                  className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
-                >
-                  담았어요
-                </button>
               </div>
-            );
-          })}
-      </div>
+            ))}
+          </div>
+        );
+      })()}
       <p className="text-[9px] text-gray-400 mt-2.5 leading-relaxed">
         &ldquo;담았어요&rdquo;를 누르면 네모아가 카테고리·보관 방법을 추론해 냉장고에 자동 추가해요.
       </p>
