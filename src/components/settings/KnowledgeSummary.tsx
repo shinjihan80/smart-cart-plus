@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { RECIPES } from '@/lib/recipes';
 import { SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { PARTNERS } from '@/lib/partnerLinks';
@@ -70,6 +71,18 @@ export default function KnowledgeSummary() {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
+            <Link
+              href="/seasonal"
+              className="mt-3 flex items-center justify-between px-3 py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 hover:bg-brand-primary/10 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">🌸</span>
+                <span className="text-[11px] font-semibold text-brand-primary">
+                  제철 달력 열기 — 4계절 전체 보기
+                </span>
+              </div>
+              <ChevronRight size={14} className="text-brand-primary/60" />
+            </Link>
             <div className="pt-3 mt-3 border-t border-gray-50 flex flex-col gap-2 text-[10px] text-gray-500 leading-relaxed">
               <p>
                 <strong className="text-gray-700">레시피 매칭</strong> — 보유 식재료 ∩ 레시피
