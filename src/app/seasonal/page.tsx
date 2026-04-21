@@ -15,6 +15,14 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 
 const SEASONS: Season[] = ['봄', '여름', '가을', '겨울'];
 
+// 계절 → 해당 월 (대략 Korean 농수산물 기준)
+const SEASON_MONTHS: Record<Season, number[]> = {
+  봄:  [3, 4, 5],
+  여름: [6, 7, 8],
+  가을: [9, 10, 11],
+  겨울: [12, 1, 2],
+};
+
 function byPeakFirst(season: Season) {
   return (a: SeasonalProduce, b: SeasonalProduce) => {
     const aPeak = a.peak === season ? 0 : 1;
@@ -24,8 +32,19 @@ function byPeakFirst(season: Season) {
   };
 }
 
+/** 해당 월에 제철인 식재료 (seasons 필드의 계절 → 월 매핑). */
+function produceForMonth(month: number): SeasonalProduce[] {
+  return SEASONAL_PRODUCE.filter((p) =>
+    p.seasons.some((s) => SEASON_MONTHS[s].includes(month)),
+  );
+}
+
+type ViewMode = 'season' | 'month';
+
 export default function SeasonalPage() {
   const currentSeason = currentSeasonByMonth();
+  const currentMonth  = new Date().getMonth() + 1;
+  const [view, setView] = useState<ViewMode>('season');
   const [selected, setSelected] = useState<Season>(currentSeason);
   const { has, add } = useShoppingList();
   const { showToast } = useToast();
@@ -67,27 +86,107 @@ export default function SeasonalPage() {
               </p>
             </div>
           </div>
-          <div className="px-4 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
-            {SEASONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => setSelected(s)}
-                className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-colors ${
-                  selected === s
-                    ? 'bg-brand-primary text-white'
-                    : s === currentSeason
-                      ? 'bg-brand-primary/10 text-brand-primary border border-brand-primary/20'
-                      : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {SEASON_EMOJI[s]} {s}
-                {s === currentSeason && <span className="ml-1 text-[9px] opacity-70">· 지금</span>}
-              </button>
-            ))}
+          <div className="px-4 pb-2 flex gap-1.5">
+            <button
+              onClick={() => setView('season')}
+              className={`flex-1 px-3 py-1.5 rounded-2xl text-[11px] font-semibold transition-colors ${
+                view === 'season'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+              }`}
+            >
+              계절별
+            </button>
+            <button
+              onClick={() => setView('month')}
+              className={`flex-1 px-3 py-1.5 rounded-2xl text-[11px] font-semibold transition-colors ${
+                view === 'month'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+              }`}
+            >
+              월별
+            </button>
           </div>
+          {view === 'season' && (
+            <div className="px-4 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
+              {SEASONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSelected(s)}
+                  className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+                    selected === s
+                      ? 'bg-brand-primary text-white'
+                      : s === currentSeason
+                        ? 'bg-brand-primary/10 text-brand-primary border border-brand-primary/20'
+                        : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {SEASON_EMOJI[s]} {s}
+                  {s === currentSeason && <span className="ml-1 text-[9px] opacity-70">· 지금</span>}
+                </button>
+              ))}
+            </div>
+          )}
         </header>
 
         <div className="px-4 py-5 flex flex-col gap-4">
+          {view === 'month' ? (
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+                const monthProduce = produceForMonth(m);
+                const isNow = m === currentMonth;
+                return (
+                  <motion.div
+                    key={m}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: m * 0.02 }}
+                    className={`rounded-2xl border p-3 ${
+                      isNow
+                        ? 'bg-brand-primary/5 border-brand-primary/20'
+                        : 'bg-white border-gray-100'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-bold tabular-nums ${
+                          isNow ? 'text-brand-primary' : 'text-gray-700'
+                        }`}>
+                          {m}월
+                        </span>
+                        {isNow && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary text-white font-semibold">
+                            지금
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-gray-400 tabular-nums">
+                        {monthProduce.length}종
+                      </span>
+                    </div>
+                    <div className="flex gap-1 flex-wrap">
+                      {monthProduce.slice(0, 12).map((p) => (
+                        <button
+                          key={p.name}
+                          onClick={() => setBrowserIngredient(p.name)}
+                          title={`${p.name}(으)로 만드는 요리 보기`}
+                          className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors"
+                        >
+                          <span>{p.emoji}</span>
+                          <span>{p.name}</span>
+                        </button>
+                      ))}
+                      {monthProduce.length > 12 && (
+                        <span className="text-[10px] text-gray-400 self-center">외 {monthProduce.length - 12}종</span>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+          <>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -166,6 +265,8 @@ export default function SeasonalPage() {
               );
             })}
           </div>
+          </>
+          )}
         </div>
       </div>
 
