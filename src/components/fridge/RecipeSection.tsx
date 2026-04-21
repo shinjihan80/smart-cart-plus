@@ -7,6 +7,7 @@ import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
+import { analyzeBalance } from '@/lib/nutritionAnalysis';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -14,7 +15,13 @@ import { springTransition, CARD, CARD_SHADOW } from './shared';
 export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const season = currentSeasonByMonth();
   const { cookCounts } = useCookLog();
-  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts });
+  const balance = analyzeBalance(foods);
+  const nutritionHint = balance.coverage.protein < 0.4 && balance.proteinCount < 3
+    ? 'protein' as const
+    : balance.vegFruitCount < 3
+      ? 'veg' as const
+      : undefined;
+  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, nutritionHint });
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);

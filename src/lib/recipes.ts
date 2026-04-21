@@ -276,6 +276,21 @@ export interface MatchedRecipe {
 export interface MatchOptions {
   currentSeason?: Season;
   cookCounts?:    Record<string, number>;
+  /** 영양 편향 보정 — 'protein' → 단백질 레시피 +1, 'veg' → 채소·과일 위주 레시피 +1 */
+  nutritionHint?: 'protein' | 'veg';
+}
+
+const PROTEIN_KEYWORDS = ['두부', '달걀', '계란', '닭', '소고기', '돼지', '생선', '연어', '참치', '새우', '오징어', '고등어', '꽁치', '굴', '방어', '전어', '민어', '대구', '햄', '소시지', '치즈'];
+const VEG_KEYWORDS     = ['채소', '샐러드', '시금치', '양파', '당근', '버섯', '브로콜리', '상추', '봄동', '쑥', '냉이', '달래', '두릅', '아스파라거스', '감자', '단호박', '호박', '가지', '오이', '토마토'];
+
+function recipeTags(recipe: Recipe): { isProtein: boolean; isVeg: boolean } {
+  let isProtein = false;
+  let isVeg     = false;
+  for (const kw of recipe.keywords) {
+    if (PROTEIN_KEYWORDS.some((p) => kw.includes(p) || p.includes(kw))) isProtein = true;
+    if (VEG_KEYWORDS.some((v) => kw.includes(v) || v.includes(kw)))     isVeg     = true;
+  }
+  return { isProtein, isVeg };
 }
 
 /**
@@ -292,7 +307,7 @@ export function matchRecipes(
   opts: MatchOptions | Season = {},
 ): MatchedRecipe[] {
   const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
-  const { currentSeason, cookCounts } = options;
+  const { currentSeason, cookCounts, nutritionHint } = options;
 
   const nameIndex = foods.map((f) => ({
     name:  f.name,
@@ -321,10 +336,17 @@ export function matchRecipes(
     const loveBoost  = Math.min(cookCount, 3);
     const loveBoosted = cookCount >= 3;
 
+    let nutritionBoost = 0;
+    if (nutritionHint) {
+      const { isProtein, isVeg } = recipeTags(recipe);
+      if (nutritionHint === 'protein' && isProtein) nutritionBoost = 1;
+      if (nutritionHint === 'veg'     && isVeg)     nutritionBoost = 1;
+    }
+
     results.push({
       recipe,
       matchedItems,
-      matchScore:     matchedItems.length + urgentBoost + seasonBoost + loveBoost,
+      matchScore:     matchedItems.length + urgentBoost + seasonBoost + loveBoost + nutritionBoost,
       urgentBoosted:  urgentBoost > 0,
       seasonBoosted,
       loveBoosted,
