@@ -24,6 +24,7 @@ export interface Profile {
   relation:  Relation;
   body:      BodyInfo;
   dietary?:  Dietary;  // 채식·비건 등 (기본: 'none')
+  avatar?:   string;   // 사용자 정의 이모지 (없으면 relation 기본 이모지)
   isMain?:   boolean;  // 본인 표시 (최초 1명)
   createdAt: number;
 }

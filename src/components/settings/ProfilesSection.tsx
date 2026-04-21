@@ -25,6 +25,8 @@ const DIETARY_OPTIONS: { key: Dietary; label: string; emoji: string }[] = [
   { key: 'vegan',        label: '비건',       emoji: '🌱' },
 ];
 
+const AVATAR_OPTIONS = ['🧑', '👩', '👨', '🧒', '👧', '👦', '🧓', '🐶', '🐱', '🦁', '🌸', '⭐', '🎨', '🎯'];
+
 function ProfileCard({ profile, onUpdate, onRemove }: {
   profile: Profile;
   onUpdate: (patch: Partial<Omit<Profile, 'id'>>) => void;
@@ -39,7 +41,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors"
       >
-        <span className="text-2xl">{RELATION_EMOJI[profile.relation]}</span>
+        <span className="text-2xl">{profile.avatar ?? RELATION_EMOJI[profile.relation]}</span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">
             {profile.name}
@@ -204,6 +206,37 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                     }}
                     className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-gray-100 rounded-xl px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
                   />
+                </div>
+              </div>
+
+              {/* 아바타 */}
+              <div>
+                <label className="text-[10px] text-gray-500">아바타</label>
+                <div className="flex gap-1 mt-1 flex-wrap">
+                  <button
+                    onClick={() => onUpdate({ avatar: undefined })}
+                    className={`text-base w-7 h-7 rounded-full transition-colors ${
+                      !profile.avatar
+                        ? 'bg-brand-primary text-white ring-2 ring-brand-primary/30'
+                        : 'bg-white border border-gray-200 hover:bg-gray-50'
+                    }`}
+                    title="관계 기본 이모지"
+                  >
+                    {RELATION_EMOJI[profile.relation]}
+                  </button>
+                  {AVATAR_OPTIONS.map((a) => (
+                    <button
+                      key={a}
+                      onClick={() => onUpdate({ avatar: a })}
+                      className={`text-base w-7 h-7 rounded-full transition-colors ${
+                        profile.avatar === a
+                          ? 'bg-brand-primary ring-2 ring-brand-primary/30'
+                          : 'bg-white border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
                 </div>
               </div>
 
