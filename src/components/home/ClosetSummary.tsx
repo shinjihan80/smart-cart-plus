@@ -2,13 +2,24 @@
 
 import Link from 'next/link';
 import { isClothingItem, type CartItem } from '@/types';
+import { useProfiles } from '@/lib/profile';
 import { Widget } from './shared';
 
 export default function ClosetSummary({ items }: { items: CartItem[] }) {
-  const clothes = items.filter(isClothingItem);
+  const { profiles } = useProfiles();
+  const allClothes = items.filter(isClothingItem);
+  const clothes    = allClothes.filter((c) => !c.hibernating);
+  const hibernatingCount = allClothes.length - clothes.length;
   const thinCount  = clothes.filter((c) => c.thickness === '얇음').length;
   const thickCount = clothes.filter((c) => c.thickness === '두꺼움').length;
   const withImages = clothes.filter((c) => c.imageUrl).slice(0, 3);
+
+  const ownerBreakdown = profiles.length >= 2
+    ? profiles.map((p) => ({
+        name:  p.name,
+        count: clothes.filter((c) => c.ownerId === p.id).length,
+      })).filter((o) => o.count > 0)
+    : [];
 
   return (
     <Link href="/closet" className="block">
@@ -33,14 +44,27 @@ export default function ClosetSummary({ items }: { items: CartItem[] }) {
           <div>
             <p className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums">
               {clothes.length}<span className="text-base font-bold text-gray-400 ml-0.5">벌</span>
+              {hibernatingCount > 0 && (
+                <span className="text-[10px] text-gray-400 font-medium ml-1.5 tabular-nums">
+                  · 보관 {hibernatingCount}
+                </span>
+              )}
             </p>
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-1.5 mt-2 flex-wrap">
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-500 font-medium">
                 얇은 옷 {thinCount}
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-500 font-medium">
                 두꺼운 옷 {thickCount}
               </span>
+              {ownerBreakdown.slice(0, 2).map((o) => (
+                <span
+                  key={o.name}
+                  className="text-[10px] px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium tabular-nums"
+                >
+                  {o.name} {o.count}
+                </span>
+              ))}
             </div>
           </div>
         </div>
