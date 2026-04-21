@@ -35,12 +35,13 @@ export interface WearEntry {
 export function useWearLog() {
   const log = store.useStore();
 
-  const markWorn = useCallback((id: string) => {
+  const markWorn = useCallback((id: string, date?: string) => {
     store.setState((prev) => {
       const dates = prev[id] ?? [];
-      const d = today();
-      if (dates[0] === d) return prev;
-      return { ...prev, [id]: [d, ...dates].slice(0, 365) };
+      const d = date ?? today();
+      if (dates.includes(d)) return prev;
+      const next = [d, ...dates].sort((a, b) => b.localeCompare(a));
+      return { ...prev, [id]: next.slice(0, 365) };
     });
   }, []);
 
