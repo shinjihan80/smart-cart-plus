@@ -25,6 +25,7 @@ import RecentlyAdded   from '@/components/home/RecentlyAdded';
 import TipOfTheDay     from '@/components/home/TipOfTheDay';
 import SeasonalChipRow from '@/components/home/SeasonalChipRow';
 import SeasonalHintWidget from '@/components/home/SeasonalHintWidget';
+import SeasonalChecklistWidget from '@/components/home/SeasonalChecklistWidget';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -35,7 +36,7 @@ function getGreeting(): string {
 }
 
 export default function HomePage() {
-  const { items, removeItem, undoRemove } = useCart();
+  const { items, removeItem, undoRemove, discardHistory } = useCart();
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -142,6 +143,9 @@ export default function HomePage() {
           <QuickStats      items={items} />
           <SectionErrorBoundary label="제철 힌트">
             <SeasonalHintWidget items={items} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary label="제철 체크리스트">
+            <SeasonalChecklistWidget items={items} history={discardHistory} />
           </SectionErrorBoundary>
           <div className="col-span-2">
             <SectionErrorBoundary label="데일리 브리핑">
