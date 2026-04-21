@@ -7,6 +7,9 @@ const STORAGE_KEY = 'nemoa-profiles';
 
 export type Relation = '본인' | '배우자' | '자녀' | '부모' | '기타';
 
+/** 식습관 선호 — 레시피 추천 필터 */
+export type Dietary = 'none' | 'vegetarian' | 'vegan' | 'pescatarian';
+
 export interface BodyInfo {
   heightCm?: number;   // 키
   weightKg?: number;   // 몸무게
@@ -20,6 +23,7 @@ export interface Profile {
   name:      string;
   relation:  Relation;
   body:      BodyInfo;
+  dietary?:  Dietary;  // 채식·비건 등 (기본: 'none')
   isMain?:   boolean;  // 본인 표시 (최초 1명)
   createdAt: number;
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, ChevronDown } from 'lucide-react';
-import { useProfiles, type Profile, type Relation } from '@/lib/profile';
+import { useProfiles, type Profile, type Relation, type Dietary } from '@/lib/profile';
 import { recommendSizes } from '@/lib/sizeRecommend';
 import { useToast } from '@/context/ToastContext';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -17,6 +17,13 @@ const RELATION_EMOJI: Record<Relation, string> = {
   부모:   '🧑‍🦳',
   기타:   '👥',
 };
+
+const DIETARY_OPTIONS: { key: Dietary; label: string; emoji: string }[] = [
+  { key: 'none',         label: '없음',       emoji: '🍽️' },
+  { key: 'pescatarian',  label: '페스코',     emoji: '🐟' },
+  { key: 'vegetarian',   label: '채식',       emoji: '🥬' },
+  { key: 'vegan',        label: '비건',       emoji: '🌱' },
+];
 
 function ProfileCard({ profile, onUpdate, onRemove }: {
   profile: Profile;
@@ -197,6 +204,30 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                     }}
                     className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-gray-100 rounded-xl px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
                   />
+                </div>
+              </div>
+
+              {/* 식습관 */}
+              <div>
+                <label className="text-[10px] text-gray-500">식습관</label>
+                <div className="flex gap-1 mt-1 flex-wrap">
+                  {DIETARY_OPTIONS.map((opt) => {
+                    const current = profile.dietary ?? 'none';
+                    const active = current === opt.key;
+                    return (
+                      <button
+                        key={opt.key}
+                        onClick={() => onUpdate({ dietary: opt.key })}
+                        className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                          active
+                            ? 'bg-brand-primary text-white'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {opt.emoji} {opt.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

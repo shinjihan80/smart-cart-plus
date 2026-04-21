@@ -367,6 +367,24 @@ export interface MatchOptions {
    * 'challenge'면 '도전' +1 (도전을 즐기는 사용자용)
    */
   difficultyHint?: 'simple' | 'challenge';
+  /** 식습관 — 맞지 않는 레시피는 결과에서 제외 */
+  dietary?: 'none' | 'vegetarian' | 'vegan' | 'pescatarian';
+}
+
+// 동물성 식재료 키워드 — dietary 필터에 사용
+const MEAT_KEYWORDS = ['소고기', '돼지', '돼지고기', '닭', '닭가슴살', '불고기', '햄', '베이컨', '소시지', '미트'];
+const FISH_KEYWORDS = ['연어', '새우', '참치', '오징어', '고등어', '굴', '조개', '문어', '낙지', '생선', '민어', '전어', '꽁치', '방어', '대구', '과메기', '대하'];
+const DAIRY_EGG_KEYWORDS = ['우유', '요거트', '치즈', '버터', '그릭', '달걀', '계란'];
+
+function violatesDietary(recipe: Recipe, dietary: NonNullable<MatchOptions['dietary']>): boolean {
+  if (dietary === 'none') return false;
+  const hasMeat = recipe.keywords.some((k) => MEAT_KEYWORDS.some((m) => k.includes(m) || m.includes(k)));
+  const hasFish = recipe.keywords.some((k) => FISH_KEYWORDS.some((f) => k.includes(f) || f.includes(k)));
+  const hasDairyEgg = recipe.keywords.some((k) => DAIRY_EGG_KEYWORDS.some((d) => k.includes(d) || d.includes(k)));
+  if (dietary === 'vegan')       return hasMeat || hasFish || hasDairyEgg;
+  if (dietary === 'vegetarian')  return hasMeat || hasFish;
+  if (dietary === 'pescatarian') return hasMeat;
+  return false;
 }
 
 const PROTEIN_KEYWORDS = ['두부', '달걀', '계란', '닭', '소고기', '돼지', '생선', '연어', '참치', '새우', '오징어', '고등어', '꽁치', '굴', '방어', '전어', '민어', '대구', '햄', '소시지', '치즈'];
@@ -396,7 +414,7 @@ export function matchRecipes(
   opts: MatchOptions | Season = {},
 ): MatchedRecipe[] {
   const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
-  const { currentSeason, cookCounts, nutritionHint, difficultyHint } = options;
+  const { currentSeason, cookCounts, nutritionHint, difficultyHint, dietary } = options;
 
   const nameIndex = foods.map((f) => ({
     name:  f.name,
@@ -407,6 +425,9 @@ export function matchRecipes(
 
   const results: MatchedRecipe[] = [];
   for (const recipe of RECIPES) {
+    // dietary 필터 — 맞지 않으면 제외
+    if (dietary && violatesDietary(recipe, dietary)) continue;
+
     const matchedItems: string[] = [];
     let urgentBoost = 0;
     for (const kw of recipe.keywords) {
