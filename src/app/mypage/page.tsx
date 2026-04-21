@@ -37,6 +37,7 @@ export default function MyPage() {
   const backup = useBackupStatus();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [browserOpen, setBrowserOpen]       = useState(false);
+  const [archiveExpanded, setArchiveExpanded] = useState(false);
 
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
@@ -244,9 +245,19 @@ export default function MyPage() {
             className={CARD}
             style={CARD_SHADOW}
           >
-            <h3 className="text-xs text-gray-400 font-medium mb-2">아카이브 ({archived.length}개)</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs text-gray-400 font-medium">아카이브 ({archived.length}개)</h3>
+              {archived.length > 5 && (
+                <button
+                  onClick={() => setArchiveExpanded(!archiveExpanded)}
+                  className="text-[10px] text-brand-primary font-semibold hover:underline"
+                >
+                  {archiveExpanded ? '접기' : `전체 보기 (${archived.length})`}
+                </button>
+              )}
+            </div>
             <div className="flex flex-col gap-1.5">
-              {archived.slice(0, 5).map((item, i) => (
+              {(archiveExpanded ? archived : archived.slice(0, 5)).map((item, i) => (
                 <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1 gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm shrink-0">{item.category === '식품' ? '🥦' : '👗'}</span>

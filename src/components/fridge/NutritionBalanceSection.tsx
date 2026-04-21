@@ -73,6 +73,21 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
         <p className="text-[11px] text-gray-700 leading-relaxed">
           <span className="font-semibold text-brand-primary">네모아</span> · {balance.advice}
         </p>
+        {(() => {
+          const needProtein = balance.coverage.protein < 0.4 && balance.proteinCount < 3;
+          const needVeg     = balance.vegFruitCount < 3;
+          if (!needProtein && !needVeg) return null;
+          const hint = needProtein ? 'protein' : 'veg';
+          const label = needProtein ? '🥩 단백질 레시피 보기' : '🥬 채소 레시피 보기';
+          return (
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: hint === 'protein' ? '두부' : '샐러드' } }))}
+              className="mt-1.5 text-[10px] font-semibold text-brand-primary hover:underline"
+            >
+              {label} →
+            </button>
+          );
+        })()}
       </div>
     </motion.div>
   );
