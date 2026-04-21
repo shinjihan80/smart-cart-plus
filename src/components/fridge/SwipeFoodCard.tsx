@@ -97,14 +97,21 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-              {inSeason && (
+              {inSeason && dDay <= 2 ? (
+                <span
+                  className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-semibold bg-gradient-to-r from-brand-warning/20 to-brand-primary/20 text-brand-warning border border-brand-warning/30"
+                  title={`${season}철 제철인데 ${dDay <= 0 ? '오늘이 마지막' : `${dDay}일 뒤 만료`} — 놓치기 아까워요!`}
+                >
+                  ⚠️ {SEASON_EMOJI[season]} 제철 {dDay <= 0 ? '오늘!' : `D-${dDay}`}
+                </span>
+              ) : inSeason ? (
                 <span
                   className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-brand-primary/10 text-brand-primary"
                   title={`${season}철 제철 재료 — 지금이 가장 맛있어요`}
                 >
                   {SEASON_EMOJI[season]} 제철
                 </span>
-              )}
+              ) : null}
               {owner && (
                 <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
                   {owner.name}

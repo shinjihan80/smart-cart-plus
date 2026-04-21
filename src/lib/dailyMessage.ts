@@ -37,9 +37,21 @@ export function pickDailyMessage(
   const dow      = new Date().getDay();  // 0: Sun, 6: Sat
 
   // ── 1. 긴급 — 바로 행동 유도 ─────────────────────────────────────────────
+  const season = currentSeasonByMonth();
   const expiringToday = foods.filter(
     (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 1,
   );
+  // 제철 + 임박 겹친 것 최우선 — 1회 기회 강조
+  const seasonalExpiring = expiringToday.filter((f) => isSeasonalProduce(f.name, season));
+  if (seasonalExpiring.length > 0) {
+    const f = seasonalExpiring[0];
+    return {
+      emoji:    SEASON_EMOJI[season],
+      text:     `${season}철 "${f.name}"이(가) 곧 만료예요. 지금 아니면 내년까지 기다려야 해요!`,
+      priority: 'urgent',
+      cta:      { label: '레시피 찾기', href: '/fridge' },
+    };
+  }
   if (expiringToday.length > 0) {
     const firstName = expiringToday[0].name;
     const extra = expiringToday.length > 1 ? ` 외 ${expiringToday.length - 1}개` : '';
@@ -62,7 +74,6 @@ export function pickDailyMessage(
   }
 
   // 계절 보관 중인 옷 중 현재 계절에 맞는 게 있으면 꺼내라 알림
-  const season = currentSeasonByMonth();
   const dueToUnstow = clothes.filter(
     (c) => c.hibernating
       && FASHION_GROUP[c.category] === '의류'
