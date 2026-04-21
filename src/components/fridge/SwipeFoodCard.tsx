@@ -13,6 +13,8 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
+import { estimateCycles } from '@/lib/purchaseCycle';
+import { useCart } from '@/context/CartContext';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
@@ -33,6 +35,8 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
   const { isFavorite, toggle } = useRecipeFavorites();
   const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
   const recipeCount = countRecipesByIngredient(item.name);
+  const { discardHistory } = useCart();
+  const cycle = estimateCycles(discardHistory, 2).find((c) => c.name === item.name);
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-120, -30, 0],
@@ -300,6 +304,17 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     <p className="text-gray-700 font-medium mt-0.5 tabular-nums">{item.baseShelfLifeDays}일</p>
                   )}
                 </div>
+
+                {/* 재구매 주기 — 소진 이력 2회+ 있으면 */}
+                {cycle && !editing && (
+                  <div>
+                    <span className="text-gray-400">재구매 주기</span>
+                    <p className="text-gray-700 font-medium mt-0.5">
+                      🔁 보통 <span className="tabular-nums">{cycle.cycleDays}일</span> 주기
+                      <span className="text-[10px] text-gray-400 ml-1 tabular-nums">· {cycle.occurrences}회 기록</span>
+                    </p>
+                  </div>
+                )}
 
                 {/* 소유자 */}
                 <div>

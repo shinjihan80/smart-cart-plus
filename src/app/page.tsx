@@ -16,6 +16,7 @@ import { isSeasonalProduce, SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
+import { useSearchPlaceholder } from '@/lib/useSearchPlaceholder';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
@@ -101,6 +102,14 @@ export default function HomePage() {
   }
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const placeholderRotating = useSearchPlaceholder([
+    "전체 검색 — '/' 누르면 빠르게",
+    '딸기로 만드는 요리',
+    '봄 제철 재료',
+    '내 옷장의 원피스',
+    '불고기 레시피',
+    '냉장고 보유 중',
+  ]);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
@@ -145,7 +154,7 @@ export default function HomePage() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="전체 검색 — '/' 누르면 빠르게"
+            placeholder={placeholderRotating}
             aria-label="전체 검색 (Ctrl+K · /)"
             className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
