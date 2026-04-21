@@ -59,12 +59,23 @@ export default function DailyMessage({ items }: { items: CartItem[] }) {
         <p className="text-xs text-gray-700 leading-relaxed">{msg.text}</p>
       </div>
       {msg.cta && (
-        <Link
-          href={msg.cta.href}
-          className={`shrink-0 text-[10px] font-bold px-2.5 py-1.5 rounded-full bg-white border border-gray-100 hover:bg-gray-50 transition-colors ${tone.text}`}
-        >
-          {msg.cta.label} →
-        </Link>
+        msg.paletteQuery ? (
+          <button
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: msg.paletteQuery } }))
+            }
+            className={`shrink-0 text-[10px] font-bold px-2.5 py-1.5 rounded-full bg-white border border-gray-100 hover:bg-gray-50 transition-colors ${tone.text}`}
+          >
+            {msg.cta.label} →
+          </button>
+        ) : (
+          <Link
+            href={msg.cta.href}
+            className={`shrink-0 text-[10px] font-bold px-2.5 py-1.5 rounded-full bg-white border border-gray-100 hover:bg-gray-50 transition-colors ${tone.text}`}
+          >
+            {msg.cta.label} →
+          </Link>
+        )
       )}
     </motion.div>
   );

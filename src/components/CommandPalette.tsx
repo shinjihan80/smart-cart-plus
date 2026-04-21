@@ -56,7 +56,11 @@ export default function CommandPalette() {
         setOpen((o) => !o);
       }
     }
-    function onEvent() { setOpen(true); }
+    function onEvent(e: Event) {
+      const detail = (e as CustomEvent<{ query?: string }>).detail;
+      if (typeof detail?.query === 'string') setQ(detail.query);
+      setOpen(true);
+    }
     window.addEventListener('keydown', onKey);
     window.addEventListener('nemoa:open-palette', onEvent);
     return () => {
@@ -67,15 +71,24 @@ export default function CommandPalette() {
 
   useEffect(() => {
     if (open) {
-      setQ('');
       setCursor(0);
-      // 모달 렌더 후 포커스
+      // 모달 렌더 후 포커스 — q는 이벤트로 prefill될 수 있으므로 reset 안 함
       requestAnimationFrame(() => inputRef.current?.focus());
+    } else {
+      // 닫힐 때만 검색어 초기화
+      setQ('');
     }
   }, [open]);
 
   const commands: Cmd[] = useMemo(() => {
-    const query = q.trim().toLowerCase();
+    const raw = q.trim();
+    // prefix 모드: '>' 액션만, '#' 페이지만, '?' 레시피만
+    let mode: Cmd['kind'] | 'all' = 'all';
+    let body = raw;
+    if (raw.startsWith('>')) { mode = 'action';   body = raw.slice(1).trim(); }
+    else if (raw.startsWith('#')) { mode = 'nav';    body = raw.slice(1).trim(); }
+    else if (raw.startsWith('?')) { mode = 'recipe'; body = raw.slice(1).trim(); }
+    const query = body.toLowerCase();
     const navs: Cmd[] = [
       { kind: 'nav', id: 'n-home',     emoji: '🏠', label: '홈',         sub: '오늘의 한 마디·벤토',    href: '/' },
       { kind: 'nav', id: 'n-fridge',   emoji: '🧊', label: '스마트 냉장고', sub: '보관 기한·레시피·제철', href: '/fridge' },
@@ -120,7 +133,11 @@ export default function CommandPalette() {
       },
     ];
     if (!query) {
-      // 최근 실행 명령을 상단에 복원 (id로 navs/actions 탐색)
+      // prefix만 입력된 상태 — 해당 종류만 보여줌
+      if (mode === 'action') return actions;
+      if (mode === 'nav')    return navs;
+      if (mode === 'recipe') return [];  // 빈 검색 + ? 모드는 추천 없음
+      // 일반: 최근 실행 명령을 상단에 복원 (id로 navs/actions 탐색)
       const pool = [...navs, ...actions];
       const recentCmds: Cmd[] = [];
       const seen = new Set<string>();
@@ -184,6 +201,10 @@ export default function CommandPalette() {
       a.label.toLowerCase().includes(query) || (a.sub?.toLowerCase().includes(query) ?? false),
     );
 
+    // mode 필터 적용
+    if (mode === 'action') return filteredActions;
+    if (mode === 'nav')    return [...filteredNavs, ...itemMatches];
+    if (mode === 'recipe') return recipeMatches;
     return [...recipeMatches, ...seasonMatches, ...itemMatches, ...filteredNavs, ...filteredActions];
   }, [q, items, season, recentIds, showToast]);
 
@@ -257,15 +278,37 @@ export default function CommandPalette() {
                 aria-label="명령 검색"
                 className="flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none"
               />
+              {q.trim().startsWith('>') && <span className="text-[9px] font-semibold text-brand-primary">액션만</span>}
+              {q.trim().startsWith('#') && <span className="text-[9px] font-semibold text-brand-primary">페이지만</span>}
+              {q.trim().startsWith('?') && <span className="text-[9px] font-semibold text-brand-primary">레시피만</span>}
               <kbd className="text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono">Esc</kbd>
             </div>
             <div className="max-h-[50vh] overflow-y-auto py-1">
               {commands.length === 0 ? (
-                <div className="px-4 py-6 flex flex-col gap-2 text-center">
+                <div className="px-4 py-6 flex flex-col gap-3 text-center">
                   <p className="text-xs text-gray-400">검색 결과가 없어요</p>
+                  <div className="flex gap-1.5 justify-center flex-wrap">
+                    <button
+                      onClick={() => setQ('?')}
+                      className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      🍳 레시피만 보기
+                    </button>
+                    <button
+                      onClick={() => setQ('>')}
+                      className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      ⚡ 액션만 보기
+                    </button>
+                    <button
+                      onClick={() => setQ(season)}
+                      className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      🌸 이번 {season}철 검색
+                    </button>
+                  </div>
                   <p className="text-[10px] text-gray-300 leading-relaxed">
-                    💡 팁: ⌘K · / · Esc 단축키로 어디서든 빠르게.
-                    <br />레시피·제철·재료·페이지·액션을 한번에 찾아요.
+                    💡 ⌘K · / · Esc 단축키로 어디서든 빠르게.
                   </p>
                 </div>
               ) : (() => {
@@ -319,7 +362,7 @@ export default function CommandPalette() {
               })()}
             </div>
             <div className="px-4 py-2 border-t border-gray-100 flex items-center justify-between text-[9px] text-gray-400">
-              <span>↑↓ 탐색 · ↵ 선택</span>
+              <span>↑↓ 탐색 · ↵ 선택 · &gt;액션 #페이지 ?레시피</span>
               <span>⌘K로 다시 열기</span>
             </div>
           </motion.div>

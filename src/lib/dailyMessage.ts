@@ -16,6 +16,8 @@ export interface DailyMessage {
   text:     string;
   priority: MessagePriority;
   cta?:     { label: string; href: string };
+  /** 설정 시 CTA 클릭이 페이지 이동 대신 명령 팔레트를 이 쿼리로 연다. */
+  paletteQuery?: string;
 }
 
 /**
@@ -50,6 +52,7 @@ export function pickDailyMessage(
       text:     `${season}철 "${f.name}"이(가) 곧 만료예요. 지금 아니면 내년까지 기다려야 해요!`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge' },
+      paletteQuery: f.name,
     };
   }
   if (expiringToday.length > 0) {
@@ -60,6 +63,7 @@ export function pickDailyMessage(
       text:     `${firstName}${extra}이(가) 오늘 내로 소비가 필요해요. 레시피로 활용해볼까요?`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge' },
+      paletteQuery: firstName,
     };
   }
 
