@@ -201,7 +201,7 @@ export default function CommandPalette() {
     if (cmd.kind === 'nav') {
       router.push(cmd.href);
     } else if (cmd.kind === 'recipe') {
-      router.push('/fridge');
+      window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: cmd.recipeId } }));
     } else if (cmd.kind === 'seasonal') {
       router.push(`/seasonal?season=${encodeURIComponent(season)}`);
     } else if (cmd.kind === 'action') {
@@ -261,7 +261,13 @@ export default function CommandPalette() {
             </div>
             <div className="max-h-[50vh] overflow-y-auto py-1">
               {commands.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-6">검색 결과가 없어요</p>
+                <div className="px-4 py-6 flex flex-col gap-2 text-center">
+                  <p className="text-xs text-gray-400">검색 결과가 없어요</p>
+                  <p className="text-[10px] text-gray-300 leading-relaxed">
+                    💡 팁: ⌘K · / · Esc 단축키로 어디서든 빠르게.
+                    <br />레시피·제철·재료·페이지·액션을 한번에 찾아요.
+                  </p>
+                </div>
               ) : (() => {
                 const GROUP_LABEL: Record<Cmd['kind'], string> = {
                   recipe:   '레시피',

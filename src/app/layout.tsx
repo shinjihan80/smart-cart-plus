@@ -6,6 +6,7 @@ import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import CommandPalette from "@/components/CommandPalette";
+import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -57,6 +58,7 @@ export default function RootLayout({
           <BottomNav />
           <OnboardingModal />
           <CommandPalette />
+          <GlobalRecipeModal />
         </Providers>
       </body>
     </html>

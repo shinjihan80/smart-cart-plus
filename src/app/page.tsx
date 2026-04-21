@@ -145,8 +145,8 @@ export default function HomePage() {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="전체 상품 검색"
-            aria-label="전체 상품 검색 (Ctrl+K)"
+            placeholder="전체 검색 — '/' 누르면 빠르게"
+            aria-label="전체 검색 (Ctrl+K · /)"
             className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
           <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">
