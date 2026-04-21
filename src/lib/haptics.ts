@@ -22,8 +22,26 @@ export const HAPTIC: {
 
 type HapticName = keyof typeof HAPTIC;
 
+const HAPTIC_ENABLED_KEY = 'nemoa-haptic-enabled';
+
+export function isHapticEnabled(): boolean {
+  if (typeof window === 'undefined') return true;
+  try {
+    const stored = window.localStorage.getItem(HAPTIC_ENABLED_KEY);
+    return stored === null ? true : stored === '1';
+  } catch { return true; }
+}
+
+export function setHapticEnabled(enabled: boolean): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(HAPTIC_ENABLED_KEY, enabled ? '1' : '0');
+  } catch { /* 조용히 실패 */ }
+}
+
 export function haptic(name: HapticName): void {
   try {
+    if (!isHapticEnabled()) return;
     const pattern = HAPTIC[name];
     if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
     navigator.vibrate(pattern);

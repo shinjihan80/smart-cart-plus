@@ -17,6 +17,7 @@ import NotificationSettings from '@/components/mypage/NotificationSettings';
 import AppInfo              from '@/components/mypage/AppInfo';
 import ProfilesSection      from '@/components/settings/ProfilesSection';
 import KnowledgeSummary     from '@/components/settings/KnowledgeSummary';
+import FeedbackToggles      from '@/components/settings/FeedbackToggles';
 import PaletteButton        from '@/components/PaletteButton';
 
 export default function SettingsPage() {
@@ -231,6 +232,8 @@ export default function SettingsPage() {
             ))}
           </div>
         </motion.div>
+
+        <FeedbackToggles />
 
         <KnowledgeSummary />
 
