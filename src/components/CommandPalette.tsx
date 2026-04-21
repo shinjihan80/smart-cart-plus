@@ -136,31 +136,40 @@ export default function CommandPalette() {
       ];
     }
 
-    // 레시피 TOP 5 매칭
-    const recipeMatches: Cmd[] = RECIPES
-      .filter((r) => r.name.toLowerCase().includes(query) || r.keywords.some((k) => k.toLowerCase().includes(query)))
-      .slice(0, 5)
+    // 레시피 — 이름 일치 우선, 키워드 일치 후순위
+    const recipeNameHits = RECIPES.filter((r) => r.name.toLowerCase().includes(query));
+    const recipeKwHits   = RECIPES.filter((r) =>
+      !r.name.toLowerCase().includes(query)
+      && r.keywords.some((k) => k.toLowerCase().includes(query)),
+    );
+    const recipeMatches: Cmd[] = [...recipeNameHits, ...recipeKwHits]
+      .slice(0, 8)
       .map((r) => ({
         kind: 'recipe', id: `r-${r.id}`,
         emoji: r.emoji, label: r.name, sub: `⏱ ${r.time} · ${r.difficulty}`,
         recipeId: r.id,
       }));
 
-    // 제철 재료 TOP 3
+    // 제철 재료 — 이름 + blurb 모두 검색
     const seasonMatches: Cmd[] = SEASONAL_PRODUCE
-      .filter((p) => p.name.toLowerCase().includes(query))
-      .slice(0, 3)
+      .filter((p) =>
+        p.name.toLowerCase().includes(query)
+        || (p.blurb?.toLowerCase().includes(query) ?? false),
+      )
+      .slice(0, 6)
       .map((p) => ({
         kind: 'seasonal', id: `s-${p.name}`,
         emoji: p.emoji, label: p.name,
-        sub: p.seasons.includes(season) ? `🌸 지금 제철 · 레시피 ${countRecipesByIngredient(p.name)}개` : `${p.seasons.join('·')}철`,
+        sub: p.seasons.includes(season)
+          ? `🌸 지금 제철 · 레시피 ${countRecipesByIngredient(p.name)}개`
+          : `${p.seasons.join('·')}철`,
         ingredient: p.name,
       }));
 
-    // 보유 아이템 TOP 3
+    // 보유 아이템 — 5개로 확대
     const itemMatches: Cmd[] = items
       .filter((it) => it.name.toLowerCase().includes(query))
-      .slice(0, 3)
+      .slice(0, 5)
       .map((it) => ({
         kind: 'nav' as const, id: `i-${it.id}`,
         emoji: isFoodItem(it) ? '🍱' : '👕',

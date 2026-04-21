@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Search } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
+import PaletteButton from '@/components/PaletteButton';
 import { SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth, type Season } from '@/lib/season';
 import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
@@ -100,8 +101,8 @@ function SeasonalPageInner() {
         <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
           <div className="px-4 py-3.5 flex items-center gap-2">
             <Link
-              href="/settings"
-              aria-label="뒤로"
+              href="/"
+              aria-label="홈으로"
               className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
             >
               <ChevronLeft size={18} />
@@ -112,6 +113,7 @@ function SeasonalPageInner() {
                 {SEASONAL_PRODUCE.length}종 · 4계절 전체 보기
               </p>
             </div>
+            <PaletteButton />
           </div>
           {view === 'season' && (
             <div className="px-4 pb-2 relative">

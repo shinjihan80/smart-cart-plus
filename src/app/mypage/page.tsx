@@ -25,6 +25,7 @@ import CookStatsSection                          from '@/components/mypage/CookS
 import ClosetCleanupSection                      from '@/components/mypage/ClosetCleanupSection';
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
 import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
+import PaletteButton                              from '@/components/PaletteButton';
 import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
@@ -60,13 +61,16 @@ export default function MyPage() {
             <h1 className="text-base font-bold text-gray-900 tracking-tight">마이페이지</h1>
             <p className="text-[10px] text-gray-400 mt-0.5">통계 · 기록 · 리스트</p>
           </div>
-          <Link
-            href="/settings"
-            aria-label="설정"
-            className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
-          >
-            <SettingsIcon size={16} />
-          </Link>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <PaletteButton />
+            <Link
+              href="/settings"
+              aria-label="설정"
+              className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+            >
+              <SettingsIcon size={16} />
+            </Link>
+          </div>
         </div>
       </header>
 
