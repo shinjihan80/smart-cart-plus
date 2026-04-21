@@ -19,6 +19,7 @@ import { useWearLog, daysSince } from '@/lib/wearLog';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
+import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
@@ -234,6 +235,9 @@ export default function ClosetPage() {
               <p className="text-[11px] text-gray-600 mt-1.5 leading-relaxed">
                 최근 7일 동안 <span className="font-bold text-brand-primary tabular-nums">{weekCount}회</span> 착용 · 옷 <span className="font-bold text-brand-primary tabular-nums">{uniqueItems.size}벌</span> 썼어요
               </p>
+              <div className="mt-2">
+                <WeekdayPatternChart datesByKey={wearLog} label="요일별 착용" />
+              </div>
             </motion.div>
           );
         })()}

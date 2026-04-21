@@ -14,6 +14,7 @@ import { useModalA11y } from '@/lib/useModalA11y';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { downloadBackup } from '@/lib/backup';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
+import { useShoppingList } from '@/lib/shoppingList';
 
 /**
  * 전역 명령 팔레트 — 어디서든 ⌘K로 호출.
@@ -31,6 +32,7 @@ export default function CommandPalette() {
   const router = useRouter();
   const { items, archiveExpired } = useCart();
   const { showToast } = useToast();
+  const { list: shoppingList, clear: clearShopping } = useShoppingList();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
@@ -135,6 +137,18 @@ export default function CommandPalette() {
         run: () => { exportAsCSV(items); showToast('CSV 파일로 내보냈어요.'); },
       },
     ];
+    // 쇼핑 리스트 비우기 — 항목 있을 때만 노출
+    if (shoppingList.length > 0) {
+      actions.push({
+        kind: 'action', id: 'a-clear-shopping', emoji: '🗑️',
+        label: '쇼핑 리스트 비우기', sub: `현재 ${shoppingList.length}개`,
+        run: () => {
+          if (!confirm('쇼핑 리스트를 모두 비울까요?')) return;
+          clearShopping();
+          showToast('쇼핑 리스트를 비웠어요.');
+        },
+      });
+    }
     if (!query) {
       // prefix만 입력된 상태 — 해당 종류만 보여줌
       if (mode === 'action') return actions;
@@ -206,7 +220,7 @@ export default function CommandPalette() {
     if (mode === 'nav')    return [...filteredNavs, ...itemMatches];
     if (mode === 'recipe') return recipeMatches;
     return [...recipeMatches, ...seasonMatches, ...itemMatches, ...filteredNavs, ...filteredActions];
-  }, [q, items, season, recentIds, showToast]);
+  }, [q, items, season, recentIds, showToast, shoppingList.length, archiveExpired, clearShopping]);
 
   useEffect(() => { setCursor(0); }, [q]);
 
