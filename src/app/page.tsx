@@ -80,13 +80,33 @@ export default function HomePage() {
     return () => clearTimeout(t);
   }, []);
 
-  // ⌘K / Ctrl+K → 검색창 포커스
+  // 키보드 단축키: ⌘K/Ctrl+K 또는 / → 포커스, Esc → 비우기 + 블러
   useEffect(() => {
+    function isEditable(el: EventTarget | null): boolean {
+      if (!(el instanceof HTMLElement)) return false;
+      const tag = el.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+      return el.isContentEditable;
+    }
     function onKey(e: KeyboardEvent) {
+      // ⌘K / Ctrl+K — 항상 동작
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         searchInputRef.current?.focus();
         searchInputRef.current?.select();
+        return;
+      }
+      // '/' — 입력 중이 아닐 때만
+      if (e.key === '/' && !isEditable(e.target)) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+      // Esc — 검색창에 포커스돼 있을 때만 비우기 + 블러
+      if (e.key === 'Escape' && document.activeElement === searchInputRef.current) {
+        e.preventDefault();
+        setSearch('');
+        searchInputRef.current?.blur();
       }
     }
     window.addEventListener('keydown', onKey);

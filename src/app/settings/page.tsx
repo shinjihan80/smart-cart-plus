@@ -96,15 +96,28 @@ export default function SettingsPage() {
   }
 
   function handleClearPreferences() {
-    if (!confirm('최근 검색어·필터·정렬 설정을 모두 초기화할까요? (냉장고/옷장 데이터는 유지돼요)')) return;
-    const keys = [
-      'nemoa-home-recent-search',
-      'nemoa-fridge-storage', 'nemoa-fridge-group', 'nemoa-fridge-sort',
-      'nemoa-fridge-owner', 'nemoa-fridge-seasonal-only',
-      'nemoa-closet-sort', 'nemoa-closet-group', 'nemoa-closet-owner',
-    ];
-    for (const k of keys) localStorage.removeItem(k);
-    showToast('검색어·필터 설정이 초기화됐어요. 페이지를 새로고침하세요.');
+    // 아이템/로그/백업 관련 핵심 데이터 키 (nemoa- 프리픽스) — 보존
+    const PROTECTED_NEMOA = new Set([
+      'nemoa-wear-log',        // 착용 로그
+      'nemoa-cook-log',        // 조리 로그
+      'nemoa-profiles',        // 프로필
+      'nemoa-shopping-list',   // 쇼핑 리스트
+      'nemoa-recipe-favorites',// 즐겨찾기 레시피
+      'nemoa-last-backup-at',  // 백업 타임스탬프
+      'nemoa-weather-cache',   // 날씨 캐시 (30분 만료 — 굳이 비울 필요 없음)
+    ]);
+    const toClear: string[] = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('nemoa-') && !PROTECTED_NEMOA.has(key)) toClear.push(key);
+    }
+    if (toClear.length === 0) {
+      showToast('이미 초기화된 상태예요.');
+      return;
+    }
+    if (!confirm(`검색어·필터·접기 상태 ${toClear.length}개를 초기화할까요? (아이템·로그·프로필은 유지돼요)`)) return;
+    for (const k of toClear) localStorage.removeItem(k);
+    showToast(`${toClear.length}개 설정이 초기화됐어요. 페이지를 새로고침하세요.`);
   }
 
   const menuItems = [

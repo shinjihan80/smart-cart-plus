@@ -123,6 +123,13 @@ export default function OnboardingModal() {
 
   function handleClose() {
     localStorage.setItem(ONBOARDING_KEY, 'true');
+    // 첫 방문자에게 홈 검색 샘플 시드 — 이미 검색 기록 있으면 건드리지 않음
+    try {
+      const existing = localStorage.getItem('nemoa-home-recent-search');
+      if (!existing || existing === '[]') {
+        localStorage.setItem('nemoa-home-recent-search', JSON.stringify(['딸기', '불고기', '귤']));
+      }
+    } catch { /* storage full — 조용히 실패 */ }
     setShow(false);
   }
 
