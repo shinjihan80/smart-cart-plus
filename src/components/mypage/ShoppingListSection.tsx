@@ -133,6 +133,24 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                     <span className="text-xs">{g.emoji}</span>
                     <span className="text-[10px] font-semibold text-gray-500">{g.label}</span>
                     <span className="text-[9px] text-gray-300 tabular-nums">· {g.items.length}</span>
+                    {g.items.length >= 2 && (
+                      <button
+                        onClick={() => {
+                          if (!confirm(`${g.label} ${g.items.length}개를 냉장고에 담을까요?`)) return;
+                          const foods = g.items.map((it) => createFoodItemFromIngredient(it.name));
+                          const { added, skipped } = addItems(foods);
+                          for (const it of g.items) shopping.remove(it.id);
+                          showToast(
+                            skipped > 0
+                              ? `${added}개 담았어요 · ${skipped}개는 이미 있었어요.`
+                              : `${added}개 담았어요.`,
+                          );
+                        }}
+                        className="ml-auto text-[9px] font-semibold text-brand-success hover:underline"
+                      >
+                        그룹 담기 →
+                      </button>
+                    )}
                   </div>
                 )}
                 <div className="flex flex-col gap-1.5">

@@ -8,6 +8,7 @@ import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
+import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
 import { haptic } from '@/lib/haptics';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
@@ -17,8 +18,10 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const foods = items.filter(isFoodItem);
   const season = currentSeasonByMonth();
   const { cookCounts, markCooked } = useCookLog();
+  const { main } = useProfiles();
+  const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
   const { showToast } = useToast();
-  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts });
+  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts, dietary });
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 

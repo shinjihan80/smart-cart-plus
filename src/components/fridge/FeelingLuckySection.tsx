@@ -7,6 +7,7 @@ import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
+import { useProfiles } from '@/lib/profile';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -14,7 +15,9 @@ import { springTransition, CARD, CARD_SHADOW } from './shared';
 export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
   const season = currentSeasonByMonth();
   const { cookCounts } = useCookLog();
-  const matched = matchRecipes(foods, 12, { currentSeason: season, cookCounts });
+  const { main } = useProfiles();
+  const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
+  const matched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, dietary });
   const { isFavorite, toggle } = useRecipeFavorites();
   const [pickIndex, setPickIndex] = useState(() => Math.floor(Math.random() * Math.max(1, matched.length)));
   const [selected, setSelected]   = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
