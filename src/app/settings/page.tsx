@@ -95,13 +95,26 @@ export default function SettingsPage() {
     }
   }
 
+  function handleClearPreferences() {
+    if (!confirm('최근 검색어·필터·정렬 설정을 모두 초기화할까요? (냉장고/옷장 데이터는 유지돼요)')) return;
+    const keys = [
+      'nemoa-home-recent-search',
+      'nemoa-fridge-storage', 'nemoa-fridge-group', 'nemoa-fridge-sort',
+      'nemoa-fridge-owner', 'nemoa-fridge-seasonal-only',
+      'nemoa-closet-sort', 'nemoa-closet-group', 'nemoa-closet-owner',
+    ];
+    for (const k of keys) localStorage.removeItem(k);
+    showToast('검색어·필터 설정이 초기화됐어요. 페이지를 새로고침하세요.');
+  }
+
   const menuItems = [
     { label: '만료 식품 정리',  emoji: '📦', desc: '보관 기한 +7일 초과 항목 아카이브',  action: handleArchive },
     { label: '지금 백업하기',   emoji: '💾', desc: '전체 상태를 JSON으로 다운로드',       action: handleBackupNow },
     { label: '백업에서 복원',   emoji: '📥', desc: '이전 백업 JSON 파일 불러오기',       action: handlePickRestoreFile },
     { label: 'JSON 내보내기',   emoji: '📄', desc: '현재 아이템만 JSON으로 내보내기',   action: handleExportJSON },
     { label: 'CSV 내보내기',    emoji: '📊', desc: '현재 아이템만 CSV로 내보내기',      action: handleExportCSV },
-    { label: '데이터 초기화',   emoji: '🔄', desc: '샘플 데이터로 복원',                action: handleReset },
+    { label: '검색어·필터 초기화', emoji: '🧹', desc: '최근 검색어·필터·정렬 설정 비우기',  action: handleClearPreferences },
+    { label: '전체 데이터 초기화', emoji: '🔄', desc: '샘플 데이터로 복원 (주의: 아이템 삭제)', action: handleReset },
   ];
 
   return (

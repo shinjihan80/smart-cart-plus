@@ -61,14 +61,20 @@ export default function ClosetPage() {
   const { showToast } = useToast();
   const { profiles } = useProfiles();
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<GroupFilter>('전체');
+  const [filter, setFilter] = usePersistedState<GroupFilter>(
+    'nemoa-closet-group', '전체',
+    (raw) => (raw === '전체' || raw === '의류' || raw === '신발' || raw === '가방' || raw === '액세서리') ? raw : null,
+  );
   const [sortBy, setSortBy] = usePersistedState<ClosetSort>(
     'nemoa-closet-sort', 'name',
     (raw) => (raw === 'name' || raw === 'thickness' || raw === 'match'
       || raw === 'wornMost' || raw === 'wornLeast') ? raw : null,
   );
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
-  const [ownerFilter, setOwnerFilter] = useState<string>('전체');  // 'id' | '전체' | '공용'
+  const [ownerFilter, setOwnerFilter] = usePersistedState<string>(
+    'nemoa-closet-owner', '전체',
+    (raw) => typeof raw === 'string' ? raw : null,
+  );  // 'id' | '전체' | '공용'
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [showHibernating, setShowHibernating] = useState(false);
   const { log: wearLog } = useWearLog();

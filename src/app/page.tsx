@@ -13,6 +13,7 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { countRecipesByIngredient, type Recipe } from '@/lib/recipes';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
+import { usePersistedState } from '@/lib/usePersistedState';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
@@ -51,6 +52,19 @@ export default function HomePage() {
   const [search, setSearch] = useState('');
   const [recipeBrowser, setRecipeBrowser] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [recentSearches, setRecentSearches] = usePersistedState<string[]>(
+    'nemoa-home-recent-search', [],
+    (raw) => Array.isArray(raw) && raw.every((x) => typeof x === 'string') ? raw as string[] : null,
+  );
+
+  function pushRecent(q: string) {
+    const trimmed = q.trim();
+    if (trimmed.length < 2) return;
+    setRecentSearches((prev) => {
+      const next = [trimmed, ...prev.filter((x) => x !== trimmed)];
+      return next.slice(0, 5);
+    });
+  }
 
   const searchQ = search.trim();
   const searchResults = searchQ
@@ -101,6 +115,27 @@ export default function HomePage() {
             className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
         </div>
+        {!searchQ && recentSearches.length > 0 && (
+          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] text-gray-400 font-medium shrink-0">최근</span>
+            {recentSearches.map((q) => (
+              <button
+                key={q}
+                onClick={() => setSearch(q)}
+                className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-gray-100 text-gray-600 hover:border-brand-primary/20 hover:text-brand-primary transition-colors"
+              >
+                {q}
+              </button>
+            ))}
+            <button
+              onClick={() => setRecentSearches([])}
+              className="text-[10px] text-gray-300 hover:text-gray-500 transition-colors ml-1"
+              aria-label="최근 검색어 지우기"
+            >
+              지우기
+            </button>
+          </div>
+        )}
         {searchQ && (
           <div className="mt-2 flex flex-col gap-1.5">
             {searchResults.slice(0, 5).map((item) => {
@@ -111,6 +146,7 @@ export default function HomePage() {
                 <Link
                   key={item.id}
                   href={isFoodItem(item) ? '/fridge' : '/closet'}
+                  onClick={() => pushRecent(searchQ)}
                   className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-white border border-gray-100 hover:border-brand-primary/20 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
@@ -129,7 +165,7 @@ export default function HomePage() {
             })}
             {recipeHits > 0 && (
               <button
-                onClick={() => setRecipeBrowser(searchQ)}
+                onClick={() => { pushRecent(searchQ); setRecipeBrowser(searchQ); }}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 hover:bg-brand-primary/10 transition-colors text-left"
               >
                 <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-sm">📖</div>
