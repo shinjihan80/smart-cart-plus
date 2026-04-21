@@ -1,10 +1,11 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Search } from 'lucide-react';
+import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import { SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth, type Season } from '@/lib/season';
 import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
@@ -58,11 +59,14 @@ function SeasonalPageInner() {
 
   const [view, setView] = useState<ViewMode>(initialView);
   const [selected, setSelected] = useState<Season>(initialSelected);
+  const [query, setQuery] = useState('');
   const { has, add } = useShoppingList();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
   const [browserIngredient, setBrowserIngredient] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  useSearchShortcut(searchRef, () => setQuery(''));
 
   // URL 쿼리 동기화
   useEffect(() => {
@@ -73,8 +77,10 @@ function SeasonalPageInner() {
     router.replace(qs ? `/seasonal?${qs}` : '/seasonal', { scroll: false });
   }, [view, selected, currentSeason, router]);
 
+  const q = query.trim().toLowerCase();
   const items = SEASONAL_PRODUCE
     .filter((p) => p.seasons.includes(selected))
+    .filter((p) => !q || p.name.toLowerCase().includes(q) || (p.blurb?.toLowerCase().includes(q) ?? false))
     .sort(byPeakFirst(selected));
 
   const peakCount = items.filter((p) => p.peak === selected).length;
@@ -107,6 +113,21 @@ function SeasonalPageInner() {
               </p>
             </div>
           </div>
+          {view === 'season' && (
+            <div className="px-4 pb-2 relative">
+              <Search size={12} className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" />
+              <input
+                ref={searchRef}
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="재료 이름·설명 검색"
+                aria-label="제철 재료 검색 (⌘K)"
+                className="w-full pl-8 pr-10 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-xs text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+              />
+              <kbd className="hidden sm:inline-flex absolute right-6 top-1/2 -translate-y-1/2 items-center text-[8px] text-gray-400 bg-white border border-gray-200 rounded px-1 py-0 font-mono pointer-events-none">⌘K</kbd>
+            </div>
+          )}
           <div className="px-4 pb-2 flex gap-1.5">
             <button
               onClick={() => setView('season')}

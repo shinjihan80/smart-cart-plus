@@ -1,11 +1,14 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Search } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useShoppingList } from '@/lib/shoppingList';
 import { createFoodItemFromIngredient, inferFoodCategory, getFoodEmoji } from '@/lib/ingredientInference';
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
+import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface ShoppingListSectionProps {
@@ -15,8 +18,15 @@ interface ShoppingListSectionProps {
 
 export default function ShoppingListSection({ addItems, showToast }: ShoppingListSectionProps) {
   const shopping = useShoppingList();
+  const [query, setQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+  useSearchShortcut(searchRef, () => setQuery(''));
 
   if (shopping.list.length === 0) return null;
+
+  const filteredList = query.trim()
+    ? shopping.list.filter((it) => it.name.toLowerCase().includes(query.toLowerCase()))
+    : shopping.list;
 
   function handleBulkAdd() {
     if (!confirm(`${shopping.list.length}개를 모두 냉장고에 담을까요?`)) return;
@@ -53,7 +63,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
       className={CARD}
       style={CARD_SHADOW}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="text-xs text-gray-400 font-medium">
           🛒 쇼핑 리스트 <span className="tabular-nums">({shopping.list.length})</span>
         </h3>
@@ -74,6 +84,21 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           </button>
         </div>
       </div>
+      {shopping.list.length >= 5 && (
+        <div className="relative mb-3">
+          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300" />
+          <input
+            ref={searchRef}
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="리스트에서 검색"
+            aria-label="쇼핑 리스트 검색 (⌘K)"
+            className="w-full pl-7 pr-10 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-xs text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+          <kbd className="hidden sm:inline-flex absolute right-2 top-1/2 -translate-y-1/2 items-center text-[8px] text-gray-400 bg-white border border-gray-200 rounded px-1 py-0 font-mono pointer-events-none">⌘K</kbd>
+        </div>
+      )}
       {(() => {
         // source별 그룹화 — 우선순위 순 + 직접 추가(source 없음)는 마지막
         const SOURCE_ORDER: { key: string; label: string; emoji: string }[] = [
@@ -85,7 +110,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           { key: '',            label: '직접 추가',     emoji: '✏️' },
         ];
         const byKey = new Map<string, typeof shopping.list>();
-        for (const it of shopping.list) {
+        for (const it of filteredList) {
           const key = SOURCE_ORDER.find((s) => s.key === (it.source ?? ''))?.key ?? '';
           const bucket = byKey.get(key) ?? [];
           bucket.push(it);
