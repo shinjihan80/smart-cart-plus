@@ -8,6 +8,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { haptic } from '@/lib/haptics';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
@@ -23,7 +24,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
   const pick = matched[pickIndex % matched.length];
 
   function handleShuffle() {
-    navigator.vibrate?.(15);
+    haptic('toggle');
     setSpinning(true);
     const next = matched.length > 1
       ? (pickIndex + 1 + Math.floor(Math.random() * (matched.length - 1))) % matched.length

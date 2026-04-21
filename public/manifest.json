@@ -3,14 +3,24 @@
   "short_name": "NEMOA",
   "description": "스마트 냉장고와 옷장을 하나로, AI 라이프스타일 비서 네모아",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#F9FAFB",
   "theme_color": "#4F46E5",
+  "lang": "ko",
+  "categories": ["lifestyle", "productivity", "food"],
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    { "name": "스마트 냉장고", "short_name": "냉장고", "url": "/fridge",   "icons": [{ "src": "/icon.svg", "sizes": "any" }] },
+    { "name": "스마트 옷장",   "short_name": "옷장",   "url": "/closet",   "icons": [{ "src": "/icon.svg", "sizes": "any" }] },
+    { "name": "제철 달력",     "short_name": "제철",   "url": "/seasonal", "icons": [{ "src": "/icon.svg", "sizes": "any" }] }
   ]
 }

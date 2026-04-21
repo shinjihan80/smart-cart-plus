@@ -9,6 +9,7 @@ import { useModalA11y } from '@/lib/useModalA11y';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
+import { haptic } from '@/lib/haptics';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -94,7 +95,7 @@ export default function RecipeDetailModal({
       if (left === 0) {
         setRunning(false);
         setFinished(true);
-        navigator.vibrate?.([200, 80, 200]);
+        haptic('success');
         playChime();
       }
     }, 250);
@@ -241,7 +242,7 @@ export default function RecipeDetailModal({
                     onClick={() => {
                       const toAdd = missingKeywords.filter((kw) => !inShopping(kw));
                       toAdd.forEach((kw) => addToShopping(kw, recipe.name));
-                      navigator.vibrate?.(15);
+                      haptic('toggle');
                       showToast(`${toAdd.length}개 모두 쇼핑 리스트에 담았어요.`);
                     }}
                     className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-600 text-white hover:opacity-90 active:scale-95 transition-all"
@@ -337,7 +338,7 @@ export default function RecipeDetailModal({
           <button
             onClick={() => {
               markCooked(recipe.id);
-              navigator.vibrate?.(15);
+              haptic('toggle');
               showToast(`"${recipe.name}" ${cook.count + 1}번째 조리 기록 완료 🍲`);
               onClose();
             }}

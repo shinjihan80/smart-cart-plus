@@ -7,6 +7,7 @@ import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import type { MatchBadge } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { useCart } from '@/context/CartContext';
+import { haptic } from '@/lib/haptics';
 import { useToast } from '@/context/ToastContext';
 import { useProfiles } from '@/lib/profile';
 import { compareSize } from '@/lib/sizeRecommend';
@@ -53,7 +54,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
 
   function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
     if (info.offset.x < -80) {
-      navigator.vibrate?.(30);
+      haptic('action');
       onRemove(item.id);
     }
   }
@@ -398,7 +399,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                         onClick={(e) => {
                           e.stopPropagation();
                           undoLast(item.id);
-                          navigator.vibrate?.(10);
+                          haptic('tap');
                           showToast(`"${item.name}" 오늘 착용 기록을 취소했어요.`);
                         }}
                         className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
@@ -410,7 +411,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                         onClick={(e) => {
                           e.stopPropagation();
                           markWorn(item.id);
-                          navigator.vibrate?.(15);
+                          haptic('toggle');
                           showToast(`"${item.name}" 오늘 착용 기록 완료 👕`);
                         }}
                         className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"

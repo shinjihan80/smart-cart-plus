@@ -5,6 +5,7 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { isFoodItem, FOOD_EMOJI, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { haptic } from '@/lib/haptics';
 import { Widget } from './shared';
 
 interface FridgeCardProps {
@@ -29,7 +30,7 @@ function FridgeCard({ name, dDay, storageType, emoji, imageUrl, onDiscard }: Fri
 
   function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
     if (info.offset.x < -60) {
-      navigator.vibrate?.(30);
+      haptic('action');
       onDiscard();
     }
   }

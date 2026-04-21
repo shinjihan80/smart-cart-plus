@@ -12,6 +12,7 @@ import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recip
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { haptic } from '@/lib/haptics';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
@@ -47,7 +48,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
 
   function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
     if (info.offset.x < -80) {
-      navigator.vibrate?.(30);
+      haptic('action');
       onDiscard(item.id);
     }
   }
