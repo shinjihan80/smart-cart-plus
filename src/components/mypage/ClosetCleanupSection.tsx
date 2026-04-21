@@ -26,6 +26,17 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
   const idleCount  = candidates.filter((c) => c.idleDays !== null).length;
   const neverCount = candidates.filter((c) => c.idleDays === null).length;
 
+  // 카테고리별 분포 — 상위 4종만 노출
+  const categoryBreakdown = (() => {
+    const counts = new Map<string, number>();
+    for (const c of candidates) {
+      counts.set(c.item.category, (counts.get(c.item.category) ?? 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4);
+  })();
+
   function handleRemove(id: string, name: string) {
     if (!confirm(`"${name}"을(를) 옷장에서 정리할까요?`)) return;
     removeItem(id);
@@ -58,11 +69,25 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
       </button>
 
       {!expanded && (
-        <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
-          60일 이상 안 입은 옷 {idleCount}벌
-          {neverCount > 0 && <span> · 한 번도 안 입은 옷 {neverCount}벌</span>}
-          · 탭해서 정리
-        </p>
+        <>
+          <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+            60일 이상 안 입은 옷 {idleCount}벌
+            {neverCount > 0 && <span> · 한 번도 안 입은 옷 {neverCount}벌</span>}
+            · 탭해서 정리
+          </p>
+          {categoryBreakdown.length > 0 && (
+            <div className="flex gap-1 flex-wrap mt-2">
+              {categoryBreakdown.map(([cat, count]) => (
+                <span
+                  key={cat}
+                  className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-500 font-medium tabular-nums"
+                >
+                  {FASHION_EMOJI[cat as keyof typeof FASHION_EMOJI] ?? '👕'} {cat} {count}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <AnimatePresence>
