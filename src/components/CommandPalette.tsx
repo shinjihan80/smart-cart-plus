@@ -34,7 +34,7 @@ export default function CommandPalette() {
   const router = useRouter();
   const { items, archiveExpired } = useCart();
   const { showToast } = useToast();
-  const { list: shoppingList, clear: clearShopping } = useShoppingList();
+  const { list: shoppingList, clear: clearShopping, has: inShopping, add: addShopping } = useShoppingList();
   const { log: cookLog } = useCookLog();
   const { log: wearLog } = useWearLog();
   const [open, setOpen] = useState(false);
@@ -141,6 +141,24 @@ export default function CommandPalette() {
         run: () => { exportAsCSV(items); showToast('CSV 파일로 내보냈어요.'); },
       },
     ];
+    // 제철 피크 모두 담기 — 현재 계절의 미보유 피크 재료 일괄 쇼핑 담기
+    const haveNames = new Set(items.map((it) => it.name));
+    const peakToShop = SEASONAL_PRODUCE.filter(
+      (p) => p.peak === season && !haveNames.has(p.name) && !inShopping(p.name),
+    );
+    if (peakToShop.length > 0) {
+      actions.push({
+        kind: 'action', id: 'a-peak-shop', emoji: '🌸',
+        label: `${season}철 피크 ${peakToShop.length}종 쇼핑 리스트에 담기`,
+        sub: '현재 계절 피크 · 미보유만',
+        run: () => {
+          if (!confirm(`${season}철 피크 ${peakToShop.length}종을 쇼핑 리스트에 담을까요?`)) return;
+          for (const p of peakToShop) addShopping(p.name, `${season}철 피크`);
+          showToast(`${peakToShop.length}종 쇼핑 리스트에 담았어요.`);
+        },
+      });
+    }
+
     // 오늘 하루 리뷰 — cookLog/wearLog 오늘 건수 토스트
     const today = new Date().toISOString().split('T')[0];
     const cookToday = Object.values(cookLog).filter((dates) => Array.isArray(dates) && dates[0] === today).length;

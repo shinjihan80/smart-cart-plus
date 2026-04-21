@@ -27,6 +27,7 @@ import SeasonalStorageSection                    from '@/components/mypage/Seaso
 import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
 import PaletteButton                              from '@/components/PaletteButton';
 import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
+import MonthlySummarySection                      from '@/components/mypage/MonthlySummarySection';
 import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
@@ -154,6 +155,10 @@ export default function MyPage() {
         )}
 
         <SpendingSection />
+
+        <SectionErrorBoundary label="이번 달 활동">
+          <MonthlySummarySection discardHistory={discardHistory} />
+        </SectionErrorBoundary>
 
         <SectionErrorBoundary label="올해 활동 요약">
           <AnnualSummarySection discardHistory={discardHistory} />
