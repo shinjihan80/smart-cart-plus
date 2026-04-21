@@ -137,6 +137,46 @@ export function pickDailyMessage(
     }
   }
 
+  // 조합 기반 제안 — 최근에 두 레시피를 같은 날 만든 적 있으면 반복 제안
+  if (Object.keys(cookLog).length > 0) {
+    const twoWeekAgoMs = Date.now() - 14 * 24 * 60 * 60 * 1000;
+    const dateToIds: Record<string, string[]> = {};
+    for (const [id, dates] of Object.entries(cookLog)) {
+      for (const d of (Array.isArray(dates) ? dates : [])) {
+        if (new Date(d).getTime() < twoWeekAgoMs) continue;
+        (dateToIds[d] = dateToIds[d] ?? []).push(id);
+      }
+    }
+    const pairCount = new Map<string, number>();
+    for (const ids of Object.values(dateToIds)) {
+      for (let i = 0; i < ids.length; i += 1) {
+        for (let j = i + 1; j < ids.length; j += 1) {
+          const a = ids[i], b = ids[j];
+          const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+          pairCount.set(key, (pairCount.get(key) ?? 0) + 1);
+        }
+      }
+    }
+    const topPair = Array.from(pairCount.entries())
+      .sort((a, b) => b[1] - a[1])
+      .find(([, c]) => c >= 2);
+    if (topPair) {
+      const [key, count] = topPair;
+      const [idA, idB] = key.split('|');
+      const a = RECIPES.find((r) => r.id === idA);
+      const b = RECIPES.find((r) => r.id === idB);
+      if (a && b) {
+        return {
+          emoji:    '🍳',
+          text:     `최근 "${a.name}"과 "${b.name}"을(를) ${count}번 같이 만드셨네요. 오늘도 어떠세요?`,
+          priority: 'insight',
+          cta:      { label: '레시피 열기', href: '/fridge' },
+          paletteQuery: a.name,
+        };
+      }
+    }
+  }
+
   // 즐겨찾기 했는데 아직 만들어보지 않은 레시피 — 도전 제안
   const unmadeFavorite = favorites.find((id) => {
     const dates = cookLog[id];
