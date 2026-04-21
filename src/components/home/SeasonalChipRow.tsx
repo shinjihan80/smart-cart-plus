@@ -6,7 +6,7 @@ import { useToast } from '@/context/ToastContext';
 import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI, countRecipesByIngredient, RECIPES } from '@/lib/recipes';
+import { SEASON_EMOJI, countRecipesByIngredient } from '@/lib/recipes';
 import { springTransition } from './shared';
 
 export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
@@ -42,9 +42,6 @@ export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
       </span>
       {picks.map((p) => {
         const recipeCount = countRecipesByIngredient(p.name);
-        const onlyRecipe = recipeCount === 1
-          ? RECIPES.find((r) => r.keywords.some((kw) => kw.includes(p.name) || p.name.includes(kw)))
-          : null;
         return (
           <div key={p.name} className="shrink-0 flex items-center rounded-full bg-white border border-brand-primary/20 overflow-hidden">
             <button
@@ -59,11 +56,9 @@ export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
             {recipeCount > 0 && (
               <button
                 onClick={() => {
-                  if (onlyRecipe) {
-                    window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: onlyRecipe.id } }));
-                  } else {
-                    window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: `?${p.name}` } }));
-                  }
+                  // 항상 팔레트를 열어 사용자에게 '전체 결과' 노출 — 단일 레시피 자동 오픈은 제거
+                  // (이전 동작이 count 2일 때도 단일로 빠지던 이슈 + 사용자가 다른 레시피도 볼 수 있게)
+                  window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: `?${p.name}` } }));
                 }}
                 title={`${p.name} 레시피 ${recipeCount}개`}
                 className="text-[9px] px-1.5 py-1 border-l border-brand-primary/15 text-brand-primary/70 hover:bg-brand-primary/5 transition-colors"
