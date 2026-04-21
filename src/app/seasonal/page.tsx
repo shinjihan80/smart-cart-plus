@@ -302,6 +302,30 @@ function SeasonalPageInner() {
                 </button>
               )}
             </div>
+            {/* 올해 이 계절 진행도 — 드셔본 비율 */}
+            {(() => {
+              const total = SEASONAL_PRODUCE.filter((p) => p.seasons.includes(selected)).length;
+              if (total === 0 || triedNames.size === 0) return null;
+              const pct = Math.round((triedNames.size / total) * 100);
+              return (
+                <div className="mt-3 pt-3 border-t border-brand-primary/10">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] text-gray-500">올해 {selected} 진행도</span>
+                    <span className="text-[10px] font-bold text-brand-success tabular-nums">
+                      {triedNames.size} / {total} · {pct}%
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/60 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                      className="h-full rounded-full bg-brand-success"
+                    />
+                  </div>
+                </div>
+              );
+            })()}
           </motion.div>
 
           <div className="grid grid-cols-2 gap-2.5">

@@ -124,6 +124,13 @@ export default function OnboardingModal() {
     if (!localStorage.getItem(ONBOARDING_KEY)) {
       setShow(true);
     }
+    // 설정에서 '온보딩 다시 보기' 눌렀을 때 이벤트로 재오픈
+    function onReplay() {
+      setStep(0);
+      setShow(true);
+    }
+    window.addEventListener('nemoa:replay-onboarding', onReplay);
+    return () => window.removeEventListener('nemoa:replay-onboarding', onReplay);
   }, []);
 
   function handleClose() {

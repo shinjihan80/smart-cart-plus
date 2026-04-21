@@ -148,6 +148,8 @@ export default function SettingsPage() {
     { label: '검색어·필터 초기화', emoji: '🧹', desc: '최근 검색어·필터·정렬 설정 비우기',  action: handleClearPreferences },
     { label: '백업 후 초기화',   emoji: '🛡️', desc: '자동 백업 → 샘플 데이터로 안전 초기화',  action: handleBackupAndReset },
     { label: '전체 데이터 초기화', emoji: '🔄', desc: '샘플 데이터로 복원 (주의: 아이템 삭제)', action: handleReset },
+    { label: '온보딩 다시 보기', emoji: '🎓', desc: '네모아 소개 7단계 재생',
+      action: () => window.dispatchEvent(new CustomEvent('nemoa:replay-onboarding')) },
   ];
 
   return (
