@@ -26,6 +26,7 @@ import TipOfTheDay     from '@/components/home/TipOfTheDay';
 import SeasonalChipRow from '@/components/home/SeasonalChipRow';
 import SeasonalHintWidget from '@/components/home/SeasonalHintWidget';
 import SeasonalChecklistWidget from '@/components/home/SeasonalChecklistWidget';
+import QuickLinks from '@/components/home/QuickLinks';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -124,6 +125,13 @@ export default function HomePage() {
       <div className="px-4 pt-3">
         <SectionErrorBoundary label="네모아의 오늘 한 마디">
           <DailyMessage items={items} />
+        </SectionErrorBoundary>
+      </div>
+
+      {/* 퀵 링크 4개 */}
+      <div className="px-4 pt-3">
+        <SectionErrorBoundary label="퀵 링크">
+          <QuickLinks />
         </SectionErrorBoundary>
       </div>
 
