@@ -9,11 +9,12 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { SEASON_EMOJI } from '@/lib/recipes';
+import { estimateCycles } from '@/lib/purchaseCycle';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface ShoppingSuggestionsSectionProps {
   items:          CartItem[];
-  discardHistory: { name: string; category: string }[];
+  discardHistory: { name: string; category: string; date: string }[];
   showToast:      (msg: string) => void;
 }
 
@@ -50,7 +51,27 @@ export default function ShoppingSuggestionsSection({
       }
     }
 
-    // 2) 최근 소진한 것 (discardHistory) — 현재 없는 식품만
+    // 2) 구매 주기 기반 — 다음 소진이 예상되는 식품 (cycleDays - sinceLast ≤ 2일)
+    const cycles = estimateCycles(discardHistory, 2);
+    const seenCycle = new Set<string>();
+    for (const c of cycles) {
+      if (c.dueInDays > 2) break;  // 정렬돼 있으므로 dueInDays 작은 것부터
+      if (haveNames.has(c.name)) continue;
+      if (seenCycle.has(c.name)) continue;
+      if (out.some((s) => s.name === c.name)) continue;
+      seenCycle.add(c.name);
+      const overdue = c.dueInDays < 0;
+      out.push({
+        name: c.name,
+        reason: overdue ? `주기보다 ${-c.dueInDays}일 늦었어요` : `${c.cycleDays}일 주기 · 곧 떨어질 때`,
+        badge: '🔁 주기',
+        emoji: getFoodEmoji(c.name),
+        source: '구매 주기',
+      });
+      if (seenCycle.size >= 3) break;
+    }
+
+    // 3) 최근 소진한 것 (discardHistory) — 현재 없는 식품만
     const seenRebuy = new Set<string>();
     for (const h of discardHistory) {
       if (h.category !== '식품') continue;
