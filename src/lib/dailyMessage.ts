@@ -243,6 +243,22 @@ export function pickDailyMessage(
     }
   }
 
+  // 로테이션 밸런스 낮음 — 몇 벌에 쏠려 있으면 분산 제안
+  const wearCounts = Object.values(wearLog).map((ds) => (Array.isArray(ds) ? ds.length : 0)).filter((n) => n > 0);
+  if (wearCounts.length >= 5) {
+    const mean = wearCounts.reduce((s, n) => s + n, 0) / wearCounts.length;
+    const variance = wearCounts.reduce((s, n) => s + (n - mean) ** 2, 0) / wearCounts.length;
+    const cv = mean > 0 ? Math.sqrt(variance) / mean : 0;
+    if (cv >= 1.0) {
+      return {
+        emoji:    '🔄',
+        text:     '몇 벌에만 쏠려 있어요. 오래 안 입은 옷을 오늘 꺼내볼까요?',
+        priority: 'insight',
+        cta:      { label: '옷장 열기', href: '/closet' },
+      };
+    }
+  }
+
   // 30일 이상 안 입은 옷이 있으면 재발견 제안
   const longIdle = clothes
     .filter((c) => FASHION_GROUP[c.category] === '의류')
