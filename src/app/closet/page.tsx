@@ -61,7 +61,17 @@ export default function ClosetPage() {
   const { profiles } = useProfiles();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<GroupFilter>('전체');
-  const [sortBy, setSortBy] = useState<ClosetSort>('name');
+  const [sortBy, setSortBy] = useState<ClosetSort>(() => {
+    if (typeof window === 'undefined') return 'name';
+    const saved = window.localStorage.getItem('nemoa-closet-sort');
+    if (saved === 'name' || saved === 'thickness' || saved === 'match'
+        || saved === 'wornMost' || saved === 'wornLeast') return saved;
+    return 'name';
+  });
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('nemoa-closet-sort', sortBy);
+  }, [sortBy]);
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [ownerFilter, setOwnerFilter] = useState<string>('전체');  // 'id' | '전체' | '공용'
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
