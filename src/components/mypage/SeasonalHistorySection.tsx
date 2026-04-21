@@ -8,7 +8,10 @@ import {
   isSeasonalProduce,
   lookupSeasonalEmoji,
 } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI } from '@/lib/recipes';
+import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
+import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import RecipeBrowserModal from '@/components/RecipeBrowserModal';
+import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useToast } from '@/context/ToastContext';
@@ -24,7 +27,10 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
   const season = currentSeasonByMonth();
   const { has, add } = useShoppingList();
   const { showToast } = useToast();
+  const { isFavorite, toggle } = useRecipeFavorites();
   const [missedOpen, setMissedOpen] = useState(false);
+  const [browserIngredient, setBrowserIngredient] = useState<string | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   const { ranked, total, distinct, missed, totalInSeason } = useMemo(() => {
     const winStart = seasonStart(season);
@@ -86,6 +92,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
   }
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
@@ -167,20 +174,36 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                   </div>
                 )}
                 <div className="pt-2 flex gap-1.5 flex-wrap">
-                  {missed.slice(0, 12).map((p) => (
-                    <button
-                      key={p.name}
-                      onClick={() => handleShopAdd(p.name)}
-                      title={p.blurb ?? `${season}철 제철`}
-                      className="flex items-center gap-1 text-[11px] pl-1.5 pr-2.5 py-1 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
-                    >
-                      <span className="text-sm">{p.emoji}</span>
-                      <span className="font-medium">{p.name}</span>
-                      {p.peak === season && (
-                        <span className="text-[9px] px-1 py-0 rounded-full bg-amber-200 text-amber-800">피크</span>
-                      )}
-                    </button>
-                  ))}
+                  {missed.slice(0, 12).map((p) => {
+                    const recipeCount = countRecipesByIngredient(p.name);
+                    return (
+                      <div
+                        key={p.name}
+                        className="flex items-center rounded-2xl bg-amber-50 border border-amber-100 overflow-hidden"
+                      >
+                        <button
+                          onClick={() => handleShopAdd(p.name)}
+                          title={p.blurb ?? `${season}철 제철`}
+                          className="flex items-center gap-1 text-[11px] pl-1.5 pr-2 py-1 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
+                        >
+                          <span className="text-sm">{p.emoji}</span>
+                          <span className="font-medium">{p.name}</span>
+                          {p.peak === season && (
+                            <span className="text-[9px] px-1 py-0 rounded-full bg-amber-200 text-amber-800">피크</span>
+                          )}
+                        </button>
+                        {recipeCount > 0 && (
+                          <button
+                            onClick={() => setBrowserIngredient(p.name)}
+                            title={`${p.name}(으)로 만드는 요리 보기`}
+                            className="text-[10px] px-2 py-1 border-l border-amber-100 text-amber-700/80 hover:bg-amber-100 transition-colors"
+                          >
+                            📖 {recipeCount}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                   {missed.length > 12 && (
                     <span className="text-[10px] text-gray-400 self-center">외 {missed.length - 12}종</span>
                   )}
@@ -194,5 +217,27 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
         </div>
       )}
     </motion.div>
+
+    {browserIngredient && (
+      <RecipeBrowserModal
+        initialSearch={browserIngredient}
+        onSelect={(recipe) => {
+          setBrowserIngredient(null);
+          setSelectedRecipe(recipe);
+        }}
+        onClose={() => setBrowserIngredient(null)}
+      />
+    )}
+
+    {selectedRecipe && (
+      <RecipeDetailModal
+        recipe={selectedRecipe}
+        matchedItems={[]}
+        isFavorite={isFavorite(selectedRecipe.id)}
+        onToggleFavorite={() => toggle(selectedRecipe.id)}
+        onClose={() => setSelectedRecipe(null)}
+      />
+    )}
+    </>
   );
 }
