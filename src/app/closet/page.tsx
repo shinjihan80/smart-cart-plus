@@ -203,6 +203,41 @@ export default function ClosetPage() {
           </div>
         </motion.div>
 
+        {/* 이번 주 착용 요약 — 최근 7일 기록이 있으면 표시 */}
+        {(() => {
+          const weekAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+          const weekCount = Object.values(wearLog)
+            .flat()
+            .filter((d) => {
+              const t = new Date(d).getTime();
+              return !isNaN(t) && t >= weekAgoMs;
+            }).length;
+          if (weekCount === 0) return null;
+          const uniqueItems = new Set<string>();
+          for (const [id, dates] of Object.entries(wearLog)) {
+            if ((dates as string[]).some((d) => new Date(d).getTime() >= weekAgoMs)) {
+              uniqueItems.add(id);
+            }
+          }
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...springTransition, delay: 0.07 }}
+              className={`${CARD} !py-3 !px-4`}
+              style={CARD_SHADOW}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">📊</span>
+                <span className="text-xs text-gray-400 font-medium">이번 주 착용 요약</span>
+              </div>
+              <p className="text-[11px] text-gray-600 mt-1.5 leading-relaxed">
+                최근 7일 동안 <span className="font-bold text-brand-primary tabular-nums">{weekCount}회</span> 착용 · 옷 <span className="font-bold text-brand-primary tabular-nums">{uniqueItems.size}벌</span> 썼어요
+              </p>
+            </motion.div>
+          );
+        })()}
+
         {/* 계절 꺼내기 CTA — 보관 중 + 현재 계절 맞는 옷 있을 때만 */}
         <SectionErrorBoundary label="계절 꺼내기">
           <SeasonalUnstowBanner items={allItems} />

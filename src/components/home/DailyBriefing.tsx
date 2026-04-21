@@ -9,6 +9,8 @@ import {
   type WeatherSnapshot,
 } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
+import { useToast } from '@/context/ToastContext';
+import { haptic } from '@/lib/haptics';
 import { Widget } from './shared';
 
 function fallbackBriefing(): { emoji: string; headline: string; tip: string } {
@@ -24,7 +26,8 @@ function fallbackBriefing(): { emoji: string; headline: string; tip: string } {
 
 export default function DailyBriefing({ items }: { items: CartItem[] }) {
   const clothes = items.filter(isClothingItem);
-  const { getEntry } = useWearLog();
+  const { getEntry, markWorn } = useWearLog();
+  const { showToast } = useToast();
 
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [weatherFailed, setWeatherFailed] = useState(false);
@@ -105,10 +108,18 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
               <span className="text-[10px] text-gray-400 shrink-0">오늘의 추천</span>
               <div className="flex gap-1.5 overflow-hidden">
                 {topMatches.map(({ item, match, idleDays }) => (
-                  <div
+                  <button
                     key={item.id}
-                    className="shrink-0 flex items-center gap-1 max-w-[96px] pl-1 pr-2 py-0.5 rounded-full bg-white/80 border border-gray-100"
-                    title={idleDays >= 30 ? `${idleDays}일째 안 입은 옷` : undefined}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      markWorn(item.id);
+                      haptic('toggle');
+                      showToast(`"${item.name}" 오늘 착용 기록 완료 👕`);
+                    }}
+                    aria-label={`${item.name} 오늘 입었어요`}
+                    className="shrink-0 flex items-center gap-1 max-w-[96px] pl-1 pr-2 py-0.5 rounded-full bg-white/80 border border-gray-100 hover:border-brand-primary/30 hover:bg-white transition-colors active:scale-95"
+                    title={idleDays >= 30 ? `${idleDays}일째 안 입은 옷 · 탭해서 기록` : '탭해서 오늘 착용 기록'}
                   >
                     <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
                       {item.imageUrl ? (
@@ -121,7 +132,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                     <span className="text-[10px] text-gray-700 font-medium truncate">{item.name}</span>
                     {match.level === 'perfect' && <span className="text-[9px]">✨</span>}
                     {idleDays >= 30 && idleDays < 9999 && <span className="text-[9px]">🌙</span>}
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
