@@ -171,8 +171,14 @@ export default function ClosetPage() {
         {(() => {
           const month = new Date().getMonth() + 1;
           const season = month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
-          const seasonItems = activeClothing.filter((c) => c.weatherTags?.includes(season));
-          if (seasonItems.length === 0) return null;
+          const allSeasonItems = activeClothing.filter((c) => c.weatherTags?.includes(season));
+          if (allSeasonItems.length === 0) return null;
+          const seasonItems = allSeasonItems.filter((c) => {
+            if (ownerFilter === '전체') return true;
+            if (ownerFilter === '공용') return !c.ownerId;
+            return c.ownerId === ownerFilter;
+          });
+          const filteredOut = allSeasonItems.length - seasonItems.length;
           return (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -181,17 +187,28 @@ export default function ClosetPage() {
               className={`${CARD} !py-3 !px-4`}
               style={CARD_SHADOW}
             >
-              <p className="text-xs text-gray-400 font-medium mb-2">
-                {season === '봄' ? '🌸' : season === '여름' ? '☀️' : season === '가을' ? '🍂' : '❄️'} 지금 입기 좋은 옷
-              </p>
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {seasonItems.map((item) => (
-                  <div key={item.id} className="shrink-0 flex items-center gap-2 bg-brand-primary/5 rounded-2xl px-3 py-1.5">
-                    <span className="text-sm">{FASHION_EMOJI[item.category] ?? '📦'}</span>
-                    <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{item.name}</span>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-gray-400 font-medium">
+                  {season === '봄' ? '🌸' : season === '여름' ? '☀️' : season === '가을' ? '🍂' : '❄️'} 지금 입기 좋은 옷
+                </p>
+                {filteredOut > 0 && (
+                  <span className="text-[9px] text-gray-400 shrink-0">필터로 {filteredOut}벌 숨김</span>
+                )}
               </div>
+              {seasonItems.length > 0 ? (
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                  {seasonItems.map((item) => (
+                    <div key={item.id} className="shrink-0 flex items-center gap-2 bg-brand-primary/5 rounded-2xl px-3 py-1.5">
+                      <span className="text-sm">{FASHION_EMOJI[item.category] ?? '📦'}</span>
+                      <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[10px] text-gray-400 py-2">
+                  현재 필터에 {season}철 옷이 없어요. &ldquo;전체 보기&rdquo;로 바꿔보세요.
+                </p>
+              )}
             </motion.div>
           );
         })()}
