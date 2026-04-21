@@ -16,7 +16,7 @@ import RecipeSection           from '@/components/fridge/RecipeSection';
 import RebuySection            from '@/components/fridge/RebuySection';
 import SeasonalProduceSection  from '@/components/fridge/SeasonalProduceSection';
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
-import { isSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
+import { isSeasonalProduce, SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { SEASON_EMOJI }         from '@/lib/recipes';
 import { useProfiles }         from '@/lib/profile';
@@ -288,18 +288,53 @@ export default function FridgePage() {
         </SectionErrorBoundary>
 
         {/* 검색 + 필터 */}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="상품 검색"
-              aria-label="냉장고 상품 검색"
-              className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-            />
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="상품 검색"
+                aria-label="냉장고 상품 검색"
+                className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+              />
+            </div>
           </div>
+          {/* 제철 자동완성 — 검색어에 매칭되는 제철 재료 + 현재 미보유 */}
+          {(() => {
+            const q = search.trim().toLowerCase();
+            if (q.length === 0) return null;
+            const haveNames = new Set(allFood.map((f) => f.name));
+            const hits = SEASONAL_PRODUCE
+              .filter((p) =>
+                p.name.toLowerCase().includes(q)
+                && !haveNames.has(p.name)
+                && p.seasons.includes(season),
+              )
+              .slice(0, 4);
+            if (hits.length === 0) return null;
+            return (
+              <div className="flex items-center gap-1.5 flex-wrap -mt-1">
+                <span className="text-[9px] text-gray-400 font-medium">
+                  {SEASON_EMOJI[season]} 지금 제철 · 바로 담기
+                </span>
+                {hits.map((p) => (
+                  <button
+                    key={p.name}
+                    onClick={() => handleSeasonalAdd(p)}
+                    title={p.blurb}
+                    className="flex items-center gap-0.5 text-[11px] pl-1.5 pr-2 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 active:scale-95 transition-all"
+                  >
+                    <span className="text-sm">{p.emoji}</span>
+                    <span className="font-medium">{p.name}</span>
+                    {p.peak === season && <span className="text-[9px] opacity-70">· 피크</span>}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
         </div>
         {/* 프로필 필터 */}
         {profiles.length >= 2 && (
