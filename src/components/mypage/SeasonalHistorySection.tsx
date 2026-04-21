@@ -74,6 +74,17 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
     showToast(`"${name}" 쇼핑 리스트에 담았어요.`);
   }
 
+  function handleShopAddAll() {
+    const targets = missed.filter((p) => !has(p.name));
+    if (targets.length === 0) {
+      showToast('모두 이미 쇼핑 리스트에 담겨있어요.');
+      return;
+    }
+    if (!confirm(`${season}철 놓친 ${targets.length}종을 쇼핑 리스트에 담을까요?`)) return;
+    for (const p of targets) add(p.name, '제철 놓친 것');
+    showToast(`${targets.length}종 쇼핑 리스트에 담았어요.`);
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -145,6 +156,16 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
+                {missed.length >= 2 && (
+                  <div className="pt-2">
+                    <button
+                      onClick={handleShopAddAll}
+                      className="w-full text-[11px] font-semibold py-1.5 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                    >
+                      🛒 {missed.length}종 모두 쇼핑 리스트에 담기
+                    </button>
+                  </div>
+                )}
                 <div className="pt-2 flex gap-1.5 flex-wrap">
                   {missed.slice(0, 12).map((p) => (
                     <button
