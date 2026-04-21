@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
-import { RECIPES, recipeGradient, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { RECIPES, recipeGradient, SEASON_EMOJI, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { currentSeasonByMonth } from '@/lib/season';
@@ -150,6 +150,12 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
                           {recipe.seasons?.includes(season) && (
                             <span className="text-[10px] shrink-0" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>
                           )}
+                          {(() => {
+                            const d = recipeDietary(recipe);
+                            return d ? (
+                              <span className="text-[10px] shrink-0" title={`${DIETARY_BADGE[d].label} 가능`}>{DIETARY_BADGE[d].emoji}</span>
+                            ) : null;
+                          })()}
                         </div>
                         <p className="text-[10px] text-gray-400 mt-0.5 truncate">
                           ⏱ {recipe.time} · {recipe.difficulty}{recipe.tags && recipe.tags.length > 0 ? ` · ${recipe.tags.join(', ')}` : ''}
