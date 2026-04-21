@@ -95,6 +95,17 @@ function SeasonalPageInner() {
     showToast(`"${name}" 쇼핑 리스트에 담았어요.`);
   }
 
+  function handleAddAllPeak() {
+    const peaks = items.filter((p) => p.peak === selected && !has(p.name));
+    if (peaks.length === 0) {
+      showToast('피크 재료 모두 이미 담겨있거나 없어요.');
+      return;
+    }
+    if (!confirm(`${selected}철 피크 재료 ${peaks.length}종을 쇼핑 리스트에 담을까요?`)) return;
+    for (const p of peaks) add(p.name, `${selected}철 달력`);
+    showToast(`${peaks.length}종 담았어요.`);
+  }
+
   return (
     <>
       <div>
@@ -250,6 +261,14 @@ function SeasonalPageInner() {
                   피크 {peakCount}종 · 탭해서 쇼핑 리스트에 담기
                 </p>
               </div>
+              {peakCount > 0 && (
+                <button
+                  onClick={handleAddAllPeak}
+                  className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
+                >
+                  피크 {peakCount} 담기
+                </button>
+              )}
             </div>
           </motion.div>
 
