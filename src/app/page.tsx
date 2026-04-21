@@ -24,6 +24,7 @@ import WeeklyInsight   from '@/components/home/WeeklyInsight';
 import RecentlyAdded   from '@/components/home/RecentlyAdded';
 import TipOfTheDay     from '@/components/home/TipOfTheDay';
 import SeasonalChipRow from '@/components/home/SeasonalChipRow';
+import SeasonalHintWidget from '@/components/home/SeasonalHintWidget';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -139,6 +140,9 @@ export default function HomePage() {
         <div className="px-4 py-5 grid grid-cols-2 gap-4">
           <UrgentAlert     items={items} />
           <QuickStats      items={items} />
+          <SectionErrorBoundary label="제철 힌트">
+            <SeasonalHintWidget items={items} />
+          </SectionErrorBoundary>
           <div className="col-span-2">
             <SectionErrorBoundary label="데일리 브리핑">
               <DailyBriefing items={items} />
