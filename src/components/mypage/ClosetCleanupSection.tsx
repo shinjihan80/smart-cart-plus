@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { isClothingItem, FASHION_EMOJI, type CartItem } from '@/types';
@@ -10,13 +9,17 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
+import { usePersistedState } from '@/lib/usePersistedState';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
   const { log: wearLog } = useWearLog();
   const { removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = usePersistedState<boolean>(
+    'nemoa-mypage-cleanup-open', false,
+    (raw) => typeof raw === 'boolean' ? raw : null,
+  );
 
   const clothes = items.filter(isClothingItem);
   const candidates = findCleanupCandidates(clothes, wearLog);

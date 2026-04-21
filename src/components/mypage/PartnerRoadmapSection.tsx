@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
+import { usePersistedState } from '@/lib/usePersistedState';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const DOMAIN_LABEL: Record<PartnerDomain, { emoji: string; label: string; desc: string }> = {
@@ -15,7 +15,10 @@ const DOMAIN_LABEL: Record<PartnerDomain, { emoji: string; label: string; desc: 
 };
 
 export default function PartnerRoadmapSection() {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = usePersistedState<boolean>(
+    'nemoa-mypage-partner-open', false,
+    (raw) => typeof raw === 'boolean' ? raw : null,
+  );
 
   const domains = (Object.keys(DOMAIN_LABEL) as PartnerDomain[]).map((d) => ({
     domain: d,

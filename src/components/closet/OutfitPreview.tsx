@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FASHION_GROUP, type ClothingItem, type FashionGroup } from '@/types';
 import { useProfiles } from '@/lib/profile';
+import { usePersistedState } from '@/lib/usePersistedState';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const SLOTS: { key: string; label: string; groups: FashionGroup[]; emoji: string }[] = [
@@ -19,7 +20,10 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
     상의: null, 하의: null, 아우터: null, 신발: null, 액세서리: null,
   });
   // 'all' | 'shared' | profileId
-  const [ownerFilter, setOwnerFilter] = useState<string>('all');
+  const [ownerFilter, setOwnerFilter] = usePersistedState<string>(
+    'nemoa-outfit-owner', 'all',
+    (raw) => typeof raw === 'string' ? raw : null,
+  );
 
   const hasImages = items.filter((i) => i.imageUrl);
   const filtered = useMemo(() => {

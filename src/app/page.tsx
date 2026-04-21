@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { isFoodItem, FOOD_EMOJI, FASHION_EMOJI, type FoodItem } from '@/types';
 import { useCart } from '@/context/CartContext';
@@ -73,9 +73,24 @@ export default function HomePage() {
   const recipeHits     = searchQ ? countRecipesByIngredient(searchQ) : 0;
   const isSeasonSearch = searchQ ? isSeasonalProduce(searchQ, currentSeasonByMonth()) : false;
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 500);
     return () => clearTimeout(t);
+  }, []);
+
+  // ⌘K / Ctrl+K → 검색창 포커스
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   return (
@@ -107,13 +122,17 @@ export default function HomePage() {
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
           <input
+            ref={searchInputRef}
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="전체 상품 검색"
-            aria-label="전체 상품 검색"
-            className="w-full pl-8 pr-3 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            aria-label="전체 상품 검색 (Ctrl+K)"
+            className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
+          <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">
+            ⌘K
+          </kbd>
         </div>
         {!searchQ && recentSearches.length > 0 && (
           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
