@@ -1,11 +1,17 @@
 'use client';
 
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { currentSeasonByMonth, seasonStart } from '@/lib/season';
-import { isSeasonalProduce, lookupSeasonalEmoji } from '@/lib/seasonalProduce';
+import {
+  SEASONAL_PRODUCE,
+  isSeasonalProduce,
+  lookupSeasonalEmoji,
+} from '@/lib/seasonalProduce';
 import { SEASON_EMOJI } from '@/lib/recipes';
 import { getFoodEmoji } from '@/lib/ingredientInference';
+import { useShoppingList } from '@/lib/shoppingList';
+import { useToast } from '@/context/ToastContext';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface DiscardRecord {
@@ -16,8 +22,11 @@ interface DiscardRecord {
 
 export default function SeasonalHistorySection({ history }: { history: DiscardRecord[] }) {
   const season = currentSeasonByMonth();
+  const { has, add } = useShoppingList();
+  const { showToast } = useToast();
+  const [missedOpen, setMissedOpen] = useState(false);
 
-  const { ranked, total, distinct } = useMemo(() => {
+  const { ranked, total, distinct, missed, totalInSeason } = useMemo(() => {
     const winStart = seasonStart(season);
     // 계절 시작 이후, 식품, 제철 이름 매칭
     const counts = new Map<string, number>();
@@ -30,11 +39,40 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
     const entries = Array.from(counts.entries())
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
-    const total    = entries.reduce((s, e) => s + e.count, 0);
-    return { ranked: entries.slice(0, 8), total, distinct: entries.length };
+    const total = entries.reduce((s, e) => s + e.count, 0);
+
+    // 이번 계절 제철인데 아직 드셔보지 않은 것
+    const tried = new Set<string>();
+    for (const e of entries) {
+      const base = SEASONAL_PRODUCE.find(
+        (p) => p.name === e.name || e.name.includes(p.name),
+      );
+      if (base) tried.add(base.name);
+    }
+    const allInSeason = SEASONAL_PRODUCE.filter((p) => p.seasons.includes(season));
+    const missed = allInSeason
+      .filter((p) => !tried.has(p.name))
+      .sort((a, b) => (a.peak === season ? 0 : 1) - (b.peak === season ? 0 : 1));
+
+    return {
+      ranked: entries.slice(0, 8),
+      total,
+      distinct: entries.length,
+      missed,
+      totalInSeason: allInSeason.length,
+    };
   }, [history, season]);
 
-  if (ranked.length === 0) return null;
+  if (ranked.length === 0 && missed.length === 0) return null;
+
+  function handleShopAdd(name: string) {
+    if (has(name)) {
+      showToast(`"${name}" 이미 쇼핑 리스트에 있어요.`);
+      return;
+    }
+    add(name, '제철 놓친 것');
+    showToast(`"${name}" 쇼핑 리스트에 담았어요.`);
+  }
 
   return (
     <motion.div
@@ -55,6 +93,11 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
           {distinct}종 · {total}회
         </span>
       </div>
+      {ranked.length === 0 && (
+        <p className="text-[11px] text-gray-400 leading-relaxed">
+          아직 드신 제철 재료가 없어요. 아래에서 놓친 재료를 확인해보세요.
+        </p>
+      )}
       <div className="flex flex-col gap-1">
         {ranked.map((r, i) => {
           const emoji = lookupSeasonalEmoji(r.name) ?? getFoodEmoji(r.name);
@@ -75,6 +118,60 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
       <p className="text-[10px] text-gray-400 mt-2.5 leading-relaxed">
         냉장고에서 소진한 기록을 기반으로 집계해요. {season}이 지나면 다음 계절로 자동 교체돼요.
       </p>
+
+      {missed.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-gray-50">
+          <button
+            onClick={() => setMissedOpen(!missedOpen)}
+            className="w-full flex items-center justify-between"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm">🫥</span>
+              <span className="text-[11px] font-semibold text-gray-600">
+                아직 못 드신 {season}철 재료
+              </span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold tabular-nums">
+                {missed.length}/{totalInSeason}
+              </span>
+            </div>
+            <span className={`text-[10px] text-gray-400 transition-transform ${missedOpen ? 'rotate-180' : ''}`}>▾</span>
+          </button>
+          <AnimatePresence>
+            {missedOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="pt-2 flex gap-1.5 flex-wrap">
+                  {missed.slice(0, 12).map((p) => (
+                    <button
+                      key={p.name}
+                      onClick={() => handleShopAdd(p.name)}
+                      title={p.blurb ?? `${season}철 제철`}
+                      className="flex items-center gap-1 text-[11px] pl-1.5 pr-2.5 py-1 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
+                    >
+                      <span className="text-sm">{p.emoji}</span>
+                      <span className="font-medium">{p.name}</span>
+                      {p.peak === season && (
+                        <span className="text-[9px] px-1 py-0 rounded-full bg-amber-200 text-amber-800">피크</span>
+                      )}
+                    </button>
+                  ))}
+                  {missed.length > 12 && (
+                    <span className="text-[10px] text-gray-400 self-center">외 {missed.length - 12}종</span>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                  칩을 탭하면 쇼핑 리스트에 담겨요. {season}이 지나기 전에 한 번씩 드셔보세요.
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </motion.div>
   );
 }
