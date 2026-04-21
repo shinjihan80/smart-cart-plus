@@ -114,13 +114,22 @@ export default function HomePage() {
       <header className="sticky top-0 z-10 bg-white/85 backdrop-blur-sm border-b border-gray-50">
         <div className="px-4 pt-3.5 pb-3 flex items-center justify-between gap-3">
           <NemoaLogo size="md" withTagline />
-          <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <span className="text-[10px] text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
-              {items.length}개 관리 중
-            </span>
-            <span className="text-[9px] text-gray-300 tabular-nums">
-              {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
-            </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette'))}
+              aria-label="빠른 탐색 열기"
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-brand-primary/10 flex items-center justify-center text-gray-500 hover:text-brand-primary transition-colors"
+            >
+              <Search size={14} />
+            </button>
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="text-[10px] text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
+                {items.length}개 관리 중
+              </span>
+              <span className="text-[9px] text-gray-300 tabular-nums">
+                {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
+              </span>
+            </div>
           </div>
         </div>
         <div className="px-4 pb-3 flex flex-col gap-1">

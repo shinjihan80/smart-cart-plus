@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useToast } from '@/context/ToastContext';
 import { isFoodItem } from '@/types';
 import { RECIPES, countRecipesByIngredient } from '@/lib/recipes';
 import { SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useModalA11y } from '@/lib/useModalA11y';
+import { usePersistedState } from '@/lib/usePersistedState';
+import { downloadBackup } from '@/lib/backup';
 
 /**
  * 전역 명령 팔레트 — 어디서든 ⌘K로 호출.
@@ -20,16 +23,23 @@ import { useModalA11y } from '@/lib/useModalA11y';
 type Cmd =
   | { kind: 'nav';      id: string; emoji: string; label: string; sub?: string; href: string }
   | { kind: 'recipe';   id: string; emoji: string; label: string; sub?: string; recipeId: string }
-  | { kind: 'seasonal'; id: string; emoji: string; label: string; sub?: string; ingredient: string };
+  | { kind: 'seasonal'; id: string; emoji: string; label: string; sub?: string; ingredient: string }
+  | { kind: 'action';   id: string; emoji: string; label: string; sub?: string; run: () => void };
 
 export default function CommandPalette() {
   const router = useRouter();
   const { items } = useCart();
+  const { showToast } = useToast();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   useModalA11y(() => setOpen(false));
+  // 최근 실행 id 5개 (LRU)
+  const [recentIds, setRecentIds] = usePersistedState<string[]>(
+    'nemoa-palette-recent', [],
+    (raw) => Array.isArray(raw) && raw.every((x) => typeof x === 'string') ? raw as string[] : null,
+  );
 
   const season = currentSeasonByMonth();
 
@@ -45,8 +55,13 @@ export default function CommandPalette() {
         setOpen((o) => !o);
       }
     }
+    function onEvent() { setOpen(true); }
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('nemoa:open-palette', onEvent);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('nemoa:open-palette', onEvent);
+    };
   }, []);
 
   useEffect(() => {
@@ -68,7 +83,37 @@ export default function CommandPalette() {
       { kind: 'nav', id: 'n-seasonal', emoji: '🌸', label: '제철 달력',      sub: '4계절 × 27종',          href: '/seasonal' },
       { kind: 'nav', id: 'n-settings', emoji: '⚙️', label: '설정',          sub: '백업·초기화·프로필',    href: '/settings' },
     ];
-    if (!query) return navs;
+    const actions: Cmd[] = [
+      {
+        kind: 'action', id: 'a-backup', emoji: '💾',
+        label: '지금 백업 다운로드', sub: '전체 상태를 JSON으로',
+        run: () => {
+          const f = downloadBackup();
+          showToast(`백업 완료 — ${f}`);
+        },
+      },
+      {
+        kind: 'action', id: 'a-register', emoji: '➕',
+        label: '상품 등록 열기', sub: '텍스트·영수증에서 추가',
+        run: () => window.dispatchEvent(new CustomEvent('nemoa:open-register')),
+      },
+    ];
+    if (!query) {
+      // 최근 실행 명령을 상단에 복원 (id로 navs/actions 탐색)
+      const pool = [...navs, ...actions];
+      const recentCmds: Cmd[] = [];
+      const seen = new Set<string>();
+      for (const id of recentIds) {
+        if (seen.has(id)) continue;
+        const hit = pool.find((n) => n.id === id);
+        if (hit) { recentCmds.push(hit); seen.add(id); }
+      }
+      if (recentCmds.length === 0) return [...navs, ...actions];
+      return [
+        ...recentCmds.map((c) => ({ ...c, sub: c.sub ? `${c.sub} · 최근` : '최근' })),
+        ...pool.filter((n) => !seen.has(n.id)),
+      ];
+    }
 
     // 레시피 TOP 5 매칭
     const recipeMatches: Cmd[] = RECIPES
@@ -105,20 +150,32 @@ export default function CommandPalette() {
     const filteredNavs = navs.filter((n) =>
       n.label.toLowerCase().includes(query) || (n.sub?.toLowerCase().includes(query) ?? false),
     );
+    const filteredActions = actions.filter((a) =>
+      a.label.toLowerCase().includes(query) || (a.sub?.toLowerCase().includes(query) ?? false),
+    );
 
-    return [...recipeMatches, ...seasonMatches, ...itemMatches, ...filteredNavs];
-  }, [q, items, season]);
+    return [...recipeMatches, ...seasonMatches, ...itemMatches, ...filteredNavs, ...filteredActions];
+  }, [q, items, season, recentIds, showToast]);
 
   useEffect(() => { setCursor(0); }, [q]);
 
   function execute(cmd: Cmd) {
     setOpen(false);
+    // 최근 실행 갱신 — nav + action만 기록 (레시피/제철/아이템은 맥락 특정)
+    if (cmd.kind === 'nav' || cmd.kind === 'action') {
+      setRecentIds((prev) => {
+        const next = [cmd.id, ...prev.filter((x) => x !== cmd.id)];
+        return next.slice(0, 5);
+      });
+    }
     if (cmd.kind === 'nav') {
       router.push(cmd.href);
     } else if (cmd.kind === 'recipe') {
       router.push('/fridge');
     } else if (cmd.kind === 'seasonal') {
       router.push(`/seasonal?season=${encodeURIComponent(season)}`);
+    } else if (cmd.kind === 'action') {
+      cmd.run();
     }
   }
 

@@ -23,6 +23,13 @@ export default function BottomNav() {
 
   useEffect(() => setMounted(true), []);
 
+  // 명령 팔레트 '상품 등록 열기'에서도 모달 오픈
+  useEffect(() => {
+    function onOpen() { setAddOpen(true); }
+    window.addEventListener('nemoa:open-register', onOpen);
+    return () => window.removeEventListener('nemoa:open-register', onOpen);
+  }, []);
+
   const urgentCount   = mounted ? items.filter(isFoodItem).filter(
     (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
   ).length : 0;
