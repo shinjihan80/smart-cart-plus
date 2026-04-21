@@ -387,6 +387,26 @@ function violatesDietary(recipe: Recipe, dietary: NonNullable<MatchOptions['diet
   return false;
 }
 
+/**
+ * 레시피의 식습관 호환성 계산 — 가장 엄격한 것부터 체크.
+ * 비건 가능 > 채식 가능 > 페스코 가능 > 없음.
+ */
+export function recipeDietary(recipe: Recipe): 'vegan' | 'vegetarian' | 'pescatarian' | null {
+  const hasMeat = recipe.keywords.some((k) => MEAT_KEYWORDS.some((m) => k.includes(m) || m.includes(k)));
+  const hasFish = recipe.keywords.some((k) => FISH_KEYWORDS.some((f) => k.includes(f) || f.includes(k)));
+  const hasDairyEgg = recipe.keywords.some((k) => DAIRY_EGG_KEYWORDS.some((d) => k.includes(d) || d.includes(k)));
+  if (!hasMeat && !hasFish && !hasDairyEgg) return 'vegan';
+  if (!hasMeat && !hasFish)                  return 'vegetarian';
+  if (!hasMeat)                              return 'pescatarian';
+  return null;
+}
+
+export const DIETARY_BADGE: Record<NonNullable<ReturnType<typeof recipeDietary>>, { emoji: string; label: string }> = {
+  vegan:        { emoji: '🌱', label: '비건' },
+  vegetarian:   { emoji: '🥬', label: '채식' },
+  pescatarian:  { emoji: '🐟', label: '페스코' },
+};
+
 const PROTEIN_KEYWORDS = ['두부', '달걀', '계란', '닭', '소고기', '돼지', '생선', '연어', '참치', '새우', '오징어', '고등어', '꽁치', '굴', '방어', '전어', '민어', '대구', '햄', '소시지', '치즈'];
 const VEG_KEYWORDS     = ['채소', '샐러드', '시금치', '양파', '당근', '버섯', '브로콜리', '상추', '봄동', '쑥', '냉이', '달래', '두릅', '아스파라거스', '감자', '단호박', '호박', '가지', '오이', '토마토'];
 

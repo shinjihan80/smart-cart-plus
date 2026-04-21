@@ -8,19 +8,30 @@ import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
+import { useToast } from '@/context/ToastContext';
+import { haptic } from '@/lib/haptics';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { Widget } from './shared';
 
 export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const foods = items.filter(isFoodItem);
   const season = currentSeasonByMonth();
-  const { cookCounts } = useCookLog();
+  const { cookCounts, markCooked } = useCookLog();
+  const { showToast } = useToast();
   const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts });
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 
   if (matched.length === 0) return null;
   const { recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount } = matched[0];
+
+  function handleQuickCook(e: React.MouseEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    markCooked(recipe.id);
+    haptic('toggle');
+    showToast(`"${recipe.name}" ${cookCount + 1}번째 조리 기록 완료 🍲`);
+  }
 
   return (
     <>
@@ -72,7 +83,18 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                   )}
                 </p>
               </div>
-              <ChevronRight size={16} className="text-gray-300 shrink-0" />
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  onClick={handleQuickCook}
+                  role="button"
+                  aria-label="오늘 이 요리 만들었어요"
+                  title="오늘 만들었어요"
+                  className="text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                >
+                  ✓ 기록
+                </span>
+                <ChevronRight size={16} className="text-gray-300" />
+              </div>
             </div>
           </Widget>
         </button>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { parseRecipeSeconds, recipeGradient, SEASON_EMOJI, RECIPES, type Recipe } from '@/lib/recipes';
+import { parseRecipeSeconds, recipeGradient, SEASON_EMOJI, RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useModalA11y } from '@/lib/useModalA11y';
@@ -186,6 +186,17 @@ export default function RecipeDetailModal({
                     {SEASON_EMOJI[season]} {season}철
                   </span>
                 )}
+                {(() => {
+                  const d = recipeDietary(recipe);
+                  return d ? (
+                    <span
+                      className="text-[10px] px-2 py-0.5 rounded-full bg-white/90 text-brand-success font-semibold"
+                      title={`${DIETARY_BADGE[d].label} 가능한 레시피`}
+                    >
+                      {DIETARY_BADGE[d].emoji} {DIETARY_BADGE[d].label}
+                    </span>
+                  ) : null;
+                })()}
                 {recipe.tags?.map((tag) => (
                   <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-white/60 text-gray-500">
                     {tag}
