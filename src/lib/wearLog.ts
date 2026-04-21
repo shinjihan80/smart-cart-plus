@@ -63,5 +63,25 @@ export function useWearLog() {
     }));
   }, [log]);
 
-  return { log, markWorn, undoLast, getEntry, getAllEntries };
+  /**
+   * 주어진 아이템 id와 같은 날짜에 함께 입힌 다른 아이템 id의 빈도 랭킹.
+   * TOP N 반환 (기본 3개).
+   */
+  const getCoWornWith = useCallback((id: string, limit = 3): Array<{ id: string; count: number }> => {
+    const targetDates = new Set(log[id] ?? []);
+    if (targetDates.size === 0) return [];
+    const coCount = new Map<string, number>();
+    for (const [otherId, otherDates] of Object.entries(log)) {
+      if (otherId === id) continue;
+      for (const d of otherDates) {
+        if (targetDates.has(d)) coCount.set(otherId, (coCount.get(otherId) ?? 0) + 1);
+      }
+    }
+    return Array.from(coCount.entries())
+      .map(([coId, count]) => ({ id: coId, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+  }, [log]);
+
+  return { log, markWorn, undoLast, getEntry, getAllEntries, getCoWornWith };
 }

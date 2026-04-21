@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { isEnrichedClothingItem, FASHION_EMOJI, type ClothingItem } from '@/types';
+import { isEnrichedClothingItem, isClothingItem, FASHION_EMOJI, type ClothingItem } from '@/types';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import type { MatchBadge } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
+import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { useProfiles } from '@/lib/profile';
 import { compareSize } from '@/lib/sizeRecommend';
@@ -22,7 +23,8 @@ interface SwipeClothingCardProps {
 export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge }: SwipeClothingCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing]   = useState(false);
-  const { getEntry, markWorn, undoLast } = useWearLog();
+  const { getEntry, markWorn, undoLast, getCoWornWith } = useWearLog();
+  const { items: allItems } = useCart();
   const { showToast } = useToast();
   const { profiles } = useProfiles();
   const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
@@ -32,6 +34,13 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
   const wear = getEntry(item.id);
   const wornToday = wear.lastWorn === new Date().toISOString().split('T')[0];
   const daysAgo = wear.lastWorn ? daysSince(wear.lastWorn) : null;
+  const coWorn = getCoWornWith(item.id, 3)
+    .map((co) => {
+      const found = allItems.find((i) => i.id === co.id);
+      if (!found || !isClothingItem(found)) return null;
+      return { item: found, count: co.count };
+    })
+    .filter((x): x is { item: ClothingItem; count: number } => x !== null);
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-120, -30, 0],
@@ -411,6 +420,23 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     )}
                   </div>
                 </div>
+
+                {/* 같이 입은 조합 — 3회+ 공동 착용한 옷 */}
+                {coWorn.length > 0 && (
+                  <div className="border-t border-gray-100 pt-2.5">
+                    <p className="text-[10px] text-gray-400 mb-1.5">같이 자주 입는 조합</p>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {coWorn.map((co) => (
+                        <div key={co.item.id} className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary">
+                          <span>{FASHION_EMOJI[co.item.category] ?? '👕'}</span>
+                          <span className="font-medium truncate max-w-[100px]">{co.item.name}</span>
+                          <span className="text-[9px] text-brand-primary/60 tabular-nums">· {co.count}회</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
