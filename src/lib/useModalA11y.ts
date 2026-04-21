@@ -8,10 +8,15 @@ import { useEffect } from 'react';
  *  2. 모달 열리는 동안 body 스크롤 잠금
  *  3. 해제 시 포커스를 모달 열기 전 요소로 복원 (키보드·스크린리더 UX)
  *
- * 포커스 트랩은 복잡도 대비 이득이 낮아 생략 (ESC + 탭 주변 대비 클릭 이탈 허용).
+ * 호출자가 모달의 열림 상태와 무관하게 훅을 호출해도 되도록 `active` 플래그를 받는다.
+ * (항상 마운트되는 CommandPalette 같은 컴포넌트에서 안전하게 사용 가능)
+ *
+ * 포커스 트랩은 복잡도 대비 이득이 낮아 생략.
  */
-export function useModalA11y(onClose: () => void) {
+export function useModalA11y(onClose: () => void, active = true) {
   useEffect(() => {
+    if (!active) return;
+
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         e.stopPropagation();
@@ -34,5 +39,5 @@ export function useModalA11y(onClose: () => void) {
         try { previouslyFocused.focus(); } catch { /* 조용히 실패 */ }
       }
     };
-  }, [onClose]);
+  }, [onClose, active]);
 }

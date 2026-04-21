@@ -41,7 +41,7 @@ export default function CommandPalette() {
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  useModalA11y(() => setOpen(false));
+  useModalA11y(() => setOpen(false), open);
   // 최근 실행 id 5개 (LRU)
   const [recentIds, setRecentIds] = usePersistedState<string[]>(
     'nemoa-palette-recent', [],
