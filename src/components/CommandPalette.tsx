@@ -10,6 +10,8 @@ import { isFoodItem } from '@/types';
 import { RECIPES, countRecipesByIngredient } from '@/lib/recipes';
 import { SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
+import { useCookLog } from '@/lib/recipeCookLog';
+import { useWearLog } from '@/lib/wearLog';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { downloadBackup } from '@/lib/backup';
@@ -33,6 +35,8 @@ export default function CommandPalette() {
   const { items, archiveExpired } = useCart();
   const { showToast } = useToast();
   const { list: shoppingList, clear: clearShopping } = useShoppingList();
+  const { log: cookLog } = useCookLog();
+  const { log: wearLog } = useWearLog();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
@@ -137,6 +141,18 @@ export default function CommandPalette() {
         run: () => { exportAsCSV(items); showToast('CSV 파일로 내보냈어요.'); },
       },
     ];
+    // 오늘 하루 리뷰 — cookLog/wearLog 오늘 건수 토스트
+    const today = new Date().toISOString().split('T')[0];
+    const cookToday = Object.values(cookLog).filter((dates) => Array.isArray(dates) && dates[0] === today).length;
+    const wearToday = Object.values(wearLog).filter((dates) => Array.isArray(dates) && dates[0] === today).length;
+    if (cookToday > 0 || wearToday > 0) {
+      actions.push({
+        kind: 'action', id: 'a-today-review', emoji: '📅',
+        label: '오늘 하루 리뷰', sub: `조리 ${cookToday} · 착용 ${wearToday}`,
+        run: () => showToast(`오늘 조리 ${cookToday}건 · 착용 ${wearToday}건 기록했어요.`),
+      });
+    }
+
     // 쇼핑 리스트 비우기 — 항목 있을 때만 노출
     if (shoppingList.length > 0) {
       actions.push({
@@ -220,7 +236,7 @@ export default function CommandPalette() {
     if (mode === 'nav')    return [...filteredNavs, ...itemMatches];
     if (mode === 'recipe') return recipeMatches;
     return [...recipeMatches, ...seasonMatches, ...itemMatches, ...filteredNavs, ...filteredActions];
-  }, [q, items, season, recentIds, showToast, shoppingList.length, archiveExpired, clearShopping]);
+  }, [q, items, season, recentIds, showToast, shoppingList.length, archiveExpired, clearShopping, cookLog, wearLog]);
 
   useEffect(() => { setCursor(0); }, [q]);
 
