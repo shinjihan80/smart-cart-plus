@@ -37,6 +37,17 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
       .slice(0, 4);
   })();
 
+  // 처분 경로 분류 — 6개월 이상 미착용 = 기부, 그 외(60일+/미착용) = 중고 판매
+  const dispositions = (() => {
+    let donate  = 0;
+    let resell  = 0;
+    for (const c of candidates) {
+      if (c.idleDays !== null && c.idleDays >= 180) donate += 1;
+      else resell += 1;
+    }
+    return { donate, resell };
+  })();
+
   function handleRemove(id: string, name: string) {
     if (!confirm(`"${name}"을(를) 옷장에서 정리할까요?`)) return;
     removeItem(id);
@@ -103,11 +114,30 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               네모아가 고른 정리 후보예요. 계속 입을 옷은 &ldquo;유지&rdquo;, 정리할 옷은 &ldquo;정리&rdquo;를 눌러주세요.
             </p>
 
-            {/* 파트너 연결 placeholder — Phase 7 */}
-            <div className="flex gap-1.5 mb-3 flex-wrap">
-              <PartnerChip partner={PARTNERS.beautiful} />
-              <PartnerChip partner={PARTNERS.karrot} />
-              <PartnerChip partner={PARTNERS.storage_svc} />
+            {/* 파트너 연결 placeholder — Phase 7 · 정리 경로별 그룹 */}
+            <div className="flex flex-col gap-2 mb-3">
+              {dispositions.resell > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-semibold text-gray-500 shrink-0">
+                    💰 중고 판매 <span className="text-gray-400 font-normal">· {dispositions.resell}벌</span>
+                  </span>
+                  <PartnerChip partner={PARTNERS.karrot} />
+                </div>
+              )}
+              {dispositions.donate > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-semibold text-gray-500 shrink-0">
+                    ❤️ 기부 추천 <span className="text-gray-400 font-normal">· {dispositions.donate}벌 (6개월+)</span>
+                  </span>
+                  <PartnerChip partner={PARTNERS.beautiful} />
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-semibold text-gray-500 shrink-0">
+                  📦 계절 보관 <span className="text-gray-400 font-normal">· 잠깐 빼둘 때</span>
+                </span>
+                <PartnerChip partner={PARTNERS.storage_svc} />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               {candidates.slice(0, 12).map(({ item, idleDays, reason }) => (
