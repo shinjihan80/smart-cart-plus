@@ -53,6 +53,47 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       <WeekdayPatternChart datesByKey={log} label="요일별 조리 패턴" />
 
+      {(() => {
+        // 난이도 분포 — 간단·보통·도전
+        const diffCounts = { 간단: 0, 보통: 0, 도전: 0 } as Record<'간단' | '보통' | '도전', number>;
+        for (const [id, dates] of Object.entries(log)) {
+          const r = RECIPES.find((x) => x.id === id);
+          if (!r) continue;
+          diffCounts[r.difficulty] += (dates as string[]).length;
+        }
+        const total = diffCounts.간단 + diffCounts.보통 + diffCounts.도전;
+        if (total === 0) return null;
+        const bars = [
+          { key: '간단', label: '간단', color: 'bg-brand-success' },
+          { key: '보통', label: '보통', color: 'bg-brand-primary' },
+          { key: '도전', label: '도전', color: 'bg-brand-warning' },
+        ] as const;
+        return (
+          <div className="mb-3">
+            <p className="text-[10px] text-brand-primary font-semibold mb-1.5">🎚️ 난이도 분포</p>
+            <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100">
+              {bars.map((b) => {
+                const pct = Math.round((diffCounts[b.key] / total) * 100);
+                if (pct === 0) return null;
+                return (
+                  <div
+                    key={b.key}
+                    className={b.color}
+                    style={{ width: `${pct}%` }}
+                    title={`${b.label} ${diffCounts[b.key]}회`}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex justify-between mt-1 text-[9px] text-gray-400 tabular-nums">
+              <span>간단 {diffCounts.간단}</span>
+              <span>보통 {diffCounts.보통}</span>
+              <span>도전 {diffCounts.도전}</span>
+            </div>
+          </div>
+        );
+      })()}
+
       {topMade.length > 0 && (
         <div className="mb-3">
           <p className="text-[10px] text-brand-primary font-semibold mb-1.5">🔥 자주 만든 레시피 TOP 3</p>

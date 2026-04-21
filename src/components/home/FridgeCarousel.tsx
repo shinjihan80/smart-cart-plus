@@ -6,6 +6,9 @@ import { ChevronRight } from 'lucide-react';
 import { isFoodItem, FOOD_EMOJI, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { haptic } from '@/lib/haptics';
+import { currentSeasonByMonth } from '@/lib/season';
+import { isSeasonalProduce } from '@/lib/seasonalProduce';
+import { SEASON_EMOJI } from '@/lib/recipes';
 import { Widget } from './shared';
 
 interface FridgeCardProps {
@@ -15,9 +18,11 @@ interface FridgeCardProps {
   emoji:       string;
   imageUrl?:   string;
   onDiscard:   () => void;
+  inSeason?:   boolean;
 }
 
-function FridgeCard({ name, dDay, storageType, emoji, imageUrl, onDiscard }: FridgeCardProps) {
+function FridgeCard({ name, dDay, storageType, emoji, imageUrl, onDiscard, inSeason }: FridgeCardProps) {
+  const season = currentSeasonByMonth();
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-100, -30, 0],
@@ -66,9 +71,16 @@ function FridgeCard({ name, dDay, storageType, emoji, imageUrl, onDiscard }: Fri
             {dDay <= 0 ? '만료' : `D-${dDay}`}
           </p>
           <p className="text-xs text-gray-500 mt-0.5 truncate">{name}</p>
-          <span className="inline-block text-[9px] px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-400 mt-1">
-            {storageType === '냉장' ? '❄️ 냉장' : storageType === '냉동' ? '🧊 냉동' : '📦 실온'}
-          </span>
+          <div className="flex gap-1 mt-1 flex-wrap">
+            <span className="inline-block text-[9px] px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-400">
+              {storageType === '냉장' ? '❄️ 냉장' : storageType === '냉동' ? '🧊 냉동' : '📦 실온'}
+            </span>
+            {inSeason && (
+              <span className="inline-block text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+                {SEASON_EMOJI[season]} 제철
+              </span>
+            )}
+          </div>
         </div>
       </motion.div>
     </div>
@@ -76,8 +88,13 @@ function FridgeCard({ name, dDay, storageType, emoji, imageUrl, onDiscard }: Fri
 }
 
 export default function FridgeCarousel({ items, onDiscard }: { items: CartItem[]; onDiscard: (id: string) => void }) {
+  const season = currentSeasonByMonth();
   const sorted = items.filter(isFoodItem)
-    .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
+    .map((f) => ({
+      ...f,
+      dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays),
+      inSeason: isSeasonalProduce(f.name, season),
+    }))
     .sort((a, b) => a.dDay - b.dDay);
 
   return (
@@ -102,6 +119,7 @@ export default function FridgeCarousel({ items, onDiscard }: { items: CartItem[]
               storageType={item.storageType}
               emoji={FOOD_EMOJI[item.foodCategory] ?? '📦'}
               imageUrl={item.imageUrl}
+              inSeason={item.inSeason}
               onDiscard={() => onDiscard(item.id)}
             />
           )) : (
