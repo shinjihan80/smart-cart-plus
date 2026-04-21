@@ -3,35 +3,40 @@
 import { motion } from 'framer-motion';
 import { isClothingItem, FASHION_EMOJI, type CartItem } from '@/types';
 import { useWearLog, daysSince } from '@/lib/wearLog';
+import WeekdayPatternChart from './WeekdayPatternChart';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface WearStatsSectionProps {
   items: CartItem[];
 }
 
-const DOW_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
-
 export default function WearStatsSection({ items }: WearStatsSectionProps) {
   const { log, getEntry } = useWearLog();
   const clothes = items.filter(isClothingItem);
 
   const annotated = clothes.map((c) => ({ item: c, ...getEntry(c.id) }));
+  const dowTotal = Object.values(log).flat().filter((d) => {
+    const t = new Date(d).getTime();
+    return !isNaN(t) && t >= Date.now() - 28 * 24 * 60 * 60 * 1000;
+  }).length;
 
-  // 최근 4주 요일별 착용 빈도
-  const dowCounts = (() => {
-    const counts = [0, 0, 0, 0, 0, 0, 0];
-    const cutoffMs = Date.now() - 28 * 24 * 60 * 60 * 1000;
-    for (const dates of Object.values(log)) {
-      for (const d of dates) {
-        const t = new Date(d).getTime();
-        if (t < cutoffMs || isNaN(t)) continue;
-        counts[new Date(d).getDay()] += 1;
-      }
-    }
-    return counts;
+  /**
+   * 로테이션 밸런스 스코어 — 0~100.
+   * 착용 기록 있는 옷들의 count 표준편차를 평균으로 나눈 변동계수(CV) 기반.
+   * CV 낮을수록 골고루 입음 → 높은 점수.
+   * 기록 2개 미만이면 스코어 계산 안 함.
+   */
+  const rotationScore = (() => {
+    const worn = annotated.filter((x) => x.count > 0);
+    if (worn.length < 2) return null;
+    const mean = worn.reduce((s, x) => s + x.count, 0) / worn.length;
+    const variance = worn.reduce((s, x) => s + (x.count - mean) ** 2, 0) / worn.length;
+    const std = Math.sqrt(variance);
+    const cv  = mean > 0 ? std / mean : 0;
+    // cv 0 → 100점, cv 1.5+ → 0점
+    const score = Math.round(Math.max(0, Math.min(100, (1 - cv / 1.5) * 100)));
+    return { score, worn: worn.length };
   })();
-  const dowTotal = dowCounts.reduce((a, b) => a + b, 0);
-  const maxDow   = Math.max(...dowCounts, 1);
 
   const topWorn = annotated
     .filter((x) => x.count > 0)
@@ -47,7 +52,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
     .sort((a, b) => daysSince(b.lastWorn!) - daysSince(a.lastWorn!))
     .slice(0, 3);
 
-  if (topWorn.length === 0 && neverWorn.length === 0 && longIdle.length === 0 && dowTotal === 0) return null;
+  if (topWorn.length === 0 && neverWorn.length === 0 && longIdle.length === 0 && dowTotal === 0 && !rotationScore) return null;
 
   return (
     <motion.div
@@ -62,38 +67,46 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         <span className="text-xs text-gray-400 font-medium">착용 로그 분석</span>
       </div>
 
-      {dowTotal > 0 && (() => {
-        const peakIdx = dowCounts.indexOf(Math.max(...dowCounts));
-        return (
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-[10px] text-brand-primary font-semibold">🗓️ 요일별 착용 패턴 (최근 4주)</p>
-              <span className="text-[10px] text-gray-400 tabular-nums">{dowTotal}회 · 피크 {DOW_LABELS[peakIdx]}요일</span>
+      {rotationScore && (
+        <div className="mb-3 rounded-2xl bg-gray-50 px-3 py-2.5">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm">🔄</span>
+              <p className="text-[10px] font-semibold text-gray-600">로테이션 밸런스</p>
             </div>
-            <div className="flex items-end justify-between gap-1 h-14">
-              {dowCounts.map((c, i) => {
-                const pct  = Math.round((c / maxDow) * 100);
-                const isPk = c === maxDow && c > 0;
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full flex-1 flex items-end">
-                      <div
-                        className={`w-full rounded-t-md transition-all ${
-                          isPk ? 'bg-brand-primary' : c > 0 ? 'bg-brand-primary/40' : 'bg-gray-100'
-                        }`}
-                        style={{ height: `${pct}%`, minHeight: c > 0 ? '4px' : '2px' }}
-                      />
-                    </div>
-                    <span className={`text-[9px] tabular-nums ${
-                      isPk ? 'text-brand-primary font-bold' : 'text-gray-400'
-                    }`}>{DOW_LABELS[i]}</span>
-                  </div>
-                );
-              })}
-            </div>
+            <span className={`text-[11px] font-bold tabular-nums ${
+              rotationScore.score >= 70
+                ? 'text-brand-success'
+                : rotationScore.score >= 40
+                  ? 'text-brand-primary'
+                  : 'text-brand-warning'
+            }`}>
+              {rotationScore.score}점
+            </span>
           </div>
-        );
-      })()}
+          <div className="w-full h-1.5 bg-white rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                rotationScore.score >= 70
+                  ? 'bg-brand-success'
+                  : rotationScore.score >= 40
+                    ? 'bg-brand-primary'
+                    : 'bg-brand-warning'
+              }`}
+              style={{ width: `${rotationScore.score}%` }}
+            />
+          </div>
+          <p className="text-[9px] text-gray-500 mt-1 leading-relaxed">
+            {rotationScore.score >= 70
+              ? `${rotationScore.worn}벌을 고루 잘 입고 계세요 👏`
+              : rotationScore.score >= 40
+                ? `${rotationScore.worn}벌 중 일부에 쏠려 있어요. 안 입은 옷도 한번 꺼내보세요.`
+                : `소수의 옷에 집중돼 있어요. 🌙 배지 옷을 오늘 입어볼까요?`}
+          </p>
+        </div>
+      )}
+
+      <WeekdayPatternChart datesByKey={log} label="요일별 착용 패턴" />
 
       {topWorn.length > 0 && (
         <div className="mb-3">
