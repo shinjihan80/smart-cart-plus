@@ -8,7 +8,10 @@ import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI } from '@/lib/recipes';
+import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
+import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import RecipeBrowserModal from '@/components/RecipeBrowserModal';
+import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
@@ -22,9 +25,13 @@ interface SwipeFoodCardProps {
 export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }: SwipeFoodCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing]   = useState(false);
+  const [recipeBrowser, setRecipeBrowser] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const { profiles } = useProfiles();
   const { showToast } = useToast();
+  const { isFavorite, toggle } = useRecipeFavorites();
   const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
+  const recipeCount = countRecipesByIngredient(item.name);
   const x = useMotionValue(0);
   const bgColor = useTransform(
     x, [-120, -30, 0],
@@ -348,30 +355,61 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                   )}
                 </div>
 
-                {/* 수정 토글 */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (editing) {
-                      showToast(`"${item.name}" 저장됐어요.`);
-                      setEditing(false);
-                    } else {
-                      setEditing(true);
-                    }
-                  }}
-                  className={`w-full py-2 rounded-xl text-[11px] font-semibold transition-colors ${
-                    editing
-                      ? 'bg-brand-primary text-white hover:opacity-90'
-                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
-                </button>
+                {/* 액션 버튼 — 레시피 찾기 + 수정 토글 */}
+                <div className="flex gap-1.5">
+                  {recipeCount > 0 && !editing && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setRecipeBrowser(true); }}
+                      className="flex-1 py-2 rounded-xl text-[11px] font-semibold bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      📖 이 재료 레시피 {recipeCount}
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (editing) {
+                        showToast(`"${item.name}" 저장됐어요.`);
+                        setEditing(false);
+                      } else {
+                        setEditing(true);
+                      }
+                    }}
+                    className={`${recipeCount > 0 && !editing ? 'flex-1' : 'w-full'} py-2 rounded-xl text-[11px] font-semibold transition-colors ${
+                      editing
+                        ? 'bg-brand-primary text-white hover:opacity-90'
+                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
+
+      {recipeBrowser && (
+        <RecipeBrowserModal
+          initialSearch={item.name}
+          onSelect={(recipe) => {
+            setRecipeBrowser(false);
+            setSelectedRecipe(recipe);
+          }}
+          onClose={() => setRecipeBrowser(false)}
+        />
+      )}
+
+      {selectedRecipe && (
+        <RecipeDetailModal
+          recipe={selectedRecipe}
+          matchedItems={[item.name]}
+          isFavorite={isFavorite(selectedRecipe.id)}
+          onToggleFavorite={() => toggle(selectedRecipe.id)}
+          onClose={() => setSelectedRecipe(null)}
+        />
+      )}
     </motion.div>
   );
 }
