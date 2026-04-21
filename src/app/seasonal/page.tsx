@@ -15,6 +15,7 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useToast } from '@/context/ToastContext';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { useCart } from '@/context/CartContext';
 
 const SEASONS: Season[] = ['봄', '여름', '가을', '겨울'];
 
@@ -62,7 +63,35 @@ function SeasonalPageInner() {
   const [selected, setSelected] = useState<Season>(initialSelected);
   const [query, setQuery] = useState('');
   const { has, add } = useShoppingList();
+  const { items: cartItems, discardHistory } = useCart();
   const { showToast } = useToast();
+
+  // 이번 계절에 드셔본(보유+소진) 재료 이름 세트
+  const triedNames = (() => {
+    const set = new Set<string>();
+    const monthList = SEASON_MONTHS[selected];
+    // 현재 보유 중 아이템
+    for (const it of cartItems) {
+      if (it.category !== '식품') continue;
+      for (const p of SEASONAL_PRODUCE) {
+        if (p.seasons.includes(selected) && (it.name === p.name || it.name.includes(p.name))) {
+          set.add(p.name);
+        }
+      }
+    }
+    // 올해 해당 계절 월에 소진한 기록
+    for (const h of discardHistory) {
+      if (h.category !== '식품' || !h.date) continue;
+      const m = new Date(h.date).getMonth() + 1;
+      if (!monthList.includes(m)) continue;
+      for (const p of SEASONAL_PRODUCE) {
+        if (p.seasons.includes(selected) && (h.name === p.name || h.name.includes(p.name))) {
+          set.add(p.name);
+        }
+      }
+    }
+    return set;
+  })();
   const { isFavorite, toggle } = useRecipeFavorites();
   const [browserIngredient, setBrowserIngredient] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -258,7 +287,10 @@ function SeasonalPageInner() {
                   {items.length}종 제철 재료
                 </p>
                 <p className="text-[11px] text-gray-500 mt-0.5">
-                  피크 {peakCount}종 · 탭해서 쇼핑 리스트에 담기
+                  피크 {peakCount}종
+                  {triedNames.size > 0 && (
+                    <span className="text-brand-success font-semibold ml-1">· ✓ {triedNames.size}종 드셔봤어요</span>
+                  )}
                 </p>
               </div>
               {peakCount > 0 && (
@@ -276,6 +308,7 @@ function SeasonalPageInner() {
             {items.map((p) => {
               const recipeCount = countRecipesByIngredient(p.name);
               const added = has(p.name);
+              const tried = triedNames.has(p.name);
               return (
                 <motion.div
                   key={p.name}
@@ -290,11 +323,21 @@ function SeasonalPageInner() {
                 >
                   <div className="flex items-start justify-between mb-1">
                     <span className="text-2xl">{p.emoji}</span>
-                    {p.peak === selected && (
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/15 text-brand-primary">
-                        피크
-                      </span>
-                    )}
+                    <div className="flex gap-1 items-center">
+                      {tried && (
+                        <span
+                          className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-success/15 text-brand-success"
+                          title="이번 계절에 드셔봤어요"
+                        >
+                          ✓
+                        </span>
+                      )}
+                      {p.peak === selected && (
+                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/15 text-brand-primary">
+                          피크
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className="text-sm font-bold text-gray-900 truncate">{p.name}</p>
                   {p.blurb && (
