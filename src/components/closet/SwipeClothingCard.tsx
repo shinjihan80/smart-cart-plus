@@ -419,6 +419,24 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                         👕 오늘 입었어요
                       </button>
                     )}
+                    <label
+                      onClick={(e) => e.stopPropagation()}
+                      title="다른 날짜 기록"
+                      className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      📅
+                      <input
+                        type="date"
+                        max={new Date().toISOString().split('T')[0]}
+                        onChange={(e) => {
+                          if (!e.target.value) return;
+                          markWorn(item.id, e.target.value);
+                          haptic('tap');
+                          showToast(`"${item.name}" ${e.target.value} 착용으로 기록했어요.`);
+                        }}
+                        className="sr-only"
+                      />
+                    </label>
                   </div>
                 </div>
 
