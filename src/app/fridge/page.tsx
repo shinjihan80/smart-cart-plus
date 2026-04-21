@@ -16,7 +16,9 @@ import RecipeSection           from '@/components/fridge/RecipeSection';
 import RebuySection            from '@/components/fridge/RebuySection';
 import SeasonalProduceSection  from '@/components/fridge/SeasonalProduceSection';
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
-import type { SeasonalProduce } from '@/lib/seasonalProduce';
+import { isSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
+import { currentSeasonByMonth } from '@/lib/season';
+import { SEASON_EMOJI }         from '@/lib/recipes';
 import { useProfiles }         from '@/lib/profile';
 
 type StorageFilter = '전체' | StorageType;
@@ -56,6 +58,8 @@ export default function FridgePage() {
   const [sortBy, setSortBy]         = useState<SortKey>('dDay');
   const [ownerFilter, setOwnerFilter] = useState<string>('전체');
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
+  const [seasonalOnly, setSeasonalOnly]   = useState(false);
+  const season = currentSeasonByMonth();
 
   const allFood = allItems.filter(isFoodItem)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }));
@@ -68,8 +72,11 @@ export default function FridgePage() {
       if (ownerFilter === '공용') return !i.ownerId;
       return i.ownerId === ownerFilter;
     })
+    .filter((i) => !seasonalOnly || isSeasonalProduce(i.name, season))
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'dDay' ? a.dDay - b.dDay : a.name.localeCompare(b.name));
+
+  const seasonalCount = allFood.filter((i) => isSeasonalProduce(i.name, season)).length;
 
   const urgentCount = allFood.filter((i) => i.dDay <= 3).length;
   const coldCount   = allFood.filter((i) => i.storageType === '냉장').length;
@@ -343,7 +350,7 @@ export default function FridgePage() {
               {sortBy === 'dDay' ? '📅 임박순' : '🔤 이름순'}
             </button>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 items-center flex-wrap">
             {GROUP_FILTERS.map(({ key, label }) => (
               <button
                 key={key}
@@ -357,11 +364,24 @@ export default function FridgePage() {
                 {label}
               </button>
             ))}
+            {seasonalCount > 0 && (
+              <button
+                onClick={() => setSeasonalOnly(!seasonalOnly)}
+                title={`${season}철 제철 재료만 보기 · ${seasonalCount}개`}
+                className={`px-2.5 py-1 rounded-2xl text-[11px] font-medium transition-colors ${
+                  seasonalOnly
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
+                }`}
+              >
+                {SEASON_EMOJI[season]} 제철 {seasonalCount}
+              </button>
+            )}
           </div>
         </div>
 
         {/* 아이템 리스트 */}
-        {storageFilter === '전체' && groupFilter === '전체' && !search ? (
+        {storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
           <>
             {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
               const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
