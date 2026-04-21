@@ -188,7 +188,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                         </button>
                         {recipeCount > 0 && (
                           <button
-                            onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: `?${p.name}` } }))}
+                            onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }))}
                             title={`${p.name}(으)로 만드는 요리 보기`}
                             className="text-[10px] px-2 py-1 border-l border-amber-100 text-amber-700/80 hover:bg-amber-100 transition-colors"
                           >

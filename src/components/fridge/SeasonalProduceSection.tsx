@@ -55,7 +55,7 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
                 </button>
                 {recipeCount > 0 && (
                   <button
-                    onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: `?${p.name}` } }))}
+                    onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }))}
                     title={`${p.name}(으)로 만드는 요리 보기`}
                     className="text-[10px] px-2 py-1 border-l border-brand-primary/15 text-brand-primary/80 hover:bg-brand-primary/10 transition-colors"
                   >
