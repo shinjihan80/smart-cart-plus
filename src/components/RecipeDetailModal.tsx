@@ -362,6 +362,36 @@ export default function RecipeDetailModal({
           >
             {cook.count > 0 ? `만들었어요 (${cook.count + 1}회차)` : '좋아요, 만들어볼게요'}
           </button>
+
+          <div className="flex items-center gap-1.5 justify-center mt-2">
+            <button
+              onClick={() => {
+                const y = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+                markCooked(recipe.id, y);
+                haptic('tap');
+                showToast(`"${recipe.name}" 어제(${y}) 조리로 기록했어요.`);
+              }}
+              className="text-[10px] text-gray-500 hover:text-brand-primary hover:underline"
+            >
+              어제 만들었어요
+            </button>
+            <span className="text-[10px] text-gray-200">·</span>
+            <label className="text-[10px] text-gray-500 hover:text-brand-primary cursor-pointer">
+              다른 날짜
+              <input
+                type="date"
+                max={new Date().toISOString().split('T')[0]}
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  markCooked(recipe.id, e.target.value);
+                  haptic('tap');
+                  showToast(`"${recipe.name}" ${e.target.value} 조리로 기록했어요.`);
+                }}
+                className="sr-only"
+              />
+            </label>
+          </div>
+
           {cook.count > 0 && (
             <p className="text-[10px] text-gray-400 text-center mt-2">
               지금까지 {cook.count}번 만들었어요{cook.lastCooked ? ` · 마지막 ${cook.lastCooked}` : ''}
