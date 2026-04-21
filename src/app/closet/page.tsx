@@ -15,6 +15,7 @@ import {
   type WeatherSnapshot,
 } from '@/lib/weather';
 import { useProfiles } from '@/lib/profile';
+import { useWearLog, daysSince } from '@/lib/wearLog';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
@@ -24,7 +25,15 @@ import SeasonalUnstowBanner from '@/components/closet/SeasonalUnstowBanner';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 
 type GroupFilter = '전체' | FashionGroup;
-type ClosetSort  = 'name' | 'thickness' | 'match';
+type ClosetSort  = 'name' | 'thickness' | 'match' | 'wornMost' | 'wornLeast';
+
+const SORT_LABEL: Record<ClosetSort, string> = {
+  name:      '🔤 이름순',
+  thickness: '🧥 두께순',
+  match:     '✨ 오늘 어울림순',
+  wornMost:  '🔥 자주 입는 순',
+  wornLeast: '🌙 오래 안 입은 순',
+};
 
 const MATCH_RANK      = { perfect: 0, good: 1, mismatch: 2 } as const;
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
@@ -57,6 +66,7 @@ export default function ClosetPage() {
   const [ownerFilter, setOwnerFilter] = useState<string>('전체');  // 'id' | '전체' | '공용'
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [showHibernating, setShowHibernating] = useState(false);
+  const { log: wearLog } = useWearLog();
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +94,19 @@ export default function ClosetPage() {
         const aRank = FASHION_GROUP[a.category] === '의류' ? MATCH_RANK[clothingMatch(a.thickness, a.weatherTags, weather.tempC).level] : 3;
         const bRank = FASHION_GROUP[b.category] === '의류' ? MATCH_RANK[clothingMatch(b.thickness, b.weatherTags, weather.tempC).level] : 3;
         if (aRank !== bRank) return aRank - bRank;
+      }
+      if (sortBy === 'wornMost') {
+        const aCount = wearLog[a.id]?.length ?? 0;
+        const bCount = wearLog[b.id]?.length ?? 0;
+        if (aCount !== bCount) return bCount - aCount;
+      }
+      if (sortBy === 'wornLeast') {
+        // 미착용은 맨 위 (Infinity 기준)
+        const aDates = wearLog[a.id] ?? [];
+        const bDates = wearLog[b.id] ?? [];
+        const aIdle = aDates.length === 0 ? Infinity : daysSince(aDates[0]);
+        const bIdle = bDates.length === 0 ? Infinity : daysSince(bDates[0]);
+        if (aIdle !== bIdle) return bIdle - aIdle;
       }
       return a.name.localeCompare(b.name);
     });
@@ -351,14 +374,16 @@ export default function ClosetPage() {
           </div>
           <button
             onClick={() => {
-              const next: Record<ClosetSort, ClosetSort> = weather
-                ? { name: 'thickness', thickness: 'match', match: 'name' }
-                : { name: 'thickness', thickness: 'name', match: 'name' };
-              setSortBy(next[sortBy]);
+              // 날씨 없을 땐 match 건너뛰기
+              const cycle: ClosetSort[] = weather
+                ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast']
+                : ['name', 'thickness', 'wornMost', 'wornLeast'];
+              const idx = cycle.indexOf(sortBy);
+              setSortBy(cycle[(idx + 1) % cycle.length]);
             }}
             className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap"
           >
-            {sortBy === 'name' ? '🔤 이름순' : sortBy === 'thickness' ? '🧥 두께순' : '✨ 오늘 어울림순'}
+            {SORT_LABEL[sortBy]}
           </button>
         </div>
 
