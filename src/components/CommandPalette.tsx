@@ -17,6 +17,7 @@ import { usePersistedState } from '@/lib/usePersistedState';
 import { downloadBackup } from '@/lib/backup';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import { useShoppingList } from '@/lib/shoppingList';
+import { useSavedOutfits } from '@/lib/savedOutfits';
 
 /**
  * 전역 명령 팔레트 — 어디서든 ⌘K로 호출.
@@ -37,6 +38,7 @@ export default function CommandPalette() {
   const { list: shoppingList, clear: clearShopping, has: inShopping, add: addShopping } = useShoppingList();
   const { log: cookLog } = useCookLog();
   const { log: wearLog } = useWearLog();
+  const { outfits: savedOutfits } = useSavedOutfits();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
@@ -242,6 +244,17 @@ export default function CommandPalette() {
         href: isFoodItem(it) ? '/fridge' : '/closet',
       }));
 
+    // 저장된 코디 — 이름 fuzzy 매칭, /closet으로 이동
+    const outfitMatches: Cmd[] = savedOutfits
+      .filter((o) => includesFuzzy(o.name))
+      .slice(0, 4)
+      .map((o) => ({
+        kind: 'nav' as const, id: `o-${o.id}`,
+        emoji: '💾',
+        label: o.name, sub: `저장된 코디 · ${Object.keys(o.slots).length}벌`,
+        href: '/closet',
+      }));
+
     const filteredNavs = navs.filter((n) =>
       includesFuzzy(n.label) || (n.sub ? includesFuzzy(n.sub) : false),
     );
@@ -251,10 +264,10 @@ export default function CommandPalette() {
 
     // mode 필터 적용
     if (mode === 'action') return filteredActions;
-    if (mode === 'nav')    return [...filteredNavs, ...itemMatches];
+    if (mode === 'nav')    return [...filteredNavs, ...itemMatches, ...outfitMatches];
     if (mode === 'recipe') return recipeMatches;
-    return [...recipeMatches, ...seasonMatches, ...itemMatches, ...filteredNavs, ...filteredActions];
-  }, [q, items, season, recentIds, showToast, shoppingList.length, archiveExpired, clearShopping, cookLog, wearLog]);
+    return [...recipeMatches, ...seasonMatches, ...itemMatches, ...outfitMatches, ...filteredNavs, ...filteredActions];
+  }, [q, items, season, recentIds, showToast, shoppingList.length, archiveExpired, clearShopping, cookLog, wearLog, savedOutfits, inShopping, addShopping]);
 
   useEffect(() => { setCursor(0); }, [q]);
 

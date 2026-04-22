@@ -142,12 +142,31 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
       {selectedItems.length > 0 ? (
         <div className="mt-2 flex items-center justify-between gap-2">
           <p className="text-[9px] text-gray-300">탭해서 다른 아이템으로 교체</p>
-          <button
-            onClick={() => setSaveOpen(!saveOpen)}
-            className="text-[10px] font-semibold text-brand-primary hover:underline shrink-0"
-          >
-            💾 이 코디 저장
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                // 각 슬롯마다 랜덤 아이템 선택
+                const next: Record<string, string | null> = { ...selected };
+                for (const slot of ['상의', '하의', '신발', '액세서리']) {
+                  const pool = getItemsForSlot(slot);
+                  if (pool.length === 0) continue;
+                  next[slot] = pool[Math.floor(Math.random() * pool.length)].id;
+                }
+                setSelected(next);
+                haptic('tap');
+              }}
+              className="text-[10px] font-semibold text-gray-500 hover:text-brand-primary"
+              title="무작위로 코디 조합 생성"
+            >
+              🎲 섞기
+            </button>
+            <button
+              onClick={() => setSaveOpen(!saveOpen)}
+              className="text-[10px] font-semibold text-brand-primary hover:underline"
+            >
+              💾 이 코디 저장
+            </button>
+          </div>
         </div>
       ) : (
         <p className="text-[10px] text-gray-400 text-center py-4">
