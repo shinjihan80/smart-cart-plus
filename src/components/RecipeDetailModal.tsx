@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseRecipeSeconds, recipeGradient, SEASON_EMOJI, RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { estimateRecipeNutrition } from '@/lib/nutritionAnalysis';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useModalA11y } from '@/lib/useModalA11y';
@@ -274,6 +275,23 @@ export default function RecipeDetailModal({
               </div>
             </div>
           )}
+
+          {(() => {
+            const n = estimateRecipeNutrition(recipe.keywords);
+            if (n.calories === 0) return null;
+            return (
+              <div className="rounded-2xl border border-gray-100 bg-gray-50/60 px-3 py-2.5 mb-4">
+                <p className="text-[10px] text-gray-500 mb-1">1인분 영양 추정</p>
+                <div className="flex justify-between gap-2 text-[11px]">
+                  <span className="text-gray-700 tabular-nums"><span className="text-gray-400">kcal</span> {n.calories}</span>
+                  <span className="text-gray-700 tabular-nums"><span className="text-gray-400">단백</span> {n.protein}g</span>
+                  <span className="text-gray-700 tabular-nums"><span className="text-gray-400">지방</span> {n.fat}g</span>
+                  <span className="text-gray-700 tabular-nums"><span className="text-gray-400">탄수</span> {n.carbs}g</span>
+                </div>
+                <p className="text-[9px] text-gray-400 mt-1 leading-relaxed">재료 카테고리 평균 기반 대략치</p>
+              </div>
+            );
+          })()}
 
           {totalSeconds !== null && totalSeconds > 0 && (
             <div className={`rounded-2xl border px-4 py-3 mb-4 flex items-center gap-3 transition-colors ${

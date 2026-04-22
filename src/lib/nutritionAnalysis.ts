@@ -1,5 +1,6 @@
 import type { FoodItem, FoodCategory } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { inferFoodCategory } from './ingredientInference';
 
 /** 성인 기준 1일 평균 섭취 권장량(weekly로 환산) — 단위: g 또는 kcal */
 export const WEEKLY_TARGET = {
@@ -81,6 +82,34 @@ export function analyzeBalance(foods: FoodItem[]): NutritionBalance {
   ).length;
 
   return { totals, coverage, vegFruitCount, proteinCount, advice: buildAdvice(coverage, vegFruitCount, proteinCount) };
+}
+
+/**
+ * 레시피 키워드 기반 1인분 영양 대략 추정.
+ * 각 키워드를 inferFoodCategory로 매핑 → CATEGORY_AVG를 평균 가중치로 합산 (100g 기준).
+ * 단순 합은 과대계산 될 수 있어 각 재료를 0.5~1인분 추정으로 조정.
+ */
+export function estimateRecipeNutrition(keywords: readonly string[]): {
+  calories: number; protein: number; fat: number; carbs: number;
+} {
+  if (keywords.length === 0) return { calories: 0, protein: 0, fat: 0, carbs: 0 };
+  // 재료 개수에 반비례해 1인분 합을 조정 — 4개 재료면 각 0.5로 합산
+  const factor = Math.max(0.3, 1 / Math.sqrt(keywords.length));
+  const totals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
+  for (const kw of keywords) {
+    const cat = inferFoodCategory(kw);
+    const avg = CATEGORY_AVG[cat] ?? CATEGORY_AVG['기타 식품'];
+    totals.calories += avg.calories * factor;
+    totals.protein  += avg.protein  * factor;
+    totals.fat      += avg.fat      * factor;
+    totals.carbs    += avg.carbs    * factor;
+  }
+  return {
+    calories: Math.round(totals.calories),
+    protein:  Math.round(totals.protein * 10) / 10,
+    fat:      Math.round(totals.fat     * 10) / 10,
+    carbs:    Math.round(totals.carbs   * 10) / 10,
+  };
 }
 
 function buildAdvice(
