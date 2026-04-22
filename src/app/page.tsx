@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { isFoodItem, FOOD_EMOJI, FASHION_EMOJI, type FoodItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { ChevronRight, Sparkles, Search } from 'lucide-react';
+import { ChevronRight, Search } from 'lucide-react';
 import NemoaLogo from '@/components/layout/NemoaLogo';
 import PaletteButton from '@/components/PaletteButton';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
@@ -21,7 +21,8 @@ import { useSavedOutfits } from '@/lib/savedOutfits';
 import { useSessionPing } from '@/lib/analytics';
 
 import { HomeSkeleton } from '@/components/home/shared';
-import DailyMessage    from '@/components/home/DailyMessage';
+import HeroMessage     from '@/components/home/HeroMessage';
+import SectionHeader   from '@/components/home/SectionHeader';
 import TodayActivity   from '@/components/home/TodayActivity';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import UrgentAlert     from '@/components/home/UrgentAlert';
@@ -41,14 +42,6 @@ import SeasonalChecklistWidget from '@/components/home/SeasonalChecklistWidget';
 import QuickLinks from '@/components/home/QuickLinks';
 import SavedOutfitSuggestion from '@/components/home/SavedOutfitSuggestion';
 import RecentCooks from '@/components/home/RecentCooks';
-
-function getGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 6)  return '새벽이에요, 푹 쉬세요';
-  if (h < 12) return '좋은 아침이에요';
-  if (h < 18) return '오후도 힘내세요';
-  return '오늘 하루 수고했어요';
-}
 
 export default function HomePage() {
   useSessionPing();  // 하루 1회 익명 세션 핑 (opt-in + 엔드포인트 설정 시만 전송)
@@ -134,7 +127,7 @@ export default function HomePage() {
     <div>
       {/* 브랜드 헤더 */}
       <header className="sticky top-0 z-10 bg-white/85 backdrop-blur-sm border-b border-gray-50">
-        <div className="px-4 pt-3.5 pb-3 flex items-center justify-between gap-3">
+        <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-3">
           <NemoaLogo size="md" withTagline />
           <div className="flex items-center gap-2 shrink-0">
             <PaletteButton />
@@ -148,17 +141,13 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <div className="px-4 pb-3 flex flex-col gap-1">
-          <p className="text-xs text-gray-500 flex items-center gap-1">
-            <Sparkles size={11} className="text-brand-primary" />
-            <span>네모아가 전하는 인사 — {getGreeting()}</span>
-          </p>
+        <div className="px-5 pb-3">
           <TodayActivity />
         </div>
       </header>
 
       {/* 검색 바 */}
-      <div className="px-4 pt-3">
+      <div className="px-5 pt-4">
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
           <input
@@ -269,66 +258,101 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* 네모아의 오늘 한 마디 */}
-      <div className="px-4 pt-3">
-        <SectionErrorBoundary label="네모아의 오늘 한 마디">
-          <DailyMessage items={items} />
+      {/* Hero — 네모아의 오늘 한 마디 (큰 카드, 시선 잡기) */}
+      <div className="px-5 pt-4">
+        <SectionErrorBoundary label="오늘 한 마디">
+          <HeroMessage items={items} />
         </SectionErrorBoundary>
       </div>
 
-      {/* 퀵 링크 4개 */}
-      <div className="px-4 pt-3">
+      {/* 퀵 링크 4개 — Hero 바로 아래 */}
+      <div className="px-5 pt-4">
         <SectionErrorBoundary label="퀵 링크">
           <QuickLinks items={items} history={discardHistory} />
         </SectionErrorBoundary>
       </div>
 
-      {/* 제철 재료 퀵 칩 */}
-      <div className="px-4 pt-2">
-        <SectionErrorBoundary label="제철 재료">
-          <SeasonalChipRow items={items} />
-        </SectionErrorBoundary>
-      </div>
-
-      {/* 벤토 그리드 */}
+      {/* 벤토 그리드 — 3개 의미 그룹으로 재편 */}
       {!ready ? (
         <HomeSkeleton />
       ) : (
-        <div className="px-4 py-5 grid grid-cols-2 gap-4">
-          <UrgentAlert     items={items} />
-          <QuickStats      items={items} />
-          <SectionErrorBoundary label="제철 힌트" colSpan="full">
-            <SeasonalHintWidget items={items} />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary label="제철 체크리스트" colSpan="full">
-            <SeasonalChecklistWidget items={items} history={discardHistory} />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary label="데일리 브리핑" colSpan="full">
-            <DailyBriefing items={items} />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary label="오늘 한 그릇" colSpan="full">
-            <TodayDishCard items={items} />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary label="저장된 코디" colSpan="full">
-            <SavedOutfitSuggestion items={items} />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary label="최근 조리" colSpan="full">
-            <RecentCooks />
-          </SectionErrorBoundary>
-          <ClosetSummary   items={items} />
-          <MonthlySpending />
-          <FridgeCarousel
-            items={items}
-            onDiscard={(id) => {
-              const name = items.find((i) => i.id === id)?.name ?? '';
-              removeItem(id);
-              showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
-            }}
-          />
-          <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
-          <WeeklyInsight  items={items} />
-          <RecentlyAdded  items={items} />
-          <TipOfTheDay />
+        <div className="px-5 pb-8">
+          {/* 🚨 지금 바로 — 주목 필요한 정보 */}
+          <SectionHeader
+            icon="🚨"
+            title="지금 바로"
+            subtitle="임박한 식품과 제철 재료를 확인하세요"
+          >
+            <SectionErrorBoundary label="임박 식품">
+              <UrgentAlert items={items} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="제철 힌트">
+              <SeasonalHintWidget items={items} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="제철 재료">
+              <SeasonalChipRow items={items} />
+            </SectionErrorBoundary>
+          </SectionHeader>
+
+          {/* ☀️ 오늘 — 오늘 하루 추천 */}
+          <SectionHeader
+            icon="☀️"
+            title="오늘"
+            subtitle="식사·옷차림 추천"
+          >
+            <SectionErrorBoundary label="오늘 한 그릇">
+              <TodayDishCard items={items} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="데일리 브리핑">
+              <DailyBriefing items={items} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="저장된 코디">
+              <SavedOutfitSuggestion items={items} />
+            </SectionErrorBoundary>
+          </SectionHeader>
+
+          {/* 📅 이번 주 — 주간 요약·패턴 */}
+          <SectionHeader
+            icon="📅"
+            title="이번 주"
+            subtitle="한 주를 한눈에"
+          >
+            <SectionErrorBoundary label="제철 체크리스트">
+              <SeasonalChecklistWidget items={items} history={discardHistory} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="냉장고 카루셀">
+              <FridgeCarousel
+                items={items}
+                onDiscard={(id) => {
+                  const name = items.find((i) => i.id === id)?.name ?? '';
+                  removeItem(id);
+                  showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
+                }}
+              />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="최근 조리">
+              <RecentCooks />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="주간 인사이트">
+              <WeeklyInsight items={items} />
+            </SectionErrorBoundary>
+          </SectionHeader>
+
+          {/* 📊 기록 — 접힌 상태가 기본 */}
+          <SectionHeader
+            icon="📊"
+            title="기록 & 통계"
+            subtitle="지출·활동·패턴 (펼쳐서 보기)"
+            collapsible
+            defaultOpen={false}
+          >
+            <QuickStats    items={items} />
+            <ClosetSummary items={items} />
+            <MonthlySpending />
+            <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
+            <RecentlyAdded items={items} />
+            <TipOfTheDay />
+          </SectionHeader>
         </div>
       )}
 
