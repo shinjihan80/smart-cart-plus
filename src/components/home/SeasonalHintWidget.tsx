@@ -31,7 +31,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
     const sample = ownedSeasonal.slice(0, 3).map((f) => f.name).join('·');
     return (
       <Link href="/fridge" className="col-span-2 block">
-        <Widget index={2}>
+        <Widget index={2} variant="accent">
           <div className="flex items-center gap-3">
             <span className="text-3xl shrink-0">{SEASON_EMOJI[season]}</span>
             <div className="flex-1 min-w-0 text-left">
@@ -58,7 +58,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
     const sample = peakMissing.map((p) => `${p.emoji} ${p.name}`).join(' · ');
     return (
       <Link href="/mypage" className="col-span-2 block">
-        <Widget index={2}>
+        <Widget index={2} variant="accent">
           <div className="flex items-center gap-3">
             <span className="text-3xl shrink-0">{SEASON_EMOJI[season]}</span>
             <div className="flex-1 min-w-0 text-left">

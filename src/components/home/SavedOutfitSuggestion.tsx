@@ -32,7 +32,7 @@ export default function SavedOutfitSuggestion({ items }: { items: CartItem[] }) 
 
   return (
     <Link href="/closet" className="col-span-2 block">
-      <Widget index={2}>
+      <Widget index={2} variant="accent">
         <div className="flex items-center gap-3">
           <span className="text-3xl shrink-0">💾</span>
           <div className="flex-1 min-w-0">

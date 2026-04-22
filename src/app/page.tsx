@@ -277,11 +277,12 @@ export default function HomePage() {
         <HomeSkeleton />
       ) : (
         <div className="px-5 pb-8">
-          {/* 🚨 지금 바로 — 주목 필요한 정보 */}
+          {/* 🚨 지금 바로 — 주목 필요한 정보 (warning 톤) */}
           <SectionHeader
             icon="🚨"
             title="지금 바로"
             subtitle="임박한 식품과 제철 재료를 확인하세요"
+            tone="warning"
           >
             <SectionErrorBoundary label="임박 식품">
               <UrgentAlert items={items} />
@@ -294,7 +295,7 @@ export default function HomePage() {
             </SectionErrorBoundary>
           </SectionHeader>
 
-          {/* ☀️ 오늘 — 오늘 하루 추천 */}
+          {/* ☀️ 오늘 — 기본 톤, 메인 추천 카드들 */}
           <SectionHeader
             icon="☀️"
             title="오늘"
@@ -311,11 +312,12 @@ export default function HomePage() {
             </SectionErrorBoundary>
           </SectionHeader>
 
-          {/* 📅 이번 주 — 주간 요약·패턴 */}
+          {/* 📅 이번 주 — accent 톤, 주간 패턴 */}
           <SectionHeader
             icon="📅"
             title="이번 주"
             subtitle="한 주를 한눈에"
+            tone="accent"
           >
             <SectionErrorBoundary label="제철 체크리스트">
               <SeasonalChecklistWidget items={items} history={discardHistory} />
@@ -338,13 +340,14 @@ export default function HomePage() {
             </SectionErrorBoundary>
           </SectionHeader>
 
-          {/* 📊 기록 — 접힌 상태가 기본 */}
+          {/* 📊 기록 — muted 톤 (접혀 있을 때 배경 톤 다운) */}
           <SectionHeader
             icon="📊"
             title="기록 & 통계"
             subtitle="지출·활동·패턴 (펼쳐서 보기)"
             collapsible
             defaultOpen={false}
+            tone="muted"
           >
             <QuickStats    items={items} />
             <ClosetSummary items={items} />

@@ -38,7 +38,7 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
 
   return (
     <div className="col-span-2">
-      <Widget index={5}>
+      <Widget index={5} variant="ghost">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-base">💡</span>
           <span className="text-xs text-gray-400 font-medium">네모아의 주간 인사이트</span>
