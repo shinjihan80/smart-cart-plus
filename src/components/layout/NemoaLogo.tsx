@@ -7,25 +7,25 @@ interface NemoaLogoProps {
 }
 
 const SIZE_MAP: Record<Size, { box: number; text: string; tag: string }> = {
-  sm: { box: 24, text: 'text-sm',     tag: 'text-[8px]' },
-  md: { box: 32, text: 'text-[22px]', tag: 'text-sm'    },
-  lg: { box: 44, text: 'text-3xl',    tag: 'text-xs'    },
+  sm: { box: 28, text: 'text-sm',     tag: 'text-[8px]' },
+  md: { box: 36, text: 'text-[22px]', tag: 'text-sm'    },
+  lg: { box: 48, text: 'text-3xl',    tag: 'text-xs'    },
 };
 
 /**
- * NEMOA 로고 — "네모 안에 네모" 동심 배열.
+ * NEMOA 로고 — 세 개의 네모가 겹쳐 색이 혼합되는 형태.
  *
- * 외곽: 둥근 사각형 아웃라인 (brand-primary)
- * 내부: 둥근 사각형 솔리드 (brand-primary) — 중앙 정렬
- *
- * 은유: "데이터를 네모(공간) 안에 모아(수집)" — NEMOA
+ * 디자인 의도:
+ *  - 세 개의 둥근 사각형이 대각선으로 겹침
+ *  - 각 사각형은 brand-primary fill-opacity 0.55
+ *  - 겹침 영역은 자연스럽게 더 진해져 혼합 효과
+ *  - "데이터를 네모(공간)에 모으다" 은유 강화 — 여러 조각이 합쳐짐
  */
 export default function NemoaLogo({ size = 'md', withTagline = false, className = '' }: NemoaLogoProps) {
   const s = SIZE_MAP[size];
 
   return (
     <div className={`inline-flex items-center gap-2 ${className}`}>
-      {/* 네모 안에 네모 SVG */}
       <svg
         width={s.box}
         height={s.box}
@@ -33,23 +33,15 @@ export default function NemoaLogo({ size = 'md', withTagline = false, className 
         className="shrink-0"
         aria-hidden="true"
       >
-        {/* 외곽 네모 — 아웃라인 */}
-        <rect
-          x="4" y="4" width="40" height="40" rx="12"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-          className="text-brand-primary"
-        />
-        {/* 내부 네모 — 솔리드 */}
-        <rect
-          x="16" y="16" width="16" height="16" rx="4"
-          fill="currentColor"
-          className="text-brand-primary"
-        />
+        {/* 3개의 네모가 대각선으로 겹침. fill-opacity가 자연스럽게 혼합됨 */}
+        <rect x="4"  y="14" width="20" height="20" rx="5"
+              fill="#4F46E5" fillOpacity="0.55" />
+        <rect x="14" y="4"  width="20" height="20" rx="5"
+              fill="#4F46E5" fillOpacity="0.55" />
+        <rect x="24" y="14" width="20" height="20" rx="5"
+              fill="#4F46E5" fillOpacity="0.55" />
       </svg>
 
-      {/* 워드마크 + 태그라인 */}
       <span className="flex flex-col leading-none">
         <span className={`${s.text} font-extrabold tracking-tight text-gray-900`}>NEMOA</span>
         {withTagline && (

@@ -55,12 +55,12 @@ export default function BottomNav() {
                   key={entry.key}
                   aria-label="상품 등록"
                   onClick={() => setAddOpen(true)}
-                  className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-brand-primary transition-colors"
+                  className="flex-1 flex flex-col items-center justify-center py-3 gap-1 text-brand-primary transition-colors"
                 >
-                  <span className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-md shadow-brand-primary/30 -mt-3">
-                    <Icon size={20} strokeWidth={2.6} aria-hidden="true" />
+                  <span className="w-14 h-14 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/40 -mt-5">
+                    <Icon size={26} strokeWidth={2.6} aria-hidden="true" />
                   </span>
-                  <span className="text-sm font-semibold">{entry.label}</span>
+                  <span className="text-xs font-semibold">{entry.label}</span>
                 </button>
               );
             }
@@ -73,16 +73,16 @@ export default function BottomNav() {
                 href={href}
                 aria-label={a11yLabel}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex-1 flex flex-col items-center justify-center py-3 gap-0.5 transition-colors ${
-                  isActive ? 'text-brand-primary' : 'text-gray-400'
+                className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors ${
+                  isActive ? 'text-brand-primary' : 'text-gray-500'
                 }`}
               >
                 <span className="relative">
-                  <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
+                  <Icon size={28} strokeWidth={isActive ? 2.3 : 1.9} aria-hidden="true" />
                   {badge > 0 && (
                     <span
                       aria-hidden="true"
-                      className={`absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-xs font-bold flex items-center justify-center ${
+                      className={`absolute -top-1.5 -right-3 min-w-[20px] h-5 px-1.5 rounded-full text-white text-xs font-bold flex items-center justify-center ring-2 ring-white ${
                         href === '/fridge' ? 'bg-brand-warning' : 'bg-brand-primary'
                       }`}
                     >
@@ -90,7 +90,7 @@ export default function BottomNav() {
                     </span>
                   )}
                 </span>
-                <span className="text-sm font-medium">{label}</span>
+                <span className="text-xs font-medium">{label}</span>
               </Link>
             );
           })}

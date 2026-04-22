@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-// 180x180 iOS apple-touch-icon — 홈 화면 추가 시 사용
+// 180x180 iOS apple-touch-icon
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
 
@@ -13,29 +13,42 @@ export default function AppleIcon() {
           height:       '100%',
           background:   '#F9FAFB',
           borderRadius: '40px',
-          display:      'flex',
-          alignItems:   'center',
-          justifyContent: 'center',
           position:     'relative',
+          display:      'flex',
         }}
       >
-        {/* 외곽 네모 — 아웃라인 */}
+        {/* 3개의 네모가 대각선으로 겹침. rgba로 색 혼합 */}
         <div
           style={{
             position:     'absolute',
-            width:        '120px',
-            height:       '120px',
-            border:       '10px solid #4F46E5',
-            borderRadius: '28px',
+            left:         '18px',
+            top:          '58px',
+            width:        '80px',
+            height:       '80px',
+            background:   'rgba(79,70,229,0.55)',
+            borderRadius: '20px',
           }}
         />
-        {/* 내부 네모 — 솔리드 */}
         <div
           style={{
-            width:        '48px',
-            height:       '48px',
-            background:   '#4F46E5',
-            borderRadius: '10px',
+            position:     'absolute',
+            left:         '50px',
+            top:          '18px',
+            width:        '80px',
+            height:       '80px',
+            background:   'rgba(79,70,229,0.55)',
+            borderRadius: '20px',
+          }}
+        />
+        <div
+          style={{
+            position:     'absolute',
+            left:         '82px',
+            top:          '58px',
+            width:        '80px',
+            height:       '80px',
+            background:   'rgba(79,70,229,0.55)',
+            borderRadius: '20px',
           }}
         />
       </div>

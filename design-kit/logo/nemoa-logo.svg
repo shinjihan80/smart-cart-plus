@@ -1,0 +1,6 @@
+<!-- NEMOA 로고 — 3 네모 겹침 혼합형 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 48 48">
+  <rect x="4"  y="14" width="20" height="20" rx="5" fill="#4F46E5" fill-opacity="0.55"/>
+  <rect x="14" y="4"  width="20" height="20" rx="5" fill="#4F46E5" fill-opacity="0.55"/>
+  <rect x="24" y="14" width="20" height="20" rx="5" fill="#4F46E5" fill-opacity="0.55"/>
+</svg>

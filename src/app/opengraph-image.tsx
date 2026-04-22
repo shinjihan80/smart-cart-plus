@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og';
 
-// 1200x630 — 공유 카드 이미지
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'NEMOA — 일상을 반듯하게 모으다';
@@ -20,37 +19,19 @@ export default function OpenGraphImage() {
           padding:      '80px',
         }}
       >
-        {/* 로고 — 네모 안에 네모 */}
+        {/* 로고 — 3네모 겹침 */}
         <div
           style={{
-            display:      'flex',
-            alignItems:   'center',
-            justifyContent: 'center',
             position:     'relative',
-            width:        '160px',
-            height:       '160px',
-            marginBottom: '48px',
+            width:        '240px',
+            height:       '190px',
+            marginBottom: '40px',
+            display:      'flex',
           }}
         >
-          {/* 외곽 네모 */}
-          <div
-            style={{
-              position:     'absolute',
-              width:        '160px',
-              height:       '160px',
-              border:       '14px solid #4F46E5',
-              borderRadius: '36px',
-            }}
-          />
-          {/* 내부 네모 */}
-          <div
-            style={{
-              width:        '64px',
-              height:       '64px',
-              background:   '#4F46E5',
-              borderRadius: '14px',
-            }}
-          />
+          <div style={{ position: 'absolute', left: 0,   top: 80,  width: 140, height: 140, background: 'rgba(79,70,229,0.55)', borderRadius: 32 }} />
+          <div style={{ position: 'absolute', left: 50,  top: 0,   width: 140, height: 140, background: 'rgba(79,70,229,0.55)', borderRadius: 32 }} />
+          <div style={{ position: 'absolute', left: 100, top: 80,  width: 140, height: 140, background: 'rgba(79,70,229,0.55)', borderRadius: 32 }} />
         </div>
 
         <div
@@ -78,7 +59,7 @@ export default function OpenGraphImage() {
 
         <div
           style={{
-            marginTop: '48px',
+            marginTop: '40px',
             fontSize:  '24px',
             color:     '#6B7280',
           }}

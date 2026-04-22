@@ -37,11 +37,11 @@ export default function HomePage() {
       <header className="sticky top-0 z-10 bg-white/85 backdrop-blur-sm border-b border-gray-50">
         <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-3">
           <NemoaLogo size="md" withTagline />
-          <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <span className="text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <span className="text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full tabular-nums">
               {items.length}개 관리 중
             </span>
-            <span className="text-xs text-gray-300 tabular-nums">
+            <span className="text-xs text-gray-400 tabular-nums">
               {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
             </span>
           </div>

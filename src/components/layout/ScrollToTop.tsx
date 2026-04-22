@@ -20,9 +20,9 @@ export default function ScrollToTop() {
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="맨 위로"
-      className="fixed bottom-24 left-5 z-30 w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-400 flex items-center justify-center shadow-md hover:text-gray-600 hover:scale-105 active:scale-95 transition-all"
+      className="fixed bottom-28 right-5 z-30 w-12 h-12 rounded-full bg-white border border-gray-200 text-gray-600 flex items-center justify-center shadow-lg hover:text-brand-primary hover:border-brand-primary/30 active:scale-95 transition-all"
     >
-      <ArrowUp size={16} />
+      <ArrowUp size={20} strokeWidth={2.2} />
     </button>
   );
 }
