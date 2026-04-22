@@ -38,6 +38,7 @@ import SeasonalHintWidget from '@/components/home/SeasonalHintWidget';
 import SeasonalChecklistWidget from '@/components/home/SeasonalChecklistWidget';
 import QuickLinks from '@/components/home/QuickLinks';
 import SavedOutfitSuggestion from '@/components/home/SavedOutfitSuggestion';
+import RecentCooks from '@/components/home/RecentCooks';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -288,6 +289,9 @@ export default function HomePage() {
           </SectionErrorBoundary>
           <SectionErrorBoundary label="저장된 코디" colSpan="full">
             <SavedOutfitSuggestion items={items} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary label="최근 조리" colSpan="full">
+            <RecentCooks />
           </SectionErrorBoundary>
           <ClosetSummary   items={items} />
           <MonthlySpending />

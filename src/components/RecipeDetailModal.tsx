@@ -393,6 +393,45 @@ export default function RecipeDetailModal({
             </div>
           )}
 
+          {(() => {
+            // 유사 레시피 — 같은 계절 OR 키워드 겹침 2개+, 자기 자신·coCooked 제외, 최대 3개
+            const coIds = new Set(coCooked.map((c) => c.recipe.id));
+            const similar = RECIPES.filter((r) => {
+              if (r.id === recipe.id || coIds.has(r.id)) return false;
+              // 계절 일치
+              const sameSeason = recipe.seasons && r.seasons
+                && recipe.seasons.some((s) => r.seasons!.includes(s));
+              // 키워드 겹침 2개+
+              const sharedKw = r.keywords.filter((k) => recipe.keywords.includes(k)).length;
+              return sameSeason || sharedKw >= 2;
+            })
+              // 키워드 겹침 많은 것 우선
+              .sort((a, b) => {
+                const as = a.keywords.filter((k) => recipe.keywords.includes(k)).length;
+                const bs = b.keywords.filter((k) => recipe.keywords.includes(k)).length;
+                return bs - as;
+              })
+              .slice(0, 3);
+            if (similar.length === 0) return null;
+            return (
+              <div className="mt-4">
+                <p className="text-[11px] font-semibold text-gray-500 mb-2">🔗 비슷한 레시피</p>
+                <div className="flex gap-1.5 flex-wrap">
+                  {similar.map((r) => (
+                    <button
+                      key={r.id}
+                      onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: r.id } }))}
+                      className="flex items-center gap-1 text-[11px] pl-1.5 pr-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                      <span>{r.emoji}</span>
+                      <span className="font-medium">{r.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           <button
             onClick={() => {
               markCooked(recipe.id);
