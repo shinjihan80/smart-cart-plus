@@ -25,6 +25,7 @@ import CookStatsSection                          from '@/components/mypage/CookS
 import ClosetCleanupSection                      from '@/components/mypage/ClosetCleanupSection';
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
 import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
+import WaitlistBanner                            from '@/components/mypage/WaitlistBanner';
 import PaletteButton                              from '@/components/PaletteButton';
 import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
 import MonthlySummarySection                      from '@/components/mypage/MonthlySummarySection';
@@ -273,6 +274,8 @@ export default function MyPage() {
         <SectionErrorBoundary label="파트너 로드맵">
           <PartnerRoadmapSection />
         </SectionErrorBoundary>
+
+        <WaitlistBanner />
 
         {/* 아카이브 */}
         {archived.length > 0 && (

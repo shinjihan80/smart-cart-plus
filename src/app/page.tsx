@@ -18,6 +18,7 @@ import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import { useSearchPlaceholder } from '@/lib/useSearchPlaceholder';
 import { useSavedOutfits } from '@/lib/savedOutfits';
+import { useSessionPing } from '@/lib/analytics';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
@@ -50,6 +51,8 @@ function getGreeting(): string {
 }
 
 export default function HomePage() {
+  useSessionPing();  // 하루 1회 익명 세션 핑 (opt-in + 엔드포인트 설정 시만 전송)
+
   const { items, addItems, removeItem, undoRemove, discardHistory } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();

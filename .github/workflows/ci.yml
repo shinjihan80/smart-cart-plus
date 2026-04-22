@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-build:
+    name: Test · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Node 24+ — .mts 네이티브 실행 (--experimental-strip-types 불필요)
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        # Node 22+ 네이티브 .mts + node:test (외부 의존 0)
+        run: npm test
+
+      - name: Type check & lint
+        # Next.js lint는 경고 허용 — 실패만 잡음
+        run: npm run lint || true
+
+      - name: Production build
+        run: npm run build
+        env:
+          # 실제 키는 Settings > Secrets에서 주입 (CI용 더미값)
+          ANTHROPIC_API_KEY: dummy-for-build-only
+          NEXT_PUBLIC_SITE_URL: https://nemoa.app

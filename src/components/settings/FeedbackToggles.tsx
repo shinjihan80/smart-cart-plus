@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { haptic, isHapticEnabled, setHapticEnabled } from '@/lib/haptics';
 import { playChime, isChimeEnabled, setChimeEnabled } from '@/lib/chime';
+import { isAnalyticsEnabled, setAnalyticsEnabled } from '@/lib/analytics';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 /**
@@ -11,13 +12,15 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared'
  * localStorage 기반 (nemoa-haptic-enabled, nemoa-chime-enabled).
  */
 export default function FeedbackToggles() {
-  const [hapticOn, setHapticOn] = useState(true);
-  const [chimeOn, setChimeOn]   = useState(true);
+  const [hapticOn, setHapticOn]     = useState(true);
+  const [chimeOn, setChimeOn]       = useState(true);
+  const [analyticsOn, setAnalyticsOn] = useState(false);
 
   // 최초 마운트 시 localStorage 반영
   useEffect(() => {
     setHapticOn(isHapticEnabled());
     setChimeOn(isChimeEnabled());
+    setAnalyticsOn(isAnalyticsEnabled());
   }, []);
 
   function toggleHaptic() {
@@ -34,9 +37,16 @@ export default function FeedbackToggles() {
     if (next) playChime();
   }
 
+  function toggleAnalytics() {
+    const next = !analyticsOn;
+    setAnalyticsOn(next);
+    setAnalyticsEnabled(next);
+  }
+
   const toggles = [
     { label: '햅틱 피드백', desc: '탭·스와이프 시 짧은 진동', on: hapticOn, toggle: toggleHaptic },
     { label: '알림음',       desc: '타이머 완료 시 짧은 비프', on: chimeOn,  toggle: toggleChime  },
+    { label: '익명 사용 통계', desc: '개인정보 없이 "오늘 몇 명이 썼나"만 집계 — 서비스 개선용', on: analyticsOn, toggle: toggleAnalytics },
   ];
 
   return (

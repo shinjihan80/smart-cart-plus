@@ -8,7 +8,7 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 
 ## v1.5 — 2026-04-22 · 베이직 출시 준비
 
-**테마: 무료 공개 전 법적·운영 정비**
+**테마: 무료 공개 전 법적·운영·배포 정비**
 
 ### Added
 - **법적 고지**: `/legal` 약관·개인정보 페이지, `AppInfo` 푸터 링크
@@ -22,11 +22,20 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 - **로컬 에러 로깅** (`errorLog.ts`) — `window.onerror` + `unhandledrejection` + React 바운더리 수집
   - 설정 > **오류 기록** 카드 — 최근 10건 · 복사 · 지우기 (최대 50건)
   - 원격 전송 없음, Pro 단계에서 opt-in 예정
-- **핵심 함수 단위 테스트 36개** — Node 25 네이티브 `.mts` + `node:test`
+- **핵심 함수 단위 테스트 36개** — Node 네이티브 `.mts` + `node:test`
   - `season`, `purchaseCycle`, `seasonalProduce`, `aiQuota` 상수 회귀
   - `npm test` 실행
-- **MONETIZATION.md · BASIC_SPEC.md · PRO_SPEC.md** — 베이직/Pro 분리 문서화
-- **DEPLOY.md** — 환경 변수 · Vercel/Netlify · Capacitor · 배포 체크리스트
+- **SEO 메타 확장** — openGraph · twitter card · canonical · metadataBase
+  - `app/robots.ts` + `app/sitemap.ts` — 7개 라우트 자동 생성
+  - `app/apple-icon.tsx` (180×180) + `app/opengraph-image.tsx` (1200×630) — ImageResponse 동적 생성
+- **익명 사용 통계** (`analytics.ts`) — opt-in 전용, day-level 랜덤 토큰
+  - 엔드포인트 미설정 시 no-op · 설정 > 피드백에 토글
+  - 홈 진입 시 하루 1회 세션 핑
+- **Pro 사전 등록 배너** (`WaitlistBanner`) — 마이페이지 하단, 엔드포인트 설정 시만 노출
+- **CI 파이프라인** — `.github/workflows/ci.yml` (Node 24, test + lint + build)
+- **MONETIZATION.md · BASIC_SPEC.md · PRO_SPEC.md · CHANGELOG.md** — 베이직/Pro 분리 문서화
+- **DEPLOY.md · .env.example** — 환경 변수 · Vercel/Netlify · Capacitor · 배포 체크리스트
+- **404 not-found** — 네모아 로고 모티프 리디자인
 
 ### Changed
 - **빈 시드**: 신규 사용자는 `mockCartItems` 대신 `[]`로 시작 (필요 시 설정에서 샘플 22개 추가)
