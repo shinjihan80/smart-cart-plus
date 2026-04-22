@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -18,6 +19,11 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
   const [show, setShow] = useState(false);
   const { loadSampleData } = useCart();
   const { showToast } = useToast();
+  const pathname = usePathname();
+
+  // /legal 에 있을 땐 모달 숨김 — 사용자가 약관 전문을 읽을 수 있게.
+  // 뒤로 돌아오면 경로가 바뀌며 다시 표시됨.
+  const isOnLegal = pathname === '/legal';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -41,7 +47,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
     <>
       {children}
       <AnimatePresence>
-        {ready && show && (
+        {ready && show && !isOnLegal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

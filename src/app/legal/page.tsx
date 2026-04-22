@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
 
@@ -10,18 +10,29 @@ import { ChevronLeft } from 'lucide-react';
  */
 export default function LegalPage() {
   const updatedAt = '2026-04-22';
+  const router = useRouter();
+
+  // 이전 경로로 복귀 — 설정·AppInfo·ConsentGate 등 어디서 왔든 자연스럽게.
+  // 직접 URL로 들어왔으면 홈으로 폴백.
+  function handleBack() {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  }
 
   return (
     <div>
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
         <div className="px-4 py-3.5 flex items-center gap-3">
-          <Link
-            href="/settings"
+          <button
+            onClick={handleBack}
             aria-label="뒤로"
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-500"
           >
             <ChevronLeft size={18} />
-          </Link>
+          </button>
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">약관 및 개인정보</h1>
             <p className="text-[10px] text-gray-400 mt-0.5">최종 업데이트 {updatedAt}</p>
