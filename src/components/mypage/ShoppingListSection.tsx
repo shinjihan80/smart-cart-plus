@@ -77,6 +77,21 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
             </button>
           )}
           <button
+            onClick={async () => {
+              const text = shopping.list.map((it, i) => `${i + 1}. ${it.name}`).join('\n');
+              try {
+                await navigator.clipboard.writeText(text);
+                showToast('쇼핑 리스트를 복사했어요.');
+              } catch {
+                showToast('복사에 실패했어요.');
+              }
+            }}
+            className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            title="클립보드에 복사"
+          >
+            📋 복사
+          </button>
+          <button
             onClick={handleClear}
             className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
           >

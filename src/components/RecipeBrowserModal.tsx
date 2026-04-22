@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { RECIPES, recipeGradient, SEASON_EMOJI, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
+import { useProfiles } from '@/lib/profile';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { currentSeasonByMonth } from '@/lib/season';
 
@@ -19,6 +20,8 @@ interface RecipeBrowserModalProps {
 export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }: RecipeBrowserModalProps) {
   useModalA11y(onClose);
   const { isFavorite } = useRecipeFavorites();
+  const { main } = useProfiles();
+  const dietary = main?.dietary && main.dietary !== 'none' ? main.dietary : null;
   const season = currentSeasonByMonth();
   const [search, setSearch] = useState(initialSearch ?? '');
   const [filter, setFilter] = useState<FilterKey>('전체');
@@ -39,6 +42,18 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
     const q = search.trim().toLowerCase();
     return RECIPES
       .filter((r) => {
+        // 프로필 식습관 필터 — 재료 호환되지 않으면 숨김
+        if (dietary) {
+          const rd = recipeDietary(r);
+          // rd === null이면 고기/생선 포함 → 모든 dietary 제한에서 탈락
+          // rd === 'pescatarian': 생선까지 포함 → vegetarian/vegan에서 탈락
+          // rd === 'vegetarian': 유제품까지 → vegan에서 탈락
+          // rd === 'vegan': 모두 가능
+          if (!rd) return false;
+          if (dietary === 'vegan' && rd !== 'vegan') return false;
+          if (dietary === 'vegetarian' && rd === 'pescatarian') return false;
+          // pescatarian은 vegan/vegetarian/pescatarian 모두 허용
+        }
         if (filter === '즐겨찾기') return isFavorite(r.id);
         if (filter === '이번계절') return r.seasons?.includes(season) ?? false;
         if (filter === '간단' || filter === '보통' || filter === '도전') return r.difficulty === filter;
@@ -57,7 +72,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
         if (aFav !== bFav) return aFav - bFav;
         return a.name.localeCompare(b.name);
       });
-  }, [search, filter, isFavorite, season]);
+  }, [search, filter, isFavorite, season, dietary]);
 
   return (
     <AnimatePresence>
