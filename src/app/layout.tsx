@@ -7,6 +7,7 @@ import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import ConsentGate from "@/components/layout/ConsentGate";
 import SwRegister from "@/components/layout/SwRegister";
+import ErrorCapture from "@/components/layout/ErrorCapture";
 import CommandPalette from "@/components/CommandPalette";
 import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
             <CommandPalette />
             <GlobalRecipeModal />
             <SwRegister />
+            <ErrorCapture />
           </ConsentGate>
         </Providers>
       </body>
