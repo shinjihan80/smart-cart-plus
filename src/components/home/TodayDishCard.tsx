@@ -63,7 +63,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                     </span>
                   )}
                   {seasonBoosted && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold">
                       {SEASON_EMOJI[season]} {season}철
                     </span>
                   )}
@@ -79,7 +79,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                   {matchedItems.length > 0 && (
                     <>
                       <span className="text-gray-300 mx-1">·</span>
-                      <span className="text-brand-primary font-semibold">
+                      <span className="text-gray-900 font-semibold">
                         ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
                       </span>
                     </>

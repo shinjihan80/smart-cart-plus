@@ -32,15 +32,15 @@ export default function SavedOutfitSuggestion({ items }: { items: CartItem[] }) 
 
   return (
     <Link href="/closet" className="col-span-2 block">
-      <Widget index={2} variant="accent">
+      <Widget index={2}>
         <div className="flex items-center gap-3">
           <span className="text-3xl shrink-0">💾</span>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">오늘 저장된 코디</p>
+            <p className="text-xs text-gray-500 font-medium">오늘 저장된 코디</p>
             <p className="text-sm font-bold text-gray-900 truncate">{pick.name}</p>
             <div className="flex gap-1 mt-1 flex-wrap">
               {resolved.slice(0, 4).map(({ item }) => (
-                <span key={item.id} className="flex items-center gap-0.5 text-sm px-1.5 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/10 text-brand-primary">
+                <span key={item.id} className="flex items-center gap-0.5 text-sm px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
                   <span>{FASHION_EMOJI[item.category] ?? '👕'}</span>
                   <span className="font-medium truncate max-w-[60px]">{item.name}</span>
                 </span>

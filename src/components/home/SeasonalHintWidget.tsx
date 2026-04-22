@@ -31,13 +31,13 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
     const sample = ownedSeasonal.slice(0, 3).map((f) => f.name).join('·');
     return (
       <Link href="/fridge" className="col-span-2 block">
-        <Widget index={2} variant="accent">
+        <Widget index={2}>
           <div className="flex items-center gap-3">
             <span className="text-3xl shrink-0">{SEASON_EMOJI[season]}</span>
             <div className="flex-1 min-w-0 text-left">
               <div className="flex items-center gap-1.5 mb-0.5">
-                <p className="text-xs text-gray-400 font-medium">지금 {season}철 식탁</p>
-                <span className="text-xs px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold tabular-nums">
+                <p className="text-xs text-gray-500 font-medium">지금 {season}철 식탁</p>
+                <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700 font-semibold tabular-nums">
                   {ownedSeasonal.length}개
                 </span>
               </div>
@@ -58,7 +58,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
     const sample = peakMissing.map((p) => `${p.emoji} ${p.name}`).join(' · ');
     return (
       <Link href="/mypage" className="col-span-2 block">
-        <Widget index={2} variant="accent">
+        <Widget index={2}>
           <div className="flex items-center gap-3">
             <span className="text-3xl shrink-0">{SEASON_EMOJI[season]}</span>
             <div className="flex-1 min-w-0 text-left">

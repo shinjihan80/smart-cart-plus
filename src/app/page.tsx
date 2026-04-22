@@ -33,15 +33,11 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* 헤더 — 로고 + 검색 아이콘 (슬로건은 마이페이지로) */}
+      {/* 헤더 — 로고 + 검색 아이콘 */}
       <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100">
         <div className="px-5 py-4 flex items-center justify-between gap-3">
           <NemoaLogo size="md" />
           <PaletteButton variant="icon" />
-        </div>
-
-        <div className="px-5 pb-3">
-          <TodayActivity />
         </div>
       </header>
 
@@ -56,6 +52,13 @@ export default function HomePage() {
       <div className="px-5 pt-6">
         <SectionErrorBoundary label="카테고리">
           <QuickLinks items={items} history={discardHistory} />
+        </SectionErrorBoundary>
+      </div>
+
+      {/* 오늘의 기록 — 회색 섹션 */}
+      <div className="px-5 pt-6">
+        <SectionErrorBoundary label="오늘의 기록">
+          <TodayActivity />
         </SectionErrorBoundary>
       </div>
 

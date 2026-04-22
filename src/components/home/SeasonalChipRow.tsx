@@ -1,12 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Flower2, BookOpen } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { useToast } from '@/context/ToastContext';
 import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI, countRecipesByIngredient } from '@/lib/recipes';
+import { countRecipesByIngredient } from '@/lib/recipes';
 import { springTransition } from './shared';
 
 export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
@@ -37,33 +38,33 @@ export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
       transition={{ ...springTransition, delay: 0.05 }}
       className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 py-0.5"
     >
-      <span className="text-sm text-gray-400 font-medium shrink-0">
-        {SEASON_EMOJI[season]} 지금 제철
+      <span className="flex items-center gap-1 text-sm text-gray-500 font-semibold shrink-0">
+        <Flower2 size={14} strokeWidth={2.2} className="text-pink-500" />
+        <span>지금 제철</span>
       </span>
       {picks.map((p) => {
         const recipeCount = countRecipesByIngredient(p.name);
         return (
-          <div key={p.name} className="shrink-0 flex items-center rounded-full bg-white border border-brand-primary/20 overflow-hidden">
+          <div key={p.name} className="shrink-0 flex items-center rounded-full bg-white border border-gray-200 overflow-hidden">
             <button
               onClick={() => handleTap(p.name)}
               title={p.blurb ?? `${season}철 제철`}
-              className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-brand-primary hover:bg-brand-primary/5 active:scale-95 transition-all"
+              className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-gray-800 hover:bg-gray-50 active:scale-95 transition-all"
             >
               <span className="text-xs">{p.emoji}</span>
               <span className="font-medium">{p.name}</span>
-              {p.peak === season && <span className="text-xs text-brand-primary/60">· 피크</span>}
+              {p.peak === season && <span className="text-xs text-pink-500 font-semibold">· 피크</span>}
             </button>
             {recipeCount > 0 && (
               <button
                 onClick={() => {
-                  // 재료명 그대로 팔레트에 전달 — 레시피·제철·보유 아이템 모두 노출
-                  // (? prefix는 recipe 모드 필터라 예전에 결과가 일부만 보이던 버그 회피)
                   window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }));
                 }}
                 title={`${p.name} 레시피 ${recipeCount}개`}
-                className="text-xs px-1.5 py-1 border-l border-brand-primary/15 text-brand-primary/70 hover:bg-brand-primary/5 transition-colors"
+                className="flex items-center gap-0.5 text-xs px-1.5 py-1 border-l border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
               >
-                📖 {recipeCount}
+                <BookOpen size={11} strokeWidth={2.2} />
+                <span className="tabular-nums">{recipeCount}</span>
               </button>
             )}
           </div>
