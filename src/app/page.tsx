@@ -26,31 +26,21 @@ import SectionHeader   from '@/components/home/SectionHeader';
 import TodayActivity   from '@/components/home/TodayActivity';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import UrgentAlert     from '@/components/home/UrgentAlert';
-import QuickStats      from '@/components/home/QuickStats';
 import DailyBriefing   from '@/components/home/DailyBriefing';
 import TodayDishCard   from '@/components/home/TodayDishCard';
-import ClosetSummary   from '@/components/home/ClosetSummary';
-import MonthlySpending from '@/components/home/MonthlySpending';
-import FridgeCarousel  from '@/components/home/FridgeCarousel';
-import MonthlyHistory  from '@/components/home/MonthlyHistory';
 import WeeklyInsight   from '@/components/home/WeeklyInsight';
-import RecentlyAdded   from '@/components/home/RecentlyAdded';
-import TipOfTheDay     from '@/components/home/TipOfTheDay';
 import SeasonalChipRow from '@/components/home/SeasonalChipRow';
 import SeasonalHintWidget from '@/components/home/SeasonalHintWidget';
-import SeasonalChecklistWidget from '@/components/home/SeasonalChecklistWidget';
 import QuickLinks from '@/components/home/QuickLinks';
 import SavedOutfitSuggestion from '@/components/home/SavedOutfitSuggestion';
-import RecentCooks from '@/components/home/RecentCooks';
 
 export default function HomePage() {
   useSessionPing();  // 하루 1회 익명 세션 핑 (opt-in + 엔드포인트 설정 시만 전송)
 
-  const { items, addItems, removeItem, undoRemove, discardHistory } = useCart();
+  const { items, addItems, discardHistory } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
   const [ready, setReady] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [search, setSearch] = useState('');
   const [recipeBrowser, setRecipeBrowser] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -312,49 +302,16 @@ export default function HomePage() {
             </SectionErrorBoundary>
           </SectionHeader>
 
-          {/* 📅 이번 주 — accent 톤, 주간 패턴 */}
+          {/* 📊 이번 주 요약 — 주간 활동 한 줄 요약 */}
           <SectionHeader
-            icon="📅"
-            title="이번 주"
-            subtitle="한 주를 한눈에"
-            tone="accent"
+            icon="📊"
+            title="이번 주 요약"
+            subtitle="상세 통계는 마이페이지에서"
+            tone="muted"
           >
-            <SectionErrorBoundary label="제철 체크리스트">
-              <SeasonalChecklistWidget items={items} history={discardHistory} />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="냉장고 카루셀">
-              <FridgeCarousel
-                items={items}
-                onDiscard={(id) => {
-                  const name = items.find((i) => i.id === id)?.name ?? '';
-                  removeItem(id);
-                  showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
-                }}
-              />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="최근 조리">
-              <RecentCooks />
-            </SectionErrorBoundary>
             <SectionErrorBoundary label="주간 인사이트">
               <WeeklyInsight items={items} />
             </SectionErrorBoundary>
-          </SectionHeader>
-
-          {/* 📊 기록 — muted 톤 (접혀 있을 때 배경 톤 다운) */}
-          <SectionHeader
-            icon="📊"
-            title="기록 & 통계"
-            subtitle="지출·활동·패턴 (펼쳐서 보기)"
-            collapsible
-            defaultOpen={false}
-            tone="muted"
-          >
-            <QuickStats    items={items} />
-            <ClosetSummary items={items} />
-            <MonthlySpending />
-            <MonthlyHistory selectedMonth={selectedMonth} onChangeMonth={setSelectedMonth} />
-            <RecentlyAdded items={items} />
-            <TipOfTheDay />
           </SectionHeader>
         </div>
       )}
