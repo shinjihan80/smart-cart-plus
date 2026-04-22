@@ -19,10 +19,33 @@ interface ShoppingListSectionProps {
 export default function ShoppingListSection({ addItems, showToast }: ShoppingListSectionProps) {
   const shopping = useShoppingList();
   const [query, setQuery] = useState('');
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchRef, () => setQuery(''));
 
-  if (shopping.list.length === 0) return null;
+  function handleImport() {
+    const lines = importText.split('\n')
+      .map((l) => l.replace(/^[\d.\s-·]*/, '').trim())  // "1. 우유", "- 계란" 같은 prefix 제거
+      .filter((l) => l.length > 0 && l.length < 50);
+    if (lines.length === 0) {
+      showToast('가져올 항목이 없어요.');
+      return;
+    }
+    let added = 0;
+    for (const name of lines) {
+      if (!shopping.has(name)) {
+        shopping.add(name, '가져오기');
+        added += 1;
+      }
+    }
+    showToast(added > 0 ? `${added}개 가져왔어요.` : '이미 모두 담겨있어요.');
+    setImportText('');
+    setImportOpen(false);
+  }
+
+  // list 비었고 import 패널도 안 열려있으면 아예 숨김 (기존 동작 유지)
+  if (shopping.list.length === 0 && !importOpen) return null;
 
   const filteredList = query.trim()
     ? shopping.list.filter((it) => it.name.toLowerCase().includes(query.toLowerCase()))
@@ -77,6 +100,13 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
             </button>
           )}
           <button
+            onClick={() => setImportOpen(!importOpen)}
+            className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            title="텍스트에서 여러 줄 가져오기"
+          >
+            📥 가져오기
+          </button>
+          <button
             onClick={async () => {
               const text = shopping.list.map((it, i) => `${i + 1}. ${it.name}`).join('\n');
               try {
@@ -99,6 +129,33 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           </button>
         </div>
       </div>
+      {importOpen && (
+        <div className="mb-3 rounded-xl border border-brand-primary/15 bg-brand-primary/5 p-2.5">
+          <p className="text-[10px] text-gray-500 mb-1.5">한 줄에 하나씩, 또는 쉼표로 구분해 붙여넣어요</p>
+          <textarea
+            value={importText}
+            onChange={(e) => setImportText(e.target.value)}
+            placeholder={"우유\n계란 10구\n- 딸기\n1. 김치"}
+            rows={4}
+            className="w-full text-xs text-gray-800 bg-white border border-gray-100 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+          <div className="flex gap-1 mt-1.5 justify-end">
+            <button
+              onClick={() => { setImportOpen(false); setImportText(''); }}
+              className="text-[10px] text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              취소
+            </button>
+            <button
+              onClick={handleImport}
+              disabled={!importText.trim()}
+              className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-brand-primary text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
+            >
+              가져오기
+            </button>
+          </div>
+        </div>
+      )}
       {shopping.list.length >= 5 && (
         <div className="relative mb-3">
           <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300" />
