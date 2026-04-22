@@ -6,6 +6,7 @@ import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import ConsentGate from "@/components/layout/ConsentGate";
+import SwRegister from "@/components/layout/SwRegister";
 import CommandPalette from "@/components/CommandPalette";
 import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 
@@ -61,6 +62,7 @@ export default function RootLayout({
             <OnboardingModal />
             <CommandPalette />
             <GlobalRecipeModal />
+            <SwRegister />
           </ConsentGate>
         </Providers>
       </body>

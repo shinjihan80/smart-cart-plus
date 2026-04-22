@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>오프라인 · NEMOA</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <meta name="theme-color" content="#4F46E5" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', sans-serif;
+      background: #F9FAFB;
+      color: #1F2937;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .icon { font-size: 64px; margin-bottom: 16px; }
+    h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+    p  { font-size: 14px; color: #6B7280; line-height: 1.6; max-width: 320px; margin-bottom: 24px; }
+    button {
+      background: #4F46E5;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.9; }
+    .hint {
+      margin-top: 16px;
+      font-size: 11px;
+      color: #9CA3AF;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon">📡</div>
+  <h1>잠시 연결이 끊겼어요</h1>
+  <p>네트워크가 돌아오면 다시 시도해주세요. 이미 열어둔 페이지는 오프라인에서도 볼 수 있어요.</p>
+  <button onclick="location.reload()">다시 시도</button>
+  <p class="hint">NEMOA는 로컬에 데이터를 보관해 오프라인에서도 대부분 기능이 동작해요.</p>
+</body>
+</html>
