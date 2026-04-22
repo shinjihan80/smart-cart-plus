@@ -7,7 +7,7 @@
  * 출력: { weather, outfits: OutfitResult[] }
  *
  * 토큰 최적화: clothingItems만 주입 (foodItems 완전 차단)
- * 모델: claude-sonnet-4-6 — 날씨 + 코디 분석, 창의적 판단 필요
+ * 모델: gemini-2.0-flash — 날씨 + 코디 분석
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateInput, validateOutput } from '@/lib/harness';
@@ -72,7 +72,6 @@ export async function POST(req: NextRequest) {
       agentType:        'style',
       agentInstruction: AGENT_INSTRUCTION,
       userContent,
-      model:            'claude-sonnet-4-6',  // 분석·추천 → 균형 모델
     });
 
     // Step 4: 출력 검증

@@ -6,7 +6,7 @@
  * 입력: FormData { image: File }
  * 출력: { items: CartItem[], domain_summary: { food: number, fashion: number } }
  *
- * 모델: claude-sonnet-4-6 — 정확한 도메인 분류 + 세부 필드 추출
+ * 모델: gemini-2.0-flash — Vision 지원, 도메인 분류 + 필드 추출
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
@@ -22,7 +22,7 @@ import {
   FOOD_GROUP,
 } from '@/types';
 import { inferWeatherTagsFallback, sanitizeWeatherTags } from '@/lib/clothingInference';
-import Anthropic from '@anthropic-ai/sdk';
+import type { UserContentBlock } from '@/lib/agentPipeline';
 
 // ─── API 내부 전용 타입 (export 없음) ─────────────────────────────────────────
 
@@ -257,14 +257,11 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString('base64');
 
-    const userContent: Anthropic.Messages.ContentBlockParam[] = [
+    const userContent: UserContentBlock[] = [
       {
-        type: 'image',
-        source: {
-          type:       'base64',
-          media_type: file.type as AllowedMediaType,
-          data:       base64,
-        },
+        type:     'image',
+        mimeType: file.type,
+        base64,
       },
       {
         type: 'text',
@@ -276,7 +273,6 @@ export async function POST(req: NextRequest) {
       agentType:        'vision',
       agentInstruction: AGENT_INSTRUCTION,
       userContent,
-      model:            'claude-sonnet-4-6',
     });
 
     const outputCheck = validateOutput(result, 'vision');

@@ -6,6 +6,27 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 
 ---
 
+## v1.5.1 — 2026-04-22 · AI 백엔드 Gemini 전환
+
+**테마: Anthropic Claude → Google Gemini 백엔드 교체 (사용자 요청, 무료 티어 활용)**
+
+### Changed
+- 의존성 `@anthropic-ai/sdk` → `@google/generative-ai` 교체
+- `lib/agentPipeline.ts` Gemini SDK로 재작성 — `GoogleGenerativeAI` 클라이언트, `gemini-2.0-flash` 모델
+- `lib/harness.ts` — Anthropic 캐시 블록 → Gemini `systemInstruction` 단일 문자열 빌더
+- 6개 API 라우트 (`vision-parser`, `image-agent`, `parser-agent`, `nutrition-agent`, `style-agent`, `url-agent`) 명시적 Claude 모델명 제거
+- Vision 입력 형식 자체 추상 타입 (`UserContentBlock`) 도입 — 추후 LLM 교체 시 라우트 변경 불필요
+- 환경변수 `ANTHROPIC_API_KEY` → `GEMINI_API_KEY`
+- 약관·동의 모달·설정·에러 로깅 텍스트의 "Anthropic Claude" → "Google Gemini"
+- Dual-Review 파이프라인 유지 (Gemini multi-turn chat으로 동등 구현)
+- `responseMimeType: 'application/json'`로 응답 형식 강제 + `extractJSON` 안전망 유지
+
+### Why
+- 무료 티어 RPM 15·RPD 1,500로 베이직 단계 출시 비용 ₩0
+- 향후 모델 변경 (예: Gemini 2.5 Pro) 시 모델명 한 곳만 수정
+
+---
+
 ## v1.5 — 2026-04-22 · 베이직 출시 준비
 
 **테마: 무료 공개 전 법적·운영·배포 정비**
@@ -17,7 +38,7 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
   - 설정 > **AI 오늘 남은 횟수** 카드 (4 agent × 잔여/총량 + 프로그레스 바)
   - `TextImportModal` 에이전트별 호출 전 quota 체크 + 소진 시 안내 메시지
 - **Service Worker** (`public/sw.js`) — 페이지 network-first · 정적 자산 SWR · `/offline.html` 폴백
-  - `/api/*` 우회 (Anthropic 스트리밍 무손실)
+  - `/api/*` 우회 (AI 스트리밍 무손실)
   - `next.config.ts` — `/sw.js`에 `no-store` + `Service-Worker-Allowed: /`
 - **로컬 에러 로깅** (`errorLog.ts`) — `window.onerror` + `unhandledrejection` + React 바운더리 수집
   - 설정 > **오류 기록** 카드 — 최근 10건 · 복사 · 지우기 (최대 50건)

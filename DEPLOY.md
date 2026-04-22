@@ -7,10 +7,10 @@
 
 ```bash
 cp .env.example .env.local
-# 편집기로 열어서 ANTHROPIC_API_KEY 입력
+# 편집기로 열어서 GEMINI_API_KEY 입력
 ```
 
-필수: `ANTHROPIC_API_KEY` 하나만.
+필수: `GEMINI_API_KEY` 하나만.
 선택: `NEXT_PUBLIC_SITE_URL` (SEO · sitemap용) · Supabase/Toss (Pro 도입 후).
 
 Open-Meteo 날씨 API는 키 불필요.
@@ -33,13 +33,13 @@ npm start
 ## Vercel 배포 (권장)
 
 1. https://vercel.com/new → GitHub 저장소 연결
-2. 환경변수 `ANTHROPIC_API_KEY` 추가 (Settings → Environment Variables)
+2. 환경변수 `GEMINI_API_KEY` 추가 (Settings → Environment Variables)
 3. Framework: Next.js 자동 감지
 4. 배포 후 커스텀 도메인 연결
 
 **주의**:
 - API 라우트는 서버에서만 실행되므로 API 키가 노출되지 않음
-- Vercel Edge 함수 사용 시 Anthropic SDK가 fetch 기반으로 잘 작동
+- Vercel Edge 함수 사용 시 Google Gemini SDK가 fetch 기반으로 잘 작동
 - 이미지 최적화는 Next.js 자체 기능으로 충분 (Vercel 무료 티어 포함)
 
 ## Netlify 대안
@@ -65,7 +65,7 @@ npx cap sync
 
 **코드**
 - [ ] `.env.local` 커밋 안 됨 (`git status` 확인)
-- [ ] `ANTHROPIC_API_KEY` 프로덕션에 설정됨
+- [ ] `GEMINI_API_KEY` 프로덕션에 설정됨
 - [ ] `NEXT_PUBLIC_SITE_URL` 프로덕션 URL로 설정 (SEO · sitemap용)
 - [ ] 빌드 성공 (`npm run build` 에러 없음)
 - [ ] 테스트 통과 (`npm test` — 36 passes)
@@ -86,7 +86,7 @@ npx cap sync
 
 **법적**
 - [ ] 약관·개인정보 최종 검토 (이메일 주소, 문의처 채움)
-- [ ] Anthropic API 정책 준수 (사용자 입력 → AI 경유 고지)
+- [ ] Google Gemini API 정책 준수 (사용자 입력 → AI 경유 고지)
 
 ## 사용자 데이터 마이그레이션
 
@@ -98,6 +98,6 @@ NEMOA는 서버에 데이터를 저장하지 않으므로 마이그레이션이 
 
 ## 운영 체크
 
-- **AI 비용**: Anthropic 호출마다 과금. 베이직 무료 사용자 제한 로직 필수 (`useAiQuota` 훅 참조).
+- **AI 비용**: Gemini 호출마다 과금. 베이직 무료 사용자 제한 로직 필수 (`useAiQuota` 훅 참조).
 - **localStorage 용량**: 브라우저당 5-10MB. 이미지 첨부가 많으면 용량 경고 필요. 설정의 "📦 저장 용량" 카드에서 확인.
 - **백업 주기**: 앱이 7일 이상 백업 안 되면 홈에 배너 노출 (기존 구현).

@@ -5,7 +5,7 @@
  * 입력: { rawText: string }
  * 출력: { items: (FoodItem | ClothingItem)[] }
  *
- * 모델: claude-haiku-4-5 — 단순 구조화 추출만 수행, 추론 불필요 → 최저 비용
+ * 모델: gemini-2.0-flash — 무료 티어 RPM 15·RPD 1500 (구조화 추출용)
  *
  * 파이프라인:
  *   1. 입력 검증 (Harness)
@@ -86,7 +86,6 @@ export async function POST(req: NextRequest) {
       agentType:        'parser',
       agentInstruction: AGENT_INSTRUCTION,
       userContent,
-      model:            'claude-haiku-4-5',  // 단순 추출 → 최저 비용
     });
 
     // Step 4: 출력 검증

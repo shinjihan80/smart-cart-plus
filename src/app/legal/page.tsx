@@ -85,8 +85,8 @@ export default function LegalPage() {
             <p>
               <strong>2. AI 분석 요청</strong><br />
               사용자가 명시적으로 &ldquo;사진 분석&rdquo;, &ldquo;텍스트 파싱&rdquo; 등의 AI 기능을 실행할 때에 한해
-              Anthropic Claude API에 데이터가 전송됩니다. 전송된 데이터는 분석 결과 반환 후 Anthropic의
-              정책에 따라 30일 이내 파기됩니다. (Anthropic 개인정보 정책 참조)
+              Google Gemini API에 데이터가 전송됩니다. 전송된 데이터는 분석 결과 반환 후 Google의
+              정책에 따라 처리·파기됩니다. (Google AI 개인정보 정책 참조)
             </p>
             <p>
               <strong>3. 날씨 정보</strong><br />
@@ -120,7 +120,7 @@ export default function LegalPage() {
           <p className="text-[12px] text-gray-700 leading-relaxed">
             💡 <strong>요약</strong>: 서버에 데이터가 남지 않아요.
             모든 기록은 이 기기의 브라우저 안에만 있어요.
-            AI 분석을 요청할 때만 그 순간 Anthropic 서버로 전송되고, 30일 후 파기됩니다.
+            AI 분석을 요청할 때만 그 순간 Google Gemini 서버로 전송되고, Google 정책에 따라 처리·파기됩니다.
           </p>
         </section>
       </motion.div>

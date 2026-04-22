@@ -5,12 +5,11 @@
  * 입력: FormData { image: File }
  * 출력: { items: (FoodItem | ClothingItem)[] }
  *
- * 모델: claude-haiku-4-5 — Vision 지원, 구조화 추출 → 저비용
+ * 모델: gemini-2.0-flash — Vision 지원, 구조화 추출
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
-import { runWithDualReview } from '@/lib/agentPipeline';
-import Anthropic from '@anthropic-ai/sdk';
+import { runWithDualReview, type UserContentBlock } from '@/lib/agentPipeline';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **이미지 분석 에이전트(image-agent)**다.
@@ -70,14 +69,11 @@ export async function POST(req: NextRequest) {
     const base64 = Buffer.from(arrayBuffer).toString('base64');
 
     // 이미지 + 텍스트 지시를 함께 전달하는 콘텐츠 블록 구성
-    const userContent: Anthropic.Messages.ContentBlockParam[] = [
+    const userContent: UserContentBlock[] = [
       {
-        type: 'image',
-        source: {
-          type:       'base64',
-          media_type: file.type as AllowedMediaType,
-          data:       base64,
-        },
+        type:     'image',
+        mimeType: file.type,
+        base64,
       },
       {
         type: 'text',
@@ -89,7 +85,6 @@ export async function POST(req: NextRequest) {
       agentType:        'image',
       agentInstruction: AGENT_INSTRUCTION,
       userContent,
-      model:            'claude-haiku-4-5',
     });
 
     const outputCheck = validateOutput(result, 'parser'); // parser와 동일 스키마

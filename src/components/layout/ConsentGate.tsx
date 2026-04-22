@@ -78,7 +78,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
                   ✓ 모든 데이터는 <strong>이 기기에만 저장</strong>되며 서버로 전송되지 않습니다.
                 </p>
                 <p className="mb-2">
-                  ✓ AI 분석(사진·텍스트)은 사용자가 실행할 때만 Anthropic Claude로 전송됩니다.
+                  ✓ AI 분석(사진·텍스트)은 사용자가 실행할 때만 Google Gemini로 전송됩니다.
                 </p>
                 <p>
                   ✓ 설정에서 언제든 데이터를 완전 삭제할 수 있습니다.

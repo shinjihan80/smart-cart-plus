@@ -161,7 +161,7 @@
 | 스타일 | Tailwind CSS v4 + SUIT 폰트 |
 | 애니메이션 | Framer Motion (spring) |
 | 아이콘 | Lucide React |
-| AI | Anthropic Claude API (Opus 4.6 / Haiku 4.5) + Dual-Review |
+| AI | Google Gemini API (gemini-2.0-flash) + Dual-Review |
 | 날씨 API | Open-Meteo (키 불필요 · 30분 캐시) |
 | 상태 관리 | React Context + localStorage (15+ 도메인 키) + `createSharedStore` |
 | PWA | manifest.json + standalone · shortcuts 3개 · icon maskable + apple-icon |

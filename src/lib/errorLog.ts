@@ -7,7 +7,7 @@ import { createSharedStore } from './sharedStore';
  * 가벼운 클라이언트 에러 로깅 — Sentry 없이 로컬 스토리지에 최근 50건 저장.
  *
  * 왜 로컬?
- *  - 베이직 단계: 서버 인프라 없음 (Anthropic API만 경유)
+ *  - 베이직 단계: 서버 인프라 없음 (Google Gemini API만 경유)
  *  - 프라이버시 기본값 — 동의 없이 원격 전송 X
  *  - 사용자가 설정에서 직접 확인·복사·삭제 가능 (문의 시 붙여넣기)
  *

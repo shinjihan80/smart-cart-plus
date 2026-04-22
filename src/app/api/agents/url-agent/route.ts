@@ -5,7 +5,7 @@
  * 입력: { url: string }
  * 출력: { items: (FoodItem | ClothingItem)[] }
  *
- * 모델: claude-haiku-4-5 — 텍스트 추출 → 저비용
+ * 모델: gemini-2.0-flash — URL 텍스트 추출
  * 주의: JS 기반 SPA 사이트(쿠팡 앱 딥링크 등)는 정적 HTML만 가져오므로 제한될 수 있음
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -147,7 +147,6 @@ export async function POST(req: NextRequest) {
       agentType:        'url',
       agentInstruction: AGENT_INSTRUCTION,
       userContent,
-      model:            'claude-haiku-4-5',
     });
 
     const outputCheck = validateOutput(result, 'parser');
