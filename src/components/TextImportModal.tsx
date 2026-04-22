@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
 import { useProfiles } from '@/lib/profile';
+import { useAiQuota } from '@/lib/aiQuota';
 
 interface TextImportModalProps {
   onClose:  () => void;
@@ -520,6 +521,7 @@ function LoadingSpinner({ label }: { label: string }) {
 
 // ── 메인 모달 ─────────────────────────────────────────────────────────────────
 export default function TextImportModal({ onClose, onImport }: TextImportModalProps) {
+  const { canUse: canUseAi, consume: consumeAi } = useAiQuota();
   const [step, setStep]               = useState<ModalStep>('input');
   const [activeTab, setActiveTab]     = useState<InputTab>('image');
   const [parsedItems, setParsedItems] = useState<CartItem[]>([]);
@@ -546,6 +548,12 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
   }
 
   async function handleAnalyze() {
+    // AI 쿼터 체크 — 탭에 따라 agent 결정
+    const agent = activeTab === 'text' ? 'parser' : activeTab === 'image' ? 'vision' : activeTab === 'url' ? 'url' : null;
+    if (agent && !canUseAi(agent)) {
+      setError(`오늘 ${agent === 'parser' ? '텍스트 파싱' : agent === 'vision' ? '사진 분석' : 'URL 분석'} 무료 사용량을 모두 썼어요. 자정 이후 다시 이용 가능해요.`);
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -574,6 +582,9 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
       } else {
         return;
       }
+
+      // 쿼터 소진은 성공 반환 후
+      if (agent && !data.error) consumeAi(agent);
 
       if (data.error) { setError(data.error); return; }
       if (!data.items || data.items.length === 0) {

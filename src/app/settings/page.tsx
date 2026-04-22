@@ -19,6 +19,7 @@ import ProfilesSection      from '@/components/settings/ProfilesSection';
 import KnowledgeSummary     from '@/components/settings/KnowledgeSummary';
 import FeedbackToggles      from '@/components/settings/FeedbackToggles';
 import StorageUsage         from '@/components/settings/StorageUsage';
+import AiQuotaCard          from '@/components/settings/AiQuotaCard';
 import PaletteButton        from '@/components/PaletteButton';
 
 export default function SettingsPage() {
@@ -243,6 +244,8 @@ export default function SettingsPage() {
         </motion.div>
 
         <FeedbackToggles />
+
+        <AiQuotaCard />
 
         <StorageUsage />
 
