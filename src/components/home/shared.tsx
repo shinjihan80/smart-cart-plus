@@ -4,32 +4,37 @@ import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
 /**
- * Card Variant 시스템
+ * Card 시스템 — 커머스 앱 스타일 (롯데면세점·SSG·인터파크 참고)
  *
- * 모든 홈 카드가 같은 톤이면 시각 위계가 무너지므로 4단계 톤 차이:
- *   hero     → 브랜드 그라디언트, 시선 최우선 (전용 HeroMessage만 사용)
- *   primary  → 흰 배경, 중요 정보 (기본값)
- *   accent   → 브랜드 색 5% 틴트, 강조
- *   warning  → 경고 색 5% 틴트, 임박 정보
- *   ghost    → 투명, 경계선만, 보조 정보
- *   compact  → 작은 padding, 그리드 2열용
+ * 원칙: 모든 카드는 흰 바탕·얇은 경계선·미묘한 그림자로 통일.
+ * 강약은 카드가 아닌 "내부 콘텐츠"(이모지·색·폰트 크기)로 표현.
+ *
+ * variant는 padding·rounded 스케일만 조정:
+ *   primary  → 기본 (p-5)
+ *   compact  → 작은 padding (p-4, 그리드용)
+ *   (accent·warning·ghost variant는 폐지 — 모두 primary로 흡수)
  */
 export type CardVariant = 'primary' | 'accent' | 'warning' | 'ghost' | 'compact';
 
 export const CARD_VARIANTS: Record<CardVariant, string> = {
-  primary: 'bg-white border border-gray-50 rounded-[28px] p-5',
-  accent:  'bg-brand-primary/5 border border-brand-primary/15 rounded-[28px] p-5',
-  warning: 'bg-brand-warning/5 border border-brand-warning/15 rounded-[28px] p-5',
-  ghost:   'bg-transparent border border-gray-100 rounded-[24px] p-4',
-  compact: 'bg-white border border-gray-50 rounded-[20px] p-3',
+  primary: 'bg-white border border-gray-100 rounded-[20px] p-5',
+  compact: 'bg-white border border-gray-100 rounded-[16px] p-4',
+  // 하위 호환: 아래 3종은 primary와 동일 스타일로 alias
+  accent:  'bg-white border border-gray-100 rounded-[20px] p-5',
+  warning: 'bg-white border border-gray-100 rounded-[20px] p-5',
+  ghost:   'bg-white border border-gray-100 rounded-[20px] p-5',
+};
+
+const CARD_SHADOW_COMMON: React.CSSProperties = {
+  boxShadow: '0 2px 12px -4px rgba(0,0,0,0.05)',
 };
 
 export const CARD_SHADOWS: Record<CardVariant, React.CSSProperties> = {
-  primary: { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' },
-  accent:  { boxShadow: '0 10px 40px -10px rgba(79,70,229,0.10)' },
-  warning: { boxShadow: '0 10px 40px -10px rgba(244,63,94,0.10)' },
-  ghost:   {},
-  compact: { boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' },
+  primary: CARD_SHADOW_COMMON,
+  compact: CARD_SHADOW_COMMON,
+  accent:  CARD_SHADOW_COMMON,
+  warning: CARD_SHADOW_COMMON,
+  ghost:   CARD_SHADOW_COMMON,
 };
 
 // 하위 호환 — 기존 직접 사용처가 있을 수 있음 (primary와 동일)

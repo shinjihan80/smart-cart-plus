@@ -12,11 +12,14 @@ import { springTransition } from './shared';
 interface DiscardRecord { name: string; category: string; date: string; }
 
 /**
- * 홈 상단 퀵 링크 4칸 — 각 링크별 배지는 동적으로 계산.
- * - 🌸 제철: 이번 계절에 놓친 재료가 있으면 N개 배지
- * - 👨‍🍳 레시피: 임박 식재료 있으면 빨간 점
- * - 🛒 쇼핑: shoppingList 개수 배지
- * - 👥 프로필: 배지 없음 (추후 팅크 알림 용)
+ * 카테고리 아이콘 그리드 (롯데면세점·SSG 스타일)
+ * 8개 원형 아이콘 + 라벨, 4열 × 2행.
+ *
+ * 각 버튼:
+ *  - 원형 배경 (연한 파스텔)
+ *  - 이모지 or 아이콘
+ *  - 라벨 (text-xs)
+ *  - 배지 (숫자 또는 🔴 점)
  */
 export default function QuickLinks({
   items, history,
@@ -26,6 +29,8 @@ export default function QuickLinks({
 
   const foods = items.filter(isFoodItem);
   const urgentCount = foods.filter((f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 1).length;
+  const foodCount   = foods.length;
+  const clothesCount = items.filter((i) => i.category !== '식품').length;
 
   // 제철 놓친 개수
   const missedCount = (() => {
@@ -46,11 +51,22 @@ export default function QuickLinks({
     return total - triedNames.size;
   })();
 
-  const cards: Array<{ href: string; emoji: string; label: string; badge?: string; dot?: boolean }> = [
-    { href: '/seasonal', emoji: '🌸', label: '제철 달력',   badge: missedCount > 0 ? String(missedCount) : undefined },
-    { href: '/fridge',   emoji: '👨‍🍳', label: '레시피 찾기', dot: urgentCount > 0 },
-    { href: '/mypage',   emoji: '🛒', label: '쇼핑 리스트', badge: shopping.length > 0 ? String(shopping.length) : undefined },
-    { href: '/settings#profiles', emoji: '👥', label: '프로필 설정' },
+  const cards: Array<{
+    href:   string;
+    icon:   string;
+    label:  string;
+    bg:     string;   // 원형 배경 (연한 파스텔)
+    badge?: string;
+    dot?:   boolean;
+  }> = [
+    { href: '/fridge',             icon: '🧊', label: '냉장고', bg: 'bg-sky-50',     badge: foodCount    > 0 ? String(foodCount) : undefined },
+    { href: '/closet',             icon: '👔', label: '옷장',   bg: 'bg-indigo-50',  badge: clothesCount > 0 ? String(clothesCount) : undefined },
+    { href: '/seasonal',           icon: '🌸', label: '제철',   bg: 'bg-pink-50',    badge: missedCount  > 0 ? String(missedCount) : undefined },
+    { href: '/fridge',             icon: '👨‍🍳', label: '레시피', bg: 'bg-amber-50',   dot: urgentCount > 0 },
+    { href: '/mypage#shopping',    icon: '🛒', label: '쇼핑',   bg: 'bg-emerald-50', badge: shopping.length > 0 ? String(shopping.length) : undefined },
+    { href: '/mypage',             icon: '📊', label: '활동',   bg: 'bg-violet-50'   },
+    { href: '/settings#profiles',  icon: '👥', label: '프로필', bg: 'bg-rose-50'     },
+    { href: '/settings',           icon: '⚙️', label: '설정',   bg: 'bg-gray-100'    },
   ];
 
   return (
@@ -58,24 +74,26 @@ export default function QuickLinks({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.03 }}
-      className="grid grid-cols-4 gap-2"
+      className="grid grid-cols-4 gap-y-3"
     >
       {cards.map((c) => (
         <Link
-          key={c.href}
+          key={`${c.href}-${c.label}`}
           href={c.href}
-          className="relative flex flex-col items-center gap-1 py-2 rounded-2xl bg-white border border-gray-100 hover:border-brand-primary/20 hover:bg-brand-primary/5 active:scale-95 transition-all"
+          className="relative flex flex-col items-center gap-1.5 py-1 active:scale-95 transition-transform"
         >
-          <span className="text-xl">{c.emoji}</span>
-          <span className="text-sm font-medium text-gray-600">{c.label}</span>
-          {c.badge && (
-            <span className="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-brand-primary text-white text-xs font-bold flex items-center justify-center tabular-nums">
-              {c.badge}
-            </span>
-          )}
-          {c.dot && !c.badge && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-warning" />
-          )}
+          <div className={`relative w-12 h-12 rounded-full ${c.bg} flex items-center justify-center`}>
+            <span className="text-xl leading-none">{c.icon}</span>
+            {c.badge && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center tabular-nums ring-2 ring-white">
+                {c.badge}
+              </span>
+            )}
+            {c.dot && !c.badge && (
+              <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-brand-warning ring-2 ring-white" />
+            )}
+          </div>
+          <span className="text-xs font-medium text-gray-700 tracking-tight">{c.label}</span>
         </Link>
       ))}
     </motion.div>

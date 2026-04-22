@@ -267,13 +267,8 @@ export default function HomePage() {
         <HomeSkeleton />
       ) : (
         <div className="px-5 pb-8">
-          {/* 🚨 지금 바로 — 주목 필요한 정보 (warning 톤) */}
-          <SectionHeader
-            icon="🚨"
-            title="지금 바로"
-            subtitle="임박한 식품과 제철 재료를 확인하세요"
-            tone="warning"
-          >
+          {/* 지금 바로 — 임박·제철 */}
+          <SectionHeader title="지금 바로" actionHref="/fridge" actionLabel="냉장고">
             <SectionErrorBoundary label="임박 식품">
               <UrgentAlert items={items} />
             </SectionErrorBoundary>
@@ -285,12 +280,8 @@ export default function HomePage() {
             </SectionErrorBoundary>
           </SectionHeader>
 
-          {/* ☀️ 오늘 — 기본 톤, 메인 추천 카드들 */}
-          <SectionHeader
-            icon="☀️"
-            title="오늘"
-            subtitle="식사·옷차림 추천"
-          >
+          {/* 오늘 — 식사·옷차림 추천 */}
+          <SectionHeader title="오늘 추천" actionHref="/fridge" actionLabel="전체 레시피">
             <SectionErrorBoundary label="오늘 한 그릇">
               <TodayDishCard items={items} />
             </SectionErrorBoundary>
@@ -302,13 +293,8 @@ export default function HomePage() {
             </SectionErrorBoundary>
           </SectionHeader>
 
-          {/* 📊 이번 주 요약 — 주간 활동 한 줄 요약 */}
-          <SectionHeader
-            icon="📊"
-            title="이번 주 요약"
-            subtitle="상세 통계는 마이페이지에서"
-            tone="muted"
-          >
+          {/* 이번 주 — 한 줄 요약 */}
+          <SectionHeader title="이번 주" actionHref="/mypage" actionLabel="마이페이지">
             <SectionErrorBoundary label="주간 인사이트">
               <WeeklyInsight items={items} />
             </SectionErrorBoundary>

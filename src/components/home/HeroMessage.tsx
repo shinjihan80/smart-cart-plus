@@ -25,22 +25,19 @@ import { pickDailyMessage } from '@/lib/dailyMessage';
 
 const TONE = {
   urgent: {
-    bg:     'bg-gradient-to-br from-brand-warning/15 to-brand-warning/5',
-    border: 'border-brand-warning/20',
+    accent: 'text-brand-warning',
     cta:    'bg-brand-warning text-white',
-    label:  '지금 바로',
+    chip:   'bg-brand-warning/10 text-brand-warning',
   },
   insight: {
-    bg:     'bg-gradient-to-br from-brand-primary/12 to-brand-primary/5',
-    border: 'border-brand-primary/20',
+    accent: 'text-brand-primary',
     cta:    'bg-brand-primary text-white',
-    label:  '오늘 한 마디',
+    chip:   'bg-brand-primary/10 text-brand-primary',
   },
   gentle: {
-    bg:     'bg-gradient-to-br from-gray-50 to-white',
-    border: 'border-gray-100',
+    accent: 'text-gray-600',
     cta:    'bg-gray-900 text-white',
-    label:  '오늘 한 마디',
+    chip:   'bg-gray-100 text-gray-600',
   },
 } as const;
 
@@ -81,34 +78,31 @@ export default function HeroMessage({ items }: { items: CartItem[] }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-      className={`rounded-[32px] border ${tone.bg} ${tone.border} px-6 py-7`}
+      className="rounded-[24px] bg-white border border-gray-100 px-5 py-5"
+      style={{ boxShadow: '0 4px 20px -8px rgba(0,0,0,0.08)' }}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          {tone.label}
-        </span>
-        {msg.priority === 'urgent' && (
-          <span className="text-xs font-bold text-brand-warning bg-white/60 px-2 py-0.5 rounded-full">
-            ⚠️ 주의
-          </span>
-        )}
-      </div>
-
-      <div className="flex items-start gap-4 mb-5">
+      <div className="flex items-start gap-3 mb-4">
         <motion.span
           key={msg.emoji}
-          initial={{ scale: 0.6, rotate: -12 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 16 }}
-          className="text-5xl shrink-0 leading-none"
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 18 }}
+          className="text-3xl shrink-0 leading-none mt-0.5"
         >
           {msg.emoji}
         </motion.span>
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-400 mb-1">
-            {getGreeting()} · 네모아가 알려드려요
-          </p>
-          <p className="text-base font-bold text-gray-900 leading-snug tracking-tight">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className={`text-xs font-semibold ${tone.accent}`}>
+              {getGreeting()}
+            </span>
+            {msg.priority === 'urgent' && (
+              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${tone.chip}`}>
+                주의
+              </span>
+            )}
+          </div>
+          <p className="text-sm font-semibold text-gray-900 leading-relaxed">
             {msg.text}
           </p>
         </div>
@@ -118,18 +112,18 @@ export default function HeroMessage({ items }: { items: CartItem[] }) {
         msg.paletteQuery ? (
           <button
             onClick={handleCtaClick}
-            className={`w-full flex items-center justify-center gap-2 ${tone.cta} rounded-2xl py-3 text-sm font-bold hover:opacity-90 active:scale-[0.98] transition-all`}
+            className={`w-full flex items-center justify-center gap-1.5 ${tone.cta} rounded-xl py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
           >
             <span>{msg.cta.label}</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={14} />
           </button>
         ) : (
           <Link
             href={msg.cta.href}
-            className={`w-full flex items-center justify-center gap-2 ${tone.cta} rounded-2xl py-3 text-sm font-bold hover:opacity-90 active:scale-[0.98] transition-all`}
+            className={`w-full flex items-center justify-center gap-1.5 ${tone.cta} rounded-xl py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
           >
             <span>{msg.cta.label}</span>
-            <ArrowRight size={16} />
+            <ArrowRight size={14} />
           </Link>
         )
       )}
