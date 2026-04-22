@@ -24,14 +24,56 @@ export const viewport: Viewport = {
   themeColor: "#4F46E5",
 };
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "NEMOA - 일상을 반듯하게 모으다",
-  description: "스마트 냉장고와 옷장을 하나로, AI 라이프스타일 비서 네모아",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default:  "NEMOA - 일상을 반듯하게 모으다",
+    template: "%s · NEMOA",
+  },
+  description: "스마트 냉장고와 옷장을 하나로. AI 라이프스타일 비서 네모아가 식품 보관·코디·재구매·레시피·제철·날씨까지 챙겨드려요.",
+  keywords: ["NEMOA", "네모아", "스마트 냉장고", "스마트 옷장", "식품 관리", "옷장 관리", "레시피 추천", "제철 식재료", "AI 라이프스타일"],
+  authors: [{ name: "NEMOA Team" }],
+  creator: "NEMOA",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "NEMOA",
+  },
+  openGraph: {
+    type:        "website",
+    locale:      "ko_KR",
+    url:         SITE_URL,
+    siteName:    "NEMOA",
+    title:       "NEMOA - 일상을 반듯하게 모으다",
+    description: "스마트 냉장고와 옷장을 하나로. AI 라이프스타일 비서 네모아.",
+    images: [
+      {
+        url:    "/icon.svg",
+        width:  512,
+        height: 512,
+        alt:    "NEMOA 로고",
+      },
+    ],
+  },
+  twitter: {
+    card:        "summary",
+    title:       "NEMOA - 일상을 반듯하게 모으다",
+    description: "스마트 냉장고와 옷장을 하나로. AI 라이프스타일 비서 네모아.",
+    images:      ["/icon.svg"],
+  },
+  robots: {
+    index:  true,
+    follow: true,
+    googleBot: {
+      index:  true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
   },
 };
 

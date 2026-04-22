@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { createSharedStore } from './sharedStore';
 
 /**
@@ -99,10 +99,8 @@ export function installGlobalErrorHandlers(): void {
 
 /** layout에서 한 번 마운트되는 보이지 않는 설치자. */
 export function useInstallErrorHandlers() {
-  const [, setTick] = useState(0);
   useEffect(() => {
     installGlobalErrorHandlers();
-    setTick((t) => t + 1);
   }, []);
 }
 

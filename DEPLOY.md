@@ -2,18 +2,16 @@
 
 ## 환경변수
 
-`.env.local`에 다음 키를 설정합니다. **절대 Git에 커밋하지 마세요** (`.gitignore`에 이미 제외됨).
+`.env.example`을 `.env.local`로 복사한 뒤 실제 값을 채워 넣으세요.
+**`.env.local`은 절대 Git에 커밋하지 마세요** (`.gitignore`에 이미 제외).
 
 ```bash
-# Anthropic Claude API — 필수 (AI 기능 없이는 앱 핵심 흐름 동작 안 함)
-ANTHROPIC_API_KEY=sk-ant-...
-
-# AI 호출 일일 한도 (베이직 무료 사용자당) — 옵션, 기본값 앱 내 하드코딩
-# NEMOA_DAILY_AI_LIMIT=30
-
-# 에러 리포팅 (옵션) — Sentry 등 도입 시
-# SENTRY_DSN=https://...
+cp .env.example .env.local
+# 편집기로 열어서 ANTHROPIC_API_KEY 입력
 ```
+
+필수: `ANTHROPIC_API_KEY` 하나만.
+선택: `NEXT_PUBLIC_SITE_URL` (SEO · sitemap용) · Supabase/Toss (Pro 도입 후).
 
 Open-Meteo 날씨 API는 키 불필요.
 
@@ -65,13 +63,30 @@ npx cap sync
 
 ## 사전 체크리스트
 
+**코드**
 - [ ] `.env.local` 커밋 안 됨 (`git status` 확인)
 - [ ] `ANTHROPIC_API_KEY` 프로덕션에 설정됨
-- [ ] `/legal` 페이지 정상 접근
-- [ ] 신규 사용자 첫 방문 시 ConsentGate 모달 표시
+- [ ] `NEXT_PUBLIC_SITE_URL` 프로덕션 URL로 설정 (SEO · sitemap용)
 - [ ] 빌드 성공 (`npm run build` 에러 없음)
+- [ ] 테스트 통과 (`npm test` — 36 passes)
+
+**기능 검증**
+- [ ] 신규 사용자 첫 방문 시 ConsentGate 모달 표시
+- [ ] `/legal` 약관·개인정보 페이지 정상 접근
+- [ ] AI 한도 카드 (설정)에서 4개 에이전트 모두 10/20/5/5 표시
+- [ ] 오류 기록 카드 — 일부러 에러 만들어 기록 확인
+- [ ] 네트워크 끊고 새로고침 → `/offline.html` 표시 (프로덕션 빌드에서만)
+- [ ] PWA 홈 화면 추가 — manifest 인식
+
+**배포 인프라**
 - [ ] manifest.json의 start_url·scope이 배포 URL과 일치
-- [ ] lighthouse 점수 점검 (PWA 설치 가능, a11y 90+)
+- [ ] `/sw.js` 응답 헤더 `Cache-Control: no-store` 확인
+- [ ] lighthouse 점검 (PWA 설치 가능, a11y 90+, SEO 90+)
+- [ ] robots.txt · sitemap.xml 접근 가능
+
+**법적**
+- [ ] 약관·개인정보 최종 검토 (이메일 주소, 문의처 채움)
+- [ ] Anthropic API 정책 준수 (사용자 입력 → AI 경유 고지)
 
 ## 사용자 데이터 마이그레이션
 
