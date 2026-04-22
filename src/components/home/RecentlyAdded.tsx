@@ -17,7 +17,7 @@ export default function RecentlyAdded({ items }: { items: CartItem[] }) {
             <span className="text-base">🆕</span>
             <span className="text-xs text-gray-400 font-medium">최근 등록</span>
           </div>
-          <span className="text-[11px] text-gray-300 tabular-nums">{recent.length}개</span>
+          <span className="text-sm text-gray-300 tabular-nums">{recent.length}개</span>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
           {recent.map((item) => {
@@ -41,9 +41,9 @@ export default function RecentlyAdded({ items }: { items: CartItem[] }) {
                     <span className="text-2xl">{emoji}</span>
                   )}
                 </div>
-                <span className="text-[11px] text-gray-600 font-medium truncate w-full text-center">{item.name}</span>
+                <span className="text-sm text-gray-600 font-medium truncate w-full text-center">{item.name}</span>
                 {dDay !== null && (
-                  <span className={`text-[10px] tabular-nums ${
+                  <span className={`text-xs tabular-nums ${
                     dDay <= 2 ? 'text-brand-warning font-semibold' : 'text-gray-400'
                   }`}>
                     {dDay <= 0 ? '만료' : `D-${dDay}`}

@@ -62,17 +62,17 @@ export default function FrequentIngredientsSection({ discardHistory, currentItem
           const inList = has(r.name);
           return (
             <div key={r.name} className="flex items-center gap-2 py-1">
-              <span className="text-[11px] text-gray-300 tabular-nums w-4 text-right shrink-0">{i + 1}</span>
+              <span className="text-sm text-gray-300 tabular-nums w-4 text-right shrink-0">{i + 1}</span>
               <span className="text-sm shrink-0">{getFoodEmoji(r.name)}</span>
               <span className="flex-1 text-sm text-gray-800 truncate">{r.name}</span>
-              <span className="text-[11px] text-gray-400 font-semibold tabular-nums shrink-0">{r.count}회</span>
+              <span className="text-sm text-gray-400 font-semibold tabular-nums shrink-0">{r.count}회</span>
               {owned ? (
-                <span className="text-[10px] text-brand-success font-medium shrink-0">✓ 보유</span>
+                <span className="text-xs text-brand-success font-medium shrink-0">✓ 보유</span>
               ) : (
                 <button
                   onClick={() => handleAdd(r.name)}
                   disabled={inList}
-                  className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full transition-colors ${
+                  className={`shrink-0 text-sm font-semibold px-2 py-0.5 rounded-full transition-colors ${
                     inList
                       ? 'bg-gray-100 text-gray-400 cursor-default'
                       : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15'

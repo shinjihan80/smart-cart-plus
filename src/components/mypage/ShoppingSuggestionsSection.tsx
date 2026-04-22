@@ -141,12 +141,12 @@ export default function ShoppingSuggestionsSection({
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-base">🪄</span>
           <span className="text-xs text-gray-400 font-medium">장볼 거 추천</span>
-          <span className="text-[10px] text-gray-300">· 임박·소진·제철</span>
+          <span className="text-xs text-gray-300">· 임박·소진·제철</span>
         </div>
         {suggestions.length >= 2 && (
           <button
             onClick={handleAddAll}
-            className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors shrink-0"
+            className="text-sm font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors shrink-0"
           >
             모두 담기
           </button>
@@ -161,16 +161,16 @@ export default function ShoppingSuggestionsSection({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <p className="text-sm text-gray-800 truncate">{s.name}</p>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">
+                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">
                     {s.badge}
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-400 truncate">{s.reason}</p>
+                <p className="text-sm text-gray-400 truncate">{s.reason}</p>
               </div>
               <button
                 onClick={() => handleAdd(s)}
                 disabled={already}
-                className={`shrink-0 text-[11px] font-semibold px-2 py-1 rounded-full transition-colors ${
+                className={`shrink-0 text-sm font-semibold px-2 py-1 rounded-full transition-colors ${
                   already
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15'

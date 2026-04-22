@@ -67,9 +67,9 @@ export default function QuickLinks({
           className="relative flex flex-col items-center gap-1 py-2 rounded-2xl bg-white border border-gray-100 hover:border-brand-primary/20 hover:bg-brand-primary/5 active:scale-95 transition-all"
         >
           <span className="text-xl">{c.emoji}</span>
-          <span className="text-[11px] font-medium text-gray-600">{c.label}</span>
+          <span className="text-sm font-medium text-gray-600">{c.label}</span>
           {c.badge && (
-            <span className="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center tabular-nums">
+            <span className="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-brand-primary text-white text-xs font-bold flex items-center justify-center tabular-nums">
               {c.badge}
             </span>
           )}

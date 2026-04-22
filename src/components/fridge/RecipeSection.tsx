@@ -73,23 +73,23 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {favoriteCount > 0 && (
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
                 ♥ {favoriteCount}
               </span>
             )}
             {loveCount > 0 && (
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">
                 🏆 단골 {loveCount}
               </span>
             )}
             {urgentCount > 0 && (
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
                 ⚠️ 소비 임박 {urgentCount}
               </span>
             )}
             <button
               onClick={() => setBrowserOpen(true)}
-              className="text-[11px] text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors whitespace-nowrap"
+              className="text-sm text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors whitespace-nowrap"
             >
               전체 보기 →
             </button>
@@ -113,17 +113,17 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 <div className="flex items-start justify-between">
                   <span className="text-2xl">{recipe.emoji}</span>
                   <div className="flex items-center gap-0.5">
-                    {fav && <span className="text-[11px] text-brand-warning">♥</span>}
-                    {loveBoosted && <span className="text-[10px]" title={`${cookCount}번 만든 단골`}>🏆</span>}
-                    {seasonBoosted && <span className="text-[10px]" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>}
-                    {urgentBoosted && <span className="text-[10px]">⚠️</span>}
+                    {fav && <span className="text-sm text-brand-warning">♥</span>}
+                    {loveBoosted && <span className="text-xs" title={`${cookCount}번 만든 단골`}>🏆</span>}
+                    {seasonBoosted && <span className="text-xs" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>}
+                    {urgentBoosted && <span className="text-xs">⚠️</span>}
                   </div>
                 </div>
                 <p className="text-xs font-semibold text-gray-800 mt-1.5 truncate">{recipe.name}</p>
-                <p className="text-[10px] text-gray-400 mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   ⏱ {recipe.time} · {recipe.difficulty}
                 </p>
-                <p className="text-[10px] text-brand-primary truncate mt-0.5" title={matchedItems.join(', ')}>
+                <p className="text-xs text-brand-primary truncate mt-0.5" title={matchedItems.join(', ')}>
                   ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
                 </p>
               </button>

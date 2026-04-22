@@ -58,17 +58,17 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs text-gray-400 font-medium">즐겨찾기 레시피</h3>
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
+          <span className="text-sm text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
           <button
             onClick={() => setSortBy(SORT_NEXT[sortBy])}
-            className="text-[11px] text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-sm text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
             title="정렬 전환"
           >
             {SORT_LABEL[sortBy]}
           </button>
           <button
             onClick={onOpenBrowser}
-            className="text-[11px] text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors"
+            className="text-sm text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors"
           >
             전체 보기 →
           </button>
@@ -91,7 +91,7 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
                     const d = recipeDietary(recipe);
                     return d ? (
                       <span
-                        className="text-[10px] shrink-0"
+                        className="text-xs shrink-0"
                         title={`${DIETARY_BADGE[d].label} 가능`}
                       >
                         {DIETARY_BADGE[d].emoji}
@@ -99,7 +99,7 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
                     ) : null;
                   })()}
                 </div>
-                <p className="text-[11px] text-gray-400 mt-0.5">
+                <p className="text-sm text-gray-400 mt-0.5">
                   ⏱ {recipe.time} · {recipe.difficulty}
                   {cook.count > 0 && (
                     <>

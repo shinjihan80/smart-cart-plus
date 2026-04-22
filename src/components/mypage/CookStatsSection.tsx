@@ -70,7 +70,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
         ] as const;
         return (
           <div className="mb-3">
-            <p className="text-[11px] text-brand-primary font-semibold mb-1.5">🎚️ 난이도 분포</p>
+            <p className="text-sm text-brand-primary font-semibold mb-1.5">🎚️ 난이도 분포</p>
             <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100">
               {bars.map((b) => {
                 const pct = Math.round((diffCounts[b.key] / total) * 100);
@@ -85,7 +85,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
                 );
               })}
             </div>
-            <div className="flex justify-between mt-1 text-[10px] text-gray-400 tabular-nums">
+            <div className="flex justify-between mt-1 text-xs text-gray-400 tabular-nums">
               <span>간단 {diffCounts.간단}</span>
               <span>보통 {diffCounts.보통}</span>
               <span>도전 {diffCounts.도전}</span>
@@ -96,7 +96,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       {topMade.length > 0 && (
         <div className="mb-3">
-          <p className="text-[11px] text-brand-primary font-semibold mb-1.5">🔥 자주 만든 레시피 TOP 3</p>
+          <p className="text-sm text-brand-primary font-semibold mb-1.5">🔥 자주 만든 레시피 TOP 3</p>
           <div className="flex flex-col gap-1">
             {topMade.map((x) => (
               <button
@@ -106,7 +106,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
               >
                 <span className="text-sm shrink-0">{x.recipe.emoji}</span>
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.recipe.name}</span>
-                <span className="text-[11px] text-brand-primary font-bold tabular-nums">{x.count}회</span>
+                <span className="text-sm text-brand-primary font-bold tabular-nums">{x.count}회</span>
               </button>
             ))}
           </div>
@@ -115,7 +115,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       {longIdle.length > 0 && (
         <div className="mb-3">
-          <p className="text-[11px] text-amber-600 font-semibold mb-1.5">💭 오래된 레시피 다시 만들기</p>
+          <p className="text-sm text-amber-600 font-semibold mb-1.5">💭 오래된 레시피 다시 만들기</p>
           <div className="flex flex-col gap-1">
             {longIdle.map((x) => (
               <button
@@ -125,7 +125,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
               >
                 <span className="text-sm shrink-0">{x.recipe.emoji}</span>
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.recipe.name}</span>
-                <span className="text-[11px] text-amber-600 font-medium tabular-nums">{daysSince(x.lastCooked!)}일</span>
+                <span className="text-sm text-amber-600 font-medium tabular-nums">{daysSince(x.lastCooked!)}일</span>
               </button>
             ))}
           </div>
@@ -134,7 +134,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       {untriedFavs.length > 0 && (
         <div>
-          <p className="text-[11px] text-brand-warning font-semibold mb-1.5">⭐ 즐겨찾기인데 미도전</p>
+          <p className="text-sm text-brand-warning font-semibold mb-1.5">⭐ 즐겨찾기인데 미도전</p>
           <div className="flex flex-col gap-1">
             {untriedFavs.map((x) => (
               <button
@@ -144,14 +144,14 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
               >
                 <span className="text-sm shrink-0">{x.recipe.emoji}</span>
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.recipe.name}</span>
-                <span className="text-[11px] text-brand-warning">도전 →</span>
+                <span className="text-sm text-brand-warning">도전 →</span>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
+      <p className="text-xs text-gray-400 mt-3 leading-relaxed">
         레시피 상세에서 &ldquo;만들었어요&rdquo;를 누르면 기록이 쌓여요.
       </p>
     </motion.div>

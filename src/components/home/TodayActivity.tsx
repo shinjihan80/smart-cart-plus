@@ -15,7 +15,7 @@ export default function TodayActivity() {
 
   if (total === 0) {
     return (
-      <p className="text-[11px] text-gray-400">
+      <p className="text-sm text-gray-400">
         오늘의 기록 · <span className="text-gray-500">첫 번째 기록은 어때요?</span>
       </p>
     );
@@ -31,7 +31,7 @@ export default function TodayActivity() {
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="text-[11px] text-gray-500 flex items-center gap-1.5"
+      className="text-sm text-gray-500 flex items-center gap-1.5"
     >
       <span className="text-gray-400">오늘의 기록 ·</span>
       {parts.map((p, i) => (

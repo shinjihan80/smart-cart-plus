@@ -27,7 +27,7 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
           <p className="text-xs font-bold text-brand-warning">
             {urgent.length}개 식품 긴급 소비 필요
           </p>
-          <p className="text-[11px] text-gray-500 truncate mt-0.5">
+          <p className="text-sm text-gray-500 truncate mt-0.5">
             {urgent.map((u) => u.name).join(', ')}
           </p>
         </div>

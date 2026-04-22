@@ -37,7 +37,7 @@ export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
       transition={{ ...springTransition, delay: 0.05 }}
       className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 py-0.5"
     >
-      <span className="text-[11px] text-gray-400 font-medium shrink-0">
+      <span className="text-sm text-gray-400 font-medium shrink-0">
         {SEASON_EMOJI[season]} 지금 제철
       </span>
       {picks.map((p) => {
@@ -51,7 +51,7 @@ export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
             >
               <span className="text-xs">{p.emoji}</span>
               <span className="font-medium">{p.name}</span>
-              {p.peak === season && <span className="text-[10px] text-brand-primary/60">· 피크</span>}
+              {p.peak === season && <span className="text-xs text-brand-primary/60">· 피크</span>}
             </button>
             {recipeCount > 0 && (
               <button
@@ -61,7 +61,7 @@ export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
                   window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }));
                 }}
                 title={`${p.name} 레시피 ${recipeCount}개`}
-                className="text-[10px] px-1.5 py-1 border-l border-brand-primary/15 text-brand-primary/70 hover:bg-brand-primary/5 transition-colors"
+                className="text-xs px-1.5 py-1 border-l border-brand-primary/15 text-brand-primary/70 hover:bg-brand-primary/5 transition-colors"
               >
                 📖 {recipeCount}
               </button>

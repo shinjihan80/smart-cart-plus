@@ -34,7 +34,7 @@ export default function SpendingSection() {
           const isLast = i === SPENDING_DATA.length - 1;
           return (
             <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5">
-              <span className={`text-[10px] font-bold tabular-nums ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
+              <span className={`text-xs font-bold tabular-nums ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
                 {(d.amount / 10000).toFixed(1)}만
               </span>
               <motion.div
@@ -43,7 +43,7 @@ export default function SpendingSection() {
                 transition={{ ...springTransition, delay: 0.3 + i * 0.08 }}
                 className={`w-full rounded-xl ${isLast ? 'bg-brand-primary' : 'bg-gray-200'}`}
               />
-              <span className={`text-[11px] font-medium ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
+              <span className={`text-sm font-medium ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
                 {d.month}
               </span>
             </div>

@@ -58,29 +58,29 @@ export default function ClosetSummary({ items }: { items: CartItem[] }) {
             <p className="text-3xl font-extrabold tracking-tight text-gray-900 tabular-nums">
               {clothes.length}<span className="text-base font-bold text-gray-400 ml-0.5">벌</span>
               {hibernatingCount > 0 && (
-                <span className="text-[11px] text-gray-400 font-medium ml-1.5 tabular-nums">
+                <span className="text-sm text-gray-400 font-medium ml-1.5 tabular-nums">
                   · 보관 {hibernatingCount}
                 </span>
               )}
             </p>
             <div className="flex gap-1.5 mt-2 flex-wrap">
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-500 font-medium">
+              <span className="text-sm px-2 py-0.5 rounded-full bg-sky-50 text-sky-500 font-medium">
                 얇은 옷 {thinCount}
               </span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-500 font-medium">
+              <span className="text-sm px-2 py-0.5 rounded-full bg-purple-50 text-purple-500 font-medium">
                 두꺼운 옷 {thickCount}
               </span>
               {ownerBreakdown.slice(0, 2).map((o) => (
                 <span
                   key={o.name}
-                  className="text-[11px] px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium tabular-nums"
+                  className="text-sm px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium tabular-nums"
                 >
                   {o.name} {o.count}
                 </span>
               ))}
               {rotationBadge !== null && (
                 <span
-                  className={`text-[11px] px-2 py-0.5 rounded-full font-medium tabular-nums ${
+                  className={`text-sm px-2 py-0.5 rounded-full font-medium tabular-nums ${
                     rotationBadge >= 70
                       ? 'bg-brand-success/10 text-brand-success'
                       : rotationBadge >= 40

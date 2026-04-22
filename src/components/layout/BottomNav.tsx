@@ -60,7 +60,7 @@ export default function BottomNav() {
                   <span className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-md shadow-brand-primary/30 -mt-3">
                     <Icon size={20} strokeWidth={2.6} aria-hidden="true" />
                   </span>
-                  <span className="text-[11px] font-semibold">{entry.label}</span>
+                  <span className="text-sm font-semibold">{entry.label}</span>
                 </button>
               );
             }
@@ -82,7 +82,7 @@ export default function BottomNav() {
                   {badge > 0 && (
                     <span
                       aria-hidden="true"
-                      className={`absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center ${
+                      className={`absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-xs font-bold flex items-center justify-center ${
                         href === '/fridge' ? 'bg-brand-warning' : 'bg-brand-primary'
                       }`}
                     >
@@ -90,7 +90,7 @@ export default function BottomNav() {
                     </span>
                   )}
                 </span>
-                <span className="text-[11px] font-medium">{label}</span>
+                <span className="text-sm font-medium">{label}</span>
               </Link>
             );
           })}

@@ -35,7 +35,7 @@ export default function QuickStats({ items }: { items: CartItem[] }) {
             className="flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 hover:bg-gray-100 transition-colors"
           >
             <span className={`text-xl font-extrabold tabular-nums ${s.color}`}>{s.value}</span>
-            <span className="text-[10px] text-gray-400 font-medium">{s.label}</span>
+            <span className="text-xs text-gray-400 font-medium">{s.label}</span>
           </Link>
         ))}
       </motion.div>

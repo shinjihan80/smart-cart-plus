@@ -46,10 +46,10 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
           <p className="text-sm font-semibold text-gray-900 truncate">
             {profile.name}
             {profile.isMain && (
-              <span className="ml-1.5 text-[10px] text-brand-primary font-semibold align-middle">나</span>
+              <span className="ml-1.5 text-xs text-brand-primary font-semibold align-middle">나</span>
             )}
           </p>
-          <p className="text-[11px] text-gray-400 mt-0.5">
+          <p className="text-sm text-gray-400 mt-0.5">
             {profile.relation}
             {profile.body.heightCm && <span> · {profile.body.heightCm}cm</span>}
             {profile.body.weightKg && <span> · {profile.body.weightKg}kg</span>}
@@ -73,7 +73,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
             <div className="border-t border-gray-100 p-3 bg-gray-50/50 flex flex-col gap-2.5">
               {/* 이름 수정 */}
               <div>
-                <label className="text-[11px] text-gray-500">이름</label>
+                <label className="text-sm text-gray-500">이름</label>
                 <input
                   type="text"
                   defaultValue={profile.name}
@@ -88,13 +88,13 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
               {/* 관계 */}
               {!profile.isMain && (
                 <div>
-                  <label className="text-[11px] text-gray-500">관계</label>
+                  <label className="text-sm text-gray-500">관계</label>
                   <div className="flex gap-1 mt-0.5 flex-wrap">
                     {RELATIONS.filter((r) => r !== '본인').map((r) => (
                       <button
                         key={r}
                         onClick={() => onUpdate({ relation: r })}
-                        className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+                        className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                           profile.relation === r
                             ? 'bg-brand-primary text-white'
                             : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-100'
@@ -110,7 +110,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
               {/* 신체 정보 */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[11px] text-gray-500">키 (cm)</label>
+                  <label className="text-sm text-gray-500">키 (cm)</label>
                   <input
                     type="number"
                     defaultValue={profile.body.heightCm ?? ''}
@@ -124,7 +124,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] text-gray-500">몸무게 (kg)</label>
+                  <label className="text-sm text-gray-500">몸무게 (kg)</label>
                   <input
                     type="number"
                     defaultValue={profile.body.weightKg ?? ''}
@@ -141,34 +141,34 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
 
               {/* 권장 사이즈 */}
               <div className="rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3 py-2">
-                <p className="text-[11px] text-gray-500 mb-1">네모아 권장 사이즈</p>
+                <p className="text-sm text-gray-500 mb-1">네모아 권장 사이즈</p>
                 {(rec.top || rec.bottom || rec.shoe) ? (
                   <div className="flex gap-1.5 flex-wrap">
                     {rec.top && (
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-brand-primary/20 text-brand-primary font-medium">
+                      <span className="text-sm px-2 py-0.5 rounded-full bg-white border border-brand-primary/20 text-brand-primary font-medium">
                         상의 {rec.top}
                       </span>
                     )}
                     {rec.bottom && (
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-brand-primary/20 text-brand-primary font-medium">
+                      <span className="text-sm px-2 py-0.5 rounded-full bg-white border border-brand-primary/20 text-brand-primary font-medium">
                         하의 {rec.bottom}
                       </span>
                     )}
                     {rec.shoe && (
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-brand-primary/20 text-brand-primary font-medium">
+                      <span className="text-sm px-2 py-0.5 rounded-full bg-white border border-brand-primary/20 text-brand-primary font-medium">
                         신발 {rec.shoe}
                       </span>
                     )}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-gray-400">키·몸무게를 입력하면 권장 사이즈를 추천해드려요.</p>
+                  <p className="text-sm text-gray-400">키·몸무게를 입력하면 권장 사이즈를 추천해드려요.</p>
                 )}
               </div>
 
               {/* 사이즈 덮어쓰기 */}
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[11px] text-gray-500">상의</label>
+                  <label className="text-sm text-gray-500">상의</label>
                   <input
                     type="text"
                     defaultValue={profile.body.topSize ?? ''}
@@ -181,7 +181,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] text-gray-500">하의</label>
+                  <label className="text-sm text-gray-500">하의</label>
                   <input
                     type="text"
                     defaultValue={profile.body.bottomSize ?? ''}
@@ -194,7 +194,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] text-gray-500">신발</label>
+                  <label className="text-sm text-gray-500">신발</label>
                   <input
                     type="number"
                     defaultValue={profile.body.shoeSize ?? ''}
@@ -211,7 +211,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
 
               {/* 아바타 */}
               <div>
-                <label className="text-[11px] text-gray-500">아바타</label>
+                <label className="text-sm text-gray-500">아바타</label>
                 <div className="flex gap-1 mt-1 flex-wrap">
                   <button
                     onClick={() => onUpdate({ avatar: undefined })}
@@ -242,7 +242,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
 
               {/* 식습관 */}
               <div>
-                <label className="text-[11px] text-gray-500">식습관</label>
+                <label className="text-sm text-gray-500">식습관</label>
                 <div className="flex gap-1 mt-1 flex-wrap">
                   {DIETARY_OPTIONS.map((opt) => {
                     const current = profile.dietary ?? 'none';
@@ -251,7 +251,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                       <button
                         key={opt.key}
                         onClick={() => onUpdate({ dietary: opt.key })}
-                        className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+                        className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                           active
                             ? 'bg-brand-primary text-white'
                             : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -268,7 +268,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
               {!profile.isMain && (
                 <button
                   onClick={onRemove}
-                  className="flex items-center justify-center gap-1.5 w-full mt-1 py-1.5 rounded-xl bg-white border border-brand-warning/20 text-[11px] text-brand-warning font-medium hover:bg-brand-warning/5 transition-colors"
+                  className="flex items-center justify-center gap-1.5 w-full mt-1 py-1.5 rounded-xl bg-white border border-brand-warning/20 text-sm text-brand-warning font-medium hover:bg-brand-warning/5 transition-colors"
                 >
                   <Trash2 size={10} /> 이 프로필 삭제
                 </button>
@@ -310,9 +310,9 @@ export default function ProfilesSection() {
       <div className="flex items-center justify-between mb-3">
         <div>
           <h3 className="text-xs text-gray-400 font-medium">프로필 관리</h3>
-          <p className="text-[10px] text-gray-300 mt-0.5">본인 · 가족 · 공용 구매 물품 분리</p>
+          <p className="text-xs text-gray-300 mt-0.5">본인 · 가족 · 공용 구매 물품 분리</p>
         </div>
-        <span className="text-[11px] text-gray-400 tabular-nums">{profiles.length}명</span>
+        <span className="text-sm text-gray-400 tabular-nums">{profiles.length}명</span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -337,13 +337,13 @@ export default function ProfilesSection() {
           <Plus size={12} className="text-brand-primary" />
           <p className="text-xs font-semibold text-brand-primary">가족 · 다른 구성원 추가</p>
         </div>
-        <p className="text-[11px] text-gray-500 mb-2">관계를 고르고 이름을 입력하세요.</p>
+        <p className="text-sm text-gray-500 mb-2">관계를 고르고 이름을 입력하세요.</p>
         <div className="flex gap-1.5 mb-2 flex-wrap">
           {RELATIONS.filter((r) => r !== '본인').map((r) => (
             <button
               key={r}
               onClick={() => setNewRelation(r)}
-              className={`text-[11px] px-2.5 py-1 rounded-full transition-colors ${
+              className={`text-sm px-2.5 py-1 rounded-full transition-colors ${
                 newRelation === r
                   ? 'bg-brand-primary text-white'
                   : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-100'

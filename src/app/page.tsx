@@ -139,10 +139,10 @@ export default function HomePage() {
           <div className="flex items-center gap-2 shrink-0">
             <PaletteButton />
             <div className="flex flex-col items-end gap-0.5">
-              <span className="text-[11px] text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
+              <span className="text-sm text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full tabular-nums">
                 {items.length}개 관리 중
               </span>
-              <span className="text-[10px] text-gray-300 tabular-nums">
+              <span className="text-xs text-gray-300 tabular-nums">
                 {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
               </span>
             </div>
@@ -170,13 +170,13 @@ export default function HomePage() {
             aria-label="전체 검색 (Ctrl+K · /)"
             className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
-          <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[10px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">
+          <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-xs text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">
             ⌘K
           </kbd>
         </div>
         {!searchQ && recentSearches.length > 0 && (
           <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] text-gray-400 font-medium shrink-0">최근</span>
+            <span className="text-sm text-gray-400 font-medium shrink-0">최근</span>
             {recentSearches.map((q) => (
               <button
                 key={q}
@@ -188,7 +188,7 @@ export default function HomePage() {
             ))}
             <button
               onClick={() => setRecentSearches([])}
-              className="text-[11px] text-gray-300 hover:text-gray-500 transition-colors ml-1"
+              className="text-sm text-gray-300 hover:text-gray-500 transition-colors ml-1"
               aria-label="최근 검색어 지우기"
             >
               지우기
@@ -217,7 +217,7 @@ export default function HomePage() {
                     )}
                   </div>
                   <span className="text-sm text-gray-800 flex-1 truncate">{item.name}</span>
-                  <span className="text-[11px] text-gray-400">{isFoodItem(item) ? '냉장고' : '옷장'}</span>
+                  <span className="text-sm text-gray-400">{isFoodItem(item) ? '냉장고' : '옷장'}</span>
                   <ChevronRight size={12} className="text-gray-300" />
                 </Link>
               );
@@ -231,7 +231,7 @@ export default function HomePage() {
                 <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-sm">💾</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-800 truncate">{o.name}</p>
-                  <p className="text-[11px] text-gray-400">저장된 코디 · {Object.keys(o.slots).length}벌</p>
+                  <p className="text-sm text-gray-400">저장된 코디 · {Object.keys(o.slots).length}벌</p>
                 </div>
                 <ChevronRight size={12} className="text-gray-300" />
               </Link>
@@ -244,7 +244,7 @@ export default function HomePage() {
                 <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-sm">{seasonalHit.emoji}</div>
                 <span className="text-sm text-brand-success font-semibold flex-1 truncate">
                   🌸 제철 {seasonalHit.name} 냉장고에 담기
-                  {seasonalHit.peak === season && <span className="text-[11px] ml-1 opacity-80">· 피크</span>}
+                  {seasonalHit.peak === season && <span className="text-sm ml-1 opacity-80">· 피크</span>}
                 </span>
                 <ChevronRight size={12} className="text-brand-success/60" />
               </button>
@@ -258,7 +258,7 @@ export default function HomePage() {
                 <span className="text-sm text-brand-primary font-semibold flex-1 truncate">
                   &ldquo;{searchQ}&rdquo; 레시피 {recipeHits}개 보기
                 </span>
-                {isSeasonSearch && <span className="text-[11px] text-brand-primary shrink-0">🌸 제철</span>}
+                {isSeasonSearch && <span className="text-sm text-brand-primary shrink-0">🌸 제철</span>}
                 <ChevronRight size={12} className="text-brand-primary/60" />
               </button>
             )}

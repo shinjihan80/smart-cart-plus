@@ -35,7 +35,7 @@ export default function RecentCooks() {
       <div className="flex items-center gap-2 mb-3">
         <span className="text-base">🍳</span>
         <span className="text-xs text-gray-400 font-medium">최근 조리</span>
-        <span className="text-[11px] text-gray-300 tabular-nums">{recent.length}</span>
+        <span className="text-sm text-gray-300 tabular-nums">{recent.length}</span>
       </div>
       <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
         {recent.map(({ id, date }, i) => {
@@ -49,7 +49,7 @@ export default function RecentCooks() {
             >
               <span className="text-2xl">{r.emoji}</span>
               <span className="text-xs font-semibold text-gray-800 truncate w-full text-center">{r.name}</span>
-              <span className="text-[10px] text-gray-400 tabular-nums">{date.slice(5)}</span>
+              <span className="text-xs text-gray-400 tabular-nums">{date.slice(5)}</span>
             </button>
           );
         })}

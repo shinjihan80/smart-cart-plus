@@ -55,7 +55,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
           <button
             onClick={handleShuffle}
             disabled={spinning || matched.length < 2}
-            className="text-[11px] text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors disabled:opacity-40"
+            className="text-sm text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors disabled:opacity-40"
           >
             🔀 다시 고르기
           </button>
@@ -84,14 +84,14 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
             >
               {pick.recipe.name}
             </motion.p>
-            <p className="text-[11px] text-gray-500 mt-0.5">
+            <p className="text-sm text-gray-500 mt-0.5">
               ⏱ {pick.recipe.time} · {pick.recipe.difficulty}
               {pick.urgentBoosted && <span className="text-brand-warning ml-1">· ⚠️ 임박 재료</span>}
               {pick.seasonBoosted && <span className="text-gray-500 ml-1">· {SEASON_EMOJI[season]} {season}철</span>}
               {pick.loveBoosted && <span className="text-rose-500 ml-1">· 🏆 {pick.cookCount}번 만든 단골</span>}
             </p>
             {pick.recipe.blurb && (
-              <p className="text-[11px] text-gray-400 mt-1 leading-relaxed line-clamp-1">
+              <p className="text-sm text-gray-400 mt-1 leading-relaxed line-clamp-1">
                 {pick.recipe.blurb}
               </p>
             )}

@@ -87,7 +87,7 @@ export default function OutfitSection({ items }: { items: ClothingItem[] }) {
           <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 코디</span>
         </div>
         {useLive && (
-          <span className="inline-flex items-center gap-1 text-[11px] text-gray-500">
+          <span className="inline-flex items-center gap-1 text-sm text-gray-500">
             <span>{weatherEmoji(weather.condition, weather.isDay)}</span>
             <span className="tabular-nums">{weather.tempC}°</span>
             <span className="text-gray-300">·</span>
@@ -101,13 +101,13 @@ export default function OutfitSection({ items }: { items: ClothingItem[] }) {
             <p className="text-xs font-semibold text-gray-800">{outfit.name}</p>
             <div className="flex flex-col gap-0.5 mt-1.5">
               {outfit.items.map(({ name, idleDays }) => (
-                <span key={name} className="text-[11px] text-brand-primary truncate">
+                <span key={name} className="text-sm text-brand-primary truncate">
                   • {name}
-                  {idleDays >= 30 && idleDays < 9999 && <span className="ml-1 text-[10px]">🌙</span>}
+                  {idleDays >= 30 && idleDays < 9999 && <span className="ml-1 text-xs">🌙</span>}
                 </span>
               ))}
             </div>
-            <p className="text-[10px] text-gray-400 mt-1.5">{outfit.tip}</p>
+            <p className="text-xs text-gray-400 mt-1.5">{outfit.tip}</p>
           </div>
         ))}
       </div>

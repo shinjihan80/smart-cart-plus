@@ -52,7 +52,7 @@ export default function DailyMessage({ items }: { items: CartItem[] }) {
         {msg.emoji}
       </motion.span>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold text-gray-400 mb-0.5">
+        <p className="text-sm font-semibold text-gray-400 mb-0.5">
           네모아의 오늘 한 마디
           {msg.priority === 'urgent' && <span className={`ml-1 ${tone.text}`}>· 주의</span>}
         </p>
@@ -64,14 +64,14 @@ export default function DailyMessage({ items }: { items: CartItem[] }) {
             onClick={() =>
               window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: msg.paletteQuery } }))
             }
-            className={`shrink-0 text-[11px] font-bold px-2.5 py-1.5 rounded-full bg-white border border-gray-100 hover:bg-gray-50 transition-colors ${tone.text}`}
+            className={`shrink-0 text-sm font-bold px-2.5 py-1.5 rounded-full bg-white border border-gray-100 hover:bg-gray-50 transition-colors ${tone.text}`}
           >
             {msg.cta.label} →
           </button>
         ) : (
           <Link
             href={msg.cta.href}
-            className={`shrink-0 text-[11px] font-bold px-2.5 py-1.5 rounded-full bg-white border border-gray-100 hover:bg-gray-50 transition-colors ${tone.text}`}
+            className={`shrink-0 text-sm font-bold px-2.5 py-1.5 rounded-full bg-white border border-gray-100 hover:bg-gray-50 transition-colors ${tone.text}`}
           >
             {msg.cta.label} →
           </Link>

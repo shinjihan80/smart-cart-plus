@@ -96,7 +96,7 @@ export default function WaitlistBanner() {
           {loading ? '...' : '사전 등록'}
         </button>
       </form>
-      <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+      <p className="text-xs text-gray-400 mt-2 leading-relaxed">
         이메일 외 개인정보는 수집하지 않아요. 언제든 수신 거부 가능.
       </p>
     </motion.div>

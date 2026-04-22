@@ -35,7 +35,7 @@ export default function LegalPage() {
           </button>
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">약관 및 개인정보</h1>
-            <p className="text-[11px] text-gray-400 mt-0.5">최종 업데이트 {updatedAt}</p>
+            <p className="text-sm text-gray-400 mt-0.5">최종 업데이트 {updatedAt}</p>
           </div>
         </div>
       </header>

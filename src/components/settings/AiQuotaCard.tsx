@@ -27,7 +27,7 @@ export default function AiQuotaCard() {
           <span className="text-base">🤖</span>
           <span className="text-xs text-gray-400 font-medium">AI 오늘 남은 횟수</span>
         </div>
-        <span className="text-[10px] text-gray-400">무료 · 매일 00시 리셋</span>
+        <span className="text-xs text-gray-400">무료 · 매일 00시 리셋</span>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {AGENTS.map((a) => {
@@ -57,7 +57,7 @@ export default function AiQuotaCard() {
           );
         })}
       </div>
-      <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
+      <p className="text-sm text-gray-400 mt-2 leading-relaxed">
         Pro 구독 시 무제한. Phase 7에 결제 연동 예정.
       </p>
     </motion.div>

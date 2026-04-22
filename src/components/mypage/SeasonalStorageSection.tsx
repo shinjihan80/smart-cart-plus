@@ -73,7 +73,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
       <div className="flex items-center gap-2 mb-2">
         <span className="text-base">{SEASON_EMOJI[season]}</span>
         <span className="text-xs text-gray-400 font-medium">계절 보관</span>
-        <span className="text-[11px] text-gray-400">· 지금은 {season}</span>
+        <span className="text-sm text-gray-400">· 지금은 {season}</span>
       </div>
 
       {/* 꺼내라 알림 — 현재 계절에 맞는 보관된 옷 */}
@@ -84,7 +84,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
               <p className="text-xs font-semibold text-brand-success">
                 {SEASON_EMOJI[season]} {season}이(가) 왔어요!
               </p>
-              <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+              <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
                 보관해뒀던 {season}철 옷 {unstowCandidates.length}벌을 꺼낼 때예요.
               </p>
             </div>
@@ -135,7 +135,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                       title={PARTNERS.storage_box.comingSoon}
                       className="text-xs font-semibold py-2 px-3 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed whitespace-nowrap"
                     >
-                      📦 업체 보관 <span className="text-[10px] text-gray-300 block leading-none">준비 중</span>
+                      📦 업체 보관 <span className="text-xs text-gray-300 block leading-none">준비 중</span>
                     </button>
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -143,17 +143,17 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                       <div key={c.id} className="flex items-center gap-2 py-1">
                         <span className="text-sm">{FASHION_EMOJI[c.category] ?? '👕'}</span>
                         <span className="flex-1 text-xs text-gray-700 truncate">{c.name}</span>
-                        <span className="text-[10px] text-gray-400">{c.weatherTags?.join(', ')}</span>
+                        <span className="text-xs text-gray-400">{c.weatherTags?.join(', ')}</span>
                         <button
                           onClick={() => handleStow(c)}
-                          className="shrink-0 text-[11px] text-brand-primary font-medium hover:underline"
+                          className="shrink-0 text-sm text-brand-primary font-medium hover:underline"
                         >
                           보관
                         </button>
                       </div>
                     ))}
                     {stowCandidates.length > 10 && (
-                      <p className="text-[10px] text-gray-400 text-center mt-1">외 {stowCandidates.length - 10}벌</p>
+                      <p className="text-xs text-gray-400 text-center mt-1">외 {stowCandidates.length - 10}벌</p>
                     )}
                   </div>
                 </div>
@@ -192,17 +192,17 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                     <div key={c.id} className="flex items-center gap-2 py-1">
                       <span className="text-sm">{FASHION_EMOJI[c.category] ?? '👕'}</span>
                       <span className="flex-1 text-xs text-gray-700 truncate">{c.name}</span>
-                      <span className="text-[10px] text-gray-400">{c.weatherTags?.join(', ')}</span>
+                      <span className="text-xs text-gray-400">{c.weatherTags?.join(', ')}</span>
                       <button
                         onClick={() => handleUnstow(c)}
-                        className="shrink-0 text-[11px] text-brand-success font-medium hover:underline"
+                        className="shrink-0 text-sm text-brand-success font-medium hover:underline"
                       >
                         꺼내기
                       </button>
                     </div>
                   ))}
                   {allStored.length > 12 && (
-                    <p className="text-[10px] text-gray-400 text-center mt-1">외 {allStored.length - 12}벌</p>
+                    <p className="text-xs text-gray-400 text-center mt-1">외 {allStored.length - 12}벌</p>
                   )}
                 </div>
               </motion.div>

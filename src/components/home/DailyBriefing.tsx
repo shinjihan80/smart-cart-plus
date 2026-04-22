@@ -86,11 +86,11 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
             {useLive && (
               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-brand-success/10">
                 <span className="w-1 h-1 rounded-full bg-brand-success" />
-                <span className="text-[10px] font-bold text-brand-success">LIVE</span>
+                <span className="text-xs font-bold text-brand-success">LIVE</span>
               </span>
             )}
             {weatherFailed && !useLive && (
-              <span className="text-[10px] text-gray-300">· 오프라인</span>
+              <span className="text-xs text-gray-300">· 오프라인</span>
             )}
           </div>
           <h2 className="text-lg font-bold text-gray-900 leading-snug">
@@ -105,7 +105,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
 
           {topMatches.length > 0 && (
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-[11px] text-gray-400 shrink-0">오늘의 추천</span>
+              <span className="text-sm text-gray-400 shrink-0">오늘의 추천</span>
               <div className="flex gap-1.5 overflow-hidden">
                 {topMatches.map(({ item, match, idleDays }) => (
                   <button
@@ -126,12 +126,12 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-[11px]">{FASHION_EMOJI[item.category] ?? '👕'}</span>
+                        <span className="text-sm">{FASHION_EMOJI[item.category] ?? '👕'}</span>
                       )}
                     </div>
-                    <span className="text-[11px] text-gray-700 font-medium truncate">{item.name}</span>
-                    {match.level === 'perfect' && <span className="text-[10px]">✨</span>}
-                    {idleDays >= 30 && idleDays < 9999 && <span className="text-[10px]">🌙</span>}
+                    <span className="text-sm text-gray-700 font-medium truncate">{item.name}</span>
+                    {match.level === 'perfect' && <span className="text-xs">✨</span>}
+                    {idleDays >= 30 && idleDays < 9999 && <span className="text-xs">🌙</span>}
                   </button>
                 ))}
               </div>

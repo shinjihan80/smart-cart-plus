@@ -36,7 +36,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
           <span className="text-base">📊</span>
           <span className="text-xs text-gray-400 font-medium">이번 주 영양 밸런스</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+        <div className="flex items-center gap-1.5 text-xs text-gray-400">
           <span>🥬 {balance.vegFruitCount}</span>
           <span className="text-gray-200">·</span>
           <span>🥩 {balance.proteinCount}</span>
@@ -52,7 +52,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
             <div key={b.key}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-gray-600">{b.label}</span>
-                <span className="text-[11px] text-gray-400 tabular-nums">
+                <span className="text-sm text-gray-400 tabular-nums">
                   {value.toLocaleString()} / {b.target.toLocaleString()} {b.unit} · {pct}%
                 </span>
               </div>
@@ -82,7 +82,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
           return (
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: hint === 'protein' ? '두부' : '샐러드' } }))}
-              className="mt-1.5 text-[11px] font-semibold text-brand-primary hover:underline"
+              className="mt-1.5 text-sm font-semibold text-brand-primary hover:underline"
             >
               {label} →
             </button>

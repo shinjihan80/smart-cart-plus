@@ -32,7 +32,7 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
         <div className="flex items-center gap-2 mb-2.5">
           <span className="text-base">{SEASON_EMOJI[season]}</span>
           <span className="text-xs text-gray-400 font-medium">지금 {season}철 재료</span>
-          <span className="text-[10px] text-gray-300">· 가장 맛있을 때</span>
+          <span className="text-xs text-gray-300">· 가장 맛있을 때</span>
         </div>
         <div className="flex gap-1.5 flex-wrap">
           {suggestions.map((p) => {
@@ -50,14 +50,14 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
                   <span className="text-sm">{p.emoji}</span>
                   <span className="font-medium">{p.name}</span>
                   {p.peak === season && (
-                    <span className="text-[10px] px-1 py-0.5 rounded-full bg-brand-primary/15 text-brand-primary/80">피크</span>
+                    <span className="text-xs px-1 py-0.5 rounded-full bg-brand-primary/15 text-brand-primary/80">피크</span>
                   )}
                 </button>
                 {recipeCount > 0 && (
                   <button
                     onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }))}
                     title={`${p.name}(으)로 만드는 요리 보기`}
-                    className="text-[11px] px-2 py-1 border-l border-brand-primary/15 text-brand-primary/80 hover:bg-brand-primary/10 transition-colors"
+                    className="text-sm px-2 py-1 border-l border-brand-primary/15 text-brand-primary/80 hover:bg-brand-primary/10 transition-colors"
                   >
                     📖 {recipeCount}
                   </button>

@@ -69,7 +69,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
       <div className="absolute inset-0 flex items-center justify-end px-6 pointer-events-none">
         <motion.div style={{ opacity: discardOpacity }} className="flex flex-col items-center gap-0.5">
           <span className="text-xl">🗑️</span>
-          <span className="text-[10px] font-semibold text-brand-warning">소진</span>
+          <span className="text-xs font-semibold text-brand-warning">소진</span>
         </motion.div>
       </div>
 
@@ -104,32 +104,32 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
               {inSeason && dDay <= 2 ? (
                 <span
-                  className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-gradient-to-r from-brand-warning/20 to-brand-primary/20 text-brand-warning border border-brand-warning/30"
+                  className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-semibold bg-gradient-to-r from-brand-warning/20 to-brand-primary/20 text-brand-warning border border-brand-warning/30"
                   title={`${season}철 제철인데 ${dDay <= 0 ? '오늘이 마지막' : `${dDay}일 뒤 만료`} — 놓치기 아까워요!`}
                 >
                   ⚠️ {SEASON_EMOJI[season]} 제철 {dDay <= 0 ? '오늘!' : `D-${dDay}`}
                 </span>
               ) : inSeason ? (
                 <span
-                  className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-brand-primary/10 text-brand-primary"
+                  className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-brand-primary/10 text-brand-primary"
                   title={`${season}철 제철 재료 — 지금이 가장 맛있어요`}
                 >
                   {SEASON_EMOJI[season]} 제철
                 </span>
               ) : null}
               {owner && (
-                <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
+                <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
                   {owner.name}
                 </span>
               )}
             </div>
-            {item.memo && <p className="text-[10px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
+            {item.memo && <p className="text-xs text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
             <div className="flex items-center gap-2 mt-1">
-              <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium ${style.bg} ${style.text}`}>
+              <span className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full font-medium ${style.bg} ${style.text}`}>
                 <Icon size={10} />
                 {style.label}
               </span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
+              <span className="text-sm px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
                 {FOOD_EMOJI[item.foodCategory] ?? '📦'} {item.foodCategory ?? '기타'}
               </span>
             </div>
@@ -145,13 +145,13 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
             </div>
             {item.nutritionFacts && (
               <div className="flex gap-2 mt-1.5">
-                <span className="text-[10px] text-gray-400 tabular-nums">{item.nutritionFacts.calories}kcal</span>
-                <span className="text-[10px] text-gray-300">|</span>
-                <span className="text-[10px] text-gray-400 tabular-nums">단 {item.nutritionFacts.protein}g</span>
-                <span className="text-[10px] text-gray-300">|</span>
-                <span className="text-[10px] text-gray-400 tabular-nums">지 {item.nutritionFacts.fat}g</span>
-                <span className="text-[10px] text-gray-300">|</span>
-                <span className="text-[10px] text-gray-400 tabular-nums">탄 {item.nutritionFacts.carbs}g</span>
+                <span className="text-xs text-gray-400 tabular-nums">{item.nutritionFacts.calories}kcal</span>
+                <span className="text-xs text-gray-300">|</span>
+                <span className="text-xs text-gray-400 tabular-nums">단 {item.nutritionFacts.protein}g</span>
+                <span className="text-xs text-gray-300">|</span>
+                <span className="text-xs text-gray-400 tabular-nums">지 {item.nutritionFacts.fat}g</span>
+                <span className="text-xs text-gray-300">|</span>
+                <span className="text-xs text-gray-400 tabular-nums">탄 {item.nutritionFacts.carbs}g</span>
               </div>
             )}
           </div>
@@ -173,7 +173,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[11px]">
+              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-sm">
                 {/* 이미지 — 편집 모드에서만 변경/삭제·추가 */}
                 {item.imageUrl ? (
                   <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
@@ -212,7 +212,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
                   >
                     <span className="text-lg">📷</span>
-                    <span className="text-[11px] font-medium">사진 추가</span>
+                    <span className="text-sm font-medium">사진 추가</span>
                   </button>
                 ) : null}
 
@@ -311,7 +311,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     <span className="text-gray-400">재구매 주기</span>
                     <p className="text-gray-700 font-medium mt-0.5">
                       🔁 보통 <span className="tabular-nums">{cycle.cycleDays}일</span> 주기
-                      <span className="text-[11px] text-gray-400 ml-1 tabular-nums">· {cycle.occurrences}회 기록</span>
+                      <span className="text-sm text-gray-400 ml-1 tabular-nums">· {cycle.occurrences}회 기록</span>
                     </p>
                   </div>
                 )}
@@ -323,7 +323,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     <div className="flex gap-1 mt-0.5 flex-wrap">
                       <button
                         onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: undefined }); }}
-                        className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+                        className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                           !item.ownerId
                             ? 'bg-gray-500 text-white'
                             : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -335,7 +335,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                         <button
                           key={p.id}
                           onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: p.id }); }}
-                          className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+                          className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                             item.ownerId === p.id
                               ? 'bg-brand-primary text-white'
                               : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -347,7 +347,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                       <a
                         href="/settings#profiles"
                         onClick={(e) => e.stopPropagation()}
-                        className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
+                        className="text-sm px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
                       >
                         + 추가
                       </a>

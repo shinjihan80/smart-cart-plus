@@ -353,10 +353,10 @@ export default function CommandPalette() {
                 aria-label="명령 검색"
                 className="flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none"
               />
-              {q.trim().startsWith('>') && <span className="text-[10px] font-semibold text-brand-primary">액션만</span>}
-              {q.trim().startsWith('#') && <span className="text-[10px] font-semibold text-brand-primary">페이지만</span>}
-              {q.trim().startsWith('?') && <span className="text-[10px] font-semibold text-brand-primary">레시피만</span>}
-              <kbd className="text-[10px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono">Esc</kbd>
+              {q.trim().startsWith('>') && <span className="text-xs font-semibold text-brand-primary">액션만</span>}
+              {q.trim().startsWith('#') && <span className="text-xs font-semibold text-brand-primary">페이지만</span>}
+              {q.trim().startsWith('?') && <span className="text-xs font-semibold text-brand-primary">레시피만</span>}
+              <kbd className="text-xs text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono">Esc</kbd>
             </div>
             <div className="max-h-[50vh] overflow-y-auto py-1">
               {commands.length === 0 ? (
@@ -365,24 +365,24 @@ export default function CommandPalette() {
                   <div className="flex gap-1.5 justify-center flex-wrap">
                     <button
                       onClick={() => setQ('?')}
-                      className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                      className="text-sm font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
                     >
                       🍳 레시피만 보기
                     </button>
                     <button
                       onClick={() => setQ('>')}
-                      className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                      className="text-sm font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
                     >
                       ⚡ 액션만 보기
                     </button>
                     <button
                       onClick={() => setQ(season)}
-                      className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                      className="text-sm font-medium px-2.5 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
                     >
                       🌸 이번 {season}철 검색
                     </button>
                   </div>
-                  <p className="text-[11px] text-gray-300 leading-relaxed">
+                  <p className="text-sm text-gray-300 leading-relaxed">
                     💡 ⌘K · / · Esc 단축키로 어디서든 빠르게.
                   </p>
                 </div>
@@ -401,12 +401,12 @@ export default function CommandPalette() {
                   // '최근' 섹션 + 일반 섹션 헤더 분리
                   if (isRecent && !lastRecent) {
                     rendered.push(
-                      <p key="h-recent" className="text-[10px] font-semibold text-gray-400 px-4 pt-2 pb-0.5 uppercase tracking-wider">최근</p>,
+                      <p key="h-recent" className="text-xs font-semibold text-gray-400 px-4 pt-2 pb-0.5 uppercase tracking-wider">최근</p>,
                     );
                     lastKind = null; // 최근 이후 다시 종류별 헤더 띄우도록
                   } else if (!isRecent && lastKind !== cmd.kind) {
                     rendered.push(
-                      <p key={`h-${cmd.kind}-${i}`} className="text-[10px] font-semibold text-gray-400 px-4 pt-2 pb-0.5 uppercase tracking-wider">
+                      <p key={`h-${cmd.kind}-${i}`} className="text-xs font-semibold text-gray-400 px-4 pt-2 pb-0.5 uppercase tracking-wider">
                         {GROUP_LABEL[cmd.kind]}
                       </p>,
                     );
@@ -425,10 +425,10 @@ export default function CommandPalette() {
                       <span className="text-lg shrink-0">{cmd.emoji}</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-800 truncate">{cmd.label}</p>
-                        {cmd.sub && <p className="text-[11px] text-gray-400 truncate">{cmd.sub}</p>}
+                        {cmd.sub && <p className="text-sm text-gray-400 truncate">{cmd.sub}</p>}
                       </div>
                       {i === cursor && (
-                        <kbd className="text-[10px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono shrink-0">↵</kbd>
+                        <kbd className="text-xs text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono shrink-0">↵</kbd>
                       )}
                     </button>,
                   );
@@ -436,7 +436,7 @@ export default function CommandPalette() {
                 return rendered;
               })()}
             </div>
-            <div className="px-4 py-2 border-t border-gray-100 flex items-center justify-between text-[10px] text-gray-400">
+            <div className="px-4 py-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
               <span>↑↓ 탐색 · ↵ 선택 · &gt;액션 #페이지 ?레시피</span>
               <span>⌘K로 다시 열기</span>
             </div>

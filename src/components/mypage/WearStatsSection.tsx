@@ -73,7 +73,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-1.5">
               <span className="text-sm">🔄</span>
-              <p className="text-[11px] font-semibold text-gray-600">로테이션 밸런스</p>
+              <p className="text-sm font-semibold text-gray-600">로테이션 밸런스</p>
             </div>
             <span className={`text-xs font-bold tabular-nums ${
               rotationScore.score >= 70
@@ -97,7 +97,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
               style={{ width: `${rotationScore.score}%` }}
             />
           </div>
-          <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
             {rotationScore.score >= 70
               ? `${rotationScore.worn}벌을 고루 잘 입고 계세요 👏`
               : rotationScore.score >= 40
@@ -128,7 +128,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         ];
         return (
           <div className="mb-3">
-            <p className="text-[11px] text-brand-primary font-semibold mb-1.5">👗 카테고리 분포</p>
+            <p className="text-sm text-brand-primary font-semibold mb-1.5">👗 카테고리 분포</p>
             <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100">
               {bars.map((b) => {
                 const pct = Math.round((catCounts[b.key] / total) * 100);
@@ -143,7 +143,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
                 );
               })}
             </div>
-            <div className="flex justify-between mt-1 text-[10px] text-gray-400 tabular-nums flex-wrap gap-1">
+            <div className="flex justify-between mt-1 text-xs text-gray-400 tabular-nums flex-wrap gap-1">
               {bars.filter((b) => catCounts[b.key] > 0).map((b) => (
                 <span key={b.key}>{b.emoji} {catCounts[b.key]}</span>
               ))}
@@ -154,13 +154,13 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
 
       {topWorn.length > 0 && (
         <div className="mb-3">
-          <p className="text-[11px] text-brand-primary font-semibold mb-1.5">♥ 자주 입는 옷 TOP 3</p>
+          <p className="text-sm text-brand-primary font-semibold mb-1.5">♥ 자주 입는 옷 TOP 3</p>
           <div className="flex flex-col gap-1">
             {topWorn.map((x) => (
               <div key={x.item.id} className="flex items-center gap-2 py-1">
                 <span className="text-sm">{FASHION_EMOJI[x.item.category] ?? '👕'}</span>
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
-                <span className="text-[11px] text-brand-primary font-bold tabular-nums">{x.count}회</span>
+                <span className="text-sm text-brand-primary font-bold tabular-nums">{x.count}회</span>
               </div>
             ))}
           </div>
@@ -169,13 +169,13 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
 
       {longIdle.length > 0 && (
         <div className="mb-3">
-          <p className="text-[11px] text-amber-600 font-semibold mb-1.5">🌙 오래 안 입은 옷</p>
+          <p className="text-sm text-amber-600 font-semibold mb-1.5">🌙 오래 안 입은 옷</p>
           <div className="flex flex-col gap-1">
             {longIdle.map((x) => (
               <div key={x.item.id} className="flex items-center gap-2 py-1">
                 <span className="text-sm">{FASHION_EMOJI[x.item.category] ?? '👕'}</span>
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
-                <span className="text-[11px] text-amber-600 font-medium tabular-nums">{daysSince(x.lastWorn!)}일</span>
+                <span className="text-sm text-amber-600 font-medium tabular-nums">{daysSince(x.lastWorn!)}일</span>
               </div>
             ))}
           </div>
@@ -184,20 +184,20 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
 
       {neverWorn.length > 0 && (
         <div>
-          <p className="text-[11px] text-gray-500 font-semibold mb-1.5">👀 아직 안 입은 옷</p>
+          <p className="text-sm text-gray-500 font-semibold mb-1.5">👀 아직 안 입은 옷</p>
           <div className="flex flex-col gap-1">
             {neverWorn.map((x) => (
               <div key={x.item.id} className="flex items-center gap-2 py-1">
                 <span className="text-sm">{FASHION_EMOJI[x.item.category] ?? '👕'}</span>
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
-                <span className="text-[11px] text-gray-400">—</span>
+                <span className="text-sm text-gray-400">—</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
+      <p className="text-xs text-gray-400 mt-3 leading-relaxed">
         옷장 카드를 펼쳐 &ldquo;👕 오늘 입었어요&rdquo;를 누르면 착용 기록이 쌓여요.
       </p>
     </motion.div>

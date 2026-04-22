@@ -97,7 +97,7 @@ export default function SeasonalChecklistWidget({ items, history }: Props) {
                 }`}
               />
             </div>
-            <p className="text-[11px] text-gray-400 mt-1.5">
+            <p className="text-sm text-gray-400 mt-1.5">
               {pct === 100
                 ? `${season}철 제철 재료를 모두 드셨어요! 👏`
                 : pct === 0

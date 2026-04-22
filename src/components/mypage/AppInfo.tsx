@@ -47,7 +47,7 @@ export default function AppInfo() {
         >
           이용약관 · 개인정보 처리방침 →
         </Link>
-        <span className="text-[10px] text-gray-300">© NEMOA</span>
+        <span className="text-xs text-gray-300">© NEMOA</span>
       </div>
     </motion.div>
   );

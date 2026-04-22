@@ -92,10 +92,10 @@ function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab
 function StepIndicator({ step }: { step: ModalStep }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${step === 'input' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>1</span>
+      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-sm font-bold ${step === 'input' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>1</span>
       <span className={`text-xs font-medium ${step === 'input' ? 'text-brand-primary' : 'text-gray-400'}`}>입력</span>
       <div className="flex-1 h-px bg-gray-200" />
-      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${step === 'confirm' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
+      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-sm font-bold ${step === 'confirm' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
       <span className={`text-xs font-medium ${step === 'confirm' ? 'text-brand-primary' : 'text-gray-400'}`}>결과 확인</span>
     </div>
   );
@@ -149,7 +149,7 @@ function ImageTab({
           <p className="text-xs text-gray-400">JPG, PNG, WEBP · 최대 5MB</p>
           <div className="flex gap-2 mt-1 flex-wrap justify-center px-4">
             {['식품 라벨', '사이즈표', '세탁 정보'].map((hint) => (
-              <span key={hint} className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400">
+              <span key={hint} className="text-sm px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400">
                 {hint}
               </span>
             ))}
@@ -273,7 +273,7 @@ function UrlTab({
       />
       <div className="flex gap-2 mt-2 flex-wrap">
         {['쿠팡', '네이버쇼핑', '무신사', '마켓컬리'].map((site) => (
-          <span key={site} className="text-[11px] px-2 py-1 rounded-full bg-gray-100 text-gray-500">
+          <span key={site} className="text-sm px-2 py-1 rounded-full bg-gray-100 text-gray-500">
             {site}
           </span>
         ))}
@@ -300,15 +300,15 @@ function FoodConfirmDetail({ item }: { item: Extract<CartItem, { category: '식�
 
   return (
     <div className="flex flex-wrap gap-1 mt-1">
-      <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+      <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
         {STORAGE_LABEL[item.storageType] ?? item.storageType}
       </span>
-      <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
+      <span className={`text-sm px-1.5 py-0.5 rounded-full font-semibold ${
         isUrgent ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-600'
       }`}>
         {dDay <= 0 ? '만료' : `D-${dDay}`}
       </span>
-      <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+      <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
         {item.baseShelfLifeDays}일 보관
       </span>
     </div>
@@ -329,27 +329,27 @@ function EnrichedFashionConfirmDetail({ item }: { item: import('@/types').Enrich
   return (
     <div className="mt-1 flex flex-col gap-1">
       <div className="flex flex-wrap gap-1">
-        <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.size}</span>
-        <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{THICKNESS_LABEL[item.thickness] ?? item.thickness}</span>
-        <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.material}</span>
+        <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.size}</span>
+        <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{THICKNESS_LABEL[item.thickness] ?? item.thickness}</span>
+        <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.material}</span>
       </div>
       {attrBadges.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {attrBadges.map((b) => (
-            <span key={b} className="text-[11px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium">{b}</span>
+            <span key={b} className="text-sm px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium">{b}</span>
           ))}
         </div>
       )}
       {hasMeasurements && (
         <div className="flex flex-wrap gap-1">
-          {item.measurements?.chest        && <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">가슴 {item.measurements.chest}cm</span>}
-          {item.measurements?.totalLength  && <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">총장 {item.measurements.totalLength}cm</span>}
-          {item.measurements?.waist        && <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">허리 {item.measurements.waist}cm</span>}
-          {item.measurements?.waistBanding && <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600">밴딩</span>}
+          {item.measurements?.chest        && <span className="text-sm px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">가슴 {item.measurements.chest}cm</span>}
+          {item.measurements?.totalLength  && <span className="text-sm px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">총장 {item.measurements.totalLength}cm</span>}
+          {item.measurements?.waist        && <span className="text-sm px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">허리 {item.measurements.waist}cm</span>}
+          {item.measurements?.waistBanding && <span className="text-sm px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600">밴딩</span>}
         </div>
       )}
       {item.washingTip && (
-        <p className="text-[11px] text-gray-400 leading-relaxed">{item.washingTip}</p>
+        <p className="text-sm text-gray-400 leading-relaxed">{item.washingTip}</p>
       )}
     </div>
   );
@@ -358,9 +358,9 @@ function EnrichedFashionConfirmDetail({ item }: { item: import('@/types').Enrich
 function BasicClothingConfirmDetail({ item }: { item: ClothingItem }) {
   return (
     <div className="flex flex-wrap gap-1 mt-1">
-      <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.size}</span>
-      <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{THICKNESS_LABEL[item.thickness] ?? item.thickness}</span>
-      <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.material}</span>
+      <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.size}</span>
+      <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{THICKNESS_LABEL[item.thickness] ?? item.thickness}</span>
+      <span className="text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.material}</span>
     </div>
   );
 }
@@ -413,12 +413,12 @@ function StepConfirm({
       {domainSummary && (domainSummary.food > 0 || domainSummary.fashion > 0) && (
         <div className="flex gap-2 mb-3 flex-wrap">
           {domainSummary.food > 0 && (
-            <span className="text-[11px] px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold">
+            <span className="text-sm px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold">
               🥦 식품 {domainSummary.food}개 감지됨
             </span>
           )}
           {domainSummary.fashion > 0 && (
-            <span className="text-[11px] px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+            <span className="text-sm px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
               👗 패션 {domainSummary.fashion}개 감지됨
             </span>
           )}
@@ -432,11 +432,11 @@ function StepConfirm({
       {/* 소유자 선택 — 프로필 2명 이상일 때 */}
       {profiles.length >= 2 && (
         <div className="rounded-2xl bg-gray-50 px-3 py-2 mb-3">
-          <p className="text-[11px] text-gray-500 mb-1.5">누구 것으로 등록할까요?</p>
+          <p className="text-sm text-gray-500 mb-1.5">누구 것으로 등록할까요?</p>
           <div className="flex gap-1 flex-wrap">
             <button
               onClick={() => setOwnerId(undefined)}
-              className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+              className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                 !ownerId
                   ? 'bg-gray-500 text-white'
                   : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -448,7 +448,7 @@ function StepConfirm({
               <button
                 key={p.id}
                 onClick={() => setOwnerId(p.id)}
-                className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+                className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                   ownerId === p.id
                     ? 'bg-brand-primary text-white'
                     : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -474,7 +474,7 @@ function StepConfirm({
                 onChange={(e) => updateName(item.id, e.target.value)}
                 className="w-full bg-transparent text-sm font-medium text-gray-900 focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
               />
-              <span className="inline-block text-[11px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400 mt-1 mb-0.5">
+              <span className="inline-block text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400 mt-1 mb-0.5">
                 {item.category}
               </span>
               <ItemDetailTags item={item} />

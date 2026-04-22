@@ -103,35 +103,35 @@ export default function StatsSection({
         <h3 className="text-xs text-gray-400 font-medium mb-3">카테고리 분포</h3>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-[10px] text-gray-400 mb-1.5">🥬 식품</p>
+            <p className="text-xs text-gray-400 mb-1.5">🥬 식품</p>
             {(['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => {
               const count = foodItems.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length;
               if (count === 0) return null;
               const pct = foodItems.length > 0 ? (count / foodItems.length) * 100 : 0;
               return (
                 <div key={g} className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[10px] text-gray-500 w-14 truncate">{g}</span>
+                  <span className="text-xs text-gray-500 w-14 truncate">{g}</span>
                   <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full bg-brand-success rounded-full" />
                   </div>
-                  <span className="text-[10px] text-gray-400 tabular-nums w-4 text-right">{count}</span>
+                  <span className="text-xs text-gray-400 tabular-nums w-4 text-right">{count}</span>
                 </div>
               );
             })}
           </div>
           <div>
-            <p className="text-[10px] text-gray-400 mb-1.5">👕 패션</p>
+            <p className="text-xs text-gray-400 mb-1.5">👕 패션</p>
             {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => {
               const count = clothingItems.filter((c) => (FASHION_GROUP[c.category as keyof typeof FASHION_GROUP] ?? '의류') === g).length;
               if (count === 0) return null;
               const pct = clothingItems.length > 0 ? (count / clothingItems.length) * 100 : 0;
               return (
                 <div key={g} className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[10px] text-gray-500 w-14 truncate">{g}</span>
+                  <span className="text-xs text-gray-500 w-14 truncate">{g}</span>
                   <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full bg-brand-primary rounded-full" />
                   </div>
-                  <span className="text-[10px] text-gray-400 tabular-nums w-4 text-right">{count}</span>
+                  <span className="text-xs text-gray-400 tabular-nums w-4 text-right">{count}</span>
                 </div>
               );
             })}

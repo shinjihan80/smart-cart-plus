@@ -74,7 +74,7 @@ export default function StorageUsage() {
           <span className="text-base">📦</span>
           <span className="text-xs text-gray-400 font-medium">저장 용량</span>
         </div>
-        <span className="text-[11px] text-gray-500 tabular-nums shrink-0">
+        <span className="text-sm text-gray-500 tabular-nums shrink-0">
           총 {formatBytes(total)}
         </span>
       </div>
@@ -85,7 +85,7 @@ export default function StorageUsage() {
             <div key={r.key}>
               <div className="flex items-center justify-between mb-0.5">
                 <span className="text-xs text-gray-600 truncate">{r.label}</span>
-                <span className="text-[10px] text-gray-400 tabular-nums shrink-0">
+                <span className="text-xs text-gray-400 tabular-nums shrink-0">
                   {formatBytes(r.bytes)}
                 </span>
               </div>
@@ -99,7 +99,7 @@ export default function StorageUsage() {
           );
         })}
       </div>
-      <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
+      <p className="text-sm text-gray-400 mt-2 leading-relaxed">
         브라우저 localStorage 기준 추정값. 백업 JSON 파일 크기와 유사해요.
       </p>
     </motion.div>

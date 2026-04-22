@@ -56,7 +56,7 @@ export default function SeasonalUnstowBanner({ items }: { items: CartItem[] }) {
         </button>
         <Link
           href="/mypage"
-          className="text-[10px] text-gray-500 text-center hover:underline"
+          className="text-xs text-gray-500 text-center hover:underline"
         >
           개별 관리 →
         </Link>

@@ -70,7 +70,7 @@ export default function FeedbackToggles() {
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">{t.label}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">{t.desc}</p>
+              <p className="text-sm text-gray-400 mt-0.5">{t.desc}</p>
             </div>
             <div
               role="switch"

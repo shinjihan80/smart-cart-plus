@@ -22,7 +22,7 @@ export default function MonthlySpending() {
           <p className="text-2xl font-extrabold tracking-tight text-gray-900 tabular-nums">
             ₩{thisMonth.total.toLocaleString()}
           </p>
-          <p className="text-[11px] text-gray-400 mt-1">
+          <p className="text-sm text-gray-400 mt-1">
             지난달 대비{' '}
             <span className={`font-semibold ${diff <= 0 ? 'text-brand-success' : 'text-brand-warning'}`}>
               {diff <= 0 ? '' : '+'}{diff}%

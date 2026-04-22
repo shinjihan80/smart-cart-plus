@@ -178,7 +178,7 @@ export default function FridgePage() {
         <div className="px-4 py-3.5 flex items-center justify-between gap-3">
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
-            <p className="text-[11px] text-gray-400 mt-0.5">식품 {allFood.length}개 관리 중 · ← 밀어서 소진</p>
+            <p className="text-sm text-gray-400 mt-0.5">식품 {allFood.length}개 관리 중 · ← 밀어서 소진</p>
           </div>
           <PaletteButton />
         </div>
@@ -196,26 +196,26 @@ export default function FridgePage() {
           <div className="flex justify-between text-center mb-3">
             <div className="flex-1">
               <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{allFood.length}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">전체</p>
+              <p className="text-sm text-gray-400 mt-0.5">전체</p>
             </div>
             <div className="flex-1">
               <p className="text-2xl font-extrabold text-sky-600 tabular-nums">{coldCount}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">냉장</p>
+              <p className="text-sm text-gray-400 mt-0.5">냉장</p>
             </div>
             <div className="flex-1">
               <p className="text-2xl font-extrabold text-indigo-600 tabular-nums">{frozenCount}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">냉동</p>
+              <p className="text-sm text-gray-400 mt-0.5">냉동</p>
             </div>
             <div className="flex-1">
               <p className={`text-2xl font-extrabold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
                 {urgentCount}
               </p>
-              <p className="text-[11px] text-gray-400 mt-0.5">임박</p>
+              <p className="text-sm text-gray-400 mt-0.5">임박</p>
             </div>
           </div>
           <div className="flex gap-1.5 flex-wrap">
             {foodGroupCounts.map(({ group, count }) => (
-              <span key={group} className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
+              <span key={group} className="text-xs px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
                 {group} {count}
               </span>
             ))}
@@ -237,10 +237,10 @@ export default function FridgePage() {
           {/* 소유자 선택 — 프로필 2명 이상일 때만 */}
           {profiles.length >= 2 && (
             <div className="flex gap-1 mb-2 flex-wrap items-center">
-              <span className="text-[11px] text-gray-400">누구 것:</span>
+              <span className="text-sm text-gray-400">누구 것:</span>
               <button
                 onClick={() => setQuickAddOwner(undefined)}
-                className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+                className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                   !quickAddOwner
                     ? 'bg-gray-500 text-white'
                     : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -252,7 +252,7 @@ export default function FridgePage() {
                 <button
                   key={p.id}
                   onClick={() => setQuickAddOwner(p.id)}
-                  className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
+                  className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
                     quickAddOwner === p.id
                       ? 'bg-brand-primary text-white'
                       : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -324,7 +324,7 @@ export default function FridgePage() {
                 aria-label="냉장고 상품 검색 (⌘K · /)"
                 className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
               />
-              <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[10px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">⌘K</kbd>
+              <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-xs text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">⌘K</kbd>
             </div>
           </div>
           {/* 제철 자동완성 — 검색어에 매칭되는 제철 재료 + 현재 미보유 */}
@@ -342,7 +342,7 @@ export default function FridgePage() {
             if (hits.length === 0) return null;
             return (
               <div className="flex items-center gap-1.5 flex-wrap -mt-1">
-                <span className="text-[10px] text-gray-400 font-medium">
+                <span className="text-xs text-gray-400 font-medium">
                   {SEASON_EMOJI[season]} 지금 제철 · 바로 담기
                 </span>
                 {hits.map((p) => (
@@ -354,7 +354,7 @@ export default function FridgePage() {
                   >
                     <span className="text-sm">{p.emoji}</span>
                     <span className="font-medium">{p.name}</span>
-                    {p.peak === season && <span className="text-[10px] opacity-70">· 피크</span>}
+                    {p.peak === season && <span className="text-xs opacity-70">· 피크</span>}
                   </button>
                 ))}
               </div>
@@ -419,7 +419,7 @@ export default function FridgePage() {
             </div>
             <button
               onClick={() => setSortBy(SORT_CYCLE[sortBy].next)}
-              className="text-[11px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
+              className="text-sm text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
             >
               {SORT_CYCLE[sortBy].label}
             </button>
@@ -464,7 +464,7 @@ export default function FridgePage() {
               return (
                 <div key={grp}>
                   <div className="flex items-center gap-2 mb-2 mt-1">
-                    <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
+                    <span className="text-sm px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
                       {grpEmoji} {grp} {group.length}
                     </span>
                     <div className="flex-1 h-px bg-gray-100" />

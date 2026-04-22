@@ -47,7 +47,7 @@ export default function ErrorLogCard() {
           <span className="text-base">🩺</span>
           <span className="text-xs text-gray-400 font-medium">오류 기록</span>
           {entries.length > 0 && (
-            <span className="text-[11px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full tabular-nums">
+            <span className="text-sm font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full tabular-nums">
               {entries.length}
             </span>
           )}
@@ -70,10 +70,10 @@ export default function ErrorLogCard() {
                 {entries.slice(0, 10).map((e) => (
                   <li
                     key={e.id}
-                    className="text-[11px] p-2 bg-gray-50 rounded-xl border border-gray-100"
+                    className="text-sm p-2 bg-gray-50 rounded-xl border border-gray-100"
                   >
                     <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <span className="font-mono text-[10px] text-gray-400">
+                      <span className="font-mono text-xs text-gray-400">
                         {new Date(e.ts).toLocaleString('ko-KR', {
                           month:  '2-digit',
                           day:    '2-digit',
@@ -81,13 +81,13 @@ export default function ErrorLogCard() {
                           minute: '2-digit',
                         })}
                       </span>
-                      <span className="text-[10px] text-gray-400">{e.source ?? '?'}</span>
+                      <span className="text-xs text-gray-400">{e.source ?? '?'}</span>
                     </div>
                     <p className="text-gray-700 break-words leading-relaxed line-clamp-2">
                       {e.message}
                     </p>
                     {e.url && (
-                      <p className="text-[10px] text-gray-400 mt-0.5 truncate">{e.url}</p>
+                      <p className="text-xs text-gray-400 mt-0.5 truncate">{e.url}</p>
                     )}
                   </li>
                 ))}
@@ -108,7 +108,7 @@ export default function ErrorLogCard() {
                   <span>지우기</span>
                 </button>
               </div>
-              <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
                 최근 오류 10건 표시 · 최대 50건까지 로컬 저장 · 서버 전송 안 함
               </p>
             </>
