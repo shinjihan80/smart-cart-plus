@@ -84,7 +84,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
           <div className="flex gap-1 shrink-0">
             <button
               onClick={() => setOwnerFilter('all')}
-              className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+              className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                 ownerFilter === 'all'
                   ? 'bg-gray-900 text-white'
                   : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -96,7 +96,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
               <button
                 key={p.id}
                 onClick={() => setOwnerFilter(p.id)}
-                className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                   ownerFilter === p.id
                     ? 'bg-brand-primary text-white'
                     : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -107,7 +107,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
             ))}
             <button
               onClick={() => setOwnerFilter('shared')}
-              className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+              className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                 ownerFilter === 'shared'
                   ? 'bg-gray-500 text-white'
                   : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -134,14 +134,14 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                 <div className="w-full h-full flex items-center justify-center text-2xl">{emoji}</div>
               )}
             </div>
-            <span className="text-[9px] text-gray-400 truncate max-w-[64px]">{item.name}</span>
+            <span className="text-[10px] text-gray-400 truncate max-w-[64px]">{item.name}</span>
           </button>
         ))}
       </div>
 
       {selectedItems.length > 0 ? (
         <div className="mt-2 flex items-center justify-between gap-2">
-          <p className="text-[9px] text-gray-300">탭해서 다른 아이템으로 교체</p>
+          <p className="text-[10px] text-gray-300">탭해서 다른 아이템으로 교체</p>
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => {
@@ -155,21 +155,21 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                 setSelected(next);
                 haptic('tap');
               }}
-              className="text-[10px] font-semibold text-gray-500 hover:text-brand-primary"
+              className="text-[11px] font-semibold text-gray-500 hover:text-brand-primary"
               title="무작위로 코디 조합 생성"
             >
               🎲 섞기
             </button>
             <button
               onClick={() => setSaveOpen(!saveOpen)}
-              className="text-[10px] font-semibold text-brand-primary hover:underline"
+              className="text-[11px] font-semibold text-brand-primary hover:underline"
             >
               💾 이 코디 저장
             </button>
           </div>
         </div>
       ) : (
-        <p className="text-[10px] text-gray-400 text-center py-4">
+        <p className="text-[11px] text-gray-400 text-center py-4">
           이 필터에는 미리볼 옷이 없어요. 다른 필터를 선택해보세요.
         </p>
       )}
@@ -206,7 +206,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                 setOutfitName('');
                 setSaveOpen(false);
               }}
-              className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
+              className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
             >
               저장
             </button>
@@ -216,7 +216,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
 
       {outfits.length > 0 && (
         <div className="mt-2 pt-2 border-t border-gray-50">
-          <p className="text-[10px] text-gray-400 font-medium mb-1.5">저장된 코디 {outfits.length}</p>
+          <p className="text-[11px] text-gray-400 font-medium mb-1.5">저장된 코디 {outfits.length}</p>
           <div className="flex gap-1 flex-wrap">
             {outfits.slice(-10).map((o) => (
               <div key={o.id} className="flex items-center rounded-full bg-gray-50 border border-gray-100 overflow-hidden">
@@ -226,7 +226,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                     haptic('tap');
                     showToast(`"${o.name}" 불러왔어요.`);
                   }}
-                  className="text-[10px] px-2 py-0.5 text-gray-700 hover:bg-gray-100 transition-colors"
+                  className="text-[11px] px-2 py-0.5 text-gray-700 hover:bg-gray-100 transition-colors"
                 >
                   {o.name}
                 </button>
@@ -235,7 +235,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                     if (confirm(`"${o.name}" 삭제할까요?`)) removeOutfit(o.id);
                   }}
                   aria-label={`${o.name} 삭제`}
-                  className="text-[10px] px-1.5 py-0.5 text-gray-400 hover:text-brand-warning border-l border-gray-100 transition-colors"
+                  className="text-[11px] px-1.5 py-0.5 text-gray-400 hover:text-brand-warning border-l border-gray-100 transition-colors"
                 >
                   ✕
                 </button>

@@ -173,15 +173,15 @@ export default function RecipeDetailModal({
                 <p className="text-xs text-gray-600 mt-1 leading-relaxed">{recipe.blurb}</p>
               )}
               <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/80 text-gray-600 font-medium">
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/80 text-gray-600 font-medium">
                   ⏱ {recipe.time}
                 </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/80 text-brand-primary font-medium">
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/80 text-brand-primary font-medium">
                   {recipe.difficulty}
                 </span>
                 {isSeasonRecipe && (
                   <span
-                    className="text-[10px] px-2 py-0.5 rounded-full bg-white/90 text-brand-primary font-semibold"
+                    className="text-[11px] px-2 py-0.5 rounded-full bg-white/90 text-brand-primary font-semibold"
                     title={`${season}철 추천 레시피 — 제철 재료로 가장 맛있어요`}
                   >
                     {SEASON_EMOJI[season]} {season}철
@@ -191,7 +191,7 @@ export default function RecipeDetailModal({
                   const d = recipeDietary(recipe);
                   return d ? (
                     <span
-                      className="text-[10px] px-2 py-0.5 rounded-full bg-white/90 text-brand-success font-semibold"
+                      className="text-[11px] px-2 py-0.5 rounded-full bg-white/90 text-brand-success font-semibold"
                       title={`${DIETARY_BADGE[d].label} 가능한 레시피`}
                     >
                       {DIETARY_BADGE[d].emoji} {DIETARY_BADGE[d].label}
@@ -199,7 +199,7 @@ export default function RecipeDetailModal({
                   ) : null;
                 })()}
                 {recipe.tags?.map((tag) => (
-                  <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-white/60 text-gray-500">
+                  <span key={tag} className="text-[11px] px-2 py-0.5 rounded-full bg-white/60 text-gray-500">
                     {tag}
                   </span>
                 ))}
@@ -209,14 +209,14 @@ export default function RecipeDetailModal({
 
           {matchedItems.length > 0 && (
             <div className="bg-brand-success/5 border border-brand-success/15 rounded-2xl px-3 py-2.5 mb-3">
-              <p className="text-[10px] text-gray-500 mb-1">보유 중인 재료</p>
+              <p className="text-[11px] text-gray-500 mb-1">보유 중인 재료</p>
               <div className="flex gap-1 flex-wrap">
                 {matchedItems.map((name) => {
                   const inSeason = isSeasonalProduce(name, season);
                   return (
                     <span
                       key={name}
-                      className={`text-[10px] px-2 py-0.5 rounded-full bg-white border font-medium ${
+                      className={`text-[11px] px-2 py-0.5 rounded-full bg-white border font-medium ${
                         inSeason
                           ? 'border-brand-primary/30 text-brand-primary'
                           : 'border-brand-success/20 text-brand-success'
@@ -234,7 +234,7 @@ export default function RecipeDetailModal({
           {missingKeywords.length > 0 && (
             <div className="bg-amber-50 border border-amber-100 rounded-2xl px-3 py-2.5 mb-4">
               <div className="flex items-center justify-between mb-1.5">
-                <p className="text-[10px] text-gray-500">부족한 재료 · 탭하면 쇼핑 리스트에 추가</p>
+                <p className="text-[11px] text-gray-500">부족한 재료 · 탭하면 쇼핑 리스트에 추가</p>
                 {missingKeywords.filter((kw) => !inShopping(kw)).length >= 2 && (
                   <button
                     onClick={() => {
@@ -243,7 +243,7 @@ export default function RecipeDetailModal({
                       haptic('toggle');
                       showToast(`${toAdd.length}개 모두 쇼핑 리스트에 담았어요.`);
                     }}
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-600 text-white hover:opacity-90 active:scale-95 transition-all"
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-600 text-white hover:opacity-90 active:scale-95 transition-all"
                   >
                     모두 담기
                   </button>
@@ -259,7 +259,7 @@ export default function RecipeDetailModal({
                       onClick={() => addToShopping(kw, recipe.name)}
                       disabled={added}
                       title={inSeason ? `${season}철 제철 재료` : undefined}
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors ${
+                      className={`text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors ${
                         added
                           ? 'bg-gray-100 text-gray-400 cursor-default'
                           : inSeason
@@ -281,14 +281,14 @@ export default function RecipeDetailModal({
             if (n.calories === 0) return null;
             return (
               <div className="rounded-2xl border border-gray-100 bg-gray-50/60 px-3 py-2.5 mb-4">
-                <p className="text-[10px] text-gray-500 mb-1">1인분 영양 추정</p>
-                <div className="flex justify-between gap-2 text-[11px]">
+                <p className="text-[11px] text-gray-500 mb-1">1인분 영양 추정</p>
+                <div className="flex justify-between gap-2 text-xs">
                   <span className="text-gray-700 tabular-nums"><span className="text-gray-400">kcal</span> {n.calories}</span>
                   <span className="text-gray-700 tabular-nums"><span className="text-gray-400">단백</span> {n.protein}g</span>
                   <span className="text-gray-700 tabular-nums"><span className="text-gray-400">지방</span> {n.fat}g</span>
                   <span className="text-gray-700 tabular-nums"><span className="text-gray-400">탄수</span> {n.carbs}g</span>
                 </div>
-                <p className="text-[9px] text-gray-400 mt-1 leading-relaxed">재료 카테고리 평균 기반 대략치</p>
+                <p className="text-[10px] text-gray-400 mt-1 leading-relaxed">재료 카테고리 평균 기반 대략치</p>
               </div>
             );
           })()}
@@ -303,7 +303,7 @@ export default function RecipeDetailModal({
             }`}>
               <span className="text-xl">{finished ? '🔔' : running ? '⏱️' : '⏰'}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-gray-500">
+                <p className="text-[11px] text-gray-500">
                   {finished ? '완성 시간이에요!' : running ? '타이머 진행 중' : '조리 타이머'}
                 </p>
                 <p className={`text-xl font-extrabold tabular-nums leading-tight ${
@@ -315,7 +315,7 @@ export default function RecipeDetailModal({
               <div className="flex gap-1.5 shrink-0">
                 <button
                   onClick={handleStartPause}
-                  className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                     running
                       ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                       : 'bg-brand-primary text-white hover:opacity-90'
@@ -338,7 +338,7 @@ export default function RecipeDetailModal({
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[11px] text-gray-400 font-medium">조리 순서</p>
+              <p className="text-xs text-gray-400 font-medium">조리 순서</p>
               <button
                 onClick={async () => {
                   const text = [
@@ -357,7 +357,7 @@ export default function RecipeDetailModal({
                     showToast('복사에 실패했어요. 권한을 확인해주세요.');
                   }
                 }}
-                className="text-[10px] font-semibold text-gray-500 hover:text-brand-primary hover:underline"
+                className="text-[11px] font-semibold text-gray-500 hover:text-brand-primary hover:underline"
               >
                 📋 레시피 복사
               </button>
@@ -365,7 +365,7 @@ export default function RecipeDetailModal({
             <ol className="flex flex-col gap-2.5">
               {recipe.steps.map((step, i) => (
                 <li key={i} className="flex gap-2.5">
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-brand-primary text-white text-[11px] font-bold flex items-center justify-center">
                     {i + 1}
                   </span>
                   <p className="text-sm text-gray-700 leading-relaxed flex-1 pt-0.5">{step}</p>
@@ -376,17 +376,17 @@ export default function RecipeDetailModal({
 
           {coCooked.length > 0 && (
             <div className="mt-4">
-              <p className="text-[11px] font-semibold text-gray-500 mb-2">🍳 같이 만들었던 메뉴</p>
+              <p className="text-xs font-semibold text-gray-500 mb-2">🍳 같이 만들었던 메뉴</p>
               <div className="flex gap-1.5 flex-wrap">
                 {coCooked.map((co) => (
                   <button
                     key={co.recipe.id}
                     onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: co.recipe.id } }))}
-                    className="flex items-center gap-1 text-[11px] pl-1.5 pr-2 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
                   >
                     <span>{co.recipe.emoji}</span>
                     <span className="font-medium">{co.recipe.name}</span>
-                    <span className="text-[9px] text-brand-primary/60 tabular-nums">· {co.count}회</span>
+                    <span className="text-[10px] text-brand-primary/60 tabular-nums">· {co.count}회</span>
                   </button>
                 ))}
               </div>
@@ -415,13 +415,13 @@ export default function RecipeDetailModal({
             if (similar.length === 0) return null;
             return (
               <div className="mt-4">
-                <p className="text-[11px] font-semibold text-gray-500 mb-2">🔗 비슷한 레시피</p>
+                <p className="text-xs font-semibold text-gray-500 mb-2">🔗 비슷한 레시피</p>
                 <div className="flex gap-1.5 flex-wrap">
                   {similar.map((r) => (
                     <button
                       key={r.id}
                       onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: r.id } }))}
-                      className="flex items-center gap-1 text-[11px] pl-1.5 pr-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors"
+                      className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors"
                     >
                       <span>{r.emoji}</span>
                       <span className="font-medium">{r.name}</span>
@@ -452,12 +452,12 @@ export default function RecipeDetailModal({
                 haptic('tap');
                 showToast(`"${recipe.name}" 어제(${y}) 조리로 기록했어요.`);
               }}
-              className="text-[10px] text-gray-500 hover:text-brand-primary hover:underline"
+              className="text-[11px] text-gray-500 hover:text-brand-primary hover:underline"
             >
               어제 만들었어요
             </button>
-            <span className="text-[10px] text-gray-200">·</span>
-            <label className="text-[10px] text-gray-500 hover:text-brand-primary cursor-pointer">
+            <span className="text-[11px] text-gray-200">·</span>
+            <label className="text-[11px] text-gray-500 hover:text-brand-primary cursor-pointer">
               다른 날짜
               <input
                 type="date"
@@ -474,7 +474,7 @@ export default function RecipeDetailModal({
           </div>
 
           {cook.count > 0 && (
-            <p className="text-[10px] text-gray-400 text-center mt-2">
+            <p className="text-[11px] text-gray-400 text-center mt-2">
               지금까지 {cook.count}번 만들었어요{cook.lastCooked ? ` · 마지막 ${cook.lastCooked}` : ''}
             </p>
           )}

@@ -34,8 +34,8 @@ export default function WeekdayPatternChart({ datesByKey, label, weeks = 4 }: Pr
   return (
     <div className="mb-3">
       <div className="flex items-center justify-between mb-1.5">
-        <p className="text-[10px] text-brand-primary font-semibold">🗓️ {label} (최근 {weeks}주)</p>
-        <span className="text-[10px] text-gray-400 tabular-nums">
+        <p className="text-[11px] text-brand-primary font-semibold">🗓️ {label} (최근 {weeks}주)</p>
+        <span className="text-[11px] text-gray-400 tabular-nums">
           {total}회 · 피크 {DOW_LABELS[peakIdx]}요일
         </span>
       </div>
@@ -53,7 +53,7 @@ export default function WeekdayPatternChart({ datesByKey, label, weeks = 4 }: Pr
                   style={{ height: `${pct}%`, minHeight: c > 0 ? '4px' : '2px' }}
                 />
               </div>
-              <span className={`text-[9px] tabular-nums ${
+              <span className={`text-[10px] tabular-nums ${
                 isPk ? 'text-brand-primary font-bold' : 'text-gray-400'
               }`}>{DOW_LABELS[i]}</span>
             </div>

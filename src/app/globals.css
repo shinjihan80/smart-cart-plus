@@ -27,10 +27,21 @@
   --color-mall-bmart: #2AC1BC;
 }
 
+/* SUIT 한국어 본문 가독성 — 글자 살짝 두껍게, 줄간격 살짝 넓게 */
+html {
+  /* Tailwind 기본 1rem = 16px. 한국어 본문 가독성 위해 약간 키움 */
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'SUIT', sans-serif;
+  font-weight: 450;            /* 기본 400보다 살짝 굵게 — SUIT 가독성 ↑ */
+  letter-spacing: -0.005em;    /* 한글 자간 미세 보정 */
+  line-height: 1.55;           /* 본문 줄간격 (Tailwind leading-normal=1.5보다 +0.05) */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -27,7 +27,7 @@ export default function AiQuotaCard() {
           <span className="text-base">🤖</span>
           <span className="text-xs text-gray-400 font-medium">AI 오늘 남은 횟수</span>
         </div>
-        <span className="text-[9px] text-gray-400">무료 · 매일 00시 리셋</span>
+        <span className="text-[10px] text-gray-400">무료 · 매일 00시 리셋</span>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {AGENTS.map((a) => {
@@ -38,10 +38,10 @@ export default function AiQuotaCard() {
           return (
             <div key={a.key} className="rounded-xl border border-gray-100 p-2.5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] text-gray-600">
+                <span className="text-xs text-gray-600">
                   {a.emoji} {a.label}
                 </span>
-                <span className={`text-[11px] font-bold tabular-nums ${tone}`}>
+                <span className={`text-xs font-bold tabular-nums ${tone}`}>
                   {left}/{total}
                 </span>
               </div>
@@ -57,7 +57,7 @@ export default function AiQuotaCard() {
           );
         })}
       </div>
-      <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+      <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
         Pro 구독 시 무제한. Phase 7에 결제 연동 예정.
       </p>
     </motion.div>

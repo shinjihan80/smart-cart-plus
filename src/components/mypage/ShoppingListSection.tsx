@@ -94,14 +94,14 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           {shopping.list.length >= 2 && (
             <button
               onClick={handleBulkAdd}
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
+              className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
             >
               모두 담기
             </button>
           )}
           <button
             onClick={() => setImportOpen(!importOpen)}
-            className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-[11px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
             title="텍스트에서 여러 줄 가져오기"
           >
             📥 가져오기
@@ -116,14 +116,14 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                 showToast('복사에 실패했어요.');
               }
             }}
-            className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-[11px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
             title="클립보드에 복사"
           >
             📋 복사
           </button>
           <button
             onClick={handleClear}
-            className="text-[10px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-[11px] text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
           >
             전체 비우기
           </button>
@@ -131,7 +131,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
       </div>
       {importOpen && (
         <div className="mb-3 rounded-xl border border-brand-primary/15 bg-brand-primary/5 p-2.5">
-          <p className="text-[10px] text-gray-500 mb-1.5">한 줄에 하나씩, 또는 쉼표로 구분해 붙여넣어요</p>
+          <p className="text-[11px] text-gray-500 mb-1.5">한 줄에 하나씩, 또는 쉼표로 구분해 붙여넣어요</p>
           <textarea
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
@@ -142,14 +142,14 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           <div className="flex gap-1 mt-1.5 justify-end">
             <button
               onClick={() => { setImportOpen(false); setImportText(''); }}
-              className="text-[10px] text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+              className="text-[11px] text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
             >
               취소
             </button>
             <button
               onClick={handleImport}
               disabled={!importText.trim()}
-              className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-brand-primary text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
+              className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-brand-primary text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
             >
               가져오기
             </button>
@@ -203,8 +203,8 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                 {groups.length > 1 && (
                   <div className="flex items-center gap-1.5 mb-1">
                     <span className="text-xs">{g.emoji}</span>
-                    <span className="text-[10px] font-semibold text-gray-500">{g.label}</span>
-                    <span className="text-[9px] text-gray-300 tabular-nums">· {g.items.length}</span>
+                    <span className="text-[11px] font-semibold text-gray-500">{g.label}</span>
+                    <span className="text-[10px] text-gray-300 tabular-nums">· {g.items.length}</span>
                     {g.items.length >= 2 && (
                       <button
                         onClick={() => {
@@ -218,7 +218,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                               : `${added}개 담았어요.`,
                           );
                         }}
-                        className="ml-auto text-[9px] font-semibold text-brand-success hover:underline"
+                        className="ml-auto text-[10px] font-semibold text-brand-success hover:underline"
                       >
                         그룹 담기 →
                       </button>
@@ -234,13 +234,13 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                         <span className="text-sm shrink-0">{emoji}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-gray-800 truncate">{it.name}</p>
-                          <p className="text-[9px] text-gray-400 truncate">
+                          <p className="text-[10px] text-gray-400 truncate">
                             {category}
                           </p>
                         </div>
                         <button
                           onClick={() => handleSingleAdd(it.id, it.name)}
-                          className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
+                          className="shrink-0 text-[11px] font-semibold px-2 py-1 rounded-full bg-brand-success/10 text-brand-success hover:bg-brand-success/15 transition-colors"
                         >
                           담았어요
                         </button>
@@ -251,7 +251,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                           }}
                           aria-label={`${it.name} 제거`}
                           title="제거"
-                          className="shrink-0 text-[10px] text-gray-300 hover:text-brand-warning px-1 py-1 transition-colors"
+                          className="shrink-0 text-[11px] text-gray-300 hover:text-brand-warning px-1 py-1 transition-colors"
                         >
                           ✕
                         </button>
@@ -264,13 +264,13 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           </div>
         );
       })()}
-      <p className="text-[9px] text-gray-400 mt-2.5 leading-relaxed">
+      <p className="text-[10px] text-gray-400 mt-2.5 leading-relaxed">
         &ldquo;담았어요&rdquo;를 누르면 네모아가 카테고리·보관 방법을 추론해 냉장고에 자동 추가해요.
       </p>
 
       {/* 파트너 연결 placeholder — Phase 7 */}
       <div className="mt-3 pt-3 border-t border-gray-50">
-        <p className="text-[10px] text-gray-400 mb-1.5">🛒 바로 장보기</p>
+        <p className="text-[11px] text-gray-400 mb-1.5">🛒 바로 장보기</p>
         <div className="flex gap-1.5 flex-wrap">
           <PartnerChip partner={PARTNERS.coupang} />
           <PartnerChip partner={PARTNERS.kurly} />

@@ -160,7 +160,7 @@ export default function ClosetPage() {
         <div className="px-4 py-3.5 flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
-            <p className="text-[10px] text-gray-400 mt-0.5">
+            <p className="text-[11px] text-gray-400 mt-0.5">
               패션 {activeClothing.length}개 관리 중{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''} · ← 밀어서 삭제
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function ClosetPage() {
             {hibernatingCount > 0 && (
               <button
                 onClick={() => setShowHibernating(!showHibernating)}
-                className={`text-[10px] font-semibold px-2.5 py-1 rounded-full transition-colors ${
+                className={`text-[11px] font-semibold px-2.5 py-1 rounded-full transition-colors ${
                   showHibernating
                     ? 'bg-brand-primary text-white'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
@@ -194,12 +194,12 @@ export default function ClosetPage() {
           <div className="flex justify-between text-center">
             <div className="flex-1">
               <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{allClothing.length}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">전체</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">전체</p>
             </div>
             {groupCounts.map(({ group, count }) => (
               <div key={group} className="flex-1">
                 <p className="text-2xl font-extrabold text-brand-primary tabular-nums">{count}</p>
-                <p className="text-[10px] text-gray-400 mt-0.5">{group}</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">{group}</p>
               </div>
             ))}
           </div>
@@ -233,7 +233,7 @@ export default function ClosetPage() {
                 <span className="text-base">📊</span>
                 <span className="text-xs text-gray-400 font-medium">이번 주 착용 요약</span>
               </div>
-              <p className="text-[11px] text-gray-600 mt-1.5 leading-relaxed">
+              <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
                 최근 7일 동안 <span className="font-bold text-brand-primary tabular-nums">{weekCount}회</span> 착용 · 옷 <span className="font-bold text-brand-primary tabular-nums">{uniqueItems.size}벌</span> 썼어요
               </p>
               <div className="mt-2">
@@ -273,7 +273,7 @@ export default function ClosetPage() {
                   {season === '봄' ? '🌸' : season === '여름' ? '☀️' : season === '가을' ? '🍂' : '❄️'} 지금 입기 좋은 옷
                 </p>
                 {filteredOut > 0 && (
-                  <span className="text-[9px] text-gray-400 shrink-0">필터로 {filteredOut}벌 숨김</span>
+                  <span className="text-[10px] text-gray-400 shrink-0">필터로 {filteredOut}벌 숨김</span>
                 )}
               </div>
               {seasonItems.length > 0 ? (
@@ -286,7 +286,7 @@ export default function ClosetPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-[10px] text-gray-400 py-2">
+                <p className="text-[11px] text-gray-400 py-2">
                   현재 필터에 {season}철 옷이 없어요. &ldquo;전체 보기&rdquo;로 바꿔보세요.
                 </p>
               )}
@@ -321,7 +321,7 @@ export default function ClosetPage() {
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed">
+              <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
                 오늘 한 번 꺼내볼까요? 카드에서 &ldquo;👕 오늘 입었어요&rdquo;로 기록할 수 있어요.
               </p>
             </motion.div>
@@ -353,7 +353,7 @@ export default function ClosetPage() {
                   <div key={w.item.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-brand-primary/5 border border-brand-primary/10">
                     <span className="text-sm">{FASHION_EMOJI[w.item.category] ?? '👕'}</span>
                     <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{w.item.name}</span>
-                    <span className="text-[10px] text-brand-primary/60 tabular-nums">{w.count}회</span>
+                    <span className="text-[11px] text-brand-primary/60 tabular-nums">{w.count}회</span>
                   </div>
                 ))}
               </div>
@@ -385,10 +385,10 @@ export default function ClosetPage() {
           </div>
           {profiles.length >= 2 && (
             <div className="flex gap-1 mb-2 flex-wrap items-center">
-              <span className="text-[10px] text-gray-400">누구 것:</span>
+              <span className="text-[11px] text-gray-400">누구 것:</span>
               <button
                 onClick={() => setQuickAddOwner(undefined)}
-                className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                   !quickAddOwner
                     ? 'bg-gray-500 text-white'
                     : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -400,7 +400,7 @@ export default function ClosetPage() {
                 <button
                   key={p.id}
                   onClick={() => setQuickAddOwner(p.id)}
-                  className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                  className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                     quickAddOwner === p.id
                       ? 'bg-brand-primary text-white'
                       : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -416,7 +416,7 @@ export default function ClosetPage() {
               <button
                 key={preset.name}
                 onClick={() => handleQuickAdd(preset)}
-                className="flex items-center gap-1.5 text-[11px] pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
+                className="flex items-center gap-1.5 text-xs pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
               >
                 <div className="w-6 h-6 rounded-lg overflow-hidden bg-white shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -446,7 +446,7 @@ export default function ClosetPage() {
               aria-label="옷장 상품 검색 (⌘K · /)"
               className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
             />
-            <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[9px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">⌘K</kbd>
+            <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-[10px] text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">⌘K</kbd>
           </div>
         </div>
         {/* 프로필 필터 (프로필 2명 이상일 때만) */}
@@ -454,7 +454,7 @@ export default function ClosetPage() {
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
             <button
               onClick={() => setOwnerFilter('전체')}
-              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+              className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 ownerFilter === '전체'
                   ? 'bg-gray-900 text-white'
                   : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -466,7 +466,7 @@ export default function ClosetPage() {
               <button
                 key={p.id}
                 onClick={() => setOwnerFilter(p.id)}
-                className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   ownerFilter === p.id
                     ? 'bg-brand-primary text-white'
                     : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -477,7 +477,7 @@ export default function ClosetPage() {
             ))}
             <button
               onClick={() => setOwnerFilter('공용')}
-              className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+              className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 ownerFilter === '공용'
                   ? 'bg-gray-500 text-white'
                   : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -513,7 +513,7 @@ export default function ClosetPage() {
               const idx = cycle.indexOf(sortBy);
               setSortBy(cycle[(idx + 1) % cycle.length]);
             }}
-            className="text-[10px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap"
+            className="text-[11px] text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap"
           >
             {SORT_LABEL[sortBy]}
           </button>
@@ -528,7 +528,7 @@ export default function ClosetPage() {
               return (
                 <div key={grp}>
                   <div className="flex items-center gap-2 mb-2 mt-1">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
+                    <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
                       {GROUP_EMOJI[grp]} {grp} {group.length}
                     </span>
                     <div className="flex-1 h-px bg-gray-100" />

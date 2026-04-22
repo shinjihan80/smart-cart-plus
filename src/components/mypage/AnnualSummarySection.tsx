@@ -57,7 +57,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
           <span className="text-base">📅</span>
           <span className="text-xs text-gray-400 font-medium">올해 활동 요약</span>
         </div>
-        <span className="text-[10px] text-gray-400 tabular-nums shrink-0">
+        <span className="text-[11px] text-gray-400 tabular-nums shrink-0">
           {year}년 · {dayOfYear}일째
         </span>
       </div>
@@ -66,7 +66,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
           <div key={s.label} className="flex flex-col items-center gap-0.5 py-1">
             <span className="text-lg">{s.emoji}</span>
             <span className="text-base font-extrabold text-brand-primary tabular-nums">{s.value}</span>
-            <span className="text-[9px] text-gray-400 font-medium">{s.label}</span>
+            <span className="text-[10px] text-gray-400 font-medium">{s.label}</span>
           </div>
         ))}
       </div>

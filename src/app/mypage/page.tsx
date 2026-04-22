@@ -64,7 +64,7 @@ export default function MyPage() {
         <div className="px-4 py-3.5 flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">마이페이지</h1>
-            <p className="text-[10px] text-gray-400 mt-0.5">통계 · 기록 · 리스트</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">통계 · 기록 · 리스트</p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <PaletteButton />
@@ -88,7 +88,7 @@ export default function MyPage() {
             <a
               key={j.id}
               href={`#${j.id}`}
-              className="shrink-0 text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
+              className="shrink-0 text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
             >
               {j.label}
             </a>
@@ -127,11 +127,11 @@ export default function MyPage() {
               <p className="text-xs font-semibold text-gray-800">
                 {backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${backup.daysSince}일 전`}
               </p>
-              <p className="text-[10px] text-gray-500 mt-0.5">브라우저 캐시가 비면 데이터가 사라질 수 있어요.</p>
+              <p className="text-[11px] text-gray-500 mt-0.5">브라우저 캐시가 비면 데이터가 사라질 수 있어요.</p>
             </div>
             <button
               onClick={handleBackupNow}
-              className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90"
+              className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90"
             >
               지금 백업
             </button>
@@ -166,7 +166,7 @@ export default function MyPage() {
                     <span className="text-sm">{record.category === '식품' ? '🥦' : '👗'}</span>
                     <span className="text-sm text-gray-700 truncate">{record.name}</span>
                   </div>
-                  <span className="text-[10px] text-gray-400 tabular-nums shrink-0">{record.date}</span>
+                  <span className="text-[11px] text-gray-400 tabular-nums shrink-0">{record.date}</span>
                 </div>
               ))}
             </div>
@@ -209,17 +209,17 @@ export default function MyPage() {
               <div key={mall.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className={`w-7 h-7 rounded-full ${mall.mallBg} flex items-center justify-center`}>
-                    <span className="text-white text-[9px] font-bold">{mall.name.charAt(0)}</span>
+                    <span className="text-white text-[10px] font-bold">{mall.name.charAt(0)}</span>
                   </div>
                   <span className="text-sm text-gray-700">{mall.name}</span>
                 </div>
-                <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                   {mall.status}
                 </span>
               </div>
             ))}
           </div>
-          <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
+          <p className="text-[11px] text-gray-400 mt-3 leading-relaxed">
             이메일 파싱으로 구매 내역을 자동 가져오는 기능이 곧 추가됩니다.
           </p>
         </motion.div>
@@ -291,7 +291,7 @@ export default function MyPage() {
               {archived.length > 5 && (
                 <button
                   onClick={() => setArchiveExpanded(!archiveExpanded)}
-                  className="text-[10px] text-brand-primary font-semibold hover:underline"
+                  className="text-[11px] text-brand-primary font-semibold hover:underline"
                 >
                   {archiveExpanded ? '접기' : `전체 보기 (${archived.length})`}
                 </button>
@@ -305,7 +305,7 @@ export default function MyPage() {
                     <span className="text-sm text-gray-500 truncate">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[10px] text-gray-300">{item.category}</span>
+                    <span className="text-[11px] text-gray-300">{item.category}</span>
                     <button
                       onClick={() => {
                         const ok = restoreFromArchive(item.id);
@@ -313,7 +313,7 @@ export default function MyPage() {
                           showToast(`"${item.name}" 복원했어요${item.category === '식품' ? ' (구매일 오늘로)' : ''}.`);
                         }
                       }}
-                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                      className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
                     >
                       복원
                     </button>

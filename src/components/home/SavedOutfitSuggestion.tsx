@@ -40,7 +40,7 @@ export default function SavedOutfitSuggestion({ items }: { items: CartItem[] }) 
             <p className="text-sm font-bold text-gray-900 truncate">{pick.name}</p>
             <div className="flex gap-1 mt-1 flex-wrap">
               {resolved.slice(0, 4).map(({ item }) => (
-                <span key={item.id} className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/10 text-brand-primary">
+                <span key={item.id} className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/10 text-brand-primary">
                   <span>{FASHION_EMOJI[item.category] ?? '👕'}</span>
                   <span className="font-medium truncate max-w-[60px]">{item.name}</span>
                 </span>

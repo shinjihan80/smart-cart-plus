@@ -43,20 +43,20 @@ export default function SeasonalUnstowBanner({ items }: { items: CartItem[] }) {
       <span className="text-2xl shrink-0">{SEASON_EMOJI[season]}</span>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold text-brand-success">{season}이 왔어요!</p>
-        <p className="text-[11px] text-gray-600 mt-0.5 leading-relaxed">
+        <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
           보관해뒀던 {season}철 옷 <span className="font-semibold tabular-nums">{candidates.length}벌</span>을 꺼낼 때예요.
         </p>
       </div>
       <div className="flex flex-col gap-1 shrink-0">
         <button
           onClick={handleUnstowAll}
-          className="text-[11px] font-semibold px-3 py-1.5 rounded-full bg-brand-success text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+          className="text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-success text-white hover:opacity-90 transition-opacity whitespace-nowrap"
         >
           모두 꺼내기
         </button>
         <Link
           href="/mypage"
-          className="text-[9px] text-gray-500 text-center hover:underline"
+          className="text-[10px] text-gray-500 text-center hover:underline"
         >
           개별 관리 →
         </Link>

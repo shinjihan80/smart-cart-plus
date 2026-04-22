@@ -47,7 +47,7 @@ export default function ErrorLogCard() {
           <span className="text-base">🩺</span>
           <span className="text-xs text-gray-400 font-medium">오류 기록</span>
           {entries.length > 0 && (
-            <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full tabular-nums">
+            <span className="text-[11px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full tabular-nums">
               {entries.length}
             </span>
           )}
@@ -61,7 +61,7 @@ export default function ErrorLogCard() {
       {open && (
         <div className="mt-3">
           {entries.length === 0 ? (
-            <p className="text-[11px] text-gray-400 leading-relaxed">
+            <p className="text-xs text-gray-400 leading-relaxed">
               아직 기록된 오류가 없어요. 앱이 건강하게 동작 중이에요.
             </p>
           ) : (
@@ -70,10 +70,10 @@ export default function ErrorLogCard() {
                 {entries.slice(0, 10).map((e) => (
                   <li
                     key={e.id}
-                    className="text-[10px] p-2 bg-gray-50 rounded-xl border border-gray-100"
+                    className="text-[11px] p-2 bg-gray-50 rounded-xl border border-gray-100"
                   >
                     <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <span className="font-mono text-[9px] text-gray-400">
+                      <span className="font-mono text-[10px] text-gray-400">
                         {new Date(e.ts).toLocaleString('ko-KR', {
                           month:  '2-digit',
                           day:    '2-digit',
@@ -81,13 +81,13 @@ export default function ErrorLogCard() {
                           minute: '2-digit',
                         })}
                       </span>
-                      <span className="text-[9px] text-gray-400">{e.source ?? '?'}</span>
+                      <span className="text-[10px] text-gray-400">{e.source ?? '?'}</span>
                     </div>
                     <p className="text-gray-700 break-words leading-relaxed line-clamp-2">
                       {e.message}
                     </p>
                     {e.url && (
-                      <p className="text-[9px] text-gray-400 mt-0.5 truncate">{e.url}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5 truncate">{e.url}</p>
                     )}
                   </li>
                 ))}
@@ -95,20 +95,20 @@ export default function ErrorLogCard() {
               <div className="flex items-center gap-1.5 mt-3">
                 <button
                   onClick={handleCopy}
-                  className="flex-1 flex items-center justify-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                 >
                   <Copy size={11} />
                   <span>복사</span>
                 </button>
                 <button
                   onClick={handleClear}
-                  className="flex-1 flex items-center justify-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                 >
                   <Trash2 size={11} />
                   <span>지우기</span>
                 </button>
               </div>
-              <p className="text-[9px] text-gray-400 mt-2 leading-relaxed">
+              <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
                 최근 오류 10건 표시 · 최대 50건까지 로컬 저장 · 서버 전송 안 함
               </p>
             </>

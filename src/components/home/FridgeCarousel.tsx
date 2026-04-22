@@ -72,11 +72,11 @@ function FridgeCard({ name, dDay, storageType, emoji, imageUrl, onDiscard, inSea
           </p>
           <p className="text-xs text-gray-500 mt-0.5 truncate">{name}</p>
           <div className="flex gap-1 mt-1 flex-wrap">
-            <span className="inline-block text-[9px] px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-400">
+            <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-400">
               {storageType === '냉장' ? '❄️ 냉장' : storageType === '냉동' ? '🧊 냉동' : '📦 실온'}
             </span>
             {inSeason && (
-              <span className="inline-block text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+              <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
                 {SEASON_EMOJI[season]} 제철
               </span>
             )}
@@ -104,7 +104,7 @@ export default function FridgeCarousel({ items, onDiscard }: { items: CartItem[]
           <div className="flex items-center gap-2">
             <span className="text-base">🧊</span>
             <span className="text-xs text-gray-400 font-medium">스마트 냉장고</span>
-            <span className="text-[9px] text-gray-300 tabular-nums">{sorted.length}개</span>
+            <span className="text-[10px] text-gray-300 tabular-nums">{sorted.length}개</span>
           </div>
           <Link href="/fridge" className="text-xs text-brand-primary font-medium flex items-center gap-0.5">
             전체보기 <ChevronRight size={14} />

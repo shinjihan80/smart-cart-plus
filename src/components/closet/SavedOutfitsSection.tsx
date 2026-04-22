@@ -48,7 +48,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
       <div className="flex items-center gap-2 mb-3">
         <span className="text-base">💾</span>
         <span className="text-xs text-gray-400 font-medium">저장된 코디</span>
-        <span className="text-[10px] text-gray-300 tabular-nums">{outfits.length}</span>
+        <span className="text-[11px] text-gray-300 tabular-nums">{outfits.length}</span>
       </div>
       <div className="flex flex-col gap-2">
         {[...outfits].reverse().slice(0, 5).map((o) => {
@@ -62,7 +62,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => handleWearAll(o.slots, o.name)}
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
                   >
                     👕 오늘 입었어요
                   </button>
@@ -71,7 +71,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                       if (confirm(`"${o.name}" 삭제할까요?`)) remove(o.id);
                     }}
                     aria-label={`${o.name} 삭제`}
-                    className="text-[10px] text-gray-400 hover:text-brand-warning px-1.5 py-0.5 transition-colors"
+                    className="text-[11px] text-gray-400 hover:text-brand-warning px-1.5 py-0.5 transition-colors"
                   >
                     ✕
                   </button>
@@ -82,7 +82,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                   {resolved.map((c) => (
                     <span
                       key={c.id}
-                      className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700"
+                      className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700"
                     >
                       <span>{FASHION_EMOJI[c.category] ?? '👕'}</span>
                       <span className="truncate max-w-[80px]">{c.name}</span>
@@ -90,13 +90,13 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                   ))}
                 </div>
               ) : (
-                <p className="text-[10px] text-gray-400">이 코디의 옷들이 옷장에서 제거됐어요.</p>
+                <p className="text-[11px] text-gray-400">이 코디의 옷들이 옷장에서 제거됐어요.</p>
               )}
             </div>
           );
         })}
         {outfits.length > 5 && (
-          <p className="text-[10px] text-gray-400 text-center mt-1">
+          <p className="text-[11px] text-gray-400 text-center mt-1">
             외 {outfits.length - 5}개 더 있어요 (하단 코디 미리보기에서 칩으로 확인)
           </p>
         )}

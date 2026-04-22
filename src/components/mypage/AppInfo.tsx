@@ -43,11 +43,11 @@ export default function AppInfo() {
       <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
         <Link
           href="/legal"
-          className="text-[11px] text-gray-500 hover:text-brand-primary hover:underline"
+          className="text-xs text-gray-500 hover:text-brand-primary hover:underline"
         >
           이용약관 · 개인정보 처리방침 →
         </Link>
-        <span className="text-[9px] text-gray-300">© NEMOA</span>
+        <span className="text-[10px] text-gray-300">© NEMOA</span>
       </div>
     </motion.div>
   );

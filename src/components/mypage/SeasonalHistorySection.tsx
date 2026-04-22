@@ -101,12 +101,12 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
             올{season} 드신 제철 재료
           </span>
         </div>
-        <span className="text-[10px] text-gray-500 tabular-nums shrink-0">
+        <span className="text-[11px] text-gray-500 tabular-nums shrink-0">
           {distinct}종 · {total}회
         </span>
       </div>
       {ranked.length === 0 && (
-        <p className="text-[11px] text-gray-400 leading-relaxed">
+        <p className="text-xs text-gray-400 leading-relaxed">
           아직 드신 제철 재료가 없어요. 아래에서 놓친 재료를 확인해보세요.
         </p>
       )}
@@ -115,19 +115,19 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
           const emoji = lookupSeasonalEmoji(r.name) ?? getFoodEmoji(r.name);
           return (
             <div key={r.name} className="flex items-center gap-2 py-0.5">
-              <span className="text-[10px] text-gray-300 tabular-nums w-4 text-right shrink-0">
+              <span className="text-[11px] text-gray-300 tabular-nums w-4 text-right shrink-0">
                 {i + 1}
               </span>
               <span className="text-sm shrink-0">{emoji}</span>
               <span className="flex-1 text-sm text-gray-800 truncate">{r.name}</span>
-              <span className="text-[11px] font-semibold text-brand-primary tabular-nums shrink-0">
+              <span className="text-xs font-semibold text-brand-primary tabular-nums shrink-0">
                 {r.count}회
               </span>
             </div>
           );
         })}
       </div>
-      <p className="text-[10px] text-gray-400 mt-2.5 leading-relaxed">
+      <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">
         냉장고에서 소진한 기록을 기반으로 집계해요. {season}이 지나면 다음 계절로 자동 교체돼요.
       </p>
 
@@ -139,14 +139,14 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
           >
             <div className="flex items-center gap-1.5">
               <span className="text-sm">🫥</span>
-              <span className="text-[11px] font-semibold text-gray-600">
+              <span className="text-xs font-semibold text-gray-600">
                 아직 못 드신 {season}철 재료
               </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold tabular-nums">
+              <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold tabular-nums">
                 {missed.length}/{totalInSeason}
               </span>
             </div>
-            <span className={`text-[10px] text-gray-400 transition-transform ${missedOpen ? 'rotate-180' : ''}`}>▾</span>
+            <span className={`text-[11px] text-gray-400 transition-transform ${missedOpen ? 'rotate-180' : ''}`}>▾</span>
           </button>
           <AnimatePresence>
             {missedOpen && (
@@ -161,7 +161,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                   <div className="pt-2">
                     <button
                       onClick={handleShopAddAll}
-                      className="w-full text-[11px] font-semibold py-1.5 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                      className="w-full text-xs font-semibold py-1.5 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
                     >
                       🛒 {missed.length}종 모두 쇼핑 리스트에 담기
                     </button>
@@ -178,19 +178,19 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                         <button
                           onClick={() => handleShopAdd(p.name)}
                           title={p.blurb ?? `${season}철 제철`}
-                          className="flex items-center gap-1 text-[11px] pl-1.5 pr-2 py-1 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
+                          className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
                         >
                           <span className="text-sm">{p.emoji}</span>
                           <span className="font-medium">{p.name}</span>
                           {p.peak === season && (
-                            <span className="text-[9px] px-1 py-0 rounded-full bg-amber-200 text-amber-800">피크</span>
+                            <span className="text-[10px] px-1 py-0 rounded-full bg-amber-200 text-amber-800">피크</span>
                           )}
                         </button>
                         {recipeCount > 0 && (
                           <button
                             onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }))}
                             title={`${p.name}(으)로 만드는 요리 보기`}
-                            className="text-[10px] px-2 py-1 border-l border-amber-100 text-amber-700/80 hover:bg-amber-100 transition-colors"
+                            className="text-[11px] px-2 py-1 border-l border-amber-100 text-amber-700/80 hover:bg-amber-100 transition-colors"
                           >
                             📖 {recipeCount}
                           </button>
@@ -199,10 +199,10 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                     );
                   })}
                   {missed.length > 12 && (
-                    <span className="text-[10px] text-gray-400 self-center">외 {missed.length - 12}종</span>
+                    <span className="text-[11px] text-gray-400 self-center">외 {missed.length - 12}종</span>
                   )}
                 </div>
-                <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
                   칩을 탭하면 쇼핑 리스트에 담겨요. {season}이 지나기 전에 한 번씩 드셔보세요.
                 </p>
               </motion.div>

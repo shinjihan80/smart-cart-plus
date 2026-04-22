@@ -44,7 +44,7 @@ export default function MonthlySummarySection({ discardHistory }: Props) {
           <span className="text-base">📆</span>
           <span className="text-xs text-gray-400 font-medium">이번 달 활동</span>
         </div>
-        <span className="text-[10px] text-gray-400 tabular-nums shrink-0">
+        <span className="text-[11px] text-gray-400 tabular-nums shrink-0">
           {now.getMonth() + 1}월 · {daysPassed}일째
         </span>
       </div>
@@ -52,17 +52,17 @@ export default function MonthlySummarySection({ discardHistory }: Props) {
         <div className="flex flex-col items-center gap-0.5 py-1">
           <span className="text-lg">🍳</span>
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{cookCount}</span>
-          <span className="text-[9px] text-gray-400 font-medium">조리 · {cookPerDay}/일</span>
+          <span className="text-[10px] text-gray-400 font-medium">조리 · {cookPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
           <span className="text-lg">👕</span>
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{wearCount}</span>
-          <span className="text-[9px] text-gray-400 font-medium">착용 · {wearPerDay}/일</span>
+          <span className="text-[10px] text-gray-400 font-medium">착용 · {wearPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
           <span className="text-lg">♻️</span>
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{discardCount}</span>
-          <span className="text-[9px] text-gray-400 font-medium">소진</span>
+          <span className="text-[10px] text-gray-400 font-medium">소진</span>
         </div>
       </div>
     </motion.div>

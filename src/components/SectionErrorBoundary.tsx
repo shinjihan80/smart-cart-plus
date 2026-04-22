@@ -50,13 +50,13 @@ export default class SectionErrorBoundary extends Component<Props, State> {
             <p className="text-xs font-semibold text-brand-warning">
               {this.props.label ?? '이 섹션'}을 불러오지 못했어요
             </p>
-            <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
               일시적인 문제일 수 있어요. 다시 시도하거나 다른 메뉴에서 이어가세요.
             </p>
           </div>
           <button
             onClick={this.handleRetry}
-            className="shrink-0 text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white border border-brand-warning/30 text-brand-warning hover:bg-brand-warning/10 transition-colors"
+            className="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white border border-brand-warning/30 text-brand-warning hover:bg-brand-warning/10 transition-colors"
           >
             다시 시도
           </button>

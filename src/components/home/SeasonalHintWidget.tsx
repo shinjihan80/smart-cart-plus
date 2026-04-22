@@ -37,12 +37,12 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
             <div className="flex-1 min-w-0 text-left">
               <div className="flex items-center gap-1.5 mb-0.5">
                 <p className="text-xs text-gray-400 font-medium">지금 {season}철 식탁</p>
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold tabular-nums">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold tabular-nums">
                   {ownedSeasonal.length}개
                 </span>
               </div>
               <p className="text-sm font-bold text-gray-900 truncate">{sample}</p>
-              <p className="text-[10px] text-gray-500 mt-0.5">
+              <p className="text-[11px] text-gray-500 mt-0.5">
                 가장 맛있을 때예요 — 이번 주 안에 드셔보세요
               </p>
             </div>
@@ -64,7 +64,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
             <div className="flex-1 min-w-0 text-left">
               <p className="text-xs text-gray-400 font-medium mb-0.5">이번 {season} 놓치지 마세요</p>
               <p className="text-sm font-bold text-gray-900 truncate">{sample}</p>
-              <p className="text-[10px] text-gray-500 mt-0.5">
+              <p className="text-[11px] text-gray-500 mt-0.5">
                 피크 제철 {peakMissing.length}종이 기다려요
               </p>
             </div>

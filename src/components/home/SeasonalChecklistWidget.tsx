@@ -83,7 +83,7 @@ export default function SeasonalChecklistWidget({ items, history }: Props) {
               <p className="text-xs font-semibold text-gray-700">
                 이번 {season} 제철 체크리스트
               </p>
-              <span className="text-[11px] font-bold text-brand-primary tabular-nums shrink-0">
+              <span className="text-xs font-bold text-brand-primary tabular-nums shrink-0">
                 {tried}/{total}
               </span>
             </div>
@@ -97,7 +97,7 @@ export default function SeasonalChecklistWidget({ items, history }: Props) {
                 }`}
               />
             </div>
-            <p className="text-[10px] text-gray-400 mt-1.5">
+            <p className="text-[11px] text-gray-400 mt-1.5">
               {pct === 100
                 ? `${season}철 제철 재료를 모두 드셨어요! 👏`
                 : pct === 0

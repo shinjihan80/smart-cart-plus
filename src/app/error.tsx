@@ -29,7 +29,7 @@ export default function ErrorPage({
         다시 시도
       </button>
       {error.digest && (
-        <p className="text-[10px] text-gray-400 mt-4 font-mono">오류 ID: {error.digest}</p>
+        <p className="text-[11px] text-gray-400 mt-4 font-mono">오류 ID: {error.digest}</p>
       )}
     </div>
   );

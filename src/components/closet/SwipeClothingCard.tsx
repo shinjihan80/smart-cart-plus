@@ -71,7 +71,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
       <div className="absolute inset-0 flex items-center justify-end px-6 pointer-events-none">
         <motion.div style={{ opacity: removeOpacity }} className="flex flex-col items-center gap-0.5">
           <span className="text-xl">🗑️</span>
-          <span className="text-[9px] font-semibold text-brand-warning">삭제</span>
+          <span className="text-[10px] font-semibold text-brand-warning">삭제</span>
         </motion.div>
       </div>
 
@@ -103,7 +103,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
               {matchBadge && (
                 <span
-                  className={`shrink-0 inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${MATCH_STYLE[matchBadge.level]}`}
+                  className={`shrink-0 inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${MATCH_STYLE[matchBadge.level]}`}
                   title={matchBadge.label}
                 >
                   <span>{matchBadge.emoji}</span>
@@ -112,7 +112,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               )}
               {daysAgo !== null && (
                 <span
-                  className={`shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                  className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                     daysAgo === 0 ? 'bg-brand-success/10 text-brand-success' :
                     daysAgo <= 7 ? 'bg-gray-100 text-gray-500' :
                     daysAgo <= 30 ? 'bg-amber-50 text-amber-600' :
@@ -124,13 +124,13 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 </span>
               )}
               {owner && (
-                <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
+                <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
                   {owner.name}
                 </span>
               )}
               {sizeMatch.status !== 'unknown' && sizeMatch.label && (
                 <span
-                  className={`shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${
+                  className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
                     sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
                     sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
                     'bg-brand-warning/10 text-brand-warning'
@@ -141,19 +141,19 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 </span>
               )}
             </div>
-            {item.memo && <p className="text-[9px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
+            {item.memo && <p className="text-[10px] text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
+              <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
                 <ThickIcon size={10} />
                 {item.thickness}
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
                 {item.material}
               </span>
               {item.weatherTags?.map((tag) => (
                 <span
                   key={tag}
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
+                  className={`text-[11px] px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
                 >
                   {tag}
                 </span>
@@ -171,7 +171,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[10px]">
+              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-[11px]">
                 {/* 이미지 — 편집 모드에서만 변경/삭제 버튼, 없으면 "사진 추가" 버튼 */}
                 {item.imageUrl ? (
                   <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
@@ -210,7 +210,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
                   >
                     <span className="text-lg">📷</span>
-                    <span className="text-[10px] font-medium">사진 추가</span>
+                    <span className="text-[11px] font-medium">사진 추가</span>
                   </button>
                 ) : null}
 
@@ -258,7 +258,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                       <p className="text-gray-700 font-medium mt-0.5">
                         {item.size}
                         {sizeMatch.detail && (
-                          <span className="ml-1 text-[9px] text-gray-400 font-normal">
+                          <span className="ml-1 text-[10px] text-gray-400 font-normal">
                             · {sizeReference?.name ?? '본인'} {sizeMatch.detail}
                           </span>
                         )}
@@ -291,7 +291,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                           <button
                             key={t}
                             onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { thickness: t }); }}
-                            className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                            className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                               item.thickness === t
                                 ? 'bg-brand-primary text-white'
                                 : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -332,7 +332,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     <div className="flex gap-1 mt-0.5 flex-wrap">
                       <button
                         onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: undefined }); }}
-                        className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                        className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                           !item.ownerId
                             ? 'bg-gray-500 text-white'
                             : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -344,7 +344,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                         <button
                           key={p.id}
                           onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: p.id }); }}
-                          className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                          className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
                             item.ownerId === p.id
                               ? 'bg-brand-primary text-white'
                               : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
@@ -356,7 +356,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                       <a
                         href="/settings#profiles"
                         onClick={(e) => e.stopPropagation()}
-                        className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
+                        className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
                       >
                         + 추가
                       </a>
@@ -388,7 +388,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 </div>
                 <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
                   <div className="min-w-0">
-                    <p className="text-[10px] text-gray-400">착용 기록</p>
+                    <p className="text-[11px] text-gray-400">착용 기록</p>
                     <p className="text-xs font-medium text-gray-700 tabular-nums">
                       {wear.count}회 · {wear.lastWorn ? `마지막 ${wear.lastWorn}` : '아직 없음'}
                     </p>
@@ -402,7 +402,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                           haptic('tap');
                           showToast(`"${item.name}" 오늘 착용 기록을 취소했어요.`);
                         }}
-                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors"
                       >
                         기록 취소
                       </button>
@@ -414,7 +414,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                           haptic('toggle');
                           showToast(`"${item.name}" 오늘 착용 기록 완료 👕`);
                         }}
-                        className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
+                        className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
                       >
                         👕 오늘 입었어요
                       </button>
@@ -422,7 +422,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     <label
                       onClick={(e) => e.stopPropagation()}
                       title="다른 날짜 기록"
-                      className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
                     >
                       📅
                       <input
@@ -443,13 +443,13 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 {/* 같이 입은 조합 — 3회+ 공동 착용한 옷 */}
                 {coWorn.length > 0 && (
                   <div className="border-t border-gray-100 pt-2.5">
-                    <p className="text-[10px] text-gray-400 mb-1.5">같이 자주 입는 조합</p>
+                    <p className="text-[11px] text-gray-400 mb-1.5">같이 자주 입는 조합</p>
                     <div className="flex gap-1.5 flex-wrap">
                       {coWorn.map((co) => (
-                        <div key={co.item.id} className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary">
+                        <div key={co.item.id} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary">
                           <span>{FASHION_EMOJI[co.item.category] ?? '👕'}</span>
                           <span className="font-medium truncate max-w-[100px]">{co.item.name}</span>
-                          <span className="text-[9px] text-brand-primary/60 tabular-nums">· {co.count}회</span>
+                          <span className="text-[10px] text-brand-primary/60 tabular-nums">· {co.count}회</span>
                         </div>
                       ))}
                     </div>
@@ -466,7 +466,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                       setEditing(true);
                     }
                   }}
-                  className={`w-full py-2 rounded-xl text-[11px] font-semibold transition-colors ${
+                  className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors ${
                     editing
                       ? 'bg-brand-primary text-white hover:opacity-90'
                       : 'bg-gray-50 text-gray-600 hover:bg-gray-100'

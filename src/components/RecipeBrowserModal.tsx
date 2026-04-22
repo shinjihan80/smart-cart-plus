@@ -100,7 +100,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
           <div className="flex items-center justify-between px-6 pt-6 pb-3">
             <div>
               <h2 className="text-base font-bold text-gray-900">레시피 전체 보기</h2>
-              <p className="text-[10px] text-gray-400 mt-0.5">네모아가 제안하는 {RECIPES.length}가지 메뉴</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">네모아가 제안하는 {RECIPES.length}가지 메뉴</p>
             </div>
             <button
               onClick={onClose}
@@ -132,7 +132,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   filter === key
                     ? 'bg-brand-primary text-white'
                     : 'bg-gray-50 border border-gray-100 text-gray-500 hover:bg-gray-100'
@@ -163,18 +163,18 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
-                          {fav && <span className="text-[11px] text-brand-warning shrink-0">♥</span>}
+                          {fav && <span className="text-xs text-brand-warning shrink-0">♥</span>}
                           {recipe.seasons?.includes(season) && (
-                            <span className="text-[10px] shrink-0" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>
+                            <span className="text-[11px] shrink-0" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>
                           )}
                           {(() => {
                             const d = recipeDietary(recipe);
                             return d ? (
-                              <span className="text-[10px] shrink-0" title={`${DIETARY_BADGE[d].label} 가능`}>{DIETARY_BADGE[d].emoji}</span>
+                              <span className="text-[11px] shrink-0" title={`${DIETARY_BADGE[d].label} 가능`}>{DIETARY_BADGE[d].emoji}</span>
                             ) : null;
                           })()}
                         </div>
-                        <p className="text-[10px] text-gray-400 mt-0.5 truncate">
+                        <p className="text-[11px] text-gray-400 mt-0.5 truncate">
                           ⏱ {recipe.time} · {recipe.difficulty}{recipe.tags && recipe.tags.length > 0 ? ` · ${recipe.tags.join(', ')}` : ''}
                         </p>
                       </div>

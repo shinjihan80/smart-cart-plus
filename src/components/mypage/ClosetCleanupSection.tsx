@@ -72,7 +72,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
         <div className="flex items-center gap-2">
           <span className="text-base">🧹</span>
           <span className="text-xs text-gray-400 font-medium">옷장 정리 제안</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold">
+          <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold">
             {candidates.length}벌
           </span>
         </div>
@@ -84,7 +84,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
 
       {!expanded && (
         <>
-          <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+          <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
             60일 이상 안 입은 옷 {idleCount}벌
             {neverCount > 0 && <span> · 한 번도 안 입은 옷 {neverCount}벌</span>}
             · 탭해서 정리
@@ -94,7 +94,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               {categoryBreakdown.map(([cat, count]) => (
                 <span
                   key={cat}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-500 font-medium tabular-nums"
+                  className="text-[11px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-500 font-medium tabular-nums"
                 >
                   {FASHION_EMOJI[cat as keyof typeof FASHION_EMOJI] ?? '👕'} {cat} {count}
                 </span>
@@ -113,7 +113,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <p className="text-[10px] text-gray-400 mt-3 mb-2 leading-relaxed">
+            <p className="text-[11px] text-gray-400 mt-3 mb-2 leading-relaxed">
               네모아가 고른 정리 후보예요. 계속 입을 옷은 &ldquo;유지&rdquo;, 정리할 옷은 &ldquo;정리&rdquo;를 눌러주세요.
             </p>
 
@@ -121,7 +121,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
             <div className="flex flex-col gap-2 mb-3">
               {dispositions.resell > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-semibold text-gray-500 shrink-0">
+                  <span className="text-[11px] font-semibold text-gray-500 shrink-0">
                     💰 중고 판매 <span className="text-gray-400 font-normal">· {dispositions.resell}벌</span>
                   </span>
                   <PartnerChip partner={PARTNERS.karrot} />
@@ -129,14 +129,14 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               )}
               {dispositions.donate > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-semibold text-gray-500 shrink-0">
+                  <span className="text-[11px] font-semibold text-gray-500 shrink-0">
                     ❤️ 기부 추천 <span className="text-gray-400 font-normal">· {dispositions.donate}벌 (6개월+)</span>
                   </span>
                   <PartnerChip partner={PARTNERS.beautiful} />
                 </div>
               )}
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[10px] font-semibold text-gray-500 shrink-0">
+                <span className="text-[11px] font-semibold text-gray-500 shrink-0">
                   📦 계절 보관 <span className="text-gray-400 font-normal">· 잠깐 빼둘 때</span>
                 </span>
                 <PartnerChip partner={PARTNERS.storage_svc} />
@@ -155,14 +155,14 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-gray-800 truncate">{item.name}</p>
-                    <p className="text-[10px] text-gray-400 truncate">
+                    <p className="text-[11px] text-gray-400 truncate">
                       {reason}
                       {idleDays !== null && idleDays >= 180 && <span className="text-brand-warning ml-1">· 정리 추천</span>}
                     </p>
                   </div>
                   <button
                     onClick={() => handleRemove(item.id, item.name)}
-                    className="shrink-0 text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-warning/10 text-brand-warning hover:bg-brand-warning/15 transition-colors"
+                    className="shrink-0 text-[11px] font-semibold px-2 py-1 rounded-full bg-brand-warning/10 text-brand-warning hover:bg-brand-warning/15 transition-colors"
                   >
                     정리
                   </button>
@@ -170,7 +170,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               ))}
             </div>
             {candidates.length > 12 && (
-              <p className="text-[10px] text-gray-400 text-center mt-2">
+              <p className="text-[11px] text-gray-400 text-center mt-2">
                 외 {candidates.length - 12}벌 더 있어요
               </p>
             )}

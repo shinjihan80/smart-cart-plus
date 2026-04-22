@@ -32,21 +32,21 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
       <div className="flex items-center gap-2 mb-2.5">
         <span className="text-base">🔄</span>
         <span className="text-xs text-gray-400 font-medium">재구매 추천</span>
-        <span className="text-[9px] text-gray-300">소진한 식품 기반</span>
+        <span className="text-[10px] text-gray-300">소진한 식품 기반</span>
       </div>
       <div className="flex gap-1.5 flex-wrap">
         {suggestions.map((s) => (
           <button
             key={s.name}
             onClick={() => onQuickAdd(s.name)}
-            className="text-[11px] px-2.5 py-1.5 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
+            className="text-xs px-2.5 py-1.5 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
           >
             🔄 {s.name}
           </button>
         ))}
       </div>
       <div className="mt-2 pt-2 border-t border-gray-50 flex items-center gap-1.5 flex-wrap">
-        <span className="text-[10px] text-gray-400">쇼핑몰 연결:</span>
+        <span className="text-[11px] text-gray-400">쇼핑몰 연결:</span>
         <PartnerChip partner={PARTNERS.quick_mart} />
       </div>
     </motion.div>

@@ -174,7 +174,7 @@ export default function SettingsPage() {
           </Link>
           <div className="flex-1 min-w-0">
             <h1 className="text-base font-bold text-gray-900 tracking-tight">설정</h1>
-            <p className="text-[10px] text-gray-400 mt-0.5">알림 · 백업 · 데이터 관리</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">알림 · 백업 · 데이터 관리</p>
           </div>
           <PaletteButton />
         </div>
@@ -199,7 +199,7 @@ export default function SettingsPage() {
                 ? (backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${backup.daysSince}일 전`)
                 : `백업 ${backup.daysSince}일 전`}
             </p>
-            <p className="text-[10px] text-gray-500 mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
               {backup.isStale
                 ? '브라우저 캐시가 비면 데이터가 사라질 수 있어요. 지금 백업해두세요.'
                 : '데이터가 안전하게 보관 중이에요.'}
@@ -207,7 +207,7 @@ export default function SettingsPage() {
           </div>
           <button
             onClick={handleBackupNow}
-            className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
+            className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
           >
             지금 백업
           </button>
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                 <span className="text-base">{m.emoji}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800">{m.label}</p>
-                  <p className="text-[10px] text-gray-400">{m.desc}</p>
+                  <p className="text-[11px] text-gray-400">{m.desc}</p>
                 </div>
                 <ChevronRight size={14} className="text-gray-300 shrink-0" />
               </button>

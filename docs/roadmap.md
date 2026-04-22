@@ -199,7 +199,12 @@
 | 그림자 | `shadow-sm` |
 | 주 색상 | `indigo-600` |
 | 간격 | `gap-y-4` |
-| 폰트 계층 | Title (`text-lg font-bold`) / Body (`text-sm`) / Caption (`text-xs text-gray-400`) |
+| 폰트 베이스 | `html { font-size: 17px }` (한국어 SUIT 가독성 보강, Tailwind 1rem = 17px) |
+| 폰트 계층 | Title (`text-lg font-bold` ≈ 19px) / Body (`text-sm` ≈ 15px) / Caption (`text-xs text-gray-400` ≈ 13px) |
+| 보조 라벨 | `text-[10px]` ~ `text-[11px]` (사용 시 정보가 보조적·반복적인지 검토 필수) |
+| 줄 간격 | 본문 1.55 (`body { line-height: 1.55 }`), 제목·라벨은 `leading-tight` |
+| 자간 | `letter-spacing: -0.005em` (한글), 제목은 `tracking-tight` |
+| 접근성 | viewport `maximumScale·userScalable` 미설정 → 사용자 줌·시스템 글자 크기 허용 (WCAG 1.4.4) |
 
 ---
 

@@ -85,7 +85,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
                 </p>
               </div>
 
-              <p className="text-[11px] text-gray-500 text-center mb-4">
+              <p className="text-xs text-gray-500 text-center mb-4">
                 <Link href="/legal" className="underline hover:text-brand-primary">
                   전체 약관·개인정보 처리방침 보기 →
                 </Link>

@@ -75,7 +75,7 @@ export default function WaitlistBanner() {
       <h3 className="text-sm font-bold text-gray-900 mb-1 tracking-tight">
         무제한 AI · 기기 간 동기화 · 파트너 연결
       </h3>
-      <p className="text-[11px] text-gray-500 leading-relaxed mb-3">
+      <p className="text-xs text-gray-500 leading-relaxed mb-3">
         사전 등록하면 출시 시점에 1개월 무료 체험권을 먼저 드려요.
       </p>
       <form onSubmit={handleSubmit} className="flex gap-1.5">
@@ -91,12 +91,12 @@ export default function WaitlistBanner() {
         <button
           type="submit"
           disabled={loading}
-          className="shrink-0 text-[11px] font-semibold px-3.5 py-2 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+          className="shrink-0 text-xs font-semibold px-3.5 py-2 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
         >
           {loading ? '...' : '사전 등록'}
         </button>
       </form>
-      <p className="text-[9px] text-gray-400 mt-2 leading-relaxed">
+      <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
         이메일 외 개인정보는 수집하지 않아요. 언제든 수신 거부 가능.
       </p>
     </motion.div>

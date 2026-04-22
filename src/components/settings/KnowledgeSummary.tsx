@@ -58,9 +58,9 @@ export default function KnowledgeSummary() {
             <span className="text-lg">{s.emoji}</span>
             <span className="text-sm font-bold text-gray-900 tabular-nums">
               {s.value}
-              <span className="text-[9px] text-gray-400 ml-0.5 font-medium">{s.suffix}</span>
+              <span className="text-[10px] text-gray-400 ml-0.5 font-medium">{s.suffix}</span>
             </span>
-            <span className="text-[9px] text-gray-400 font-medium text-center leading-tight">{s.label}</span>
+            <span className="text-[10px] text-gray-400 font-medium text-center leading-tight">{s.label}</span>
           </div>
         ))}
       </div>
@@ -80,13 +80,13 @@ export default function KnowledgeSummary() {
             >
               <div className="flex items-center gap-2">
                 <span className="text-base">🌸</span>
-                <span className="text-[11px] font-semibold text-brand-primary">
+                <span className="text-xs font-semibold text-brand-primary">
                   제철 달력 열기 — 4계절 전체 보기
                 </span>
               </div>
               <ChevronRight size={14} className="text-brand-primary/60" />
             </Link>
-            <div className="pt-3 mt-3 border-t border-gray-50 flex flex-col gap-2 text-[10px] text-gray-500 leading-relaxed">
+            <div className="pt-3 mt-3 border-t border-gray-50 flex flex-col gap-2 text-[11px] text-gray-500 leading-relaxed">
               <p>
                 <strong className="text-gray-700">레시피 매칭</strong> — 보유 식재료 ∩ 레시피
                 키워드로 자동 추천. 소비 임박·제철·단골 시그널 가중치 적용.

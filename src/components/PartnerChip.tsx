@@ -17,8 +17,8 @@ interface PartnerChipProps {
  */
 export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChipProps) {
   const base = size === 'sm'
-    ? 'text-[10px] px-2 py-1'
-    : 'text-[11px] px-2.5 py-1.5 font-medium';
+    ? 'text-[11px] px-2 py-1'
+    : 'text-xs px-2.5 py-1.5 font-medium';
 
   if (partner.enabled && partner.buildUrl) {
     return (
@@ -39,7 +39,7 @@ export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChip
       title={partner.comingSoon}
       className={`${base} rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed`}
     >
-      {partner.emoji} {partner.label} <span className="text-[9px] text-gray-300">· 준비 중</span>
+      {partner.emoji} {partner.label} <span className="text-[10px] text-gray-300">· 준비 중</span>
     </button>
   );
 }

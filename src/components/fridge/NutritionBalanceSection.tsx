@@ -36,7 +36,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
           <span className="text-base">📊</span>
           <span className="text-xs text-gray-400 font-medium">이번 주 영양 밸런스</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[9px] text-gray-400">
+        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
           <span>🥬 {balance.vegFruitCount}</span>
           <span className="text-gray-200">·</span>
           <span>🥩 {balance.proteinCount}</span>
@@ -51,8 +51,8 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
           return (
             <div key={b.key}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] text-gray-600">{b.label}</span>
-                <span className="text-[10px] text-gray-400 tabular-nums">
+                <span className="text-xs text-gray-600">{b.label}</span>
+                <span className="text-[11px] text-gray-400 tabular-nums">
                   {value.toLocaleString()} / {b.target.toLocaleString()} {b.unit} · {pct}%
                 </span>
               </div>
@@ -70,7 +70,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
       </div>
 
       <div className="rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3 py-2">
-        <p className="text-[11px] text-gray-700 leading-relaxed">
+        <p className="text-xs text-gray-700 leading-relaxed">
           <span className="font-semibold text-brand-primary">네모아</span> · {balance.advice}
         </p>
         {(() => {
@@ -82,7 +82,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
           return (
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: hint === 'protein' ? '두부' : '샐러드' } }))}
-              className="mt-1.5 text-[10px] font-semibold text-brand-primary hover:underline"
+              className="mt-1.5 text-[11px] font-semibold text-brand-primary hover:underline"
             >
               {label} →
             </button>

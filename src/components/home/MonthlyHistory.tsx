@@ -45,7 +45,7 @@ export default function MonthlyHistory({ selectedMonth, onChangeMonth }: Monthly
                     style={{ height: `${barH}px` }}
                   />
                 </div>
-                <span className={`text-[10px] font-medium ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
+                <span className={`text-[11px] font-medium ${isActive ? 'text-brand-primary' : 'text-gray-400'}`}>
                   {m.label}
                 </span>
               </button>
@@ -57,11 +57,11 @@ export default function MonthlyHistory({ selectedMonth, onChangeMonth }: Monthly
           {data.orders.map((order) => (
             <div key={order.id} className="flex items-center gap-3">
               <div className={`w-7 h-7 rounded-full ${order.mallBg} flex items-center justify-center shrink-0`}>
-                <span className="text-white text-[9px] font-bold">{order.store.charAt(0)}</span>
+                <span className="text-white text-[10px] font-bold">{order.store.charAt(0)}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800 truncate">{order.name}</p>
-                <p className="text-[10px] text-gray-400">{order.store} · {order.date}</p>
+                <p className="text-[11px] text-gray-400">{order.store} · {order.date}</p>
               </div>
               <span className="text-sm font-bold text-gray-900 shrink-0 tabular-nums">
                 ₩{order.price.toLocaleString()}

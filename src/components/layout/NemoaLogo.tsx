@@ -10,7 +10,7 @@ interface NemoaLogoProps {
 
 const SIZE_MAP: Record<Size, { wrap: string; back: number; front: number; text: string; tag: string }> = {
   sm: { wrap: 'w-5 h-5',  back: 18, front: 14, text: 'text-sm',        tag: 'text-[8px]'  },
-  md: { wrap: 'w-7 h-7',  back: 24, front: 18, text: 'text-[22px]',    tag: 'text-[10px]' },
+  md: { wrap: 'w-7 h-7',  back: 24, front: 18, text: 'text-[22px]',    tag: 'text-[11px]' },
   lg: { wrap: 'w-10 h-10', back: 36, front: 28, text: 'text-3xl',       tag: 'text-xs'    },
 };
 

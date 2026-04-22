@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // 사용자 핀치 줌·시스템 글자 크기 설정 허용 (WCAG 1.4.4)
+  // maximumScale·userScalable 명시 안 함 → 브라우저 기본값 (사용자 zoom 가능)
   themeColor: "#4F46E5",
 };
 

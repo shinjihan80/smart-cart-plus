@@ -149,7 +149,7 @@ function SeasonalPageInner() {
             </Link>
             <div className="flex-1 min-w-0">
               <h1 className="text-base font-bold text-gray-900 tracking-tight">제철 달력</h1>
-              <p className="text-[10px] text-gray-400 mt-0.5">
+              <p className="text-[11px] text-gray-400 mt-0.5">
                 {SEASONAL_PRODUCE.length}종 · 4계절 전체 보기
               </p>
             </div>
@@ -173,7 +173,7 @@ function SeasonalPageInner() {
           <div className="px-4 pb-2 flex gap-1.5">
             <button
               onClick={() => setView('season')}
-              className={`flex-1 px-3 py-1.5 rounded-2xl text-[11px] font-semibold transition-colors ${
+              className={`flex-1 px-3 py-1.5 rounded-2xl text-xs font-semibold transition-colors ${
                 view === 'season'
                   ? 'bg-gray-900 text-white'
                   : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
@@ -183,7 +183,7 @@ function SeasonalPageInner() {
             </button>
             <button
               onClick={() => setView('month')}
-              className={`flex-1 px-3 py-1.5 rounded-2xl text-[11px] font-semibold transition-colors ${
+              className={`flex-1 px-3 py-1.5 rounded-2xl text-xs font-semibold transition-colors ${
                 view === 'month'
                   ? 'bg-gray-900 text-white'
                   : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
@@ -198,7 +198,7 @@ function SeasonalPageInner() {
                 <button
                   key={s}
                   onClick={() => setSelected(s)}
-                  className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+                  className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
                     selected === s
                       ? 'bg-brand-primary text-white'
                       : s === currentSeason
@@ -207,7 +207,7 @@ function SeasonalPageInner() {
                   }`}
                 >
                   {SEASON_EMOJI[s]} {s}
-                  {s === currentSeason && <span className="ml-1 text-[9px] opacity-70">· 지금</span>}
+                  {s === currentSeason && <span className="ml-1 text-[10px] opacity-70">· 지금</span>}
                 </button>
               ))}
             </div>
@@ -240,12 +240,12 @@ function SeasonalPageInner() {
                           {m}월
                         </span>
                         {isNow && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary text-white font-semibold">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary text-white font-semibold">
                             지금
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] text-gray-400 tabular-nums">
+                      <span className="text-[11px] text-gray-400 tabular-nums">
                         {monthProduce.length}종
                       </span>
                     </div>
@@ -255,14 +255,14 @@ function SeasonalPageInner() {
                           key={p.name}
                           onClick={() => setBrowserIngredient(p.name)}
                           title={`${p.name}(으)로 만드는 요리 보기`}
-                          className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors"
                         >
                           <span>{p.emoji}</span>
                           <span>{p.name}</span>
                         </button>
                       ))}
                       {monthProduce.length > 12 && (
-                        <span className="text-[10px] text-gray-400 self-center">외 {monthProduce.length - 12}종</span>
+                        <span className="text-[11px] text-gray-400 self-center">외 {monthProduce.length - 12}종</span>
                       )}
                     </div>
                   </motion.div>
@@ -286,7 +286,7 @@ function SeasonalPageInner() {
                 <p className="text-lg font-bold text-gray-900">
                   {items.length}종 제철 재료
                 </p>
-                <p className="text-[11px] text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-500 mt-0.5">
                   피크 {peakCount}종
                   {triedNames.size > 0 && (
                     <span className="text-brand-success font-semibold ml-1">· ✓ {triedNames.size}종 드셔봤어요</span>
@@ -296,7 +296,7 @@ function SeasonalPageInner() {
               {peakCount > 0 && (
                 <button
                   onClick={handleAddAllPeak}
-                  className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
+                  className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
                 >
                   피크 {peakCount} 담기
                 </button>
@@ -310,8 +310,8 @@ function SeasonalPageInner() {
               return (
                 <div className="mt-3 pt-3 border-t border-brand-primary/10">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] text-gray-500">올해 {selected} 진행도</span>
-                    <span className="text-[10px] font-bold text-brand-success tabular-nums">
+                    <span className="text-[11px] text-gray-500">올해 {selected} 진행도</span>
+                    <span className="text-[11px] font-bold text-brand-success tabular-nums">
                       {triedNames.size} / {total} · {pct}%
                     </span>
                   </div>
@@ -350,14 +350,14 @@ function SeasonalPageInner() {
                     <div className="flex gap-1 items-center">
                       {tried && (
                         <span
-                          className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-success/15 text-brand-success"
+                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-success/15 text-brand-success"
                           title="이번 계절에 드셔봤어요"
                         >
                           ✓
                         </span>
                       )}
                       {p.peak === selected && (
-                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/15 text-brand-primary">
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/15 text-brand-primary">
                           피크
                         </span>
                       )}
@@ -365,7 +365,7 @@ function SeasonalPageInner() {
                   </div>
                   <p className="text-sm font-bold text-gray-900 truncate">{p.name}</p>
                   {p.blurb && (
-                    <p className="text-[10px] text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                    <p className="text-[11px] text-gray-500 mt-1 leading-relaxed line-clamp-2">
                       {p.blurb}
                     </p>
                   )}
@@ -373,7 +373,7 @@ function SeasonalPageInner() {
                     <button
                       onClick={() => handleAdd(p.name)}
                       disabled={added}
-                      className={`flex-1 text-[10px] font-semibold py-1.5 rounded-full transition-colors ${
+                      className={`flex-1 text-[11px] font-semibold py-1.5 rounded-full transition-colors ${
                         added
                           ? 'bg-gray-100 text-gray-400 cursor-default'
                           : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15'
@@ -385,7 +385,7 @@ function SeasonalPageInner() {
                       <button
                         onClick={() => setBrowserIngredient(p.name)}
                         title={`${p.name} 레시피 보기`}
-                        className="text-[10px] font-semibold px-2 py-1.5 rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
+                        className="text-[11px] font-semibold px-2 py-1.5 rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
                       >
                         📖 {recipeCount}
                       </button>

@@ -58,23 +58,23 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                 <div className="flex items-center gap-1.5 mb-1">
                   <p className="text-xs text-gray-400 font-medium">네모아의 오늘 한 그릇</p>
                   {urgentBoosted && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold">
                       ⚠️ 임박
                     </span>
                   )}
                   {seasonBoosted && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
                       {SEASON_EMOJI[season]} {season}철
                     </span>
                   )}
                   {loveBoosted && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600 font-semibold" title={`${cookCount}번 만든 단골`}>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600 font-semibold" title={`${cookCount}번 만든 단골`}>
                       🏆 단골
                     </span>
                   )}
                 </div>
                 <p className="text-lg font-bold text-gray-900 leading-tight truncate">{recipe.name}</p>
-                <p className="text-[11px] text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   ⏱ {recipe.time} · {recipe.difficulty}
                   {matchedItems.length > 0 && (
                     <>
@@ -92,7 +92,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                   role="button"
                   aria-label="오늘 이 요리 만들었어요"
                   title="오늘 만들었어요"
-                  className="text-[10px] font-semibold px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                  className="text-[11px] font-semibold px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
                 >
                   ✓ 기록
                 </span>

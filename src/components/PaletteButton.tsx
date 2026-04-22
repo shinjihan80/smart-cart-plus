@@ -15,7 +15,7 @@ export default function PaletteButton({ className = '' }: { className?: string }
       className={`relative flex items-center gap-1 pl-2 pr-2.5 h-8 rounded-full bg-gray-100 hover:bg-brand-primary/10 text-gray-500 hover:text-brand-primary transition-colors shrink-0 ${className}`}
     >
       <Search size={14} />
-      <kbd className="hidden sm:inline-flex items-center text-[9px] text-gray-400 bg-white border border-gray-200 rounded px-1 py-0 font-mono pointer-events-none">⌘K</kbd>
+      <kbd className="hidden sm:inline-flex items-center text-[10px] text-gray-400 bg-white border border-gray-200 rounded px-1 py-0 font-mono pointer-events-none">⌘K</kbd>
     </button>
   );
 }
