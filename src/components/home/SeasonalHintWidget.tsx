@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce, isSeasonalProduce } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { Widget } from './shared';
 
 /**
@@ -26,6 +26,9 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
     .filter((p) => p.peak === season && !haveNames.has(p.name))
     .slice(0, 3);
 
+  const SeasonIcon = SEASON_ICON[season];
+  const seasonColor = SEASON_COLOR[season];
+
   // 상태 1: 보유 중
   if (ownedSeasonal.length > 0) {
     const sample = ownedSeasonal.slice(0, 3).map((f) => f.name).join('·');
@@ -33,7 +36,9 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
       <Link href="/fridge" className="col-span-2 block">
         <Widget index={2}>
           <div className="flex items-center gap-3">
-            <span className="text-3xl shrink-0">{SEASON_EMOJI[season]}</span>
+            <span className={`w-11 h-11 rounded-2xl ${seasonColor.bg} flex items-center justify-center shrink-0`}>
+              <SeasonIcon size={22} strokeWidth={2} className={seasonColor.text} />
+            </span>
             <div className="flex-1 min-w-0 text-left">
               <div className="flex items-center gap-1.5 mb-0.5">
                 <p className="text-xs text-gray-500 font-medium">지금 {season}철 식탁</p>
@@ -55,12 +60,14 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
 
   // 상태 2: 피크 재료 미보유 → 장보기 유도
   if (peakMissing.length > 0) {
-    const sample = peakMissing.map((p) => `${p.emoji} ${p.name}`).join(' · ');
+    const sample = peakMissing.map((p) => p.name).join(' · ');
     return (
       <Link href="/mypage" className="col-span-2 block">
         <Widget index={2}>
           <div className="flex items-center gap-3">
-            <span className="text-3xl shrink-0">{SEASON_EMOJI[season]}</span>
+            <span className={`w-11 h-11 rounded-2xl ${seasonColor.bg} flex items-center justify-center shrink-0`}>
+              <SeasonIcon size={22} strokeWidth={2} className={seasonColor.text} />
+            </span>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-xs text-gray-400 font-medium mb-0.5">이번 {season} 놓치지 마세요</p>
               <p className="text-sm font-bold text-gray-900 truncate">{sample}</p>

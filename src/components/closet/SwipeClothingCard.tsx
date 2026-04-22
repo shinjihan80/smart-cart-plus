@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { isEnrichedClothingItem, isClothingItem, FASHION_EMOJI, type ClothingItem } from '@/types';
+import { isEnrichedClothingItem, isClothingItem, type ClothingItem } from '@/types';
+import { FASHION_ICON } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import type { MatchBadge } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
@@ -89,9 +90,10 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
             {item.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-lg">{FASHION_EMOJI[item.category] ?? '📦'}</span>
-            )}
+            ) : (() => {
+              const Icon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
+              return <Icon size={18} strokeWidth={2} className="text-gray-600" />;
+            })()}
           </div>
           <div className="shrink-0 w-10 text-center">
             <p className="text-lg font-extrabold tracking-tight text-gray-900">{item.size}</p>
@@ -445,13 +447,16 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   <div className="border-t border-gray-100 pt-2.5">
                     <p className="text-sm text-gray-400 mb-1.5">같이 자주 입는 조합</p>
                     <div className="flex gap-1.5 flex-wrap">
-                      {coWorn.map((co) => (
-                        <div key={co.item.id} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary">
-                          <span>{FASHION_EMOJI[co.item.category] ?? '👕'}</span>
-                          <span className="font-medium truncate max-w-[100px]">{co.item.name}</span>
-                          <span className="text-xs text-brand-primary/60 tabular-nums">· {co.count}회</span>
-                        </div>
-                      ))}
+                      {coWorn.map((co) => {
+                        const Icon = FASHION_ICON[co.item.category] ?? FASHION_ICON['기타 액세서리'];
+                        return (
+                          <div key={co.item.id} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 border border-gray-200 text-gray-700">
+                            <Icon size={11} strokeWidth={2} />
+                            <span className="font-medium truncate max-w-[100px]">{co.item.name}</span>
+                            <span className="text-xs text-gray-500 tabular-nums">· {co.count}회</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

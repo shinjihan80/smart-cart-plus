@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { FOOD_EMOJI, type FoodItem } from '@/types';
+import { type FoodItem } from '@/types';
+import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
@@ -87,9 +88,10 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
             {item.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-lg">{FOOD_EMOJI[item.foodCategory] ?? '📦'}</span>
-            )}
+            ) : (() => {
+              const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
+              return <FoodIcon size={18} strokeWidth={2} className="text-gray-600" />;
+            })()}
           </div>
           <div className="shrink-0 w-14 text-center">
             <p className={`text-xl font-extrabold tracking-tight tabular-nums ${
@@ -102,36 +104,54 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-              {inSeason && dDay <= 2 ? (
-                <span
-                  className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-semibold bg-gradient-to-r from-brand-warning/20 to-brand-primary/20 text-brand-warning border border-brand-warning/30"
-                  title={`${season}철 제철인데 ${dDay <= 0 ? '오늘이 마지막' : `${dDay}일 뒤 만료`} — 놓치기 아까워요!`}
-                >
-                  ⚠️ {SEASON_EMOJI[season]} 제철 {dDay <= 0 ? '오늘!' : `D-${dDay}`}
-                </span>
-              ) : inSeason ? (
-                <span
-                  className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-brand-primary/10 text-brand-primary"
-                  title={`${season}철 제철 재료 — 지금이 가장 맛있어요`}
-                >
-                  {SEASON_EMOJI[season]} 제철
-                </span>
-              ) : null}
+              {(() => {
+                const SeasonIcon = SEASON_ICON[season];
+                const seasonColor = SEASON_COLOR[season];
+                if (inSeason && dDay <= 2) {
+                  return (
+                    <span
+                      className="shrink-0 flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full font-semibold bg-brand-warning/10 text-brand-warning border border-brand-warning/30"
+                      title={`${season}철 제철인데 ${dDay <= 0 ? '오늘이 마지막' : `${dDay}일 뒤 만료`} — 놓치기 아까워요!`}
+                    >
+                      <SeasonIcon size={10} strokeWidth={2.4} />
+                      <span>제철 {dDay <= 0 ? '오늘!' : `D-${dDay}`}</span>
+                    </span>
+                  );
+                }
+                if (inSeason) {
+                  return (
+                    <span
+                      className={`shrink-0 flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full font-medium ${seasonColor.bg} ${seasonColor.text}`}
+                      title={`${season}철 제철 재료 — 지금이 가장 맛있어요`}
+                    >
+                      <SeasonIcon size={10} strokeWidth={2.4} />
+                      <span>제철</span>
+                    </span>
+                  );
+                }
+                return null;
+              })()}
               {owner && (
                 <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
                   {owner.name}
                 </span>
               )}
             </div>
-            {item.memo && <p className="text-xs text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
+            {item.memo && <p className="text-xs text-gray-400 truncate mt-0.5">{item.memo}</p>}
             <div className="flex items-center gap-2 mt-1">
               <span className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full font-medium ${style.bg} ${style.text}`}>
                 <Icon size={10} />
                 {style.label}
               </span>
-              <span className="text-sm px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
-                {FOOD_EMOJI[item.foodCategory] ?? '📦'} {item.foodCategory ?? '기타'}
-              </span>
+              {(() => {
+                const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
+                return (
+                  <span className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
+                    <FoodIcon size={11} strokeWidth={2} />
+                    <span>{item.foodCategory ?? '기타'}</span>
+                  </span>
+                );
+              })()}
             </div>
             <div className="mt-2">
               <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
