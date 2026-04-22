@@ -7,25 +7,25 @@ interface NemoaLogoProps {
 }
 
 const SIZE_MAP: Record<Size, { box: number; text: string; tag: string }> = {
-  sm: { box: 28, text: 'text-sm',     tag: 'text-[8px]' },
-  md: { box: 36, text: 'text-[22px]', tag: 'text-sm'    },
-  lg: { box: 48, text: 'text-3xl',    tag: 'text-xs'    },
+  sm: { box: 32, text: 'text-base',    tag: 'text-[9px]' },
+  md: { box: 40, text: 'text-[26px]',  tag: 'text-xs'    },
+  lg: { box: 56, text: 'text-[34px]',  tag: 'text-xs'    },
 };
 
 /**
- * NEMOA 로고 — 세 개의 네모가 겹쳐 색이 혼합되는 형태.
+ * NEMOA 로고 — 큰 네모 프레임 안에 색이 다른 두 개의 네모가 겹친 형태.
  *
- * 디자인 의도:
- *  - 세 개의 둥근 사각형이 대각선으로 겹침
- *  - 각 사각형은 brand-primary fill-opacity 0.55
- *  - 겹침 영역은 자연스럽게 더 진해져 혼합 효과
- *  - "데이터를 네모(공간)에 모으다" 은유 강화 — 여러 조각이 합쳐짐
+ *  - 외곽: 큰 네모 아웃라인 (brand-primary)
+ *  - 내부 A: primary solid (indigo)
+ *  - 내부 B: pink 포인트 (겹침 영역에서 Pink가 앞)
+ *
+ * "네모(프레임) 안에 서로 다른 조각들을 모아(combine)" — 식·의 두 도메인 상징.
  */
 export default function NemoaLogo({ size = 'md', withTagline = false, className = '' }: NemoaLogoProps) {
   const s = SIZE_MAP[size];
 
   return (
-    <div className={`inline-flex items-center gap-2 ${className}`}>
+    <div className={`inline-flex items-center gap-2.5 ${className}`}>
       <svg
         width={s.box}
         height={s.box}
@@ -33,19 +33,23 @@ export default function NemoaLogo({ size = 'md', withTagline = false, className 
         className="shrink-0"
         aria-hidden="true"
       >
-        {/* 3개의 네모가 대각선으로 겹침. fill-opacity가 자연스럽게 혼합됨 */}
-        <rect x="4"  y="14" width="20" height="20" rx="5"
-              fill="#4F46E5" fillOpacity="0.55" />
-        <rect x="14" y="4"  width="20" height="20" rx="5"
-              fill="#4F46E5" fillOpacity="0.55" />
-        <rect x="24" y="14" width="20" height="20" rx="5"
-              fill="#4F46E5" fillOpacity="0.55" />
+        {/* 외곽 큰 네모 — 프레임 */}
+        <rect x="3" y="3" width="42" height="42" rx="10"
+              fill="none" stroke="#4F46E5" strokeWidth="2.5"/>
+
+        {/* 내부 네모 A — indigo solid (왼쪽 위) */}
+        <rect x="11" y="11" width="18" height="18" rx="4"
+              fill="#4F46E5"/>
+
+        {/* 내부 네모 B — pink accent (오른쪽 아래, 겹침) */}
+        <rect x="19" y="19" width="18" height="18" rx="4"
+              fill="#EC4899" fillOpacity="0.92"/>
       </svg>
 
       <span className="flex flex-col leading-none">
-        <span className={`${s.text} font-extrabold tracking-tight text-gray-900`}>NEMOA</span>
+        <span className={`${s.text} font-black tracking-tight text-gray-900`}>NEMOA</span>
         {withTagline && (
-          <span className={`${s.tag} text-gray-400 mt-0.5 tracking-wide`}>
+          <span className={`${s.tag} text-gray-400 mt-1 tracking-wide`}>
             일상을 반듯하게 모으다
           </span>
         )}

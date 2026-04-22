@@ -43,10 +43,17 @@ NEMOA v1.5 디자인 토큰·에셋 모음. 피그마에서 import해서 직접 
 ### Brand
 | 이름 | HEX | 용도 |
 |------|-----|------|
-| `brand/primary` | **#4F46E5** | 메인 (indigo-600) |
+| `brand/primary` | **#4F46E5** | 메인 (indigo-600) — 로고 프레임·내부 A |
+| `brand/accent` | **#EC4899** | 포인트 (pink-500) — 로고 내부 B |
 | `brand/primary-soft` | #EEF2FF | primary 배경 틴트 (indigo-50) |
 | `brand/success` | **#10B981** | 성공·긍정 |
 | `brand/warning` | **#F43F5E** | 경고·임박 |
+
+### 앱 배경
+| 이름 | HEX | 용도 |
+|------|-----|------|
+| `bg/app` | **#EEF0F3** | 앱 전체 바탕 (카드와 대비) |
+| `bg/card` | #FFFFFF | 카드 배경 |
 
 ### Grayscale
 | 이름 | HEX | 용도 |
@@ -172,14 +179,12 @@ text-sm font-semibold
 - 중앙 등록 버튼: 56×56 (`w-14 h-14`), 상단 -20px (`-mt-5`) 돌출
 - 배지 링: `ring-2 ring-white`
 
-### 로고 (3 네모 겹침)
-- 각 사각형: 20×20 (`48 48` viewBox)
-- 배치:
-  - 왼쪽 아래: `x="4"  y="14"`
-  - 중앙 위: `x="14" y="4"`
-  - 오른쪽 아래: `x="24" y="14"`
-- 모두 `rx="5"`, `fill="#4F46E5"`, `fill-opacity="0.55"`
-- 겹침 영역은 자연스럽게 진해져 혼합
+### 로고 (큰 네모 안에 색 다른 두 네모)
+- viewBox: `48 48`
+- 외곽 프레임: `x=3 y=3 w=42 h=42 rx=10`, `stroke=#4F46E5 width=2.5 fill=none`
+- 내부 A (왼쪽 위): `x=11 y=11 w=18 h=18 rx=4`, `fill=#4F46E5`
+- 내부 B (오른쪽 아래, 겹침): `x=19 y=19 w=18 h=18 rx=4`, `fill=#EC4899 opacity=0.92`
+- 두 내부 네모 겹침 영역: Pink가 앞, 자연스러운 색 차이로 "식(食)·의(衣) 두 도메인"을 시각화
 
 ---
 

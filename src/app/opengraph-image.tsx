@@ -19,51 +19,33 @@ export default function OpenGraphImage() {
           padding:      '80px',
         }}
       >
-        {/* 로고 — 3네모 겹침 */}
+        {/* 로고 — 큰 네모 안에 색 다른 두 네모 겹침 */}
         <div
           style={{
             position:     'relative',
-            width:        '240px',
-            height:       '190px',
+            width:        '200px',
+            height:       '200px',
             marginBottom: '40px',
             display:      'flex',
           }}
         >
-          <div style={{ position: 'absolute', left: 0,   top: 80,  width: 140, height: 140, background: 'rgba(79,70,229,0.55)', borderRadius: 32 }} />
-          <div style={{ position: 'absolute', left: 50,  top: 0,   width: 140, height: 140, background: 'rgba(79,70,229,0.55)', borderRadius: 32 }} />
-          <div style={{ position: 'absolute', left: 100, top: 80,  width: 140, height: 140, background: 'rgba(79,70,229,0.55)', borderRadius: 32 }} />
+          {/* 외곽 프레임 */}
+          <div style={{ position: 'absolute', inset: 0, border: '12px solid #4F46E5', borderRadius: 40 }} />
+          {/* 내부 A — indigo */}
+          <div style={{ position: 'absolute', left: 36, top: 36, width: 90, height: 90, background: '#4F46E5', borderRadius: 16 }} />
+          {/* 내부 B — pink */}
+          <div style={{ position: 'absolute', left: 74, top: 74, width: 90, height: 90, background: 'rgba(236,72,153,0.92)', borderRadius: 16 }} />
         </div>
 
-        <div
-          style={{
-            fontSize:      '88px',
-            fontWeight:    800,
-            color:         '#1F2937',
-            letterSpacing: '-0.04em',
-            marginBottom:  '16px',
-          }}
-        >
+        <div style={{ fontSize: '88px', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.04em', marginBottom: '16px' }}>
           NEMOA
         </div>
 
-        <div
-          style={{
-            fontSize:      '36px',
-            fontWeight:    500,
-            color:         '#4B5563',
-            letterSpacing: '-0.02em',
-          }}
-        >
+        <div style={{ fontSize: '36px', fontWeight: 500, color: '#4B5563', letterSpacing: '-0.02em' }}>
           일상을 반듯하게 모으다
         </div>
 
-        <div
-          style={{
-            marginTop: '40px',
-            fontSize:  '24px',
-            color:     '#6B7280',
-          }}
-        >
+        <div style={{ marginTop: '40px', fontSize: '24px', color: '#6B7280' }}>
           스마트 냉장고 · 스마트 옷장 · AI 라이프스타일 비서
         </div>
       </div>

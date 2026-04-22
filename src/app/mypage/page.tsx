@@ -97,21 +97,26 @@ export default function MyPage() {
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
-        {/* 프로필 카드 */}
+        {/* 프로필 카드 + 슬로건 */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={springTransition}
-          className={`${CARD} flex items-center gap-4`}
+          className={CARD}
           style={CARD_SHADOW}
         >
-          <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
-            <span className="text-2xl">👤</span>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
+              <span className="text-2xl">👤</span>
+            </div>
+            <div>
+              <p className="text-base font-bold text-gray-900">네모아 사용자</p>
+              <p className="text-xs text-gray-400 mt-0.5">Pro 플랜 · AI 비서 활성화</p>
+            </div>
           </div>
-          <div>
-            <p className="text-base font-bold text-gray-900">네모아 사용자</p>
-            <p className="text-xs text-gray-400 mt-0.5">Pro 플랜 · AI 비서 활성화</p>
-          </div>
+          <p className="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 tracking-wide text-center">
+            <span className="font-semibold text-brand-primary">NEMOA</span> — 일상을 반듯하게 모으다
+          </p>
         </motion.div>
 
         {/* 백업 상태 배너 (간단 버전 — 상세는 /settings) */}

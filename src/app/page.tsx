@@ -33,23 +33,11 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* 헤더 — 로고 + 관리 개수 + 날짜 */}
-      <header className="sticky top-0 z-10 bg-white/85 backdrop-blur-sm border-b border-gray-50">
-        <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-3">
-          <NemoaLogo size="md" withTagline />
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <span className="text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full tabular-nums">
-              {items.length}개 관리 중
-            </span>
-            <span className="text-xs text-gray-400 tabular-nums">
-              {new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
-            </span>
-          </div>
-        </div>
-
-        {/* 검색 바 — 탭하면 풀스크린 CommandPalette (검색 기능 분리) */}
-        <div className="px-5 pb-3">
-          <PaletteButton variant="bar" />
+      {/* 헤더 — 로고 + 검색 아이콘 (슬로건은 마이페이지로) */}
+      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+        <div className="px-5 py-4 flex items-center justify-between gap-3">
+          <NemoaLogo size="md" />
+          <PaletteButton variant="icon" />
         </div>
 
         <div className="px-5 pb-3">

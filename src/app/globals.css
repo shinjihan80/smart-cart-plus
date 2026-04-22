@@ -2,7 +2,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F9FAFB;
+  /* 카드(white)와 대비 강화 — 흰색에서 살짝 어두운 쿨그레이 */
+  --background: #EEF0F3;
   --foreground: #171717;
 }
 
