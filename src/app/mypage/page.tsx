@@ -66,14 +66,14 @@ export default function MyPage() {
             <h1 className="text-base font-bold text-gray-900 tracking-tight">마이페이지</h1>
             <p className="text-sm text-gray-400 mt-0.5">통계 · 기록 · 리스트</p>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-0.5 shrink-0">
             <PaletteButton />
             <Link
               href="/settings"
               aria-label="설정"
-              className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-gray-900 hover:text-brand-primary transition-colors"
             >
-              <SettingsIcon size={16} />
+              <SettingsIcon size={22} strokeWidth={2} />
             </Link>
           </div>
         </div>

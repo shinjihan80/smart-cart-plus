@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, X } from 'lucide-react';
 import { parseRecipeSeconds, recipeGradient, RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { estimateRecipeNutrition } from '@/lib/nutritionAnalysis';
@@ -140,20 +141,18 @@ export default function RecipeDetailModal({
             <button
               onClick={onToggleFavorite}
               aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                isFavorite
-                  ? 'bg-brand-warning/10 text-brand-warning'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-400'
+              className={`w-10 h-10 flex items-center justify-center transition-colors ${
+                isFavorite ? 'text-brand-warning' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              {isFavorite ? '♥' : '♡'}
+              <Heart size={20} strokeWidth={2} fill={isFavorite ? 'currentColor' : 'none'} />
             </button>
             <button
               onClick={onClose}
               aria-label="닫기"
-              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-primary transition-colors"
             >
-              ✕
+              <X size={22} strokeWidth={2} />
             </button>
           </div>
 

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { RECIPES, recipeGradient, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
@@ -113,9 +113,9 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
             <button
               onClick={onClose}
               aria-label="닫기"
-              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-primary transition-colors"
             >
-              ✕
+              <X size={22} strokeWidth={2} />
             </button>
           </div>
 

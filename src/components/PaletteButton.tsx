@@ -40,9 +40,9 @@ export default function PaletteButton({ className = '', variant = 'icon' }: Pale
       onClick={open}
       aria-label="검색 (⌘K)"
       title="검색 (⌘K)"
-      className={`w-10 h-10 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors shrink-0 flex items-center justify-center ${className}`}
+      className={`w-10 h-10 text-gray-900 hover:text-brand-primary transition-colors shrink-0 flex items-center justify-center ${className}`}
     >
-      <Search size={18} strokeWidth={2.2} />
+      <Search size={22} strokeWidth={2} />
     </button>
   );
 }
