@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-// 카카오톡·트위터·페이스북 공유 시 카드 이미지
+// 1200x630 — 공유 카드 이미지
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'NEMOA — 일상을 반듯하게 모으다';
@@ -20,34 +20,44 @@ export default function OpenGraphImage() {
           padding:      '80px',
         }}
       >
-        {/* 로고 — 두 사각형 겹침 */}
-        <div style={{ display: 'flex', position: 'relative', marginBottom: '48px' }}>
+        {/* 로고 — 네모 안에 네모 */}
+        <div
+          style={{
+            display:      'flex',
+            alignItems:   'center',
+            justifyContent: 'center',
+            position:     'relative',
+            width:        '160px',
+            height:       '160px',
+            marginBottom: '48px',
+          }}
+        >
+          {/* 외곽 네모 */}
           <div
             style={{
-              width:        '120px',
-              height:       '120px',
-              background:   '#4F46E5',
-              opacity:      0.22,
-              borderRadius: '28px',
-              transform:    'rotate(-8deg)',
-              marginRight:  '-60px',
+              position:     'absolute',
+              width:        '160px',
+              height:       '160px',
+              border:       '14px solid #4F46E5',
+              borderRadius: '36px',
             }}
           />
+          {/* 내부 네모 */}
           <div
             style={{
-              width:        '120px',
-              height:       '120px',
+              width:        '64px',
+              height:       '64px',
               background:   '#4F46E5',
-              borderRadius: '32px',
+              borderRadius: '14px',
             }}
           />
         </div>
 
         <div
           style={{
-            fontSize:   '88px',
-            fontWeight: 800,
-            color:      '#1F2937',
+            fontSize:      '88px',
+            fontWeight:    800,
+            color:         '#1F2937',
             letterSpacing: '-0.04em',
             marginBottom:  '16px',
           }}
@@ -57,9 +67,9 @@ export default function OpenGraphImage() {
 
         <div
           style={{
-            fontSize:   '36px',
-            fontWeight: 500,
-            color:      '#4B5563',
+            fontSize:      '36px',
+            fontWeight:    500,
+            color:         '#4B5563',
             letterSpacing: '-0.02em',
           }}
         >
@@ -68,12 +78,12 @@ export default function OpenGraphImage() {
 
         <div
           style={{
-            marginTop:  '48px',
-            fontSize:   '24px',
-            color:      '#6B7280',
+            marginTop: '48px',
+            fontSize:  '24px',
+            color:     '#6B7280',
           }}
         >
-          🧊 스마트 냉장고 · 👔 스마트 옷장 · 🤖 AI 비서
+          스마트 냉장고 · 스마트 옷장 · AI 라이프스타일 비서
         </div>
       </div>
     ),

@@ -2,6 +2,11 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import {
+  Refrigerator, Shirt, Flower2, ChefHat,
+  ShoppingCart, BarChart3, Users, Settings,
+  type LucideIcon,
+} from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { currentSeasonByMonth, seasonStart } from '@/lib/season';
@@ -11,15 +16,22 @@ import { springTransition } from './shared';
 
 interface DiscardRecord { name: string; category: string; date: string; }
 
+interface CategoryItem {
+  href:     string;
+  Icon:     LucideIcon;
+  label:    string;
+  bgClass:  string;   // 파스텔 배경
+  iconClass: string;  // 아이콘 텍스트 색
+  badge?:   string;
+  dot?:     boolean;
+}
+
 /**
- * 카테고리 아이콘 그리드 (롯데면세점·SSG 스타일)
- * 8개 원형 아이콘 + 라벨, 4열 × 2행.
+ * 카테고리 그리드 (iOS 앱 아이콘 스타일)
  *
- * 각 버튼:
- *  - 원형 배경 (연한 파스텔)
- *  - 이모지 or 아이콘
- *  - 라벨 (text-xs)
- *  - 배지 (숫자 또는 🔴 점)
+ * - 둥근 사각형 타일 (rounded-2xl) + 파스텔 배경
+ * - Lucide 라인 아이콘 (이모지 대신)
+ * - 8개 카테고리 × 4열 × 2행
  */
 export default function QuickLinks({
   items, history,
@@ -29,7 +41,7 @@ export default function QuickLinks({
 
   const foods = items.filter(isFoodItem);
   const urgentCount = foods.filter((f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 1).length;
-  const foodCount   = foods.length;
+  const foodCount = foods.length;
   const clothesCount = items.filter((i) => i.category !== '식품').length;
 
   // 제철 놓친 개수
@@ -51,22 +63,15 @@ export default function QuickLinks({
     return total - triedNames.size;
   })();
 
-  const cards: Array<{
-    href:   string;
-    icon:   string;
-    label:  string;
-    bg:     string;   // 원형 배경 (연한 파스텔)
-    badge?: string;
-    dot?:   boolean;
-  }> = [
-    { href: '/fridge',             icon: '🧊', label: '냉장고', bg: 'bg-sky-50',     badge: foodCount    > 0 ? String(foodCount) : undefined },
-    { href: '/closet',             icon: '👔', label: '옷장',   bg: 'bg-indigo-50',  badge: clothesCount > 0 ? String(clothesCount) : undefined },
-    { href: '/seasonal',           icon: '🌸', label: '제철',   bg: 'bg-pink-50',    badge: missedCount  > 0 ? String(missedCount) : undefined },
-    { href: '/fridge',             icon: '👨‍🍳', label: '레시피', bg: 'bg-amber-50',   dot: urgentCount > 0 },
-    { href: '/mypage#shopping',    icon: '🛒', label: '쇼핑',   bg: 'bg-emerald-50', badge: shopping.length > 0 ? String(shopping.length) : undefined },
-    { href: '/mypage',             icon: '📊', label: '활동',   bg: 'bg-violet-50'   },
-    { href: '/settings#profiles',  icon: '👥', label: '프로필', bg: 'bg-rose-50'     },
-    { href: '/settings',           icon: '⚙️', label: '설정',   bg: 'bg-gray-100'    },
+  const categories: CategoryItem[] = [
+    { href: '/fridge',             Icon: Refrigerator, label: '냉장고', bgClass: 'bg-sky-100',     iconClass: 'text-sky-600',     badge: foodCount > 0 ? String(foodCount) : undefined },
+    { href: '/closet',             Icon: Shirt,        label: '옷장',   bgClass: 'bg-indigo-100',  iconClass: 'text-indigo-600',  badge: clothesCount > 0 ? String(clothesCount) : undefined },
+    { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-pink-100',    iconClass: 'text-pink-600',    badge: missedCount > 0 ? String(missedCount) : undefined },
+    { href: '/fridge',             Icon: ChefHat,      label: '레시피', bgClass: 'bg-amber-100',   iconClass: 'text-amber-600',   dot: urgentCount > 0 },
+    { href: '/mypage#shopping',    Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-emerald-100', iconClass: 'text-emerald-600', badge: shopping.length > 0 ? String(shopping.length) : undefined },
+    { href: '/mypage',             Icon: BarChart3,    label: '활동',   bgClass: 'bg-violet-100',  iconClass: 'text-violet-600'   },
+    { href: '/settings#profiles',  Icon: Users,        label: '프로필', bgClass: 'bg-rose-100',    iconClass: 'text-rose-600'     },
+    { href: '/settings',           Icon: Settings,     label: '설정',   bgClass: 'bg-gray-200',    iconClass: 'text-gray-700'     },
   ];
 
   return (
@@ -74,23 +79,28 @@ export default function QuickLinks({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.03 }}
-      className="grid grid-cols-4 gap-y-3"
+      className="grid grid-cols-4 gap-y-4"
     >
-      {cards.map((c) => (
+      {categories.map((c) => (
         <Link
           key={`${c.href}-${c.label}`}
           href={c.href}
-          className="relative flex flex-col items-center gap-1.5 py-1 active:scale-95 transition-transform"
+          className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
         >
-          <div className={`relative w-12 h-12 rounded-full ${c.bg} flex items-center justify-center`}>
-            <span className="text-xl leading-none">{c.icon}</span>
+          <div className={`relative w-14 h-14 rounded-2xl ${c.bgClass} flex items-center justify-center`}>
+            <c.Icon
+              size={24}
+              strokeWidth={2}
+              className={c.iconClass}
+              aria-hidden
+            />
             {c.badge && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center tabular-nums ring-2 ring-white">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center tabular-nums ring-2 ring-white">
                 {c.badge}
               </span>
             )}
             {c.dot && !c.badge && (
-              <span className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-brand-warning ring-2 ring-white" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-brand-warning ring-2 ring-white" />
             )}
           </div>
           <span className="text-xs font-medium text-gray-700 tracking-tight">{c.label}</span>
