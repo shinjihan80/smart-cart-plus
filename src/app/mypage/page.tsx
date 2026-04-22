@@ -28,6 +28,7 @@ import PartnerRoadmapSection                     from '@/components/mypage/Partn
 import PaletteButton                              from '@/components/PaletteButton';
 import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
 import MonthlySummarySection                      from '@/components/mypage/MonthlySummarySection';
+import FrequentIngredientsSection                  from '@/components/mypage/FrequentIngredientsSection';
 import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
@@ -158,6 +159,13 @@ export default function MyPage() {
 
         <SectionErrorBoundary label="이번 달 활동">
           <MonthlySummarySection discardHistory={discardHistory} />
+        </SectionErrorBoundary>
+
+        <SectionErrorBoundary label="자주 구매하는 재료">
+          <FrequentIngredientsSection
+            discardHistory={discardHistory}
+            currentItemNames={foodItemsList.map((f) => f.name)}
+          />
         </SectionErrorBoundary>
 
         <SectionErrorBoundary label="올해 활동 요약">

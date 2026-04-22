@@ -319,7 +319,31 @@ export default function RecipeDetailModal({
           )}
 
           <div>
-            <p className="text-[11px] text-gray-400 font-medium mb-2">조리 순서</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] text-gray-400 font-medium">조리 순서</p>
+              <button
+                onClick={async () => {
+                  const text = [
+                    `${recipe.name} (${recipe.time} · ${recipe.difficulty})`,
+                    '',
+                    '재료:',
+                    ...recipe.keywords.map((k) => `- ${k}`),
+                    '',
+                    '조리 순서:',
+                    ...recipe.steps.map((s, i) => `${i + 1}. ${s}`),
+                  ].join('\n');
+                  try {
+                    await navigator.clipboard.writeText(text);
+                    showToast('레시피를 클립보드에 복사했어요.');
+                  } catch {
+                    showToast('복사에 실패했어요. 권한을 확인해주세요.');
+                  }
+                }}
+                className="text-[10px] font-semibold text-gray-500 hover:text-brand-primary hover:underline"
+              >
+                📋 레시피 복사
+              </button>
+            </div>
             <ol className="flex flex-col gap-2.5">
               {recipe.steps.map((step, i) => (
                 <li key={i} className="flex gap-2.5">
