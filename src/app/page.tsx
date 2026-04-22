@@ -17,6 +17,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import { useSearchPlaceholder } from '@/lib/useSearchPlaceholder';
+import { useSavedOutfits } from '@/lib/savedOutfits';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import DailyMessage    from '@/components/home/DailyMessage';
@@ -78,6 +79,10 @@ export default function HomePage() {
   const season         = currentSeasonByMonth();
   const recipeHits     = searchQ ? countRecipesByIngredient(searchQ) : 0;
   const isSeasonSearch = searchQ ? isSeasonalProduce(searchQ, season) : false;
+  const { outfits: savedOutfits } = useSavedOutfits();
+  const outfitHits = searchQ
+    ? savedOutfits.filter((o) => o.name.toLowerCase().includes(searchQ.toLowerCase())).slice(0, 2)
+    : [];
   // 검색어와 부분 일치하는 제철 재료 (미보유 우선)
   const seasonalHit = searchQ
     ? SEASONAL_PRODUCE.find((p) =>
@@ -214,6 +219,20 @@ export default function HomePage() {
                 </Link>
               );
             })}
+            {outfitHits.map((o) => (
+              <Link
+                key={o.id}
+                href="/closet"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-gray-50 border border-gray-100 hover:border-brand-primary/20 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center shrink-0 text-sm">💾</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-800 truncate">{o.name}</p>
+                  <p className="text-[10px] text-gray-400">저장된 코디 · {Object.keys(o.slots).length}벌</p>
+                </div>
+                <ChevronRight size={12} className="text-gray-300" />
+              </Link>
+            ))}
             {seasonalHit && (
               <button
                 onClick={() => handleAddSeasonal(seasonalHit)}
@@ -240,7 +259,7 @@ export default function HomePage() {
                 <ChevronRight size={12} className="text-brand-primary/60" />
               </button>
             )}
-            {searchResults.length === 0 && recipeHits === 0 && !seasonalHit && (
+            {searchResults.length === 0 && recipeHits === 0 && !seasonalHit && outfitHits.length === 0 && (
               <p className="text-xs text-gray-400 text-center py-2">검색 결과가 없어요</p>
             )}
           </div>

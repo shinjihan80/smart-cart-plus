@@ -76,6 +76,23 @@ export default function MyPage() {
             </Link>
           </div>
         </div>
+        <div className="px-4 pb-2 flex gap-1 overflow-x-auto scrollbar-hide">
+          {[
+            { id: 'shopping',     label: '🛒 쇼핑' },
+            { id: 'seasonal-hist', label: '🌸 제철' },
+            { id: 'closet-cleanup', label: '🧹 옷장' },
+            { id: 'cook-stats',   label: '🍳 조리' },
+            { id: 'partners',     label: '🚀 파트너' },
+          ].map((j) => (
+            <a
+              key={j.id}
+              href={`#${j.id}`}
+              className="shrink-0 text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
+            >
+              {j.label}
+            </a>
+          ))}
+        </div>
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
@@ -214,9 +231,11 @@ export default function MyPage() {
           />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary label="쇼핑 리스트">
-          <ShoppingListSection addItems={addItems} showToast={showToast} />
-        </SectionErrorBoundary>
+        <div id="shopping" className="scroll-mt-24">
+          <SectionErrorBoundary label="쇼핑 리스트">
+            <ShoppingListSection addItems={addItems} showToast={showToast} />
+          </SectionErrorBoundary>
+        </div>
 
         <SectionErrorBoundary label="착용 로그 분석">
           <WearStatsSection items={items} />
@@ -226,17 +245,23 @@ export default function MyPage() {
           <SeasonalStorageSection items={items} />
         </SectionErrorBoundary>
 
-        <SectionErrorBoundary label="옷장 정리 제안">
-          <ClosetCleanupSection items={items} />
-        </SectionErrorBoundary>
+        <div id="closet-cleanup" className="scroll-mt-24">
+          <SectionErrorBoundary label="옷장 정리 제안">
+            <ClosetCleanupSection items={items} />
+          </SectionErrorBoundary>
+        </div>
 
-        <SectionErrorBoundary label="조리 로그 분석">
-          <CookStatsSection onOpenRecipe={setSelectedRecipe} />
-        </SectionErrorBoundary>
+        <div id="cook-stats" className="scroll-mt-24">
+          <SectionErrorBoundary label="조리 로그 분석">
+            <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+          </SectionErrorBoundary>
+        </div>
 
-        <SectionErrorBoundary label="제철 식탁 히스토리">
-          <SeasonalHistorySection history={discardHistory} />
-        </SectionErrorBoundary>
+        <div id="seasonal-hist" className="scroll-mt-24">
+          <SectionErrorBoundary label="제철 식탁 히스토리">
+            <SeasonalHistorySection history={discardHistory} />
+          </SectionErrorBoundary>
+        </div>
 
         <SectionErrorBoundary label="즐겨찾기 레시피">
           <FavoriteRecipesSection
