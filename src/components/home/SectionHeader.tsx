@@ -55,7 +55,7 @@ export default function SectionHeader({
 
   if (!collapsible) {
     return (
-      <section className="mt-8 first:mt-5">
+      <section className="mt-8 first:mt-6 pt-6 first:pt-0 border-t first:border-t-0 border-gray-200">
         <div className="flex items-center justify-between mb-3 px-1">
           {titleNode}
           {actionNode}
@@ -66,7 +66,7 @@ export default function SectionHeader({
   }
 
   return (
-    <section className="mt-8 first:mt-5">
+    <section className="mt-8 first:mt-6 pt-6 first:pt-0 border-t first:border-t-0 border-gray-200">
       <button
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between mb-3 px-1"

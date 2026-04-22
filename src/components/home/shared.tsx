@@ -25,9 +25,8 @@ export const CARD_VARIANTS: Record<CardVariant, string> = {
   ghost:   'bg-white border border-gray-100 rounded-[20px] p-5',
 };
 
-const CARD_SHADOW_COMMON: React.CSSProperties = {
-  boxShadow: '0 2px 12px -4px rgba(0,0,0,0.05)',
-};
+// 인터파크 스타일 — 그림자 없음, 경계선(border-gray-100)만으로 카드 구분
+const CARD_SHADOW_COMMON: React.CSSProperties = {};
 
 export const CARD_SHADOWS: Record<CardVariant, React.CSSProperties> = {
   primary: CARD_SHADOW_COMMON,

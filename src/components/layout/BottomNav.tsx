@@ -74,7 +74,7 @@ export default function BottomNav() {
                 aria-label={a11yLabel}
                 aria-current={isActive ? 'page' : undefined}
                 className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
-                  isActive ? 'text-brand-primary' : 'text-gray-500'
+                  isActive ? 'text-brand-primary' : 'text-gray-700'
                 }`}
               >
                 <span className="relative">

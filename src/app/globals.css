@@ -41,9 +41,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'SUIT', sans-serif;
-  font-weight: 450;            /* 기본 400보다 살짝 굵게 — SUIT 가독성 ↑ */
+  font-weight: 400;            /* 인터파크 스타일 — 본문은 regular, 제목만 bold */
   letter-spacing: -0.005em;    /* 한글 자간 미세 보정 */
-  line-height: 1.55;           /* 본문 줄간격 (Tailwind leading-normal=1.5보다 +0.05) */
+  line-height: 1.55;           /* 본문 줄간격 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
