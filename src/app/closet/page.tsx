@@ -26,6 +26,7 @@ import OutfitPreview      from '@/components/closet/OutfitPreview';
 import OutfitSection      from '@/components/closet/OutfitSection';
 import SwipeClothingCard  from '@/components/closet/SwipeClothingCard';
 import SeasonalUnstowBanner from '@/components/closet/SeasonalUnstowBanner';
+import SavedOutfitsSection from '@/components/closet/SavedOutfitsSection';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 
 type GroupFilter = '전체' | FashionGroup;
@@ -292,6 +293,11 @@ export default function ClosetPage() {
             </motion.div>
           );
         })()}
+
+        {/* 저장된 코디 */}
+        <SectionErrorBoundary label="저장된 코디">
+          <SavedOutfitsSection items={allItems} />
+        </SectionErrorBoundary>
 
         {/* 코디 미리보기 */}
         <SectionErrorBoundary label="코디 미리보기">

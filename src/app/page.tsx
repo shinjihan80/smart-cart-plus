@@ -110,6 +110,8 @@ export default function HomePage() {
     '내 옷장의 원피스',
     '불고기 레시피',
     '냉장고 보유 중',
+    '저장된 코디',
+    '> 액션 / # 페이지 / ? 레시피',
   ]);
 
   useEffect(() => {
