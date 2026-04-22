@@ -122,6 +122,7 @@ export default function SettingsPage() {
       'nemoa-profiles',        // 프로필
       'nemoa-shopping-list',   // 쇼핑 리스트
       'nemoa-recipe-favorites',// 즐겨찾기 레시피
+      'nemoa-saved-outfits',   // 저장된 코디
       'nemoa-last-backup-at',  // 백업 타임스탬프
       'nemoa-weather-cache',   // 날씨 캐시 (30분 만료 — 굳이 비울 필요 없음)
     ]);

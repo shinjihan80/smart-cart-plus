@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 const LAST_BACKUP_KEY = 'nemoa-last-backup-at';
-const BACKUP_VERSION  = 2;  // v2: wearLog 추가
+const BACKUP_VERSION  = 3;  // v3: savedOutfits 추가
 const STALE_AFTER_MS  = 7 * 24 * 60 * 60 * 1000; // 7일
 
 export interface BackupSnapshot {
@@ -22,6 +22,7 @@ export interface BackupSnapshot {
   wearLog?:    unknown;  // v2+ clothing id → ISO date[]
   cookLog?:    unknown;  // v2+ recipe id → ISO date[]
   profiles?:   unknown[]; // v2+ 사용자 프로필 (본인 + 가족)
+  outfits?:    unknown[]; // v3+ 저장된 코디
 }
 
 function readTimestamp(): number | null {
@@ -66,6 +67,7 @@ export function buildSnapshot(): BackupSnapshot {
     wearLog:   safe('nemoa-wear-log',         {}),
     cookLog:   safe('nemoa-cook-log',         {}),
     profiles:  safe('nemoa-profiles',         []),
+    outfits:   safe('nemoa-saved-outfits',    []),
   };
 }
 
@@ -119,6 +121,8 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
       localStorage.setItem('nemoa-cook-log',         JSON.stringify(snap.cookLog));
     if (Array.isArray(snap.profiles) && snap.profiles.length > 0)
       localStorage.setItem('nemoa-profiles',         JSON.stringify(snap.profiles));
+    if (Array.isArray(snap.outfits))
+      localStorage.setItem('nemoa-saved-outfits',    JSON.stringify(snap.outfits));
   } catch { /* quota */ }
   writeTimestamp(Date.now());
 }
