@@ -5,6 +5,9 @@ import { motion } from 'framer-motion';
 import { FASHION_GROUP, type ClothingItem, type FashionGroup } from '@/types';
 import { useProfiles } from '@/lib/profile';
 import { usePersistedState } from '@/lib/usePersistedState';
+import { useSavedOutfits } from '@/lib/savedOutfits';
+import { useToast } from '@/context/ToastContext';
+import { haptic } from '@/lib/haptics';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const SLOTS: { key: string; label: string; groups: FashionGroup[]; emoji: string }[] = [
@@ -16,6 +19,8 @@ const SLOTS: { key: string; label: string; groups: FashionGroup[]; emoji: string
 
 export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
   const { profiles } = useProfiles();
+  const { outfits, save: saveOutfit, remove: removeOutfit } = useSavedOutfits();
+  const { showToast } = useToast();
   const [selected, setSelected] = useState<Record<string, string | null>>({
     상의: null, 하의: null, 아우터: null, 신발: null, 액세서리: null,
   });
@@ -24,6 +29,8 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
     'nemoa-outfit-owner', 'all',
     (raw) => typeof raw === 'string' ? raw : null,
   );
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [outfitName, setOutfitName] = useState('');
 
   const hasImages = items.filter((i) => i.imageUrl);
   const filtered = useMemo(() => {
@@ -133,11 +140,90 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
       </div>
 
       {selectedItems.length > 0 ? (
-        <p className="text-[9px] text-gray-300 text-center mt-2">탭해서 다른 아이템으로 교체</p>
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <p className="text-[9px] text-gray-300">탭해서 다른 아이템으로 교체</p>
+          <button
+            onClick={() => setSaveOpen(!saveOpen)}
+            className="text-[10px] font-semibold text-brand-primary hover:underline shrink-0"
+          >
+            💾 이 코디 저장
+          </button>
+        </div>
       ) : (
         <p className="text-[10px] text-gray-400 text-center py-4">
           이 필터에는 미리볼 옷이 없어요. 다른 필터를 선택해보세요.
         </p>
+      )}
+
+      {saveOpen && selectedItems.length > 0 && (
+        <div className="mt-2 rounded-xl border border-brand-primary/15 bg-brand-primary/5 p-2.5">
+          <div className="flex items-center gap-1.5">
+            <input
+              type="text"
+              value={outfitName}
+              onChange={(e) => setOutfitName(e.target.value)}
+              placeholder="코디 이름 (예: 봄 출근 코디)"
+              maxLength={30}
+              className="flex-1 text-xs text-gray-800 bg-white border border-gray-100 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && outfitName.trim()) {
+                  const slots: Record<string, string> = {};
+                  for (const si of selectedItems) slots[si.key] = si.item.id;
+                  saveOutfit(outfitName, slots);
+                  haptic('toggle');
+                  showToast(`"${outfitName}" 코디 저장했어요.`);
+                  setOutfitName('');
+                  setSaveOpen(false);
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                const slots: Record<string, string> = {};
+                for (const si of selectedItems) slots[si.key] = si.item.id;
+                saveOutfit(outfitName || `코디 ${outfits.length + 1}`, slots);
+                haptic('toggle');
+                showToast(`코디 저장했어요.`);
+                setOutfitName('');
+                setSaveOpen(false);
+              }}
+              className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
+            >
+              저장
+            </button>
+          </div>
+        </div>
+      )}
+
+      {outfits.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-gray-50">
+          <p className="text-[10px] text-gray-400 font-medium mb-1.5">저장된 코디 {outfits.length}</p>
+          <div className="flex gap-1 flex-wrap">
+            {outfits.slice(-10).map((o) => (
+              <div key={o.id} className="flex items-center rounded-full bg-gray-50 border border-gray-100 overflow-hidden">
+                <button
+                  onClick={() => {
+                    setSelected((prev) => ({ ...prev, ...o.slots }));
+                    haptic('tap');
+                    showToast(`"${o.name}" 불러왔어요.`);
+                  }}
+                  className="text-[10px] px-2 py-0.5 text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  {o.name}
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm(`"${o.name}" 삭제할까요?`)) removeOutfit(o.id);
+                  }}
+                  aria-label={`${o.name} 삭제`}
+                  className="text-[10px] px-1.5 py-0.5 text-gray-400 hover:text-brand-warning border-l border-gray-100 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </motion.div>
   );
