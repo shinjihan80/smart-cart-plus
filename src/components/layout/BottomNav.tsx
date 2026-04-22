@@ -57,8 +57,10 @@ export default function BottomNav() {
                   onClick={() => setAddOpen(true)}
                   className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-brand-primary transition-colors"
                 >
-                  <Icon size={22} strokeWidth={2.2} aria-hidden="true" />
-                  <span className="text-[11px] font-medium">{entry.label}</span>
+                  <span className="w-12 h-12 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/40 -mt-4 active:scale-95 transition-transform">
+                    <Icon size={22} strokeWidth={2.4} aria-hidden="true" />
+                  </span>
+                  <span className="text-[11px] font-semibold">{entry.label}</span>
                 </button>
               );
             }
