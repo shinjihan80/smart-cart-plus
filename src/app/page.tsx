@@ -37,6 +37,7 @@ import SeasonalChipRow from '@/components/home/SeasonalChipRow';
 import SeasonalHintWidget from '@/components/home/SeasonalHintWidget';
 import SeasonalChecklistWidget from '@/components/home/SeasonalChecklistWidget';
 import QuickLinks from '@/components/home/QuickLinks';
+import SavedOutfitSuggestion from '@/components/home/SavedOutfitSuggestion';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -282,6 +283,9 @@ export default function HomePage() {
           </SectionErrorBoundary>
           <SectionErrorBoundary label="오늘 한 그릇" colSpan="full">
             <TodayDishCard items={items} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary label="저장된 코디" colSpan="full">
+            <SavedOutfitSuggestion items={items} />
           </SectionErrorBoundary>
           <ClosetSummary   items={items} />
           <MonthlySpending />

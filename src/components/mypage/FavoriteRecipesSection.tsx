@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
-import { RECIPES, type Recipe } from '@/lib/recipes';
+import { RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -49,7 +49,20 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
             >
               <span className="text-2xl shrink-0">{recipe.emoji}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
+                  {(() => {
+                    const d = recipeDietary(recipe);
+                    return d ? (
+                      <span
+                        className="text-[9px] shrink-0"
+                        title={`${DIETARY_BADGE[d].label} 가능`}
+                      >
+                        {DIETARY_BADGE[d].emoji}
+                      </span>
+                    ) : null;
+                  })()}
+                </div>
                 <p className="text-[10px] text-gray-400 mt-0.5">
                   ⏱ {recipe.time} · {recipe.difficulty}
                   {cook.count > 0 && (
