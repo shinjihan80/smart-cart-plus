@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
@@ -12,11 +13,39 @@ interface FavoriteRecipesSectionProps {
   onOpenBrowser:  () => void;
 }
 
+type SortKey = 'recent' | 'name' | 'count';
+
 export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: FavoriteRecipesSectionProps) {
   const { favorites } = useRecipeFavorites();
   const { getEntry } = useCookLog();
-  const favoriteRecipes = RECIPES.filter((r) => favorites.includes(r.id));
+  const [sortBy, setSortBy] = useState<SortKey>('recent');
+  const favoriteRecipes = RECIPES
+    .filter((r) => favorites.includes(r.id))
+    .sort((a, b) => {
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'count') {
+        const ac = getEntry(a.id).count;
+        const bc = getEntry(b.id).count;
+        return bc - ac;
+      }
+      // recent: lastCooked 내림차순, 없으면 뒤로
+      const aLast = getEntry(a.id).lastCooked ?? '';
+      const bLast = getEntry(b.id).lastCooked ?? '';
+      if (aLast !== bLast) return bLast.localeCompare(aLast);
+      return a.name.localeCompare(b.name);
+    });
   if (favoriteRecipes.length === 0) return null;
+
+  const SORT_LABEL: Record<SortKey, string> = {
+    recent: '🕑 최근 조리',
+    count:  '🔥 많이 만든',
+    name:   '🔤 가나다',
+  };
+  const SORT_NEXT: Record<SortKey, SortKey> = {
+    recent: 'count',
+    count:  'name',
+    name:   'recent',
+  };
 
   return (
     <motion.div
@@ -30,6 +59,13 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
         <h3 className="text-xs text-gray-400 font-medium">즐겨찾기 레시피</h3>
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
+          <button
+            onClick={() => setSortBy(SORT_NEXT[sortBy])}
+            className="text-[10px] text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            title="정렬 전환"
+          >
+            {SORT_LABEL[sortBy]}
+          </button>
           <button
             onClick={onOpenBrowser}
             className="text-[10px] text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors"

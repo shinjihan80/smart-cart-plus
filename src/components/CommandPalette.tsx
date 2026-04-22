@@ -173,6 +173,20 @@ export default function CommandPalette() {
       });
     }
 
+    // 어제 조리한 레시피 다시 열기
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+    const lastCookedId = Object.entries(cookLog).find(([, dates]) => Array.isArray(dates) && dates[0] === yesterday)?.[0];
+    if (lastCookedId) {
+      const r = RECIPES.find((x) => x.id === lastCookedId);
+      if (r) {
+        actions.push({
+          kind: 'action', id: 'a-reopen-last', emoji: '↻',
+          label: `어제 만든 "${r.name}" 다시 보기`, sub: `${yesterday} 기록`,
+          run: () => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: r.id } })),
+        });
+      }
+    }
+
     // 쇼핑 리스트 비우기 — 항목 있을 때만 노출
     if (shoppingList.length > 0) {
       actions.push({
