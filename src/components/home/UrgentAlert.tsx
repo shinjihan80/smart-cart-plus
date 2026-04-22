@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, AlertTriangle } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { springTransition } from './shared';
@@ -22,7 +22,9 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
         transition={springTransition}
         className="bg-brand-warning/10 border border-brand-warning/20 rounded-[24px] px-4 py-3 flex items-center gap-3"
       >
-        <span className="text-xl">⚠️</span>
+        <span className="w-9 h-9 rounded-xl bg-brand-warning/15 flex items-center justify-center shrink-0">
+          <AlertTriangle size={18} strokeWidth={2.2} className="text-brand-warning" />
+        </span>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-bold text-brand-warning">
             {urgent.length}개 식품 긴급 소비 필요

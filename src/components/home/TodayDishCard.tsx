@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, AlertTriangle, Flower2, Trophy, Check } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
-import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { matchRecipes, type Recipe } from '@/lib/recipes';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
@@ -58,18 +58,21 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                 <div className="flex items-center gap-1.5 mb-1">
                   <p className="text-xs text-gray-400 font-medium">네모아의 오늘 한 그릇</p>
                   {urgentBoosted && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold">
-                      ⚠️ 임박
+                    <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold">
+                      <AlertTriangle size={10} strokeWidth={2.4} />
+                      <span>임박</span>
                     </span>
                   )}
                   {seasonBoosted && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold">
-                      {SEASON_EMOJI[season]} {season}철
+                    <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold">
+                      <Flower2 size={10} strokeWidth={2.4} />
+                      <span>{season}철</span>
                     </span>
                   )}
                   {loveBoosted && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600 font-semibold" title={`${cookCount}번 만든 단골`}>
-                      🏆 단골
+                    <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold" title={`${cookCount}번 만든 단골`}>
+                      <Trophy size={10} strokeWidth={2.4} />
+                      <span>단골</span>
                     </span>
                   )}
                 </div>
@@ -92,9 +95,10 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                   role="button"
                   aria-label="오늘 이 요리 만들었어요"
                   title="오늘 만들었어요"
-                  className="text-sm font-semibold px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                  className="flex items-center gap-0.5 text-xs font-semibold px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
                 >
-                  ✓ 기록
+                  <Check size={12} strokeWidth={2.6} />
+                  <span>기록</span>
                 </span>
                 <ChevronRight size={16} className="text-gray-300" />
               </div>
