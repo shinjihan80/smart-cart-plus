@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
-import { RECIPES, recipeGradient, SEASON_EMOJI, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { RECIPES, recipeGradient, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useProfiles } from '@/lib/profile';
 import { useModalA11y } from '@/lib/useModalA11y';
@@ -26,9 +27,16 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
   const [search, setSearch] = useState(initialSearch ?? '');
   const [filter, setFilter] = useState<FilterKey>('전체');
 
-  const FILTERS: { key: FilterKey; label: string }[] = [
+  const SeasonIcon = SEASON_ICON[season];
+  const seasonColor = SEASON_COLOR[season];
+  const FILTERS: { key: FilterKey; label: React.ReactNode }[] = [
     { key: '전체',     label: '전체' },
-    { key: '이번계절', label: `${SEASON_EMOJI[season]} 이번 계절` },
+    { key: '이번계절', label: (
+      <span className="inline-flex items-center gap-1">
+        <SeasonIcon size={12} strokeWidth={2} className={seasonColor.text} />
+        이번 계절
+      </span>
+    ) },
     { key: '즐겨찾기', label: '♥ 즐겨찾기' },
     { key: '간단',     label: '⚡ 간단' },
     { key: '보통',     label: '🍳 보통' },
@@ -165,7 +173,9 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
                           <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
                           {fav && <span className="text-xs text-brand-warning shrink-0">♥</span>}
                           {recipe.seasons?.includes(season) && (
-                            <span className="text-sm shrink-0" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>
+                            <span className="shrink-0 inline-flex items-center" title={`${season}철 추천`}>
+                              <SeasonIcon size={12} strokeWidth={2} className={seasonColor.text} />
+                            </span>
                           )}
                           {(() => {
                             const d = recipeDietary(recipe);

@@ -11,7 +11,7 @@ import {
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
-import { SEASON_EMOJI } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { springTransition } from './shared';
 
 export default function SeasonalUnstowBanner({ items }: { items: CartItem[] }) {
@@ -40,7 +40,15 @@ export default function SeasonalUnstowBanner({ items }: { items: CartItem[] }) {
       transition={{ ...springTransition, delay: 0.06 }}
       className="rounded-[28px] bg-gradient-to-br from-brand-success/10 to-brand-primary/10 border border-brand-success/20 px-4 py-3.5 flex items-center gap-3"
     >
-      <span className="text-2xl shrink-0">{SEASON_EMOJI[season]}</span>
+      {(() => {
+        const Icon = SEASON_ICON[season];
+        const color = SEASON_COLOR[season];
+        return (
+          <span className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${color.bg}`}>
+            <Icon size={20} strokeWidth={2} className={color.text} />
+          </span>
+        );
+      })()}
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold text-brand-success">{season}이 왔어요!</p>
         <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">

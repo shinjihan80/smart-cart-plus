@@ -9,7 +9,7 @@ import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
+import { countRecipesByIngredient, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import RecipeDetailModal from '@/components/RecipeDetailModal';

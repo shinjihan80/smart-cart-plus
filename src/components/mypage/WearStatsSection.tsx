@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { isClothingItem, FASHION_EMOJI, type CartItem } from '@/types';
+import { isClothingItem, type CartItem } from '@/types';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { FASHION_GROUP, type FashionGroup } from '@/types';
+import { FASHION_ICON } from '@/lib/iconMap';
 import WeekdayPatternChart from './WeekdayPatternChart';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -156,13 +157,16 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         <div className="mb-3">
           <p className="text-sm text-brand-primary font-semibold mb-1.5">♥ 자주 입는 옷 TOP 3</p>
           <div className="flex flex-col gap-1">
-            {topWorn.map((x) => (
-              <div key={x.item.id} className="flex items-center gap-2 py-1">
-                <span className="text-sm">{FASHION_EMOJI[x.item.category] ?? '👕'}</span>
-                <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
-                <span className="text-sm text-brand-primary font-bold tabular-nums">{x.count}회</span>
-              </div>
-            ))}
+            {topWorn.map((x) => {
+              const Icon = FASHION_ICON[x.item.category] ?? FASHION_ICON['기타 액세서리'];
+              return (
+                <div key={x.item.id} className="flex items-center gap-2 py-1">
+                  <Icon size={14} strokeWidth={2} className="text-gray-600" />
+                  <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
+                  <span className="text-sm text-brand-primary font-bold tabular-nums">{x.count}회</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -171,13 +175,16 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         <div className="mb-3">
           <p className="text-sm text-amber-600 font-semibold mb-1.5">🌙 오래 안 입은 옷</p>
           <div className="flex flex-col gap-1">
-            {longIdle.map((x) => (
-              <div key={x.item.id} className="flex items-center gap-2 py-1">
-                <span className="text-sm">{FASHION_EMOJI[x.item.category] ?? '👕'}</span>
-                <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
-                <span className="text-sm text-amber-600 font-medium tabular-nums">{daysSince(x.lastWorn!)}일</span>
-              </div>
-            ))}
+            {longIdle.map((x) => {
+              const Icon = FASHION_ICON[x.item.category] ?? FASHION_ICON['기타 액세서리'];
+              return (
+                <div key={x.item.id} className="flex items-center gap-2 py-1">
+                  <Icon size={14} strokeWidth={2} className="text-gray-600" />
+                  <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
+                  <span className="text-sm text-amber-600 font-medium tabular-nums">{daysSince(x.lastWorn!)}일</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -186,13 +193,16 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         <div>
           <p className="text-sm text-gray-500 font-semibold mb-1.5">👀 아직 안 입은 옷</p>
           <div className="flex flex-col gap-1">
-            {neverWorn.map((x) => (
-              <div key={x.item.id} className="flex items-center gap-2 py-1">
-                <span className="text-sm">{FASHION_EMOJI[x.item.category] ?? '👕'}</span>
-                <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
-                <span className="text-sm text-gray-400">—</span>
-              </div>
-            ))}
+            {neverWorn.map((x) => {
+              const Icon = FASHION_ICON[x.item.category] ?? FASHION_ICON['기타 액세서리'];
+              return (
+                <div key={x.item.id} className="flex items-center gap-2 py-1">
+                  <Icon size={14} strokeWidth={2} className="text-gray-600" />
+                  <span className="text-sm text-gray-800 flex-1 truncate">{x.item.name}</span>
+                  <span className="text-sm text-gray-400">—</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

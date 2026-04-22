@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
-  FASHION_GROUP, FASHION_EMOJI,
+  FASHION_GROUP,
   type FashionGroup,
 } from '@/types';
+import { FASHION_ICON } from '@/lib/iconMap';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Search } from 'lucide-react';
@@ -278,12 +279,15 @@ export default function ClosetPage() {
               </div>
               {seasonItems.length > 0 ? (
                 <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                  {seasonItems.map((item) => (
-                    <div key={item.id} className="shrink-0 flex items-center gap-2 bg-brand-primary/5 rounded-2xl px-3 py-1.5">
-                      <span className="text-sm">{FASHION_EMOJI[item.category] ?? '📦'}</span>
-                      <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{item.name}</span>
-                    </div>
-                  ))}
+                  {seasonItems.map((item) => {
+                    const Icon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
+                    return (
+                      <div key={item.id} className="shrink-0 flex items-center gap-2 bg-gray-100 rounded-2xl px-3 py-1.5">
+                        <Icon size={13} strokeWidth={2} className="text-gray-600" />
+                        <span className="text-xs font-medium text-gray-800 whitespace-nowrap">{item.name}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-gray-400 py-2">
@@ -314,12 +318,15 @@ export default function ClosetPage() {
                 <span className="text-xs text-gray-400 font-medium">아직 안 입어본 옷 {untried.length}벌</span>
               </div>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {untried.map((c) => (
-                  <div key={c.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-100">
-                    <span className="text-sm">{FASHION_EMOJI[c.category] ?? '👕'}</span>
-                    <span className="text-xs font-medium text-amber-700 whitespace-nowrap">{c.name}</span>
-                  </div>
-                ))}
+                {untried.map((c) => {
+                  const Icon = FASHION_ICON[c.category] ?? FASHION_ICON['기타 액세서리'];
+                  return (
+                    <div key={c.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-100">
+                      <Icon size={13} strokeWidth={2} className="text-amber-700" />
+                      <span className="text-xs font-medium text-amber-700 whitespace-nowrap">{c.name}</span>
+                    </div>
+                  );
+                })}
               </div>
               <p className="text-sm text-gray-400 mt-1.5 leading-relaxed">
                 오늘 한 번 꺼내볼까요? 카드에서 &ldquo;👕 오늘 입었어요&rdquo;로 기록할 수 있어요.
@@ -349,13 +356,16 @@ export default function ClosetPage() {
                 <span className="text-xs text-gray-400 font-medium">자주 입는 옷 TOP 3</span>
               </div>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {worn.map((w) => (
-                  <div key={w.item.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-brand-primary/5 border border-brand-primary/10">
-                    <span className="text-sm">{FASHION_EMOJI[w.item.category] ?? '👕'}</span>
-                    <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{w.item.name}</span>
-                    <span className="text-sm text-brand-primary/60 tabular-nums">{w.count}회</span>
-                  </div>
-                ))}
+                {worn.map((w) => {
+                  const Icon = FASHION_ICON[w.item.category] ?? FASHION_ICON['기타 액세서리'];
+                  return (
+                    <div key={w.item.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100 border border-gray-200">
+                      <Icon size={13} strokeWidth={2} className="text-gray-700" />
+                      <span className="text-xs font-medium text-gray-800 whitespace-nowrap">{w.item.name}</span>
+                      <span className="text-sm text-gray-500 tabular-nums">{w.count}회</span>
+                    </div>
+                  );
+                })}
               </div>
             </motion.div>
           );

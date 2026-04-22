@@ -20,7 +20,7 @@ import SeasonalProduceSection  from '@/components/fridge/SeasonalProduceSection'
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
 import { isSeasonalProduce, SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
-import { SEASON_EMOJI }         from '@/lib/recipes';
+import { SEASON_ICON }          from '@/lib/iconMap';
 import { useProfiles }         from '@/lib/profile';
 import { usePersistedState }   from '@/lib/usePersistedState';
 
@@ -342,8 +342,12 @@ export default function FridgePage() {
             if (hits.length === 0) return null;
             return (
               <div className="flex items-center gap-1.5 flex-wrap -mt-1">
-                <span className="text-xs text-gray-400 font-medium">
-                  {SEASON_EMOJI[season]} 지금 제철 · 바로 담기
+                <span className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+                  {(() => {
+                    const Icon = SEASON_ICON[season];
+                    return <Icon size={12} strokeWidth={2.2} className="text-pink-500" />;
+                  })()}
+                  <span>지금 제철 · 바로 담기</span>
                 </span>
                 {hits.map((p) => (
                   <button
@@ -448,7 +452,15 @@ export default function FridgePage() {
                     : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
                 }`}
               >
-                {SEASON_EMOJI[season]} 제철 {seasonalCount}
+                {(() => {
+                  const Icon = SEASON_ICON[season];
+                  return (
+                    <span className="inline-flex items-center gap-1">
+                      <Icon size={11} strokeWidth={2.4} />
+                      <span>제철 {seasonalCount}</span>
+                    </span>
+                  );
+                })()}
               </button>
             )}
           </div>

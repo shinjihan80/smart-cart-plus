@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI, countRecipesByIngredient } from '@/lib/recipes';
+import { countRecipesByIngredient } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface SeasonalProduceSectionProps {
@@ -30,7 +31,11 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
         style={CARD_SHADOW}
       >
         <div className="flex items-center gap-2 mb-2.5">
-          <span className="text-base">{SEASON_EMOJI[season]}</span>
+          {(() => {
+            const Icon = SEASON_ICON[season];
+            const color = SEASON_COLOR[season];
+            return <Icon size={16} strokeWidth={2} className={color.text} />;
+          })()}
           <span className="text-xs text-gray-400 font-medium">지금 {season}철 재료</span>
           <span className="text-xs text-gray-300">· 가장 맛있을 때</span>
         </div>

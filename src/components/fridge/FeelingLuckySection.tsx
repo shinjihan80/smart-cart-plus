@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
-import { matchRecipes, SEASON_EMOJI, type Recipe } from '@/lib/recipes';
+import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
@@ -87,7 +88,15 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
             <p className="text-sm text-gray-500 mt-0.5">
               ⏱ {pick.recipe.time} · {pick.recipe.difficulty}
               {pick.urgentBoosted && <span className="text-brand-warning ml-1">· ⚠️ 임박 재료</span>}
-              {pick.seasonBoosted && <span className="text-gray-500 ml-1">· {SEASON_EMOJI[season]} {season}철</span>}
+              {pick.seasonBoosted && (() => {
+                const Icon = SEASON_ICON[season];
+                const color = SEASON_COLOR[season];
+                return (
+                  <span className="inline-flex items-center gap-1 text-gray-500 ml-1">
+                    · <Icon size={11} strokeWidth={2} className={color.text} /> {season}철
+                  </span>
+                );
+              })()}
               {pick.loveBoosted && <span className="text-rose-500 ml-1">· 🏆 {pick.cookCount}번 만든 단골</span>}
             </p>
             {pick.recipe.blurb && (

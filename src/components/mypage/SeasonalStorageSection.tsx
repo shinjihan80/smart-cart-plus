@@ -3,14 +3,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { isClothingItem, FASHION_EMOJI, FASHION_GROUP, type CartItem, type ClothingItem } from '@/types';
+import { isClothingItem, FASHION_GROUP, type CartItem, type ClothingItem } from '@/types';
+import { FASHION_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { PARTNERS } from '@/lib/partnerLinks';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
-
-const SEASON_EMOJI = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' } as const;
 
 export default function SeasonalStorageSection({ items }: { items: CartItem[] }) {
   const { updateItem } = useCart();
@@ -71,7 +70,11 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-base">{SEASON_EMOJI[season]}</span>
+        {(() => {
+          const Icon = SEASON_ICON[season];
+          const color = SEASON_COLOR[season];
+          return <Icon size={16} strokeWidth={2} className={color.text} />;
+        })()}
         <span className="text-xs text-gray-400 font-medium">계절 보관</span>
         <span className="text-sm text-gray-400">· 지금은 {season}</span>
       </div>
@@ -81,8 +84,13 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
         <div className="rounded-2xl bg-brand-success/5 border border-brand-success/20 px-3 py-2.5 mb-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-brand-success">
-                {SEASON_EMOJI[season]} {season}이(가) 왔어요!
+              <p className="text-xs font-semibold text-brand-success inline-flex items-center gap-1">
+                {(() => {
+                  const Icon = SEASON_ICON[season];
+                  const color = SEASON_COLOR[season];
+                  return <Icon size={12} strokeWidth={2} className={color.text} />;
+                })()}
+                {season}이(가) 왔어요!
               </p>
               <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
                 보관해뒀던 {season}철 옷 {unstowCandidates.length}벌을 꺼낼 때예요.
@@ -139,19 +147,22 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                     </button>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    {stowCandidates.slice(0, 10).map((c) => (
-                      <div key={c.id} className="flex items-center gap-2 py-1">
-                        <span className="text-sm">{FASHION_EMOJI[c.category] ?? '👕'}</span>
-                        <span className="flex-1 text-xs text-gray-700 truncate">{c.name}</span>
-                        <span className="text-xs text-gray-400">{c.weatherTags?.join(', ')}</span>
-                        <button
-                          onClick={() => handleStow(c)}
-                          className="shrink-0 text-sm text-brand-primary font-medium hover:underline"
-                        >
-                          보관
-                        </button>
-                      </div>
-                    ))}
+                    {stowCandidates.slice(0, 10).map((c) => {
+                      const Icon = FASHION_ICON[c.category] ?? FASHION_ICON['기타 액세서리'];
+                      return (
+                        <div key={c.id} className="flex items-center gap-2 py-1">
+                          <Icon size={14} strokeWidth={2} className="text-gray-600" />
+                          <span className="flex-1 text-xs text-gray-700 truncate">{c.name}</span>
+                          <span className="text-xs text-gray-400">{c.weatherTags?.join(', ')}</span>
+                          <button
+                            onClick={() => handleStow(c)}
+                            className="shrink-0 text-sm text-brand-primary font-medium hover:underline"
+                          >
+                            보관
+                          </button>
+                        </div>
+                      );
+                    })}
                     {stowCandidates.length > 10 && (
                       <p className="text-xs text-gray-400 text-center mt-1">외 {stowCandidates.length - 10}벌</p>
                     )}
@@ -188,19 +199,22 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                 className="overflow-hidden"
               >
                 <div className="px-3 pb-3 flex flex-col gap-1.5">
-                  {allStored.slice(0, 12).map((c) => (
-                    <div key={c.id} className="flex items-center gap-2 py-1">
-                      <span className="text-sm">{FASHION_EMOJI[c.category] ?? '👕'}</span>
-                      <span className="flex-1 text-xs text-gray-700 truncate">{c.name}</span>
-                      <span className="text-xs text-gray-400">{c.weatherTags?.join(', ')}</span>
-                      <button
-                        onClick={() => handleUnstow(c)}
-                        className="shrink-0 text-sm text-brand-success font-medium hover:underline"
-                      >
-                        꺼내기
-                      </button>
-                    </div>
-                  ))}
+                  {allStored.slice(0, 12).map((c) => {
+                    const Icon = FASHION_ICON[c.category] ?? FASHION_ICON['기타 액세서리'];
+                    return (
+                      <div key={c.id} className="flex items-center gap-2 py-1">
+                        <Icon size={14} strokeWidth={2} className="text-gray-600" />
+                        <span className="flex-1 text-xs text-gray-700 truncate">{c.name}</span>
+                        <span className="text-xs text-gray-400">{c.weatherTags?.join(', ')}</span>
+                        <button
+                          onClick={() => handleUnstow(c)}
+                          className="shrink-0 text-sm text-brand-success font-medium hover:underline"
+                        >
+                          꺼내기
+                        </button>
+                      </div>
+                    );
+                  })}
                   {allStored.length > 12 && (
                     <p className="text-xs text-gray-400 text-center mt-1">외 {allStored.length - 12}벌</p>
                   )}

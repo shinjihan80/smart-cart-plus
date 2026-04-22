@@ -2,7 +2,8 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { isClothingItem, FASHION_EMOJI, type CartItem } from '@/types';
+import { isClothingItem, type CartItem } from '@/types';
+import { FASHION_ICON } from '@/lib/iconMap';
 import { useWearLog } from '@/lib/wearLog';
 import { findCleanupCandidates } from '@/lib/closetCleanup';
 import { useCart } from '@/context/CartContext';
@@ -91,14 +92,18 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
           </p>
           {categoryBreakdown.length > 0 && (
             <div className="flex gap-1 flex-wrap mt-2">
-              {categoryBreakdown.map(([cat, count]) => (
-                <span
-                  key={cat}
-                  className="text-sm px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-500 font-medium tabular-nums"
-                >
-                  {FASHION_EMOJI[cat as keyof typeof FASHION_EMOJI] ?? '👕'} {cat} {count}
-                </span>
-              ))}
+              {categoryBreakdown.map(([cat, count]) => {
+                const Icon = FASHION_ICON[cat as keyof typeof FASHION_ICON] ?? FASHION_ICON['기타 액세서리'];
+                return (
+                  <span
+                    key={cat}
+                    className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-500 font-medium tabular-nums"
+                  >
+                    <Icon size={12} strokeWidth={2} className="text-gray-600" />
+                    {cat} {count}
+                  </span>
+                );
+              })}
             </div>
           )}
         </>
@@ -149,9 +154,10 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                     {item.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-base">{FASHION_EMOJI[item.category] ?? '👕'}</span>
-                    )}
+                    ) : (() => {
+                      const Icon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
+                      return <Icon size={16} strokeWidth={2} className="text-gray-600" />;
+                    })()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-gray-800 truncate">{item.name}</p>

@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
-import { matchRecipes, SEASON_EMOJI, RECIPES, type Recipe } from '@/lib/recipes';
+import { matchRecipes, RECIPES, type Recipe } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
@@ -115,7 +116,15 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                   <div className="flex items-center gap-0.5">
                     {fav && <span className="text-sm text-brand-warning">♥</span>}
                     {loveBoosted && <span className="text-xs" title={`${cookCount}번 만든 단골`}>🏆</span>}
-                    {seasonBoosted && <span className="text-xs" title={`${season}철 추천`}>{SEASON_EMOJI[season]}</span>}
+                    {seasonBoosted && (() => {
+                      const Icon = SEASON_ICON[season];
+                      const color = SEASON_COLOR[season];
+                      return (
+                        <span className="inline-flex items-center" title={`${season}철 추천`}>
+                          <Icon size={11} strokeWidth={2} className={color.text} />
+                        </span>
+                      );
+                    })()}
                     {urgentBoosted && <span className="text-xs">⚠️</span>}
                   </div>
                 </div>

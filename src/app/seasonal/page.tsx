@@ -9,7 +9,8 @@ import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import { SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth, type Season } from '@/lib/season';
-import { SEASON_EMOJI, countRecipesByIngredient, type Recipe } from '@/lib/recipes';
+import { countRecipesByIngredient, type Recipe } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useToast } from '@/context/ToastContext';
@@ -206,7 +207,15 @@ function SeasonalPageInner() {
                         : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
                   }`}
                 >
-                  {SEASON_EMOJI[s]} {s}
+                  {(() => {
+                    const Icon = SEASON_ICON[s];
+                    return (
+                      <span className="inline-flex items-center gap-1">
+                        <Icon size={11} strokeWidth={2.4} />
+                        <span>{s}</span>
+                      </span>
+                    );
+                  })()}
                   {s === currentSeason && <span className="ml-1 text-xs opacity-70">· 지금</span>}
                 </button>
               ))}
@@ -278,7 +287,15 @@ function SeasonalPageInner() {
             className="rounded-[28px] bg-gradient-to-br from-brand-primary/5 to-brand-success/5 border border-brand-primary/10 p-4"
           >
             <div className="flex items-center gap-3">
-              <span className="text-4xl shrink-0">{SEASON_EMOJI[selected]}</span>
+              {(() => {
+                const Icon = SEASON_ICON[selected];
+                const color = SEASON_COLOR[selected];
+                return (
+                  <span className={`w-14 h-14 rounded-2xl ${color.bg} flex items-center justify-center shrink-0`}>
+                    <Icon size={28} strokeWidth={2} className={color.text} />
+                  </span>
+                );
+              })()}
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-400 font-medium">
                   {selected === currentSeason ? '지금 계절' : `${selected}철`}

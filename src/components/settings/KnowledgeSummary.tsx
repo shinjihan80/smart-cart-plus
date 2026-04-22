@@ -8,15 +8,15 @@ import { RECIPES } from '@/lib/recipes';
 import { SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { PARTNERS } from '@/lib/partnerLinks';
 import { useSavedOutfits } from '@/lib/savedOutfits';
-import { FOOD_EMOJI, FASHION_EMOJI } from '@/types';
+import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 export default function KnowledgeSummary() {
   const [expanded, setExpanded] = useState(false);
   const { outfits } = useSavedOutfits();
 
-  const foodCats    = Object.keys(FOOD_EMOJI).length;
-  const fashionCats = Object.keys(FASHION_EMOJI).length;
+  const foodCats    = Object.keys(FOOD_ICON).length;
+  const fashionCats = Object.keys(FASHION_ICON).length;
   const recipes     = RECIPES.length;
   const produce     = SEASONAL_PRODUCE.length;
   const partners    = Object.keys(PARTNERS).length;

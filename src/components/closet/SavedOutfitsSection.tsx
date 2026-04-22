@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { isClothingItem, FASHION_EMOJI, type CartItem } from '@/types';
+import { isClothingItem, type CartItem } from '@/types';
+import { FASHION_ICON } from '@/lib/iconMap';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { useToast } from '@/context/ToastContext';
 import { useWearLog } from '@/lib/wearLog';
@@ -79,15 +80,18 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
               </div>
               {resolved.length > 0 ? (
                 <div className="flex gap-1.5 flex-wrap">
-                  {resolved.map((c) => (
-                    <span
-                      key={c.id}
-                      className="flex items-center gap-1 text-sm px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700"
-                    >
-                      <span>{FASHION_EMOJI[c.category] ?? '👕'}</span>
-                      <span className="truncate max-w-[80px]">{c.name}</span>
-                    </span>
-                  ))}
+                  {resolved.map((c) => {
+                    const Icon = FASHION_ICON[c.category] ?? FASHION_ICON['기타 액세서리'];
+                    return (
+                      <span
+                        key={c.id}
+                        className="flex items-center gap-1 text-sm px-1.5 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700"
+                      >
+                        <Icon size={12} strokeWidth={2} className="text-gray-600" />
+                        <span className="truncate max-w-[80px]">{c.name}</span>
+                      </span>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-gray-400">이 코디의 옷들이 옷장에서 제거됐어요.</p>

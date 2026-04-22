@@ -8,7 +8,8 @@ import {
   isSeasonalProduce,
   lookupSeasonalEmoji,
 } from '@/lib/seasonalProduce';
-import { SEASON_EMOJI, countRecipesByIngredient } from '@/lib/recipes';
+import { countRecipesByIngredient } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useToast } from '@/context/ToastContext';
@@ -96,7 +97,11 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-base">{SEASON_EMOJI[season]}</span>
+          {(() => {
+            const Icon = SEASON_ICON[season];
+            const color = SEASON_COLOR[season];
+            return <Icon size={16} strokeWidth={2} className={color.text} />;
+          })()}
           <span className="text-xs text-gray-400 font-medium">
             올{season} 드신 제철 재료
           </span>

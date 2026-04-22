@@ -8,7 +8,6 @@ import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
 import { getFoodEmoji } from '@/lib/ingredientInference';
-import { SEASON_EMOJI } from '@/lib/recipes';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -98,7 +97,7 @@ export default function ShoppingSuggestionsSection({
       out.push({
         name: p.name,
         reason: p.peak === season ? `${season}철 피크` : `${season} 제철`,
-        badge: SEASON_EMOJI[season],
+        badge: `${season} 제철`,
         emoji: getFoodEmoji(p.name, p.foodCategory),
         source: '제철 재료',
       });

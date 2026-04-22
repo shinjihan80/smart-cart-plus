@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { parseRecipeSeconds, recipeGradient, SEASON_EMOJI, RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { parseRecipeSeconds, recipeGradient, RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { estimateRecipeNutrition } from '@/lib/nutritionAnalysis';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useCookLog } from '@/lib/recipeCookLog';
@@ -179,14 +180,19 @@ export default function RecipeDetailModal({
                 <span className="text-sm px-2 py-0.5 rounded-full bg-white/80 text-brand-primary font-medium">
                   {recipe.difficulty}
                 </span>
-                {isSeasonRecipe && (
-                  <span
-                    className="text-sm px-2 py-0.5 rounded-full bg-white/90 text-brand-primary font-semibold"
-                    title={`${season}철 추천 레시피 — 제철 재료로 가장 맛있어요`}
-                  >
-                    {SEASON_EMOJI[season]} {season}철
-                  </span>
-                )}
+                {isSeasonRecipe && (() => {
+                  const Icon = SEASON_ICON[season];
+                  const color = SEASON_COLOR[season];
+                  return (
+                    <span
+                      className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full bg-white/90 text-brand-primary font-semibold"
+                      title={`${season}철 추천 레시피 — 제철 재료로 가장 맛있어요`}
+                    >
+                      <Icon size={12} strokeWidth={2} className={color.text} />
+                      {season}철
+                    </span>
+                  );
+                })()}
                 {(() => {
                   const d = recipeDietary(recipe);
                   return d ? (
@@ -216,14 +222,18 @@ export default function RecipeDetailModal({
                   return (
                     <span
                       key={name}
-                      className={`text-sm px-2 py-0.5 rounded-full bg-white border font-medium ${
+                      className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full bg-white border font-medium ${
                         inSeason
                           ? 'border-brand-primary/30 text-brand-primary'
                           : 'border-brand-success/20 text-brand-success'
                       }`}
                     >
-                      ✓ {name}
-                      {inSeason && <span className="ml-1">{SEASON_EMOJI[season]}</span>}
+                      <span>✓ {name}</span>
+                      {inSeason && (() => {
+                        const Icon = SEASON_ICON[season];
+                        const color = SEASON_COLOR[season];
+                        return <Icon size={11} strokeWidth={2} className={color.text} />;
+                      })()}
                     </span>
                   );
                 })}
@@ -259,7 +269,7 @@ export default function RecipeDetailModal({
                       onClick={() => addToShopping(kw, recipe.name)}
                       disabled={added}
                       title={inSeason ? `${season}철 제철 재료` : undefined}
-                      className={`text-sm px-2 py-0.5 rounded-full font-medium transition-colors ${
+                      className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full font-medium transition-colors ${
                         added
                           ? 'bg-gray-100 text-gray-400 cursor-default'
                           : inSeason
@@ -267,8 +277,12 @@ export default function RecipeDetailModal({
                             : 'bg-white border border-amber-200 text-amber-700 hover:bg-amber-100 active:scale-95'
                       }`}
                     >
-                      {added ? `✓ ${kw}` : `+ ${kw}`}
-                      {inSeason && !added && <span className="ml-1">{SEASON_EMOJI[season]}</span>}
+                      <span>{added ? `✓ ${kw}` : `+ ${kw}`}</span>
+                      {inSeason && !added && (() => {
+                        const Icon = SEASON_ICON[season];
+                        const color = SEASON_COLOR[season];
+                        return <Icon size={11} strokeWidth={2} className={color.text} />;
+                      })()}
                     </button>
                   );
                 })}
