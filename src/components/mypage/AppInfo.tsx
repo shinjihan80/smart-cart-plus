@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -16,7 +17,7 @@ export default function AppInfo() {
       <div className="flex flex-col gap-1.5 text-xs text-gray-400">
         <div className="flex justify-between">
           <span>버전</span>
-          <span className="text-gray-600 font-medium">NEMOA v1.4</span>
+          <span className="text-gray-600 font-medium">NEMOA v1.5</span>
         </div>
         <div className="flex justify-between">
           <span>AI 비서</span>
@@ -38,6 +39,15 @@ export default function AppInfo() {
           <span>패션 카테고리</span>
           <span className="text-gray-600 font-medium tabular-nums">13종</span>
         </div>
+      </div>
+      <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
+        <Link
+          href="/legal"
+          className="text-[11px] text-gray-500 hover:text-brand-primary hover:underline"
+        >
+          이용약관 · 개인정보 처리방침 →
+        </Link>
+        <span className="text-[9px] text-gray-300">© NEMOA</span>
       </div>
     </motion.div>
   );

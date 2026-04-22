@@ -26,6 +26,8 @@ interface CartContextValue {
   removeItem:      (id: string) => void;
   undoRemove:      () => void;
   resetData:       () => void;
+  /** 샘플(mockData 22개)로 초기화 — 처음 체험용. resetData와 구분 (resetData는 샘플 복원이기도 함). */
+  loadSampleData:  () => number;
   archiveExpired:  () => number;
   /** 아카이브에서 items로 되돌림. 식품은 구매일을 오늘로 갱신해 신선도 회복. */
   restoreFromArchive: (id: string) => boolean;
@@ -43,7 +45,8 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems]               = useState<CartItem[]>(mockCartItems);
+  // 신규 사용자는 빈 카트로 시작 — 원하면 설정·온보딩에서 샘플 데이터 불러오기
+  const [items, setItems]               = useState<CartItem[]>([]);
   const [archived, setArchived]         = useState<CartItem[]>([]);
   const [discardCount, setDiscardCount] = useState(0);
   const [hydrated, setHydrated]         = useState(false);
@@ -220,6 +223,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return ok;
   }, []);
 
+  const loadSampleData = useCallback((): number => {
+    setItems((prev) => {
+      const existing = new Set(prev.map((p) => p.id));
+      const fresh = mockCartItems.filter((m) => !existing.has(m.id));
+      return [...prev, ...fresh];
+    });
+    return mockCartItems.length;
+  }, []);
+
   const resetData = useCallback(() => {
     setItems(mockCartItems);
     setArchived([]);
@@ -248,7 +260,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider value={{
-      items, archived, addItems, updateItem, removeItem, undoRemove, resetData, archiveExpired, restoreFromArchive,
+      items, archived, addItems, updateItem, removeItem, undoRemove, resetData, loadSampleData, archiveExpired, restoreFromArchive,
       discardCount, discardHistory, restoreAll,
     }}>
       {children}

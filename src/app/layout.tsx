@@ -5,6 +5,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import ConsentGate from "@/components/layout/ConsentGate";
 import CommandPalette from "@/components/CommandPalette";
 import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 
@@ -51,14 +52,16 @@ export default function RootLayout({
           본문으로 건너뛰기
         </a>
         <Providers>
-          <main id="main-content" className="flex-1 pb-20 max-w-md sm:max-w-lg mx-auto w-full">
-            {children}
-          </main>
-          <ScrollToTop />
-          <BottomNav />
-          <OnboardingModal />
-          <CommandPalette />
-          <GlobalRecipeModal />
+          <ConsentGate>
+            <main id="main-content" className="flex-1 pb-20 max-w-md sm:max-w-lg mx-auto w-full">
+              {children}
+            </main>
+            <ScrollToTop />
+            <BottomNav />
+            <OnboardingModal />
+            <CommandPalette />
+            <GlobalRecipeModal />
+          </ConsentGate>
         </Providers>
       </body>
     </html>
