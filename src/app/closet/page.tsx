@@ -294,6 +294,73 @@ export default function ClosetPage() {
           );
         })()}
 
+        {/* 아직 안 입어본 옷 — 구매 후 한 번도 안 입은 의류 */}
+        {(() => {
+          const untried = activeClothing
+            .filter((c) => FASHION_GROUP[c.category] === '의류')
+            .filter((c) => (wearLog[c.id]?.length ?? 0) === 0)
+            .slice(0, 5);
+          if (untried.length === 0) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...springTransition, delay: 0.075 }}
+              className={`${CARD} !py-3 !px-4`}
+              style={CARD_SHADOW}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-base">🆕</span>
+                <span className="text-xs text-gray-400 font-medium">아직 안 입어본 옷 {untried.length}벌</span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                {untried.map((c) => (
+                  <div key={c.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-100">
+                    <span className="text-sm">{FASHION_EMOJI[c.category] ?? '👕'}</span>
+                    <span className="text-xs font-medium text-amber-700 whitespace-nowrap">{c.name}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed">
+                오늘 한 번 꺼내볼까요? 카드에서 &ldquo;👕 오늘 입었어요&rdquo;로 기록할 수 있어요.
+              </p>
+            </motion.div>
+          );
+        })()}
+
+        {/* 자주 입는 옷 TOP 3 */}
+        {(() => {
+          const worn = allClothing
+            .map((c) => ({ item: c, count: wearLog[c.id]?.length ?? 0 }))
+            .filter((x) => x.count > 0)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3);
+          if (worn.length === 0) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...springTransition, delay: 0.08 }}
+              className={`${CARD} !py-3 !px-4`}
+              style={CARD_SHADOW}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-base">🔥</span>
+                <span className="text-xs text-gray-400 font-medium">자주 입는 옷 TOP 3</span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                {worn.map((w) => (
+                  <div key={w.item.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-brand-primary/5 border border-brand-primary/10">
+                    <span className="text-sm">{FASHION_EMOJI[w.item.category] ?? '👕'}</span>
+                    <span className="text-xs font-medium text-brand-primary whitespace-nowrap">{w.item.name}</span>
+                    <span className="text-[10px] text-brand-primary/60 tabular-nums">{w.count}회</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          );
+        })()}
+
         {/* 저장된 코디 */}
         <SectionErrorBoundary label="저장된 코디">
           <SavedOutfitsSection items={allItems} />
