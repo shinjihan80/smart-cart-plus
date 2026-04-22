@@ -244,6 +244,17 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                         >
                           담았어요
                         </button>
+                        <button
+                          onClick={() => {
+                            shopping.remove(it.id);
+                            showToast(`"${it.name}" 리스트에서 제거했어요.`);
+                          }}
+                          aria-label={`${it.name} 제거`}
+                          title="제거"
+                          className="shrink-0 text-[10px] text-gray-300 hover:text-brand-warning px-1 py-1 transition-colors"
+                        >
+                          ✕
+                        </button>
                       </div>
                     );
                   })}
