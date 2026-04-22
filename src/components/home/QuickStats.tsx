@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
@@ -13,10 +14,10 @@ export default function QuickStats({ items }: { items: CartItem[] }) {
   ).length;
 
   const stats = [
-    { label: '전체',  value: items.length, color: 'text-gray-900' },
-    { label: '식품',  value: food,         color: 'text-sky-600' },
-    { label: '의류',  value: clothes,      color: 'text-brand-primary' },
-    { label: '임박',  value: urgent,       color: urgent > 0 ? 'text-brand-warning' : 'text-gray-900' },
+    { label: '전체',  value: items.length, color: 'text-gray-900',       href: '/mypage' },
+    { label: '식품',  value: food,         color: 'text-sky-600',         href: '/fridge' },
+    { label: '의류',  value: clothes,      color: 'text-brand-primary',   href: '/closet' },
+    { label: '임박',  value: urgent,       color: urgent > 0 ? 'text-brand-warning' : 'text-gray-900', href: '/fridge' },
   ];
 
   return (
@@ -28,10 +29,14 @@ export default function QuickStats({ items }: { items: CartItem[] }) {
         className="flex justify-between px-2"
       >
         {stats.map((s) => (
-          <div key={s.label} className="flex flex-col items-center gap-0.5">
+          <Link
+            key={s.label}
+            href={s.href}
+            className="flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 hover:bg-gray-100 transition-colors"
+          >
             <span className={`text-xl font-extrabold tabular-nums ${s.color}`}>{s.value}</span>
             <span className="text-[9px] text-gray-400 font-medium">{s.label}</span>
-          </div>
+          </Link>
         ))}
       </motion.div>
     </div>
