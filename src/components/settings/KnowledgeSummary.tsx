@@ -24,8 +24,9 @@ export default function KnowledgeSummary() {
   const stats = [
     { emoji: '👨‍🍳', label: '레시피',        value: recipes,     suffix: '개' },
     { emoji: '🌸',    label: '제철 재료',     value: produce,     suffix: '종' },
-    { emoji: '💾',    label: '저장 코디',     value: outfits.length, suffix: '개' },
+    { emoji: '🥦',    label: '식품 카테고리', value: foodCats,    suffix: '종' },
     { emoji: '👕',    label: '패션 카테고리', value: fashionCats, suffix: '종' },
+    { emoji: '💾',    label: '저장 코디',     value: outfits.length, suffix: '개' },
     { emoji: '🤝',    label: '파트너',        value: partners,    suffix: '개' },
   ];
 

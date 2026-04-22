@@ -17,14 +17,8 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
-// 이메일에서 추출할 주문 정보 타입
-interface EmailOrderItem {
-  name:     string;
-  category: string;
-  store:    string;
-  price:    number;
-  date:     string;
-}
+// Phase 2에서 사용 예정 타입·패턴. 현 단계는 Mock 응답만.
+// 주석 처리 대신 타입/변수 제거 — 나중에 필요할 때 다시 정의.
 
 // 쇼핑몰별 이메일 파싱 패턴 (추후 Claude AI로 대체)
 const MALL_PATTERNS: Record<string, { sender: string; subjectKeyword: string }> = {
@@ -34,14 +28,13 @@ const MALL_PATTERNS: Record<string, { sender: string; subjectKeyword: string }> 
   musinsa: { sender: 'musinsa.com',    subjectKeyword: '주문확인' },
 };
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   try {
-    const body = await req.json().catch(() => ({})) as Record<string, unknown>;
-
-    // Phase 2: Gmail OAuth 토큰으로 이메일 검색
-    // const accessToken = body.accessToken as string;
-    // const emails = await fetchGmailOrders(accessToken, MALL_PATTERNS);
-    // const items = await parseEmailsWithAI(emails);
+    // Phase 2에서 구현:
+    //   const body = await _req.json().catch(() => ({})) as Record<string, unknown>;
+    //   const accessToken = body.accessToken as string;
+    //   const emails = await fetchGmailOrders(accessToken, MALL_PATTERNS);
+    //   const items = await parseEmailsWithAI(emails);
 
     // 현재: Mock 응답
     return NextResponse.json({

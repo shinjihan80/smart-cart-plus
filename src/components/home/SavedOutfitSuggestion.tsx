@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { isClothingItem, FASHION_EMOJI, type CartItem } from '@/types';
 import { useSavedOutfits } from '@/lib/savedOutfits';

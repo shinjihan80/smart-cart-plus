@@ -5,6 +5,25 @@
 > 사각형 벤토 UI(네모)에 사용자의 식(食)과 의(衣) 데이터를 자동 수집(모아)하고,
 > 네모아가 보관 기한·코디·재구매·요리·로테이션·계절·제철까지 챙기는 모바일 퍼스트 앱.
 
+| 문서 | 내용 |
+|------|------|
+| [BASIC_SPEC.md](./BASIC_SPEC.md) | v1.5 베이직 전체 기능·한도·체크리스트 |
+| [PRO_SPEC.md](./PRO_SPEC.md) | Pro 출시 시 추가될 기능·가격·차등화 |
+| [MONETIZATION.md](./MONETIZATION.md) | MAU 임계치·전환 타이밍·3-Phase 롤아웃 |
+| [CHANGELOG.md](./CHANGELOG.md) | v0.1 → v1.5 시간순 변경 이력 |
+| [DEPLOY.md](./DEPLOY.md) | 환경변수·Vercel/Netlify·체크리스트 |
+
+## v1.5 출시 준비 (베이직 무료)
+
+- **법적 고지** — `/legal` 약관·개인정보, `ConsentGate` 첫 실행 동의 모달
+- **AI 일일 한도** — vision 10·parser 20·nutrition 5·url 5, 자정 리셋, 설정에 잔여 카드
+- **Service Worker** — 페이지 network-first · 정적 자산 SWR · `/offline.html` 폴백
+- **로컬 에러 로깅** — `window.onerror` + React 바운더리, 설정에서 복사·삭제 (원격 전송 X)
+- **익명 사용 통계** — opt-in 전용, day-level 토큰
+- **SEO** — openGraph/twitter/canonical + robots.txt + sitemap.xml + apple-icon + opengraph-image
+- **테스트 36개** — Node 네이티브 `node:test` (`npm test`)
+- **CI** — GitHub Actions: test → lint → build
+
 ---
 
 ## 홈 대시보드
@@ -78,9 +97,14 @@
 
 ## 설정
 
-- **🧠 네모아가 알고 있는 것** — 레시피 42·제철 48·카테 24·파트너 9 한눈에
+- **🧠 네모아가 알고 있는 것** — 레시피 42·제철 48·식품11·패션13·저장코디·파트너 9
 - **🌸 제철 달력** 링크 — /seasonal 4계절 × 48종 풀 카탈로그
-- 만료 정리 · 지금 백업 · 백업 복원 · JSON/CSV 내보내기
+- **👥 프로필 관리** — 본인 + 가족 (베이직 최대 2명, 신체·식습관·아바타·권장 사이즈)
+- **✨ 피드백 토글** — 햅틱 · 알림음 · **익명 사용 통계 (opt-in)**
+- **🤖 AI 오늘 남은 횟수** — 4 agent × 잔여/총량 + 자정 리셋
+- **🩺 오류 기록** — 최근 10건 표시 · 복사/삭제 (로컬 50건, 원격 전송 X)
+- **📦 저장 용량** — localStorage 사용량 시각화
+- 만료 정리 · 지금 백업 · 백업 복원 · JSON/CSV 내보내기 · 샘플 데이터 추가
 - **🛡️ 백업 후 초기화** — 2단 안전 액션 (다운로드 → 확인 → 초기화)
 - **🧹 검색어·필터 초기화** — `nemoa-*` 런타임 스캔 (아이템·로그 보호)
 - **전체 데이터 초기화** · 알림 · 앱 정보
@@ -139,8 +163,14 @@
 | 아이콘 | Lucide React |
 | AI | Anthropic Claude API (Opus 4.6 / Haiku 4.5) + Dual-Review |
 | 날씨 API | Open-Meteo (키 불필요 · 30분 캐시) |
-| 상태 관리 | React Context + localStorage (15+ 도메인 키) |
-| PWA | manifest.json + standalone · shortcuts 3개 · icon maskable |
+| 상태 관리 | React Context + localStorage (15+ 도메인 키) + `createSharedStore` |
+| PWA | manifest.json + standalone · shortcuts 3개 · icon maskable + apple-icon |
+| 오프라인 | Service Worker (network-first HTML · SWR 자산 · `/offline.html`) |
+| SEO | metadataBase + openGraph + twitter card + robots.ts + sitemap.ts |
+| 테스트 | Node 25+ 네이티브 `node:test` (`.mts`) — 36 passes, 외부 deps 0 |
+| 에러 추적 | 로컬 50건 (`errorLog`) — Pro에서 opt-in 원격 전송 예정 |
+| 분석 | 익명 day-token (`analytics`, opt-in) — 엔드포인트 미설정 시 no-op |
+| CI | GitHub Actions (Node 24 · test · lint · build) |
 
 ## 시작하기
 

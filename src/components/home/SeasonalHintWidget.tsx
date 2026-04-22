@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { currentSeasonByMonth } from '@/lib/season';
