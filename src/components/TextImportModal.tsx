@@ -5,6 +5,9 @@ import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingI
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
 import { useProfiles } from '@/lib/profile';
 import { useAiQuota } from '@/lib/aiQuota';
+import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
+import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
+import { Camera, X as XIcon } from 'lucide-react';
 
 interface TextImportModalProps {
   onClose:  () => void;
@@ -392,6 +395,23 @@ function StepConfirm({
   function removeItem(id: string) {
     setItems(items.filter((item) => item.id !== id));
   }
+  async function pickItemImage(id: string) {
+    const file = await pickImage();
+    if (!file) return;
+    try {
+      const dataUrl = await resizeAndEncode(file);
+      setItems(items.map((item) => (item.id === id ? { ...item, imageUrl: dataUrl } : item)));
+    } catch {
+      // ignore
+    }
+  }
+  function clearItemImage(id: string) {
+    setItems(items.map((item) => {
+      if (item.id !== id) return item;
+      const { imageUrl: _ignored, ...rest } = item;
+      return rest as CartItem;
+    }));
+  }
   function handleConfirm() {
     const tagged = items.map((item) => ({ ...item, ownerId }) as CartItem);
     onConfirm(tagged);
@@ -461,32 +481,74 @@ function StepConfirm({
         </div>
       )}
 
-      <div className="flex flex-col gap-y-2 max-h-64 overflow-y-auto pr-0.5">
-        {items.map((item) => (
-          <div key={item.id} className="rounded-2xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2">
-            <span className="mt-0.5 text-base shrink-0">
-              {isFoodItem(item) ? '🥦' : '👗'}
-            </span>
-            <div className="flex-1 min-w-0">
-              <input
-                type="text"
-                value={item.name}
-                onChange={(e) => updateName(item.id, e.target.value)}
-                className="w-full bg-transparent text-sm font-medium text-gray-900 focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
-              />
-              <span className="inline-block text-sm px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400 mt-1 mb-0.5">
-                {item.category}
-              </span>
-              <ItemDetailTags item={item} />
+      <div className="flex flex-col gap-y-2 max-h-80 overflow-y-auto pr-0.5">
+        {items.map((item) => {
+          const Icon = isFoodItem(item)
+            ? (FOOD_ICON[(item as import('@/types').FoodItem).foodCategory] ?? FOOD_ICON['기타 식품'])
+            : (FASHION_ICON[(item as ClothingItem).category] ?? FASHION_ICON['기타 액세서리']);
+          return (
+            <div key={item.id} className="rounded-2xl border border-gray-100 bg-gray-50 px-3 py-3 flex items-start gap-3">
+              {/* 이미지 영역 — 클릭 시 변경, 우상단 X 시 제거 */}
+              <button
+                type="button"
+                onClick={() => pickItemImage(item.id)}
+                aria-label="이미지 추가/변경"
+                className="relative shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-white border border-gray-200 flex items-center justify-center hover:border-brand-primary/40 transition-colors group"
+              >
+                {item.imageUrl ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                    <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera size={16} className="text-white" />
+                    </span>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center gap-0.5 text-gray-400">
+                    <Icon size={16} strokeWidth={2} />
+                    <span className="text-[9px] font-medium">사진 추가</span>
+                  </div>
+                )}
+              </button>
+              {item.imageUrl && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); clearItemImage(item.id); }}
+                  aria-label="이미지 제거"
+                  className="-ml-3 -mt-1 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center shrink-0 self-start"
+                >
+                  <XIcon size={11} strokeWidth={2.5} />
+                </button>
+              )}
+
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  value={item.name}
+                  onChange={(e) => updateName(item.id, e.target.value)}
+                  aria-label="제품명"
+                  className="w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
+                />
+                <span className="inline-block text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500 mt-1.5 mb-0.5">
+                  {item.category}
+                </span>
+                <ItemDetailTags item={item} />
+              </div>
+              <button
+                aria-label="항목 삭제"
+                onClick={() => removeItem(item.id)}
+                className="shrink-0 mt-0.5 text-gray-300 hover:text-red-400 transition-colors"
+              >
+                <XIcon size={16} strokeWidth={2} />
+              </button>
             </div>
-            <button aria-label="항목 삭제" onClick={() => removeItem(item.id)} className="shrink-0 mt-0.5 text-gray-300 hover:text-red-400 transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      <p className="text-xs text-gray-400 mt-2 leading-relaxed">
+        💡 사진 영역을 탭하면 이미지를 추가할 수 있어요. 이름 옆 ✕로 항목을 빼고, 저장하면 냉장고/옷장에 등록됩니다.
+      </p>
 
       {items.length === 0 && (
         <p className="text-center text-sm text-gray-400 py-6">

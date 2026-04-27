@@ -251,11 +251,30 @@ export default function SearchPage() {
           </section>
         )}
 
-        {/* 결과 없음 */}
+        {/* 결과 없음 — 직접 등록 유도 */}
         {trimmed && !hasResults && (
-          <div className="text-center mt-12">
-            <p className="text-sm text-gray-400">&ldquo;{q}&rdquo;에 대한 결과가 없어요</p>
-            <p className="text-xs text-gray-300 mt-1">다른 검색어를 시도해보세요</p>
+          <div className="mt-8 flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-3">
+              <Search size={28} className="text-gray-300" />
+            </div>
+            <p className="text-base font-bold text-brand-ink mb-1">
+              &ldquo;{q}&rdquo; 결과 없음
+            </p>
+            <p className="text-sm text-gray-500 mb-5">직접 등록하시겠어요?</p>
+            <button
+              onClick={() => {
+                pushRecent(trimmed);
+                window.dispatchEvent(new CustomEvent('nemoa:open-register'));
+                router.back();
+              }}
+              className="flex items-center gap-2 bg-brand-primary text-white rounded-full pl-5 pr-4 py-3 text-sm font-semibold hover:opacity-90 active:scale-95 transition-all"
+            >
+              <span>+</span>
+              <span>&ldquo;{q}&rdquo; 등록하기</span>
+            </button>
+            <p className="text-xs text-gray-400 mt-3">
+              사진·텍스트·URL 중 편한 방법을 선택할 수 있어요
+            </p>
           </div>
         )}
       </div>

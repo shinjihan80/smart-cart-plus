@@ -443,22 +443,7 @@ export default function ClosetPage() {
           <OutfitSection items={activeClothing} />
         </SectionErrorBoundary>
 
-        {/* 검색 + 필터 */}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
-            <input
-              ref={searchInputRef}
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="상품 검색 — '/' 누르면 빠르게"
-              aria-label="옷장 상품 검색 (⌘K · /)"
-              className="w-full pl-8 pr-12 py-2 rounded-2xl bg-white border border-gray-100 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-            />
-            <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 text-xs text-gray-400 bg-gray-100 border border-gray-200 rounded px-1 py-0.5 font-mono pointer-events-none">⌘K</kbd>
-          </div>
-        </div>
+        {/* 검색은 상단 헤더에 통합됨 — 인라인 input 제거 (/search로 이동) */}
         {/* 프로필 필터 (프로필 2명 이상일 때만) */}
         {profiles.length >= 2 && (
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
