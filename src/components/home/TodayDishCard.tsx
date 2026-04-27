@@ -54,39 +54,42 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                 {recipe.emoji}
               </motion.span>
               <div className="flex-1 min-w-0 text-left">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <p className="text-xs text-gray-400 font-medium">네모아의 오늘 한 그릇</p>
-                  {urgentBoosted && (
-                    <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold">
-                      <AlertTriangle size={10} strokeWidth={2.4} />
-                      <span>임박</span>
-                    </span>
-                  )}
-                  {seasonBoosted && (
-                    <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold">
-                      <Flower2 size={10} strokeWidth={2.4} />
-                      <span>{season}철</span>
-                    </span>
-                  )}
-                  {loveBoosted && (
-                    <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold" title={`${cookCount}번 만든 단골`}>
-                      <Trophy size={10} strokeWidth={2.4} />
-                      <span>단골</span>
-                    </span>
-                  )}
-                </div>
-                <p className="text-lg font-bold text-gray-900 leading-tight truncate">{recipe.name}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  ⏱ {recipe.time} · {recipe.difficulty}
+                <p className="text-xs text-gray-400 font-medium mb-1">오늘 한 그릇</p>
+                <p className="text-base font-bold text-brand-ink leading-tight truncate">{recipe.name}</p>
+                <p className="text-xs text-gray-500 mt-1 truncate">
+                  {recipe.time} · {recipe.difficulty}
                   {matchedItems.length > 0 && (
-                    <>
-                      <span className="text-gray-300 mx-1">·</span>
-                      <span className="text-gray-900 font-semibold">
-                        ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
-                      </span>
-                    </>
+                    <span className="text-gray-900 font-semibold ml-1">
+                      · ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
+                    </span>
                   )}
                 </p>
+                {/* 배지 줄 — 가로 wrap 허용 */}
+                {(urgentBoosted || seasonBoosted || loveBoosted) && (
+                  <div className="flex items-center gap-1 mt-2 flex-wrap">
+                    {urgentBoosted && (
+                      <span className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold whitespace-nowrap">
+                        <AlertTriangle size={10} strokeWidth={2.4} />
+                        <span>임박</span>
+                      </span>
+                    )}
+                    {seasonBoosted && (
+                      <span className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold whitespace-nowrap">
+                        <Flower2 size={10} strokeWidth={2.4} />
+                        <span>{season}철</span>
+                      </span>
+                    )}
+                    {loveBoosted && (
+                      <span
+                        title={`${cookCount}번 만든 단골`}
+                        className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold whitespace-nowrap"
+                      >
+                        <Trophy size={10} strokeWidth={2.4} />
+                        <span>단골</span>
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span
