@@ -17,16 +17,17 @@ import type { ReactNode } from 'react';
 export type CardVariant = 'primary' | 'accent' | 'warning' | 'ghost' | 'compact';
 
 export const CARD_VARIANTS: Record<CardVariant, string> = {
-  primary: 'bg-white border border-gray-100 rounded-[20px] p-5',
-  compact: 'bg-white border border-gray-100 rounded-[16px] p-4',
-  // 하위 호환: 아래 3종은 primary와 동일 스타일로 alias
-  accent:  'bg-white border border-gray-100 rounded-[20px] p-5',
-  warning: 'bg-white border border-gray-100 rounded-[20px] p-5',
-  ghost:   'bg-white border border-gray-100 rounded-[20px] p-5',
+  primary: 'bg-white rounded-[24px] p-5',
+  compact: 'bg-white rounded-[20px] p-4',
+  accent:  'bg-white rounded-[24px] p-5',
+  warning: 'bg-white rounded-[24px] p-5',
+  ghost:   'bg-white rounded-[24px] p-5',
 };
 
-// 인터파크 스타일 — 그림자 없음, 경계선(border-gray-100)만으로 카드 구분
-const CARD_SHADOW_COMMON: React.CSSProperties = {};
+// MG·우리페이 스타일 — 부드럽고 짧은 그림자로 카드 부유감
+const CARD_SHADOW_COMMON: React.CSSProperties = {
+  boxShadow: '0 6px 16px -8px rgba(31, 31, 46, 0.08), 0 2px 4px -2px rgba(31, 31, 46, 0.04)',
+};
 
 export const CARD_SHADOWS: Record<CardVariant, React.CSSProperties> = {
   primary: CARD_SHADOW_COMMON,

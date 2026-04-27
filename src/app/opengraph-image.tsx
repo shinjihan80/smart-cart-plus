@@ -9,17 +9,17 @@ export default function OpenGraphImage() {
     (
       <div
         style={{
-          width:        '100%',
-          height:       '100%',
-          background:   'linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%)',
-          display:      'flex',
-          flexDirection: 'column',
-          alignItems:   'center',
+          width:          '100%',
+          height:         '100%',
+          background:     '#F4F6F9',
+          display:        'flex',
+          flexDirection:  'column',
+          alignItems:     'center',
           justifyContent: 'center',
-          padding:      '80px',
+          padding:        '80px',
         }}
       >
-        {/* 로고 — 큰 네모 안에 색 다른 두 네모 겹침 */}
+        {/* 로고 — 빨강+파랑 겹침 */}
         <div
           style={{
             position:     'relative',
@@ -29,15 +29,12 @@ export default function OpenGraphImage() {
             display:      'flex',
           }}
         >
-          {/* 외곽 프레임 */}
-          <div style={{ position: 'absolute', inset: 0, border: '12px solid #4F46E5', borderRadius: 40 }} />
-          {/* 내부 A — indigo */}
-          <div style={{ position: 'absolute', left: 36, top: 36, width: 90, height: 90, background: '#4F46E5', borderRadius: 16 }} />
-          {/* 내부 B — pink */}
-          <div style={{ position: 'absolute', left: 74, top: 74, width: 90, height: 90, background: 'rgba(236,72,153,0.92)', borderRadius: 16 }} />
+          <div style={{ position: 'absolute', left: 0,   top: 0,   width: 130, height: 130, background: '#EE5454', borderRadius: 28 }} />
+          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 130, height: 130, background: '#4263EB', borderRadius: 28 }} />
+          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 60,  height: 60,  background: '#2D2748', borderRadius: 12 }} />
         </div>
 
-        <div style={{ fontSize: '88px', fontWeight: 800, color: '#1F2937', letterSpacing: '-0.04em', marginBottom: '16px' }}>
+        <div style={{ fontSize: '88px', fontWeight: 900, color: '#1F1F2E', letterSpacing: '-0.05em', marginBottom: '16px' }}>
           NEMOA
         </div>
 

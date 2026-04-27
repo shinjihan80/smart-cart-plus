@@ -1,15 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- iOS maskable 아이콘 배경 -->
-  <rect width="512" height="512" rx="128" fill="#F9FAFB"/>
+  <!-- 앱 아이콘 배경 (iOS maskable) -->
+  <rect width="512" height="512" rx="128" fill="#FFFFFF"/>
 
-  <!-- 외곽 큰 네모 — 프레임 -->
-  <rect x="72" y="72" width="368" height="368" rx="80"
-        fill="none" stroke="#4F46E5" stroke-width="28"/>
-
-  <!-- 내부 네모 A — indigo solid (왼쪽 위) -->
-  <rect x="136" y="136" width="176" height="176" rx="36" fill="#4F46E5"/>
-
-  <!-- 내부 네모 B — pink accent (오른쪽 아래, 겹침) -->
-  <rect x="200" y="200" width="176" height="176" rx="36"
-        fill="#EC4899" fill-opacity="0.92"/>
+  <!-- 좌상단 빨강 네모 -->
+  <rect x="40" y="40" width="280" height="280" rx="56" fill="#EE5454"/>
+  <!-- 우하단 파랑 네모 -->
+  <rect x="192" y="192" width="280" height="280" rx="56" fill="#4263EB"/>
+  <!-- 겹침 영역 — 어두운 잉크 -->
+  <rect x="192" y="192" width="128" height="128" rx="20" fill="#2D2748"/>
 </svg>

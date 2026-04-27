@@ -10,46 +10,46 @@ export default function AppleIcon() {
         style={{
           width:        '100%',
           height:       '100%',
-          background:   '#F9FAFB',
+          background:   '#FFFFFF',
           borderRadius: '40px',
           position:     'relative',
           display:      'flex',
         }}
       >
-        {/* 외곽 큰 네모 — 프레임 */}
+        {/* 좌상단 빨강 */}
         <div
           style={{
             position:     'absolute',
-            left:         '22px',
-            top:          '22px',
-            width:        '136px',
-            height:       '136px',
-            border:       '10px solid #4F46E5',
-            borderRadius: '28px',
+            left:         '14px',
+            top:          '14px',
+            width:        '98px',
+            height:       '98px',
+            background:   '#EE5454',
+            borderRadius: '20px',
           }}
         />
-        {/* 내부 A — indigo solid (왼쪽 위) */}
+        {/* 우하단 파랑 */}
         <div
           style={{
             position:     'absolute',
-            left:         '46px',
-            top:          '46px',
-            width:        '60px',
-            height:       '60px',
-            background:   '#4F46E5',
-            borderRadius: '12px',
+            left:         '68px',
+            top:          '68px',
+            width:        '98px',
+            height:       '98px',
+            background:   '#4263EB',
+            borderRadius: '20px',
           }}
         />
-        {/* 내부 B — pink accent (오른쪽 아래, 겹침) */}
+        {/* 겹침 잉크 */}
         <div
           style={{
             position:     'absolute',
-            left:         '74px',
-            top:          '74px',
-            width:        '60px',
-            height:       '60px',
-            background:   'rgba(236,72,153,0.92)',
-            borderRadius: '12px',
+            left:         '68px',
+            top:          '68px',
+            width:        '44px',
+            height:       '44px',
+            background:   '#2D2748',
+            borderRadius: '8px',
           }}
         />
       </div>

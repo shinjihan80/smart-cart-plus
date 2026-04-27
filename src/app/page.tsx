@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Bell, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import NemoaLogo from '@/components/layout/NemoaLogo';
 import PaletteButton from '@/components/PaletteButton';
@@ -33,11 +35,27 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* 헤더 — 로고 + 검색 아이콘 */}
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+      {/* 헤더 — 로고 + 액션 아이콘 4개 */}
+      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm">
         <div className="px-5 py-4 flex items-center justify-between gap-3">
           <NemoaLogo size="md" />
-          <PaletteButton variant="icon" />
+          <div className="flex items-center -mr-1">
+            <PaletteButton variant="icon" />
+            <button
+              type="button"
+              aria-label="알림"
+              className="w-10 h-10 flex items-center justify-center text-brand-ink hover:text-brand-primary transition-colors"
+            >
+              <Bell size={22} strokeWidth={2} />
+            </button>
+            <Link
+              href="/mypage"
+              aria-label="마이페이지"
+              className="w-10 h-10 flex items-center justify-center text-brand-ink hover:text-brand-primary transition-colors"
+            >
+              <User size={22} strokeWidth={2} />
+            </Link>
+          </div>
         </div>
       </header>
 

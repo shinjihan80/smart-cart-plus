@@ -45,7 +45,11 @@ export default function BottomNav() {
 
   return (
     <>
-      <nav aria-label="메인 메뉴" className="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm border-t border-gray-100">
+      <nav
+        aria-label="메인 메뉴"
+        className="fixed bottom-0 left-0 right-0 z-20 bg-white"
+        style={{ boxShadow: '0 -4px 16px -8px rgba(31,31,46,0.08)' }}
+      >
         <div className="max-w-md sm:max-w-lg mx-auto flex">
           {NAV_ITEMS.map((entry) => {
             if (entry.kind === 'action') {
@@ -73,24 +77,31 @@ export default function BottomNav() {
                 href={href}
                 aria-label={a11yLabel}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
-                  isActive ? 'text-brand-primary' : 'text-gray-700'
+                className={`flex-1 flex flex-col items-center justify-center pt-3 pb-2 gap-1 transition-colors relative ${
+                  isActive ? 'text-brand-primary' : 'text-gray-500'
                 }`}
               >
+                {/* 상단 활성 인디케이터 */}
+                {isActive && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] rounded-b-full bg-brand-primary"
+                  />
+                )}
                 <span className="relative">
                   <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" />
                   {badge > 0 && (
                     <span
                       aria-hidden="true"
                       className={`absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white ${
-                        href === '/fridge' ? 'bg-brand-warning' : 'bg-brand-primary'
+                        href === '/fridge' ? 'bg-brand-accent' : 'bg-brand-primary'
                       }`}
                     >
                       {badge}
                     </span>
                   )}
                 </span>
-                <span className="text-[11px] font-medium">{label}</span>
+                <span className="text-[11px] font-semibold">{label}</span>
               </Link>
             );
           })}

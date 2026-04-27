@@ -1,4 +1,6 @@
 export const springTransition = { type: 'spring' as const, stiffness: 300, damping: 24 };
-// 인터파크 스타일 — 그림자 없음, border-gray-100 경계만. rounded 살짝 축소.
-export const CARD = 'bg-white rounded-[20px] border border-gray-100 p-5';
-export const CARD_SHADOW = {} as React.CSSProperties;
+// MG·우리페이 스타일 — 부드러운 카드 (border 없음, 그림자만)
+export const CARD = 'bg-white rounded-[24px] p-5';
+export const CARD_SHADOW: React.CSSProperties = {
+  boxShadow: '0 6px 16px -8px rgba(31, 31, 46, 0.08), 0 2px 4px -2px rgba(31, 31, 46, 0.04)',
+};

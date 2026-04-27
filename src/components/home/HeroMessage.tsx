@@ -25,22 +25,25 @@ import { pickDailyMessage } from '@/lib/dailyMessage';
 
 const TONE = {
   urgent: {
-    accent: 'text-brand-warning',
-    cta:    'bg-brand-warning text-white',
-    chip:   'bg-brand-warning/10 text-brand-warning',
-    iconBg: 'bg-brand-warning/10 text-brand-warning',
+    accent:  'text-brand-accent',
+    cta:     'bg-brand-accent text-white',
+    chip:    'bg-brand-accent/10 text-brand-accent',
+    iconBg:  'bg-brand-accent/10 text-brand-accent',
+    cardBg:  'bg-gradient-to-br from-brand-accent/8 via-white to-white',
   },
   insight: {
-    accent: 'text-brand-primary',
-    cta:    'bg-brand-primary text-white',
-    chip:   'bg-brand-primary/10 text-brand-primary',
-    iconBg: 'bg-brand-primary/10 text-brand-primary',
+    accent:  'text-brand-primary',
+    cta:     'bg-brand-primary text-white',
+    chip:    'bg-brand-primary/10 text-brand-primary',
+    iconBg:  'bg-brand-primary/10 text-brand-primary',
+    cardBg:  'bg-gradient-to-br from-brand-primary/8 via-white to-white',
   },
   gentle: {
-    accent: 'text-gray-600',
-    cta:    'bg-gray-900 text-white',
-    chip:   'bg-gray-100 text-gray-600',
-    iconBg: 'bg-gray-100 text-gray-600',
+    accent:  'text-brand-ink',
+    cta:     'bg-brand-ink text-white',
+    chip:    'bg-gray-100 text-brand-ink',
+    iconBg:  'bg-gray-100 text-brand-ink',
+    cardBg:  'bg-white',
   },
 } as const;
 
@@ -90,55 +93,58 @@ export default function HeroMessage({ items }: { items: CartItem[] }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-      className="rounded-[24px] bg-white border border-gray-100 px-5 py-5"
-      style={{ boxShadow: '0 4px 20px -8px rgba(0,0,0,0.08)' }}
+      className={`rounded-[28px] ${tone.cardBg} px-6 py-6 relative overflow-hidden`}
+      style={{ boxShadow: '0 8px 24px -12px rgba(31, 31, 46, 0.12), 0 2px 6px -2px rgba(31, 31, 46, 0.04)' }}
     >
-      <div className="flex items-start gap-3 mb-4">
-        <motion.span
-          key={msg.priority}
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-          className={`w-11 h-11 rounded-2xl shrink-0 flex items-center justify-center ${tone.iconBg}`}
-        >
-          <HeroIcon size={22} strokeWidth={2.2} aria-hidden />
-        </motion.span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <span className={`text-xs font-semibold ${tone.accent}`}>
-              {greeting.text}
-            </span>
-            {msg.priority === 'urgent' && (
-              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${tone.chip}`}>
-                주의
-              </span>
-            )}
-          </div>
-          <p className="text-sm font-semibold text-gray-900 leading-relaxed">
-            {msg.text}
-          </p>
-        </div>
+      {/* 우측 상단 큰 아이콘 — 워터마크처럼 */}
+      <div className={`absolute -right-3 -top-3 w-24 h-24 rounded-3xl ${tone.iconBg} opacity-40 flex items-center justify-center`}>
+        <HeroIcon size={56} strokeWidth={1.5} aria-hidden />
       </div>
 
-      {msg.cta && (
-        msg.paletteQuery ? (
-          <button
-            onClick={handleCtaClick}
-            className={`w-full flex items-center justify-center gap-1.5 ${tone.cta} rounded-xl py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-2">
+          <motion.span
+            key={msg.priority}
+            initial={{ scale: 0.85 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 18 }}
+            className={`w-9 h-9 rounded-2xl shrink-0 flex items-center justify-center ${tone.iconBg}`}
           >
-            <span>{msg.cta.label}</span>
-            <ArrowRight size={14} />
-          </button>
-        ) : (
-          <Link
-            href={msg.cta.href}
-            className={`w-full flex items-center justify-center gap-1.5 ${tone.cta} rounded-xl py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
-          >
-            <span>{msg.cta.label}</span>
-            <ArrowRight size={14} />
-          </Link>
-        )
-      )}
+            <HeroIcon size={18} strokeWidth={2.2} aria-hidden />
+          </motion.span>
+          <span className={`text-xs font-bold ${tone.accent} tracking-wide`}>
+            {greeting.text}
+          </span>
+          {msg.priority === 'urgent' && (
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${tone.chip}`}>
+              주의
+            </span>
+          )}
+        </div>
+        <p className="text-base font-bold text-brand-ink leading-snug pr-12 mb-5">
+          {msg.text}
+        </p>
+
+        {msg.cta && (
+          msg.paletteQuery ? (
+            <button
+              onClick={handleCtaClick}
+              className={`flex items-center gap-1.5 ${tone.cta} rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
+            >
+              <span>{msg.cta.label}</span>
+              <ArrowRight size={14} strokeWidth={2.4} />
+            </button>
+          ) : (
+            <Link
+              href={msg.cta.href}
+              className={`inline-flex items-center gap-1.5 ${tone.cta} rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
+            >
+              <span>{msg.cta.label}</span>
+              <ArrowRight size={14} strokeWidth={2.4} />
+            </Link>
+          )
+        )}
+      </div>
     </motion.div>
   );
 }

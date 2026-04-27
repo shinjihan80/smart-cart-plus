@@ -17,11 +17,13 @@ import { springTransition } from './shared';
 interface DiscardRecord { name: string; category: string; date: string; }
 
 interface CategoryItem {
-  href:   string;
-  Icon:   LucideIcon;
-  label:  string;
-  badge?: string;
-  dot?:   boolean;
+  href:      string;
+  Icon:      LucideIcon;
+  label:     string;
+  bgClass:   string;   // 파스텔 배경
+  iconClass: string;   // 아이콘 색
+  badge?:    string;
+  dot?:      boolean;
 }
 
 /**
@@ -62,14 +64,14 @@ export default function QuickLinks({
   })();
 
   const categories: CategoryItem[] = [
-    { href: '/fridge',             Icon: Refrigerator, label: '냉장고', badge: foodCount > 0 ? String(foodCount) : undefined },
-    { href: '/closet',             Icon: Shirt,        label: '옷장',   badge: clothesCount > 0 ? String(clothesCount) : undefined },
-    { href: '/seasonal',           Icon: Flower2,      label: '제철',   badge: missedCount > 0 ? String(missedCount) : undefined },
-    { href: '/fridge',             Icon: ChefHat,      label: '레시피', dot: urgentCount > 0 },
-    { href: '/mypage#shopping',    Icon: ShoppingCart, label: '쇼핑',   badge: shopping.length > 0 ? String(shopping.length) : undefined },
-    { href: '/mypage',             Icon: BarChart3,    label: '활동'   },
-    { href: '/settings#profiles',  Icon: Users,        label: '프로필' },
-    { href: '/settings',           Icon: Settings,     label: '설정'   },
+    { href: '/fridge',             Icon: Refrigerator, label: '냉장고', bgClass: 'bg-blue-50',    iconClass: 'text-blue-500',    badge: foodCount > 0 ? String(foodCount) : undefined },
+    { href: '/closet',             Icon: Shirt,        label: '옷장',   bgClass: 'bg-rose-50',    iconClass: 'text-rose-500',    badge: clothesCount > 0 ? String(clothesCount) : undefined },
+    { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', badge: missedCount > 0 ? String(missedCount) : undefined },
+    { href: '/fridge',             Icon: ChefHat,      label: '레시피', bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dot: urgentCount > 0 },
+    { href: '/mypage#shopping',    Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     badge: shopping.length > 0 ? String(shopping.length) : undefined },
+    { href: '/mypage',             Icon: BarChart3,    label: '활동',   bgClass: 'bg-violet-50',  iconClass: 'text-violet-500'   },
+    { href: '/settings#profiles',  Icon: Users,        label: '프로필', bgClass: 'bg-orange-50',  iconClass: 'text-orange-500'   },
+    { href: '/settings',           Icon: Settings,     label: '설정',   bgClass: 'bg-gray-100',   iconClass: 'text-gray-600'     },
   ];
 
   return (
@@ -83,25 +85,25 @@ export default function QuickLinks({
         <Link
           key={`${c.href}-${c.label}`}
           href={c.href}
-          className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
+          className="flex flex-col items-center gap-2 active:scale-95 transition-transform"
         >
-          <div className="relative w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
+          <div className={`relative w-14 h-14 rounded-2xl ${c.bgClass} flex items-center justify-center`}>
             <c.Icon
-              size={24}
+              size={26}
               strokeWidth={1.8}
-              className="text-gray-900"
+              className={c.iconClass}
               aria-hidden
             />
             {c.badge && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center tabular-nums ring-2 ring-[color:var(--background)]">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-accent text-white text-[10px] font-bold flex items-center justify-center tabular-nums ring-2 ring-white">
                 {c.badge}
               </span>
             )}
             {c.dot && !c.badge && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-brand-warning ring-2 ring-[color:var(--background)]" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-brand-accent ring-2 ring-white" />
             )}
           </div>
-          <span className="text-xs font-medium text-gray-700 tracking-tight">{c.label}</span>
+          <span className="text-xs font-semibold text-brand-ink tracking-tight">{c.label}</span>
         </Link>
       ))}
     </motion.div>
