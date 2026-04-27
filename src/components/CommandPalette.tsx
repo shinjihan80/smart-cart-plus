@@ -18,6 +18,7 @@ import { downloadBackup } from '@/lib/backup';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useSavedOutfits } from '@/lib/savedOutfits';
+import EmojiIcon from '@/components/EmojiIcon';
 
 /**
  * 전역 명령 팔레트 — 어디서든 ⌘K로 호출.
@@ -422,7 +423,7 @@ export default function CommandPalette() {
                         i === cursor ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
                       }`}
                     >
-                      <span className="text-lg shrink-0">{cmd.emoji}</span>
+                      <EmojiIcon emoji={cmd.emoji} size={18} className="text-gray-700 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-800 truncate">{cmd.label}</p>
                         {cmd.sub && <p className="text-sm text-gray-400 truncate">{cmd.sub}</p>}

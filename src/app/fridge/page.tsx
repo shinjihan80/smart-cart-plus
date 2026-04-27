@@ -9,6 +9,7 @@ import { calcRemainingDays } from '@/components/FoodTags';
 import { Search } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
+import EmojiIcon from '@/components/EmojiIcon';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/fridge/shared';
 import SwipeFoodCard           from '@/components/fridge/SwipeFoodCard';
@@ -231,7 +232,7 @@ export default function FridgePage() {
           style={CARD_SHADOW}
         >
           <div className="flex items-center gap-2 mb-2.5">
-            <span className="text-base">⚡</span>
+            <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
             <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
           </div>
           {/* 소유자 선택 — 프로필 2명 이상일 때만 */}
@@ -448,7 +449,7 @@ export default function FridgePage() {
 
         {items.length === 0 && allFood.length > 0 && (
           <div className="text-center py-12 text-gray-400">
-            <p className="text-3xl mb-2">🔍</p>
+            <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
             <p className="text-sm font-medium">검색 결과가 없어요</p>
             <button onClick={() => { setSearch(''); setStorageFilter('전체'); setGroupFilter('전체'); }} className="text-xs text-brand-primary mt-1">
               필터 초기화
@@ -458,7 +459,7 @@ export default function FridgePage() {
 
         {allFood.length === 0 && (
           <div className="text-center py-16 text-gray-400">
-            <p className="text-4xl mb-3">🧊</p>
+            <div className="flex justify-center mb-3"><EmojiIcon emoji="🧊" size={32} className="text-gray-400" /></div>
             <p className="text-sm font-medium">냉장고가 비어있어요</p>
             <p className="text-xs mt-1">+ 버튼을 눌러 식품을 추가해보세요.</p>
           </div>

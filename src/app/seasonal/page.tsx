@@ -16,6 +16,7 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useToast } from '@/context/ToastContext';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import EmojiIcon from '@/components/EmojiIcon';
 import { useCart } from '@/context/CartContext';
 
 const SEASONS: Season[] = ['봄', '여름', '가을', '겨울'];
@@ -363,7 +364,7 @@ function SeasonalPageInner() {
                   }`}
                 >
                   <div className="flex items-start justify-between mb-1">
-                    <span className="text-2xl">{p.emoji}</span>
+                    <EmojiIcon emoji={p.emoji} size={22} className="text-gray-700" />
                     <div className="flex gap-1 items-center">
                       {tried && (
                         <span

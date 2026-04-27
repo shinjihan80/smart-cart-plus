@@ -11,6 +11,7 @@ import { useToast } from '@/context/ToastContext';
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
 import { usePersistedState } from '@/lib/usePersistedState';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
@@ -71,7 +72,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2">
-          <span className="text-base">🧹</span>
+          <EmojiIcon emoji="🧹" size={16} className="text-gray-600" />
           <span className="text-xs text-gray-400 font-medium">옷장 정리 제안</span>
           <span className="text-sm px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold">
             {candidates.length}벌

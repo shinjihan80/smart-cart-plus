@@ -22,6 +22,7 @@ import StorageUsage         from '@/components/settings/StorageUsage';
 import AiQuotaCard          from '@/components/settings/AiQuotaCard';
 import ErrorLogCard         from '@/components/settings/ErrorLogCard';
 import PaletteButton        from '@/components/PaletteButton';
+import EmojiIcon            from '@/components/EmojiIcon';
 
 export default function SettingsPage() {
   const { items, resetData, loadSampleData, archiveExpired, restoreAll } = useCart();
@@ -192,7 +193,7 @@ export default function SettingsPage() {
               : 'bg-brand-success/5 border-brand-success/15'
           }`}
         >
-          <span className="text-xl shrink-0">{backup.isStale ? '💾' : '✅'}</span>
+          <EmojiIcon emoji={backup.isStale ? '💾' : '✅'} size={20} className={backup.isStale ? 'text-brand-warning shrink-0' : 'text-brand-success shrink-0'} />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-800">
               {backup.isStale
@@ -233,7 +234,7 @@ export default function SettingsPage() {
                 onClick={m.action}
                 className="flex items-center gap-3 w-full py-3 text-left hover:bg-gray-50/50 -mx-2 px-2 rounded-2xl transition-colors"
               >
-                <span className="text-base">{m.emoji}</span>
+                <EmojiIcon emoji={m.emoji} size={16} className="text-gray-600" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800">{m.label}</p>
                   <p className="text-sm text-gray-400">{m.desc}</p>

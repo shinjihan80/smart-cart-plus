@@ -6,12 +6,13 @@ import {
   type CartItem, type FoodItem, type FoodGroup, type FashionGroup,
 } from '@/types';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
+import EmojiIcon from '@/components/EmojiIcon';
 
 function StatRow({ emoji, label, value, accent }: { emoji: string; label: string; value: string; accent?: boolean }) {
   return (
     <div className="flex items-center justify-between py-2.5">
       <div className="flex items-center gap-2.5">
-        <span className="text-base">{emoji}</span>
+        <EmojiIcon emoji={emoji} size={16} className="text-gray-600" />
         <span className="text-sm text-gray-600">{label}</span>
       </div>
       <span className={`text-sm font-bold tabular-nums ${accent ? 'text-brand-primary' : 'text-gray-900'}`}>

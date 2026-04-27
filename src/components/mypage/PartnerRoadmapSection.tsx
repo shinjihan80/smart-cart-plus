@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
 import { usePersistedState } from '@/lib/usePersistedState';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const DOMAIN_LABEL: Record<PartnerDomain, { emoji: string; label: string; desc: string }> = {
@@ -39,7 +40,7 @@ export default function PartnerRoadmapSection() {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-base">🚀</span>
+          <EmojiIcon emoji="🚀" size={16} className="text-brand-primary" />
           <span className="text-xs text-gray-400 font-medium">곧 연결될 파트너 서비스</span>
           <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium">
             Phase 7
@@ -72,7 +73,7 @@ export default function PartnerRoadmapSection() {
                 return (
                   <div key={domain}>
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-sm">{meta.emoji}</span>
+                      <EmojiIcon emoji={meta.emoji} size={14} className="text-gray-700" />
                       <p className="text-xs font-semibold text-gray-700">{meta.label}</p>
                     </div>
                     <p className="text-sm text-gray-400 mb-1.5 ml-5 leading-relaxed">

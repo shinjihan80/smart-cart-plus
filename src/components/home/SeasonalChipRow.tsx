@@ -8,6 +8,7 @@ import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
 import { countRecipesByIngredient } from '@/lib/recipes';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition } from './shared';
 
 export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
@@ -51,7 +52,7 @@ export default function SeasonalChipRow({ items }: { items: CartItem[] }) {
               title={p.blurb ?? `${season}철 제철`}
               className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-gray-800 hover:bg-gray-50 active:scale-95 transition-all"
             >
-              <span className="text-xs">{p.emoji}</span>
+              <EmojiIcon emoji={p.emoji} size={11} className="text-gray-600" />
               <span className="font-medium">{p.name}</span>
               {p.peak === season && <span className="text-xs text-pink-500 font-semibold">· 피크</span>}
             </button>

@@ -6,6 +6,7 @@ import { ChevronRight } from 'lucide-react';
 import { RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface FavoriteRecipesSectionProps {
@@ -83,7 +84,7 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
               onClick={() => onOpenRecipe(recipe)}
               className="flex items-center gap-3 w-full py-2 px-2 -mx-2 rounded-2xl hover:bg-gray-50 text-left transition-colors"
             >
-              <span className="text-2xl shrink-0">{recipe.emoji}</span>
+              <EmojiIcon emoji={recipe.emoji} size={22} className="text-gray-700 shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
@@ -94,7 +95,7 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
                         className="text-xs shrink-0"
                         title={`${DIETARY_BADGE[d].label} 가능`}
                       >
-                        {DIETARY_BADGE[d].emoji}
+                        <EmojiIcon emoji={DIETARY_BADGE[d].emoji} size={11} className="text-gray-500" />
                       </span>
                     ) : null;
                   })()}

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 /**
@@ -54,7 +55,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <span className="text-base">📅</span>
+          <EmojiIcon emoji="📅" size={16} className="text-gray-600" />
           <span className="text-xs text-gray-400 font-medium">올해 활동 요약</span>
         </div>
         <span className="text-sm text-gray-400 tabular-nums shrink-0">
@@ -64,7 +65,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
       <div className="grid grid-cols-3 gap-2">
         {stats.map((s) => (
           <div key={s.label} className="flex flex-col items-center gap-0.5 py-1">
-            <span className="text-lg">{s.emoji}</span>
+            <EmojiIcon emoji={s.emoji} size={18} className="text-gray-700" />
             <span className="text-base font-extrabold text-brand-primary tabular-nums">{s.value}</span>
             <span className="text-xs text-gray-400 font-medium">{s.label}</span>
           </div>

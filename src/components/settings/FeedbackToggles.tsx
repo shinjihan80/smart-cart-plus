@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { haptic, isHapticEnabled, setHapticEnabled } from '@/lib/haptics';
 import { playChime, isChimeEnabled, setChimeEnabled } from '@/lib/chime';
 import { isAnalyticsEnabled, setAnalyticsEnabled } from '@/lib/analytics';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 /**
@@ -58,7 +59,7 @@ export default function FeedbackToggles() {
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">✨</span>
+        <EmojiIcon emoji="✨" size={16} className="text-brand-primary" />
         <span className="text-xs text-gray-400 font-medium">피드백</span>
       </div>
       <div className="flex flex-col gap-2">

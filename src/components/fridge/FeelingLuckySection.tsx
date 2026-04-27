@@ -11,6 +11,7 @@ import { useCookLog } from '@/lib/recipeCookLog';
 import { useProfiles } from '@/lib/profile';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
@@ -50,7 +51,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-base">🎲</span>
+            <EmojiIcon emoji="🎲" size={16} className="text-gray-700" />
             <span className="text-xs text-gray-400 font-medium">오늘 뭐 먹지?</span>
           </div>
           <button
@@ -71,9 +72,9 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
             initial={{ rotate: -180, scale: 0.6, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-            className="text-4xl shrink-0"
+            className="shrink-0 inline-flex"
           >
-            {pick.recipe.emoji}
+            <EmojiIcon emoji={pick.recipe.emoji} size={32} className="text-gray-700" />
           </motion.span>
           <div className="flex-1 min-w-0">
             <motion.p

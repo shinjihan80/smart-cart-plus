@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useToast } from '@/context/ToastContext';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface Props {
@@ -53,7 +54,7 @@ export default function FrequentIngredientsSection({ discardHistory, currentItem
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-2.5">
-        <span className="text-base">⭐</span>
+        <EmojiIcon emoji="⭐" size={16} className="text-amber-400" />
         <span className="text-xs text-gray-400 font-medium">자주 구매하는 재료 TOP 5</span>
       </div>
       <div className="flex flex-col gap-1">
@@ -63,7 +64,7 @@ export default function FrequentIngredientsSection({ discardHistory, currentItem
           return (
             <div key={r.name} className="flex items-center gap-2 py-1">
               <span className="text-sm text-gray-300 tabular-nums w-4 text-right shrink-0">{i + 1}</span>
-              <span className="text-sm shrink-0">{getFoodEmoji(r.name)}</span>
+              <EmojiIcon emoji={getFoodEmoji(r.name)} size={14} className="text-gray-600 shrink-0" />
               <span className="flex-1 text-sm text-gray-800 truncate">{r.name}</span>
               <span className="text-sm text-gray-400 font-semibold tabular-nums shrink-0">{r.count}회</span>
               {owned ? (

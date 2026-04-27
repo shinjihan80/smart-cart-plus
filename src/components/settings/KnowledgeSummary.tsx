@@ -9,6 +9,7 @@ import { SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { PARTNERS } from '@/lib/partnerLinks';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 export default function KnowledgeSummary() {
@@ -43,7 +44,7 @@ export default function KnowledgeSummary() {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-base">🧠</span>
+          <EmojiIcon emoji="🧠" size={16} className="text-brand-primary" />
           <span className="text-xs text-gray-400 font-medium">네모아가 알고 있는 것</span>
         </div>
         <ChevronDown
@@ -55,7 +56,7 @@ export default function KnowledgeSummary() {
       <div className="grid grid-cols-5 gap-2 mt-3">
         {stats.map((s) => (
           <div key={s.label} className="flex flex-col items-center gap-0.5">
-            <span className="text-lg">{s.emoji}</span>
+            <EmojiIcon emoji={s.emoji} size={18} className="text-gray-700" />
             <span className="text-sm font-bold text-gray-900 tabular-nums">
               {s.value}
               <span className="text-xs text-gray-400 ml-0.5 font-medium">{s.suffix}</span>
@@ -79,7 +80,7 @@ export default function KnowledgeSummary() {
               className="mt-3 flex items-center justify-between px-3 py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 hover:bg-brand-primary/10 transition-colors"
             >
               <div className="flex items-center gap-2">
-                <span className="text-base">🌸</span>
+                <EmojiIcon emoji="🌸" size={16} className="text-brand-primary" />
                 <span className="text-xs font-semibold text-brand-primary">
                   제철 달력 열기 — 4계절 전체 보기
                 </span>

@@ -6,6 +6,7 @@ import { useWearLog, daysSince } from '@/lib/wearLog';
 import { FASHION_GROUP, type FashionGroup } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import WeekdayPatternChart from './WeekdayPatternChart';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface WearStatsSectionProps {
@@ -65,7 +66,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">👕</span>
+        <EmojiIcon emoji="👕" size={16} className="text-brand-primary" />
         <span className="text-xs text-gray-400 font-medium">착용 로그 분석</span>
       </div>
 
@@ -73,7 +74,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         <div className="mb-3 rounded-2xl bg-gray-50 px-3 py-2.5">
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">🔄</span>
+              <EmojiIcon emoji="🔄" size={14} className="text-gray-600" />
               <p className="text-sm font-semibold text-gray-600">로테이션 밸런스</p>
             </div>
             <span className={`text-xs font-bold tabular-nums ${

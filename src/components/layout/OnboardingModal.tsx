@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useModalA11y } from '@/lib/useModalA11y';
+import EmojiIcon from '@/components/EmojiIcon';
 
 // v2: 온보딩 단계 확장에 따라 재노출 유도 (기존 true 값도 재온보딩 1회 수행)
 const ONBOARDING_KEY = 'smart-cart-onboarded-v2';
@@ -77,7 +78,7 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="text-6xl mb-5">{current.emoji}</div>
+            <div className="flex justify-center mb-5"><EmojiIcon emoji={current.emoji} size={48} className="text-brand-primary" /></div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">{current.title}</h2>
             <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-line">{current.desc}</p>
           </motion.div>

@@ -9,6 +9,7 @@ import { createFoodItemFromIngredient, inferFoodCategory, getFoodEmoji } from '@
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface ShoppingListSectionProps {
@@ -202,7 +203,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
               <div key={g.key || 'direct'}>
                 {groups.length > 1 && (
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-xs">{g.emoji}</span>
+                    <EmojiIcon emoji={g.emoji} size={11} className="text-gray-600" />
                     <span className="text-sm font-semibold text-gray-500">{g.label}</span>
                     <span className="text-xs text-gray-300 tabular-nums">· {g.items.length}</span>
                     {g.items.length >= 2 && (
@@ -231,7 +232,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                     const emoji    = getFoodEmoji(it.name, category);
                     return (
                       <div key={it.id} className="flex items-center gap-2 py-1.5">
-                        <span className="text-sm shrink-0">{emoji}</span>
+                        <EmojiIcon emoji={emoji} size={14} className="text-gray-600 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-gray-800 truncate">{it.name}</p>
                           <p className="text-xs text-gray-400 truncate">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/context/ToastContext';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 type NotiKey = 'expiry' | 'codi' | 'deal';
@@ -54,7 +55,7 @@ export default function NotificationSettings() {
         {items.map((item) => (
           <div key={item.key} className="flex items-center justify-between py-2.5">
             <div className="flex items-center gap-2.5">
-              <span className="text-base">{item.emoji}</span>
+              <EmojiIcon emoji={item.emoji} size={16} className="text-gray-600" />
               <span className="text-sm text-gray-600">{item.label}</span>
             </div>
             <button

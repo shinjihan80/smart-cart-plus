@@ -14,6 +14,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
 import { haptic } from '@/lib/haptics';
 import { playChime } from '@/lib/chime';
+import EmojiIcon from '@/components/EmojiIcon';
 
 interface RecipeDetailModalProps {
   recipe:           Recipe;
@@ -314,7 +315,7 @@ export default function RecipeDetailModal({
                   ? 'bg-brand-primary/10 border-brand-primary/25'
                   : 'bg-gray-50 border-gray-100'
             }`}>
-              <span className="text-xl">{finished ? '🔔' : running ? '⏱️' : '⏰'}</span>
+              <EmojiIcon emoji={finished ? '🔔' : running ? '⏱️' : '⏰'} size={20} className={finished ? 'text-brand-warning' : running ? 'text-brand-primary' : 'text-gray-600'} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-500">
                   {finished ? '완성 시간이에요!' : running ? '타이머 진행 중' : '조리 타이머'}
@@ -397,7 +398,7 @@ export default function RecipeDetailModal({
                     onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: co.recipe.id } }))}
                     className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
                   >
-                    <span>{co.recipe.emoji}</span>
+                    <EmojiIcon emoji={co.recipe.emoji} size={11} className="text-brand-primary" />
                     <span className="font-medium">{co.recipe.name}</span>
                     <span className="text-xs text-brand-primary/60 tabular-nums">· {co.count}회</span>
                   </button>
@@ -436,7 +437,7 @@ export default function RecipeDetailModal({
                       onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: r.id } }))}
                       className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors"
                     >
-                      <span>{r.emoji}</span>
+                      <EmojiIcon emoji={r.emoji} size={11} className="text-gray-700" />
                       <span className="font-medium">{r.name}</span>
                     </button>
                   ))}

@@ -9,6 +9,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { estimateCycles } from '@/lib/purchaseCycle';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface ShoppingSuggestionsSectionProps {
@@ -138,7 +139,7 @@ export default function ShoppingSuggestionsSection({
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-base">🪄</span>
+          <EmojiIcon emoji="🪄" size={16} className="text-brand-primary" />
           <span className="text-xs text-gray-400 font-medium">장볼 거 추천</span>
           <span className="text-xs text-gray-300">· 임박·소진·제철</span>
         </div>
@@ -156,7 +157,7 @@ export default function ShoppingSuggestionsSection({
           const already = has(s.name);
           return (
             <div key={`${s.source}-${s.name}`} className="flex items-center gap-2 py-1.5">
-              <span className="text-sm shrink-0">{s.emoji}</span>
+              <EmojiIcon emoji={s.emoji} size={14} className="text-gray-600 shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <p className="text-sm text-gray-800 truncate">{s.name}</p>

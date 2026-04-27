@@ -20,6 +20,7 @@ import { useWearLog, daysSince } from '@/lib/wearLog';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
+import EmojiIcon from '@/components/EmojiIcon';
 import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
@@ -231,7 +232,7 @@ export default function ClosetPage() {
               style={CARD_SHADOW}
             >
               <div className="flex items-center gap-2">
-                <span className="text-base">📊</span>
+                <EmojiIcon emoji="📊" size={16} className="text-gray-600" />
                 <span className="text-xs text-gray-400 font-medium">이번 주 착용 요약</span>
               </div>
               <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
@@ -314,7 +315,7 @@ export default function ClosetPage() {
               style={CARD_SHADOW}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-base">🆕</span>
+                <EmojiIcon emoji="🆕" size={16} className="text-gray-600" />
                 <span className="text-xs text-gray-400 font-medium">아직 안 입어본 옷 {untried.length}벌</span>
               </div>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -352,7 +353,7 @@ export default function ClosetPage() {
               style={CARD_SHADOW}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-base">🔥</span>
+                <EmojiIcon emoji="🔥" size={16} className="text-gray-600" />
                 <span className="text-xs text-gray-400 font-medium">자주 입는 옷 TOP 3</span>
               </div>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -390,7 +391,7 @@ export default function ClosetPage() {
           style={CARD_SHADOW}
         >
           <div className="flex items-center gap-2 mb-2.5">
-            <span className="text-base">⚡</span>
+            <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
             <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
           </div>
           {profiles.length >= 2 && (
@@ -563,7 +564,7 @@ export default function ClosetPage() {
 
         {items.length === 0 && allClothing.length > 0 && (
           <div className="text-center py-12 text-gray-400">
-            <p className="text-3xl mb-2">🔍</p>
+            <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
             <p className="text-sm font-medium">검색 결과가 없어요</p>
             <button onClick={() => { setSearch(''); setFilter('전체'); }} className="text-xs text-brand-primary mt-1">
               필터 초기화
@@ -573,7 +574,7 @@ export default function ClosetPage() {
 
         {allClothing.length === 0 && (
           <div className="text-center py-16 text-gray-400">
-            <p className="text-4xl mb-3">👔</p>
+            <div className="flex justify-center mb-3"><EmojiIcon emoji="👔" size={32} className="text-gray-400" /></div>
             <p className="text-sm font-medium">옷장이 비어있어요</p>
             <p className="text-xs mt-1">+ 버튼을 눌러 의류를 추가해보세요.</p>
           </div>

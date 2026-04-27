@@ -5,6 +5,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { countRecipesByIngredient } from '@/lib/recipes';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface SeasonalProduceSectionProps {
@@ -52,7 +53,7 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
                   title={p.blurb}
                   className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-brand-primary hover:bg-brand-primary/10 active:scale-95 transition-all"
                 >
-                  <span className="text-sm">{p.emoji}</span>
+                  <EmojiIcon emoji={p.emoji} size={14} className="text-brand-primary" />
                   <span className="font-medium">{p.name}</span>
                   {p.peak === season && (
                     <span className="text-xs px-1 py-0.5 rounded-full bg-brand-primary/15 text-brand-primary/80">피크</span>

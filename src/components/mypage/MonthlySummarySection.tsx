@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface Props {
@@ -41,7 +42,7 @@ export default function MonthlySummarySection({ discardHistory }: Props) {
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <span className="text-base">📆</span>
+          <EmojiIcon emoji="📆" size={16} className="text-gray-600" />
           <span className="text-xs text-gray-400 font-medium">이번 달 활동</span>
         </div>
         <span className="text-sm text-gray-400 tabular-nums shrink-0">
@@ -50,17 +51,17 @@ export default function MonthlySummarySection({ discardHistory }: Props) {
       </div>
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col items-center gap-0.5 py-1">
-          <span className="text-lg">🍳</span>
+          <EmojiIcon emoji="🍳" size={18} className="text-gray-700" />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{cookCount}</span>
           <span className="text-xs text-gray-400 font-medium">조리 · {cookPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
-          <span className="text-lg">👕</span>
+          <EmojiIcon emoji="👕" size={18} className="text-gray-700" />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{wearCount}</span>
           <span className="text-xs text-gray-400 font-medium">착용 · {wearPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
-          <span className="text-lg">♻️</span>
+          <EmojiIcon emoji="♻️" size={18} className="text-gray-700" />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{discardCount}</span>
           <span className="text-xs text-gray-400 font-medium">소진</span>
         </div>

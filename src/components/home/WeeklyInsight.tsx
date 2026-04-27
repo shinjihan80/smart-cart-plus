@@ -4,6 +4,7 @@ import { isFoodItem, isClothingItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useWearLog } from '@/lib/wearLog';
+import EmojiIcon from '@/components/EmojiIcon';
 import { Widget } from './shared';
 
 export default function WeeklyInsight({ items }: { items: CartItem[] }) {
@@ -40,7 +41,7 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
     <div className="">
       <Widget index={5} variant="ghost">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-base">💡</span>
+          <EmojiIcon emoji="💡" size={16} className="text-amber-500" />
           <span className="text-xs text-gray-400 font-medium">네모아의 주간 인사이트</span>
         </div>
         <div className="flex flex-col gap-1.5">

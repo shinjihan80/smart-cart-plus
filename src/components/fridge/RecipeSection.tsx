@@ -12,6 +12,7 @@ import { useProfiles } from '@/lib/profile';
 import { analyzeBalance } from '@/lib/nutritionAnalysis';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
@@ -69,7 +70,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base">👨‍🍳</span>
+            <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
             <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 메뉴</span>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -112,10 +113,10 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 }`}
               >
                 <div className="flex items-start justify-between">
-                  <span className="text-2xl">{recipe.emoji}</span>
+                  <EmojiIcon emoji={recipe.emoji} size={22} className="text-gray-700" />
                   <div className="flex items-center gap-0.5">
-                    {fav && <span className="text-sm text-brand-warning">♥</span>}
-                    {loveBoosted && <span className="text-xs" title={`${cookCount}번 만든 단골`}>🏆</span>}
+                    {fav && <EmojiIcon emoji="♥" size={14} className="text-brand-warning" />}
+                    {loveBoosted && <span title={`${cookCount}번 만든 단골`}><EmojiIcon emoji="🏆" size={11} className="text-amber-500" /></span>}
                     {seasonBoosted && (() => {
                       const Icon = SEASON_ICON[season];
                       const color = SEASON_COLOR[season];
@@ -125,7 +126,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                         </span>
                       );
                     })()}
-                    {urgentBoosted && <span className="text-xs">⚠️</span>}
+                    {urgentBoosted && <EmojiIcon emoji="⚠️" size={11} className="text-brand-warning" />}
                   </div>
                 </div>
                 <p className="text-xs font-semibold text-gray-800 mt-1.5 truncate">{recipe.name}</p>

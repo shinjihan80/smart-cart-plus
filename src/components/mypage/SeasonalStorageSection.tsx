@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { PARTNERS } from '@/lib/partnerLinks';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function SeasonalStorageSection({ items }: { items: CartItem[] }) {
@@ -114,7 +115,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
             className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-sm">📦</span>
+              <EmojiIcon emoji="📦" size={14} className="text-gray-600" />
               <p className="text-xs font-semibold text-gray-700">
                 이번 {season} 동안 보관할 옷 {stowCandidates.length}벌
               </p>
@@ -182,7 +183,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
             className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-sm">🗃️</span>
+              <EmojiIcon emoji="🗃️" size={14} className="text-gray-600" />
               <p className="text-xs font-semibold text-gray-700">
                 보관 중 {allStored.length}벌
               </p>

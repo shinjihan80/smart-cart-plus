@@ -6,6 +6,7 @@ import { Plus, Trash2, ChevronDown } from 'lucide-react';
 import { useProfiles, type Profile, type Relation, type Dietary } from '@/lib/profile';
 import { recommendSizes } from '@/lib/sizeRecommend';
 import { useToast } from '@/context/ToastContext';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 const RELATIONS: Relation[] = ['본인', '배우자', '자녀', '부모', '기타'];
@@ -41,7 +42,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors"
       >
-        <span className="text-2xl">{profile.avatar ?? RELATION_EMOJI[profile.relation]}</span>
+        <EmojiIcon emoji={profile.avatar ?? RELATION_EMOJI[profile.relation]} size={22} className="text-gray-700" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">
             {profile.name}
@@ -222,7 +223,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                     }`}
                     title="관계 기본 이모지"
                   >
-                    {RELATION_EMOJI[profile.relation]}
+                    <EmojiIcon emoji={RELATION_EMOJI[profile.relation]} size={16} className={!profile.avatar ? 'text-white' : 'text-gray-700'} />
                   </button>
                   {AVATAR_OPTIONS.map((a) => (
                     <button
@@ -234,7 +235,7 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                           : 'bg-white border border-gray-200 hover:bg-gray-50'
                       }`}
                     >
-                      {a}
+                      <EmojiIcon emoji={a} size={16} className={profile.avatar === a ? 'text-white' : 'text-gray-700'} />
                     </button>
                   ))}
                 </div>

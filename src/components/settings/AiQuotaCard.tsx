@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useAiQuota, DAILY_LIMITS, type AiAgent } from '@/lib/aiQuota';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 const AGENTS: Array<{ key: AiAgent; label: string; emoji: string }> = [
@@ -24,7 +25,7 @@ export default function AiQuotaCard() {
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <span className="text-base">🤖</span>
+          <EmojiIcon emoji="🤖" size={16} className="text-brand-primary" />
           <span className="text-xs text-gray-400 font-medium">AI 오늘 남은 횟수</span>
         </div>
         <span className="text-xs text-gray-400">무료 · 매일 00시 리셋</span>

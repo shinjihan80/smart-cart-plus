@@ -9,6 +9,7 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useProfiles } from '@/lib/profile';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { currentSeasonByMonth } from '@/lib/season';
+import EmojiIcon from '@/components/EmojiIcon';
 
 type FilterKey = '전체' | '이번계절' | '즐겨찾기' | '간단' | '보통' | '도전' | '아침' | '점심' | '간식';
 
@@ -166,7 +167,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
                       className="flex items-center gap-3 py-2 px-2 rounded-2xl hover:bg-gray-50 text-left transition-colors"
                     >
                       <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${recipeGradient(recipe)} flex items-center justify-center shrink-0`}>
-                        <span className="text-xl">{recipe.emoji}</span>
+                        <EmojiIcon emoji={recipe.emoji} size={20} className="text-white/95" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -180,7 +181,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
                           {(() => {
                             const d = recipeDietary(recipe);
                             return d ? (
-                              <span className="text-sm shrink-0" title={`${DIETARY_BADGE[d].label} 가능`}>{DIETARY_BADGE[d].emoji}</span>
+                              <span className="text-sm shrink-0" title={`${DIETARY_BADGE[d].label} 가능`}><EmojiIcon emoji={DIETARY_BADGE[d].emoji} size={12} className="text-gray-500" /></span>
                             ) : null;
                           })()}
                         </div>

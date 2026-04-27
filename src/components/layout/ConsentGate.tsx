@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import EmojiIcon from '@/components/EmojiIcon';
 
 const CONSENT_KEY = 'nemoa-consent-v1';
 
@@ -66,7 +67,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
               style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)' }}
             >
               <div className="text-center mb-4">
-                <div className="text-3xl mb-2">📱</div>
+                <div className="flex justify-center mb-2"><EmojiIcon emoji="📱" size={28} className="text-brand-primary" /></div>
                 <h2 className="text-lg font-bold text-gray-900">NEMOA 시작하기 전에</h2>
                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                   이용 약관과 개인정보 처리방침을 확인해 주세요.

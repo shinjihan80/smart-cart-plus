@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ChevronDown, Copy, Trash2 } from 'lucide-react';
 import { useErrorLog, summarizeErrors } from '@/lib/errorLog';
 import { useToast } from '@/context/ToastContext';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 export default function ErrorLogCard() {
@@ -44,7 +45,7 @@ export default function ErrorLogCard() {
         className="w-full flex items-center justify-between gap-2"
       >
         <div className="flex items-center gap-2">
-          <span className="text-base">🩺</span>
+          <EmojiIcon emoji="🩺" size={16} className="text-brand-warning" />
           <span className="text-xs text-gray-400 font-medium">오류 기록</span>
           {entries.length > 0 && (
             <span className="text-sm font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full tabular-nums">

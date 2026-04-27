@@ -7,6 +7,7 @@ import { useSavedOutfits } from '@/lib/savedOutfits';
 import { useToast } from '@/context/ToastContext';
 import { useWearLog } from '@/lib/wearLog';
 import { haptic } from '@/lib/haptics';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 /**
@@ -47,7 +48,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">💾</span>
+        <EmojiIcon emoji="💾" size={16} className="text-brand-primary" />
         <span className="text-xs text-gray-400 font-medium">저장된 코디</span>
         <span className="text-sm text-gray-300 tabular-nums">{outfits.length}</span>
       </div>
@@ -74,7 +75,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                     aria-label={`${o.name} 삭제`}
                     className="text-sm text-gray-400 hover:text-brand-warning px-1.5 py-0.5 transition-colors"
                   >
-                    ✕
+                    <EmojiIcon emoji="✕" size={12} className="text-current" />
                   </button>
                 </div>
               </div>

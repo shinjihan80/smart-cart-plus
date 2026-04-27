@@ -12,6 +12,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { FOOD_ICON, FASHION_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
+import EmojiIcon from '@/components/EmojiIcon';
 
 /**
  * 통합 검색 페이지 (/search)
@@ -239,7 +240,7 @@ export default function SearchPage() {
                   href="/closet"
                   className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0 text-base">💾</div>
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0"><EmojiIcon emoji="💾" size={16} className="text-gray-600" /></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-brand-ink truncate">{o.name}</p>
                     <p className="text-xs text-gray-400">{Object.keys(o.slots).length}벌</p>

@@ -13,6 +13,7 @@ import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useToast } from '@/context/ToastContext';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface DiscardRecord {
@@ -123,7 +124,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
               <span className="text-sm text-gray-300 tabular-nums w-4 text-right shrink-0">
                 {i + 1}
               </span>
-              <span className="text-sm shrink-0">{emoji}</span>
+              <EmojiIcon emoji={emoji} size={14} className="text-gray-600 shrink-0" />
               <span className="flex-1 text-sm text-gray-800 truncate">{r.name}</span>
               <span className="text-xs font-semibold text-brand-primary tabular-nums shrink-0">
                 {r.count}회
@@ -143,7 +144,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
             className="w-full flex items-center justify-between"
           >
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">🫥</span>
+              <EmojiIcon emoji="🫥" size={14} className="text-gray-600" />
               <span className="text-xs font-semibold text-gray-600">
                 아직 못 드신 {season}철 재료
               </span>
@@ -185,7 +186,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                           title={p.blurb ?? `${season}철 제철`}
                           className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
                         >
-                          <span className="text-sm">{p.emoji}</span>
+                          <EmojiIcon emoji={p.emoji} size={14} className="text-amber-700" />
                           <span className="font-medium">{p.name}</span>
                           {p.peak === season && (
                             <span className="text-xs px-1 py-0 rounded-full bg-amber-200 text-amber-800">피크</span>

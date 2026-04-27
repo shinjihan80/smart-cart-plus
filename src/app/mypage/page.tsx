@@ -11,6 +11,7 @@ import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
+import EmojiIcon from '@/components/EmojiIcon';
 import { useBackupStatus, downloadBackup } from '@/lib/backup';
 import { useToast } from '@/context/ToastContext';
 
@@ -107,7 +108,7 @@ export default function MyPage() {
         >
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
-              <span className="text-2xl">👤</span>
+              <EmojiIcon emoji="👤" size={22} className="text-brand-primary" />
             </div>
             <div>
               <p className="text-base font-bold text-gray-900">네모아 사용자</p>
@@ -127,7 +128,7 @@ export default function MyPage() {
             transition={{ ...springTransition, delay: 0.05 }}
             className="rounded-[28px] border px-4 py-3 flex items-center gap-3 bg-brand-warning/5 border-brand-warning/15"
           >
-            <span className="text-xl shrink-0">💾</span>
+            <EmojiIcon emoji="💾" size={20} className="text-brand-warning shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-800">
                 {backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${backup.daysSince}일 전`}
@@ -168,7 +169,7 @@ export default function MyPage() {
               {discardHistory.slice(0, 5).map((record, i) => (
                 <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">{record.category === '식품' ? '🥦' : '👗'}</span>
+                    <EmojiIcon emoji={record.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-600" />
                     <span className="text-sm text-gray-700 truncate">{record.name}</span>
                   </div>
                   <span className="text-sm text-gray-400 tabular-nums shrink-0">{record.date}</span>
@@ -306,7 +307,7 @@ export default function MyPage() {
               {(archiveExpanded ? archived : archived.slice(0, 5)).map((item, i) => (
                 <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1 gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm shrink-0">{item.category === '식품' ? '🥦' : '👗'}</span>
+                    <EmojiIcon emoji={item.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-500 shrink-0" />
                     <span className="text-sm text-gray-500 truncate">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">

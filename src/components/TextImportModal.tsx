@@ -8,6 +8,7 @@ import { useAiQuota } from '@/lib/aiQuota';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
 import { Camera, X as XIcon } from 'lucide-react';
+import EmojiIcon from '@/components/EmojiIcon';
 
 interface TextImportModalProps {
   onClose:  () => void;
@@ -84,7 +85,7 @@ function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
-          <span>{emoji}</span>{label}
+          <EmojiIcon emoji={emoji} size={12} className="text-current" />{label}
         </button>
       ))}
     </div>
@@ -147,7 +148,7 @@ function ImageTab({
             dragging ? 'border-brand-primary/40 bg-brand-primary/5' : 'border-gray-200 bg-gray-50 hover:border-brand-primary/30'
           }`}
         >
-          <span className="text-3xl">📷</span>
+          <EmojiIcon emoji="📷" size={28} className="text-gray-500" />
           <p className="text-sm font-medium text-gray-500">사진을 끌어다 놓거나 클릭해서 선택</p>
           <p className="text-xs text-gray-400">JPG, PNG, WEBP · 최대 5MB</p>
           <div className="flex gap-2 mt-1 flex-wrap justify-center px-4">
@@ -167,7 +168,7 @@ function ImageTab({
             onClick={() => { setFile(null); setPreview(null); }}
             className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/70"
           >
-            ✕
+            <EmojiIcon emoji="✕" size={11} className="text-white" />
           </button>
         </div>
       )}

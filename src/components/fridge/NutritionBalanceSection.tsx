@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
 import { analyzeBalance, WEEKLY_TARGET } from '@/lib/nutritionAnalysis';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 function coverageTone(cov: number): string {
@@ -33,7 +34,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-base">📊</span>
+          <EmojiIcon emoji="📊" size={16} className="text-gray-700" />
           <span className="text-xs text-gray-400 font-medium">이번 주 영양 밸런스</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-gray-400">

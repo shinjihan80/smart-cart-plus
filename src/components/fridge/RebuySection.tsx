@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface RebuySectionProps {
@@ -30,7 +31,7 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-2.5">
-        <span className="text-base">🔄</span>
+        <EmojiIcon emoji="🔄" size={16} className="text-amber-600" />
         <span className="text-xs text-gray-400 font-medium">재구매 추천</span>
         <span className="text-xs text-gray-300">소진한 식품 기반</span>
       </div>

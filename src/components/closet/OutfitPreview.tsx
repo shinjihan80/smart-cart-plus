@@ -8,6 +8,7 @@ import { usePersistedState } from '@/lib/usePersistedState';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { useToast } from '@/context/ToastContext';
 import { haptic } from '@/lib/haptics';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const SLOTS: { key: string; label: string; groups: FashionGroup[]; emoji: string }[] = [
@@ -77,7 +78,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
     >
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-base">👗</span>
+          <EmojiIcon emoji="👗" size={16} className="text-brand-primary" />
           <span className="text-xs text-gray-400 font-medium">코디 미리보기</span>
         </div>
         {profiles.length >= 2 && (
@@ -131,7 +132,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl">{emoji}</div>
+                <div className="w-full h-full flex items-center justify-center"><EmojiIcon emoji={emoji} size={22} className="text-gray-600" /></div>
               )}
             </div>
             <span className="text-xs text-gray-400 truncate max-w-[64px]">{item.name}</span>
@@ -237,7 +238,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                   aria-label={`${o.name} 삭제`}
                   className="text-sm px-1.5 py-0.5 text-gray-400 hover:text-brand-warning border-l border-gray-100 transition-colors"
                 >
-                  ✕
+                  <EmojiIcon emoji="✕" size={12} className="text-current" />
                 </button>
               </div>
             ))}

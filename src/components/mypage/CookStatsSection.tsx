@@ -6,6 +6,7 @@ import { useCookLog } from '@/lib/recipeCookLog';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { daysSince } from '@/lib/wearLog';
 import WeekdayPatternChart from './WeekdayPatternChart';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface CookStatsSectionProps {
@@ -47,7 +48,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">👨‍🍳</span>
+        <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
         <span className="text-xs text-gray-400 font-medium">조리 로그 분석</span>
       </div>
 
@@ -104,7 +105,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
                 onClick={() => onOpenRecipe(x.recipe)}
                 className="flex items-center gap-2 py-1 text-left hover:bg-gray-50 -mx-1 px-1 rounded-xl transition-colors"
               >
-                <span className="text-sm shrink-0">{x.recipe.emoji}</span>
+                <EmojiIcon emoji={x.recipe.emoji} size={14} className="text-gray-600 shrink-0" />
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.recipe.name}</span>
                 <span className="text-sm text-brand-primary font-bold tabular-nums">{x.count}회</span>
               </button>
@@ -123,7 +124,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
                 onClick={() => onOpenRecipe(x.recipe)}
                 className="flex items-center gap-2 py-1 text-left hover:bg-gray-50 -mx-1 px-1 rounded-xl transition-colors"
               >
-                <span className="text-sm shrink-0">{x.recipe.emoji}</span>
+                <EmojiIcon emoji={x.recipe.emoji} size={14} className="text-gray-600 shrink-0" />
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.recipe.name}</span>
                 <span className="text-sm text-amber-600 font-medium tabular-nums">{daysSince(x.lastCooked!)}일</span>
               </button>
@@ -142,7 +143,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
                 onClick={() => onOpenRecipe(x.recipe)}
                 className="flex items-center gap-2 py-1 text-left hover:bg-gray-50 -mx-1 px-1 rounded-xl transition-colors"
               >
-                <span className="text-sm shrink-0">{x.recipe.emoji}</span>
+                <EmojiIcon emoji={x.recipe.emoji} size={14} className="text-gray-600 shrink-0" />
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.recipe.name}</span>
                 <span className="text-sm text-brand-warning">도전 →</span>
               </button>
