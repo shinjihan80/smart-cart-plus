@@ -19,28 +19,28 @@ export type UserContent = string | UserContentBlock[];
 
 // ─── 모델 티어 정의 ────────────────────────────────────────────────────────────
 /**
- * Gemini 무료 티어 (2026-04 기준):
+ * Gemini 모델 (2026-04 기준):
  *
- *  gemini-2.0-flash       — 가장 빠르고 저렴, 무료 RPM 15·RPD 1500
- *  gemini-2.5-flash       — 더 똑똑한 추론, 무료 RPM 10·RPD 500
- *  gemini-2.5-pro         — 최고 품질, 무료 RPM 5·RPD 25
+ *  gemini-2.5-flash       — 신규 발급 키 권장 모델, Vision 지원
+ *  gemini-2.5-flash-lite  — 더 저렴·빠름 (무료 한도 더 넉넉)
+ *  gemini-2.5-pro         — 최고 품질
  *
- * 베이직 단계에서는 무료 티어 한도가 가장 넉넉한 2.0-flash 통일.
- * 응답 품질이 부족한 라우트만 추후 2.5-flash로 승격.
+ * 주의: gemini-2.0-flash는 신규 사용자에게 더 이상 제공 안 됨 (2026-04부터).
+ * 신규 키는 반드시 2.5 계열을 사용해야 함.
  */
 export type AgentModel =
-  | 'gemini-2.0-flash'
   | 'gemini-2.5-flash'
+  | 'gemini-2.5-flash-lite'
   | 'gemini-2.5-pro';
 
 /** 각 에이전트의 권장 모델 */
 export const AGENT_MODEL: Record<AgentType, AgentModel> = {
-  parser:    'gemini-2.0-flash',  // 구조화 추출
-  nutrition: 'gemini-2.0-flash',  // 분석·추천
-  style:     'gemini-2.0-flash',  // 코디 추천
-  image:     'gemini-2.0-flash',  // 이미지 분석 (Vision 지원)
-  url:       'gemini-2.0-flash',  // URL 텍스트 추출
-  vision:    'gemini-2.0-flash',  // 통합 Vision 파서
+  parser:    'gemini-2.5-flash-lite',  // 구조화 추출 (저비용)
+  nutrition: 'gemini-2.5-flash',       // 분석·추천
+  style:     'gemini-2.5-flash',       // 코디 추천
+  image:     'gemini-2.5-flash',       // 이미지 분석 (Vision)
+  url:       'gemini-2.5-flash-lite',  // URL 텍스트 추출
+  vision:    'gemini-2.5-flash',       // 통합 Vision 파서
 } as const;
 
 // ─── 클라이언트 싱글톤 ────────────────────────────────────────────────────────

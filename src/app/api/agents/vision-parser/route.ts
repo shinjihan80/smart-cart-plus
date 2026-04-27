@@ -6,7 +6,7 @@
  * 입력: FormData { image: File }
  * 출력: { items: CartItem[], domain_summary: { food: number, fashion: number } }
  *
- * 모델: gemini-2.0-flash — Vision 지원, 도메인 분류 + 필드 추출
+ * 모델: gemini-2.5-flash — Vision 지원, 도메인 분류 + 필드 추출
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';

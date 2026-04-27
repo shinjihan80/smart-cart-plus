@@ -5,7 +5,7 @@
  * 입력: { rawText: string }
  * 출력: { items: (FoodItem | ClothingItem)[] }
  *
- * 모델: gemini-2.0-flash — 무료 티어 RPM 15·RPD 1500 (구조화 추출용)
+ * 모델: gemini-2.5-flash — Vision 지원 (구조화 추출용)
  *
  * 파이프라인:
  *   1. 입력 검증 (Harness)

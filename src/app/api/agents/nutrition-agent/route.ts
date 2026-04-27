@@ -7,7 +7,7 @@
  * 출력: { results: NutritionResult[], summary: string }
  *
  * 토큰 최적화: foodItems만 주입 (clothingItems 완전 차단)
- * 모델: gemini-2.0-flash — D-Day 계산 + 식단 분석
+ * 모델: gemini-2.5-flash — D-Day 계산 + 식단 분석
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateInput, validateOutput } from '@/lib/harness';

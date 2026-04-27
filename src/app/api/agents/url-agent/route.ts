@@ -5,7 +5,7 @@
  * 입력: { url: string }
  * 출력: { items: (FoodItem | ClothingItem)[] }
  *
- * 모델: gemini-2.0-flash — URL 텍스트 추출
+ * 모델: gemini-2.5-flash — URL 텍스트 추출
  * 주의: JS 기반 SPA 사이트(쿠팡 앱 딥링크 등)는 정적 HTML만 가져오므로 제한될 수 있음
  */
 import { NextRequest, NextResponse } from 'next/server';
