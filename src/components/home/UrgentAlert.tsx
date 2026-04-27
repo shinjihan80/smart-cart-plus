@@ -15,7 +15,7 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
   if (urgent.length === 0) return null;
 
   return (
-    <Link href="/fridge" className="col-span-2 block">
+    <Link href="/fridge" className="block">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}

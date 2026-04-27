@@ -31,7 +31,7 @@ export default function SavedOutfitSuggestion({ items }: { items: CartItem[] }) 
   if (resolved.length === 0) return null;
 
   return (
-    <Link href="/closet" className="col-span-2 block">
+    <Link href="/closet" className="block">
       <Widget index={2}>
         <div className="flex items-center gap-3">
           <span className="w-11 h-11 rounded-2xl bg-brand-primary/10 flex items-center justify-center shrink-0">

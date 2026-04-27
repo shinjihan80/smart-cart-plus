@@ -33,7 +33,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
   if (ownedSeasonal.length > 0) {
     const sample = ownedSeasonal.slice(0, 3).map((f) => f.name).join('·');
     return (
-      <Link href="/fridge" className="col-span-2 block">
+      <Link href="/fridge" className="block">
         <Widget index={2}>
           <div className="flex items-center gap-3">
             <span className={`w-11 h-11 rounded-2xl ${seasonColor.bg} flex items-center justify-center shrink-0`}>
@@ -62,7 +62,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
   if (peakMissing.length > 0) {
     const sample = peakMissing.map((p) => p.name).join(' · ');
     return (
-      <Link href="/mypage" className="col-span-2 block">
+      <Link href="/mypage" className="block">
         <Widget index={2}>
           <div className="flex items-center gap-3">
             <span className={`w-11 h-11 rounded-2xl ${seasonColor.bg} flex items-center justify-center shrink-0`}>

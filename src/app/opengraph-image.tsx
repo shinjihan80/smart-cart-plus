@@ -29,9 +29,9 @@ export default function OpenGraphImage() {
             display:      'flex',
           }}
         >
-          <div style={{ position: 'absolute', left: 0,   top: 0,   width: 130, height: 130, background: '#EE5454', borderRadius: 28 }} />
-          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 130, height: 130, background: '#4263EB', borderRadius: 28 }} />
-          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 60,  height: 60,  background: '#2D2748', borderRadius: 12 }} />
+          <div style={{ position: 'absolute', left: 0,   top: 0,   width: 130, height: 130, background: '#1F1F2E', borderRadius: 28 }} />
+          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 130, height: 130, background: '#4F46E5', borderRadius: 28 }} />
+          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 60,  height: 60,  background: '#0A0A18', borderRadius: 12 }} />
         </div>
 
         <div style={{ fontSize: '88px', fontWeight: 900, color: '#1F1F2E', letterSpacing: '-0.05em', marginBottom: '16px' }}>

@@ -37,7 +37,7 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
   if (insights.length === 0) insights.push('이번 주도 잘 관리하고 있어요!');
 
   return (
-    <div className="col-span-2">
+    <div className="">
       <Widget index={5} variant="ghost">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-base">💡</span>

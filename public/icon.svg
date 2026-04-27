@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- 앱 아이콘 배경 (iOS maskable) -->
+  <!-- 앱 아이콘 배경 -->
   <rect width="512" height="512" rx="128" fill="#FFFFFF"/>
 
-  <!-- 좌상단 빨강 네모 -->
-  <rect x="40" y="40" width="280" height="280" rx="56" fill="#EE5454"/>
-  <!-- 우하단 파랑 네모 -->
-  <rect x="192" y="192" width="280" height="280" rx="56" fill="#4263EB"/>
-  <!-- 겹침 영역 — 어두운 잉크 -->
-  <rect x="192" y="192" width="128" height="128" rx="20" fill="#2D2748"/>
+  <!-- 좌상단 검정(잉크) 네모 — 메인 -->
+  <rect x="40" y="40" width="280" height="280" rx="56" fill="#1F1F2E"/>
+  <!-- 우하단 인디고 네모 — 포인트 -->
+  <rect x="192" y="192" width="280" height="280" rx="56" fill="#4F46E5"/>
+  <!-- 겹침 영역 — 깊은 검정 -->
+  <rect x="192" y="192" width="128" height="128" rx="20" fill="#0A0A18"/>
 </svg>

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Bell, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import NemoaLogo from '@/components/layout/NemoaLogo';
-import PaletteButton from '@/components/PaletteButton';
 import { useSessionPing } from '@/lib/analytics';
 
 import { HomeSkeleton } from '@/components/home/shared';
@@ -35,12 +34,11 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* 헤더 — 로고 + 액션 아이콘 4개 */}
+      {/* 헤더 — 로고 + 알림·프로필 (검색은 마이페이지에서) */}
       <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm">
         <div className="px-5 py-4 flex items-center justify-between gap-3">
           <NemoaLogo size="md" />
           <div className="flex items-center -mr-1">
-            <PaletteButton variant="icon" />
             <button
               type="button"
               aria-label="알림"

@@ -78,7 +78,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
     : [];
 
   return (
-    <Link href="/closet" className="col-span-2 block">
+    <Link href="/closet" className="block">
       <Widget index={0} className="relative overflow-hidden min-h-[130px]">
         <div className={`absolute -right-6 -top-6 w-32 h-32 rounded-full ${iconColor.bg} flex items-center justify-center opacity-60`}>
           <Icon size={60} strokeWidth={1.5} className={iconColor.text} />

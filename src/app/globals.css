@@ -13,12 +13,12 @@
   --font-sans: 'SUIT', sans-serif;
   --font-mono: var(--font-geist-mono);
 
-  /* Brand Colors — 빨강/파랑 듀얼톤 (로고와 일관) */
-  --color-brand-primary: #4263EB;   /* 시그니처 블루 — CTA·활성 탭 */
-  --color-brand-accent:  #EE5454;   /* 시그니처 레드 — 포인트·임박 강조 */
-  --color-brand-ink:     #1F1F2E;   /* 두 색이 겹친 어두운 잉크 — 헤드라인 */
+  /* Brand Colors — 검정 + 인디고 듀얼톤 (로고와 일관) */
+  --color-brand-primary: #4F46E5;   /* 시그니처 인디고 (보라끼 있는 파랑) — CTA·포인트 */
+  --color-brand-accent:  #4F46E5;   /* 동일 — 단일 포인트 색 */
+  --color-brand-ink:     #1F1F2E;   /* 잉크 — 헤드라인·로고 메인 */
   --color-brand-success: #10B981;
-  --color-brand-warning: #EE5454;   /* warning은 accent와 통일 */
+  --color-brand-warning: #EF4444;   /* 경고는 별도 빨강 (로고에는 안 씀) */
 
   /* Mall Colors */
   --color-mall-kurly: #5F0080;

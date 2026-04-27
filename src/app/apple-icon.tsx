@@ -16,7 +16,7 @@ export default function AppleIcon() {
           display:      'flex',
         }}
       >
-        {/* 좌상단 빨강 */}
+        {/* 좌상단 검정(잉크) */}
         <div
           style={{
             position:     'absolute',
@@ -24,11 +24,11 @@ export default function AppleIcon() {
             top:          '14px',
             width:        '98px',
             height:       '98px',
-            background:   '#EE5454',
+            background:   '#1F1F2E',
             borderRadius: '20px',
           }}
         />
-        {/* 우하단 파랑 */}
+        {/* 우하단 인디고 */}
         <div
           style={{
             position:     'absolute',
@@ -36,11 +36,11 @@ export default function AppleIcon() {
             top:          '68px',
             width:        '98px',
             height:       '98px',
-            background:   '#4263EB',
+            background:   '#4F46E5',
             borderRadius: '20px',
           }}
         />
-        {/* 겹침 잉크 */}
+        {/* 겹침 — 깊은 검정 */}
         <div
           style={{
             position:     'absolute',
@@ -48,7 +48,7 @@ export default function AppleIcon() {
             top:          '68px',
             width:        '44px',
             height:       '44px',
-            background:   '#2D2748',
+            background:   '#0A0A18',
             borderRadius: '8px',
           }}
         />

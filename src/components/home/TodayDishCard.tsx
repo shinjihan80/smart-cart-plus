@@ -38,12 +38,11 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
 
   return (
     <>
-      <div className="col-span-2">
-        <button
-          onClick={() => setSelected({ recipe, matchedItems })}
-          className="w-full"
-        >
-          <Widget index={1} className="relative overflow-hidden">
+      <button
+        onClick={() => setSelected({ recipe, matchedItems })}
+        className="w-full text-left"
+      >
+        <Widget index={1} className="relative overflow-hidden">
             <div className="flex items-center gap-4">
               <motion.span
                 key={recipe.id}
@@ -105,7 +104,6 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
             </div>
           </Widget>
         </button>
-      </div>
 
       {selected && (
         <RecipeDetailModal
