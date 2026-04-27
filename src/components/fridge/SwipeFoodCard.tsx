@@ -83,46 +83,65 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
         onClick={() => setExpanded(!expanded)}
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
-        <div className="flex items-center gap-3">
-          <div className="shrink-0 w-11 h-11 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+        <div className="flex items-start gap-3">
+          {/* 좌측: 카테고리 아이콘 (또는 이미지) */}
+          <div className="shrink-0 w-12 h-12 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
             {item.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
             ) : (() => {
               const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
-              return <FoodIcon size={18} strokeWidth={2} className="text-gray-600" />;
+              return <FoodIcon size={20} strokeWidth={2} className="text-gray-600" />;
             })()}
           </div>
-          <div className="shrink-0 w-14 text-center">
-            <p className={`text-xl font-extrabold tracking-tight tabular-nums ${
-              isUrgent ? 'text-brand-warning' : 'text-gray-900'
-            }`}>
-              {dDay <= 0 ? '만료' : `D-${dDay}`}
-            </p>
-          </div>
 
+          {/* 본문: 제목 + 메타 + 진행바 */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+            {/* 제목 줄: 제품명 + D-Day 우측 작게 */}
+            <div className="flex items-baseline justify-between gap-2 mb-1">
+              <p className="text-sm font-bold text-brand-ink truncate">{item.name}</p>
+              <p className={`text-sm font-bold tabular-nums shrink-0 ${
+                isUrgent ? 'text-brand-warning' : 'text-gray-500'
+              }`}>
+                {dDay <= 0 ? '만료' : `D-${dDay}`}
+              </p>
+            </div>
+
+            {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
+
+            {/* 메타 칩 — 한 줄, 너무 많으면 자연 스크롤 */}
+            <div className="flex items-center gap-1.5 flex-wrap mb-2">
+              <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${style.bg} ${style.text}`}>
+                <Icon size={10} />
+                {style.label}
+              </span>
+              {(() => {
+                const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
+                return (
+                  <span className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                    <FoodIcon size={11} strokeWidth={2} />
+                    <span>{item.foodCategory ?? '기타'}</span>
+                  </span>
+                );
+              })()}
               {(() => {
                 const SeasonIcon = SEASON_ICON[season];
                 const seasonColor = SEASON_COLOR[season];
                 if (inSeason && dDay <= 2) {
                   return (
                     <span
-                      className="shrink-0 flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full font-semibold bg-brand-warning/10 text-brand-warning border border-brand-warning/30"
-                      title={`${season}철 제철인데 ${dDay <= 0 ? '오늘이 마지막' : `${dDay}일 뒤 만료`} — 놓치기 아까워요!`}
+                      className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold bg-brand-warning/10 text-brand-warning whitespace-nowrap"
+                      title={`${season}철 제철인데 ${dDay <= 0 ? '오늘이 마지막' : `${dDay}일 뒤 만료`}`}
                     >
                       <SeasonIcon size={10} strokeWidth={2.4} />
-                      <span>제철 {dDay <= 0 ? '오늘!' : `D-${dDay}`}</span>
+                      <span>제철 {dDay <= 0 ? '오늘' : `D-${dDay}`}</span>
                     </span>
                   );
                 }
                 if (inSeason) {
                   return (
                     <span
-                      className={`shrink-0 flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full font-medium ${seasonColor.bg} ${seasonColor.text}`}
-                      title={`${season}철 제철 재료 — 지금이 가장 맛있어요`}
+                      className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${seasonColor.bg} ${seasonColor.text}`}
                     >
                       <SeasonIcon size={10} strokeWidth={2.4} />
                       <span>제철</span>
@@ -132,56 +151,35 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                 return null;
               })()}
               {owner && (
-                <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
+                <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
                   {owner.name}
                 </span>
               )}
             </div>
-            {item.memo && <p className="text-xs text-gray-400 truncate mt-0.5">{item.memo}</p>}
-            <div className="flex items-center gap-2 mt-1">
-              <span className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full font-medium ${style.bg} ${style.text}`}>
-                <Icon size={10} />
-                {style.label}
-              </span>
-              {(() => {
-                const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
-                return (
-                  <span className="inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
-                    <FoodIcon size={11} strokeWidth={2} />
-                    <span>{item.foodCategory ?? '기타'}</span>
-                  </span>
-                );
-              })()}
+
+            {/* 진행바 */}
+            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  dDay <= 2 ? 'bg-brand-warning' : dDay <= 5 ? 'bg-amber-400' : 'bg-brand-success'
+                }`}
+                style={{ width: `${Math.max(4, Math.min(100, (dDay / item.baseShelfLifeDays) * 100))}%` }}
+              />
             </div>
-            <div className="mt-2">
-              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    dDay <= 2 ? 'bg-brand-warning' : dDay <= 5 ? 'bg-amber-400' : 'bg-brand-success'
-                  }`}
-                  style={{ width: `${Math.max(4, Math.min(100, (dDay / item.baseShelfLifeDays) * 100))}%` }}
-                />
-              </div>
-            </div>
+
+            {/* 영양 정보 — 한 줄, 작은 글씨 */}
             {item.nutritionFacts && (
-              <div className="flex gap-2 mt-1.5">
-                <span className="text-xs text-gray-400 tabular-nums">{item.nutritionFacts.calories}kcal</span>
-                <span className="text-xs text-gray-300">|</span>
-                <span className="text-xs text-gray-400 tabular-nums">단 {item.nutritionFacts.protein}g</span>
-                <span className="text-xs text-gray-300">|</span>
-                <span className="text-xs text-gray-400 tabular-nums">지 {item.nutritionFacts.fat}g</span>
-                <span className="text-xs text-gray-300">|</span>
-                <span className="text-xs text-gray-400 tabular-nums">탄 {item.nutritionFacts.carbs}g</span>
-              </div>
+              <p className="text-xs text-gray-400 tabular-nums mt-1.5 truncate">
+                {item.nutritionFacts.calories}kcal
+                <span className="text-gray-300"> · </span>
+                단 {item.nutritionFacts.protein}g
+                <span className="text-gray-300"> · </span>
+                지 {item.nutritionFacts.fat}g
+                <span className="text-gray-300"> · </span>
+                탄 {item.nutritionFacts.carbs}g
+              </p>
             )}
           </div>
-
-          <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-            dDay <= 0 ? 'bg-gray-400' :
-            dDay <= 2 ? 'bg-brand-warning' :
-            dDay <= 5 ? 'bg-amber-400' :
-            'bg-brand-success'
-          }`} />
         </div>
 
         <AnimatePresence>

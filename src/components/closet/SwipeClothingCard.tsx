@@ -85,36 +85,56 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
         onClick={() => setExpanded(!expanded)}
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
-        <div className="flex items-center gap-3">
-          <div className="shrink-0 w-11 h-11 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+        <div className="flex items-start gap-3">
+          {/* 좌측: 카테고리 아이콘 */}
+          <div className="shrink-0 w-12 h-12 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
             {item.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
             ) : (() => {
               const Icon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
-              return <Icon size={18} strokeWidth={2} className="text-gray-600" />;
+              return <Icon size={20} strokeWidth={2} className="text-gray-600" />;
             })()}
-          </div>
-          <div className="shrink-0 w-10 text-center">
-            <p className="text-lg font-extrabold tracking-tight text-gray-900">{item.size}</p>
-            <p className="text-[8px] text-gray-400">사이즈</p>
           </div>
 
           <div className="flex-1 min-w-0">
+            {/* 제목 줄: 제품명 + 사이즈 우측 작게 */}
+            <div className="flex items-baseline justify-between gap-2 mb-1">
+              <p className="text-sm font-bold text-brand-ink truncate">{item.name}</p>
+              <p className="text-sm font-bold text-gray-500 tabular-nums shrink-0">{item.size}</p>
+            </div>
+
+            {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
+
+            {/* 메타 칩 — 한 줄, 너무 많으면 wrap */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
               {matchBadge && (
                 <span
-                  className={`shrink-0 inline-flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full font-semibold ${MATCH_STYLE[matchBadge.level]}`}
+                  className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
                   title={matchBadge.label}
                 >
                   <span>{matchBadge.emoji}</span>
                   <span>{matchBadge.label}</span>
                 </span>
               )}
+              <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${thick.bg} ${thick.text}`}>
+                <ThickIcon size={10} />
+                {item.thickness}
+              </span>
+              <span className="inline-flex text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                {item.material}
+              </span>
+              {item.weatherTags?.map((tag) => (
+                <span
+                  key={tag}
+                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-500'}`}
+                >
+                  {tag}
+                </span>
+              ))}
               {daysAgo !== null && (
                 <span
-                  className={`shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
                     daysAgo === 0 ? 'bg-brand-success/10 text-brand-success' :
                     daysAgo <= 7 ? 'bg-gray-100 text-gray-500' :
                     daysAgo <= 30 ? 'bg-amber-50 text-amber-600' :
@@ -126,13 +146,13 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 </span>
               )}
               {owner && (
-                <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600">
+                <span className="inline-flex text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
                   {owner.name}
                 </span>
               )}
               {sizeMatch.status !== 'unknown' && sizeMatch.label && (
                 <span
-                  className={`shrink-0 text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${
                     sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
                     sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
                     'bg-brand-warning/10 text-brand-warning'
@@ -142,24 +162,6 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   {sizeMatch.label}
                 </span>
               )}
-            </div>
-            {item.memo && <p className="text-xs text-gray-400 truncate mt-0.5">📝 {item.memo}</p>}
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span className={`inline-flex items-center gap-1 text-sm px-2 py-0.5 rounded-full font-medium ${thick.bg} ${thick.text}`}>
-                <ThickIcon size={10} />
-                {item.thickness}
-              </span>
-              <span className="text-sm px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium">
-                {item.material}
-              </span>
-              {item.weatherTags?.map((tag) => (
-                <span
-                  key={tag}
-                  className={`text-sm px-1.5 py-0.5 rounded-full font-medium ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-400'}`}
-                >
-                  {tag}
-                </span>
-              ))}
             </div>
           </div>
         </div>
