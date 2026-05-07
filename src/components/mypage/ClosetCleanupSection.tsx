@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { isClothingItem, type CartItem } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
+import { getFashionCategoryImage } from '@/lib/categoryImages';
 import { useWearLog } from '@/lib/wearLog';
 import { findCleanupCandidates } from '@/lib/closetCleanup';
 import { useCart } from '@/context/CartContext';
@@ -152,13 +153,13 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               {candidates.slice(0, 12).map(({ item, idleDays, reason }) => (
                 <div key={item.id} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
                   <div className="w-9 h-9 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                    {item.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (() => {
-                      const Icon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
-                      return <Icon size={16} strokeWidth={2} className="text-gray-600" />;
-                    })()}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.imageUrl ?? getFashionCategoryImage(item.category)}
+                      alt=""
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-gray-800 truncate">{item.name}</p>

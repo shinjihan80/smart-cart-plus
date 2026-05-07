@@ -5,6 +5,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import { isEnrichedClothingItem, isClothingItem, type ClothingItem } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
+import { getFashionCategoryImage } from '@/lib/categoryImages';
 import type { MatchBadge } from '@/lib/weather';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { useCart } from '@/context/CartContext';
@@ -86,15 +87,15 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
         <div className="flex items-start gap-3">
-          {/* 좌측: 카테고리 아이콘 */}
+          {/* 좌측: 카테고리 이미지 (사용자 업로드 우선, 없으면 카테고리 fallback) */}
           <div className="shrink-0 w-12 h-12 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
-            {item.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-            ) : (() => {
-              const Icon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
-              return <Icon size={20} strokeWidth={2} className="text-gray-600" />;
-            })()}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.imageUrl ?? getFashionCategoryImage(item.category)}
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           <div className="flex-1 min-w-0">
