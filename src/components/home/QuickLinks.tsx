@@ -68,7 +68,7 @@ export default function QuickLinks({
     { href: '/closet',             Icon: Shirt,        label: '옷장',   bgClass: 'bg-rose-50',    iconClass: 'text-rose-500',    badge: clothesCount > 0 ? String(clothesCount) : undefined },
     { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', badge: missedCount > 0 ? String(missedCount) : undefined },
     { href: '/fridge',             Icon: ChefHat,      label: '레시피', bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dot: urgentCount > 0 },
-    { href: '/mypage#shopping',    Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     badge: shopping.length > 0 ? String(shopping.length) : undefined },
+    { href: '/mypage?tab=shopping',Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     badge: shopping.length > 0 ? String(shopping.length) : undefined },
     { href: '/mypage',             Icon: BarChart3,    label: '활동',   bgClass: 'bg-violet-50',  iconClass: 'text-violet-500'   },
     { href: '/settings#profiles',  Icon: Users,        label: '프로필', bgClass: 'bg-orange-50',  iconClass: 'text-orange-500'   },
     { href: '/settings',           Icon: Settings,     label: '설정',   bgClass: 'bg-gray-100',   iconClass: 'text-gray-600'     },

@@ -117,11 +117,22 @@ export function recommendFridgeSection(
 /**
  * 식품 리스트를 칸별로 그룹화한다.
  * 칸이 지정되지 않은 항목은 recommendFridgeSection으로 자동 매핑.
+ *
+ * @param items   - 그룹화할 식품 리스트
+ * @param valid   - 허용 가능한 섹션 목록(모델이 노출하는 칸). 항목의 fridgeSection이
+ *                  여기에 없으면 추천값으로 폴백, 그래도 없으면 호출자가 처리하도록 추천값을 그대로 사용.
  */
-export function groupBySection(items: FoodItem[]): Map<FridgeSection, FoodItem[]> {
-  const map = new Map<FridgeSection, FoodItem[]>();
+export function groupBySection<T extends FoodItem>(
+  items: T[],
+  valid?: ReadonlySet<FridgeSection>,
+): Map<FridgeSection, T[]> {
+  const map = new Map<FridgeSection, T[]>();
   for (const item of items) {
-    const section = item.fridgeSection ?? recommendFridgeSection(item);
+    let section = item.fridgeSection ?? recommendFridgeSection(item);
+    if (valid && !valid.has(section)) {
+      section = recommendFridgeSection(item);
+      // 호출자(예: FridgeView)가 valid 안의 첫 셀로 추가 폴백 처리
+    }
     const list = map.get(section) ?? [];
     list.push(item);
     map.set(section, list);

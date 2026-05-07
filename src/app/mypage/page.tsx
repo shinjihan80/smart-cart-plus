@@ -62,14 +62,26 @@ export default function MyPage() {
     (raw) => (isMyTab(raw) ? raw : null),
   );
 
-  // ?tab=... 쿼리로 탭 초기화 (홈 "이번 주 더보기" 등 외부 진입용)
+  // ?tab=... 쿼리 또는 legacy 해시(#shopping 등)로 탭 초기화 — 외부 진입용
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const requested = params.get('tab');
-    if (requested && isMyTab(requested) && requested !== activeTab) {
-      setActiveTab(requested);
+    if (requested && isMyTab(requested)) {
+      if (requested !== activeTab) setActiveTab(requested);
+      return;
     }
+    // legacy 해시 — 마이페이지 v1.5 시절의 #shopping/#closet-cleanup/#cook-stats/#seasonal-hist 호환
+    const hash = window.location.hash.replace('#', '');
+    const HASH_TO_TAB: Record<string, MyTab> = {
+      'shopping':       'shopping',
+      'closet-cleanup': 'closet',
+      'cook-stats':     'cook',
+      'seasonal-hist':  'cook',
+      // weekly-stats / partners는 항상 노출 영역 또는 overview 탭이라 매핑 불필요
+    };
+    const mapped = HASH_TO_TAB[hash];
+    if (mapped && mapped !== activeTab) setActiveTab(mapped);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
