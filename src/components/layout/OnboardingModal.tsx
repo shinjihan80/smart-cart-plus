@@ -4,11 +4,21 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useModalA11y } from '@/lib/useModalA11y';
 import EmojiIcon from '@/components/EmojiIcon';
+import { FridgeModelPicker } from '@/components/fridge/FridgeModelPicker';
+import { useFridgeModel } from '@/lib/useFridgeModel';
 
-// v2: 온보딩 단계 확장에 따라 재노출 유도 (기존 true 값도 재온보딩 1회 수행)
-const ONBOARDING_KEY = 'smart-cart-onboarded-v2';
+// v3: 냉장고 모델 선택 step 추가 (기존 v2 사용자도 재온보딩 1회)
+const ONBOARDING_KEY = 'smart-cart-onboarded-v3';
 
-const STEPS = [
+interface Step {
+  emoji:    string;
+  title:    string;
+  desc:     string;
+  /** 'fridge_model'이면 FridgeModelPicker 렌더링 */
+  picker?:  'fridge_model';
+}
+
+const STEPS: Step[] = [
   {
     emoji: '🟦',
     title: '네모아에 오신 것을 환영해요',
@@ -23,6 +33,12 @@ const STEPS = [
     emoji: '🧊',
     title: '스마트 냉장고',
     desc: '보관 기한·영양 밸런스부터\n오늘 만들 레시피까지 챙겨드려요.',
+  },
+  {
+    emoji: '🧊',
+    title: '쓰는 냉장고를 골라주세요',
+    desc: '식재료가 어느 칸에 있는지 한눈에 보여드려요.\n나중에 마이페이지에서도 바꿀 수 있어요.',
+    picker: 'fridge_model',
   },
   {
     emoji: '👕',
@@ -48,6 +64,7 @@ const STEPS = [
 
 function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: (s: number) => void; onClose: () => void }) {
   useModalA11y(onClose);
+  const [fridgeModelId, setFridgeModelId] = useFridgeModel();
 
   function handleNext() {
     if (step < STEPS.length - 1) setStep(step + 1);
@@ -55,6 +72,7 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
   }
 
   const current = STEPS[step];
+  const isPicker = current.picker === 'fridge_model';
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center">
@@ -67,7 +85,9 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="relative w-[320px] bg-white rounded-[32px] px-8 py-10 text-center"
+        className={`relative bg-white rounded-[32px] py-10 text-center ${
+          isPicker ? 'w-[340px] px-6' : 'w-[320px] px-8'
+        }`}
         style={{ boxShadow: '0 20px 60px -15px rgba(0,0,0,0.15)' }}
       >
         <AnimatePresence mode="wait">
@@ -81,6 +101,12 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
             <div className="flex justify-center mb-5"><EmojiIcon emoji={current.emoji} size={48} className="text-brand-primary" /></div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">{current.title}</h2>
             <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-line">{current.desc}</p>
+
+            {isPicker && (
+              <div className="mt-5 text-left">
+                <FridgeModelPicker selected={fridgeModelId} onSelect={setFridgeModelId} compact />
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
 

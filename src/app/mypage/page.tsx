@@ -18,6 +18,7 @@ import { useToast } from '@/context/ToastContext';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import StatsSection                              from '@/components/mypage/StatsSection';
 import SpendingSection                           from '@/components/mypage/SpendingSection';
+import MyFridgeSection                            from '@/components/mypage/MyFridgeSection';
 import ShoppingListSection                       from '@/components/mypage/ShoppingListSection';
 import ShoppingSuggestionsSection                 from '@/components/mypage/ShoppingSuggestionsSection';
 import FavoriteRecipesSection                    from '@/components/mypage/FavoriteRecipesSection';
@@ -180,6 +181,10 @@ export default function MyPage() {
         )}
 
         <SpendingSection />
+
+        <SectionErrorBoundary label="내 냉장고">
+          <MyFridgeSection />
+        </SectionErrorBoundary>
 
         <SectionErrorBoundary label="이번 달 활동">
           <MonthlySummarySection discardHistory={discardHistory} />
