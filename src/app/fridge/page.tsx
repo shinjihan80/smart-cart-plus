@@ -33,6 +33,16 @@ import { FRIDGE_MODELS, resolveSectionForModel } from '@/lib/fridgeModel';
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
 type SortKey       = 'dDay' | 'name' | 'seasonal';
+type FridgeTab     = 'fridge' | 'suggest' | 'shopping';
+
+const FRIDGE_TABS: { id: FridgeTab; emoji: string; label: string }[] = [
+  { id: 'fridge',   emoji: '🧊', label: '냉장고' },
+  { id: 'suggest',  emoji: '💡', label: '추천' },
+  { id: 'shopping', emoji: '🛒', label: '장보기' },
+];
+
+const isFridgeTab = (v: unknown): v is FridgeTab =>
+  v === 'fridge' || v === 'suggest' || v === 'shopping';
 
 const SORT_CYCLE: Record<SortKey, { next: SortKey; label: string }> = {
   dDay:     { next: 'name',     label: '📅 임박순' },
@@ -92,6 +102,10 @@ export default function FridgePage() {
   const [viewMode, setViewMode] = usePersistedState<'visual' | 'list'>(
     'nemoa-fridge-view', 'visual',
     (raw) => (raw === 'visual' || raw === 'list') ? raw : null,
+  );
+  const [activeTab, setActiveTab] = usePersistedState<FridgeTab>(
+    'nemoa-fridge-tab', 'fridge',
+    (raw) => (isFridgeTab(raw) ? raw : null),
   );
   const [fridgeModelId] = useFridgeModel();
   const [activeSection, setActiveSection] = useState<FridgeSection | null>(null);
@@ -204,167 +218,117 @@ export default function FridgePage() {
               {FRIDGE_MODELS[fridgeModelId].label} · 식품 {allFood.length}개
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5">
+          <PaletteButton />
+        </div>
+        <div role="tablist" aria-label="냉장고 탭" className="px-4 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
+          {FRIDGE_TABS.map((t) => {
+            const isActive = activeTab === t.id;
+            return (
               <button
+                key={t.id}
                 type="button"
                 role="tab"
-                aria-selected={viewMode === 'visual'}
-                onClick={() => setViewMode('visual')}
-                className={`px-2.5 py-1.5 rounded-full transition-colors ${
-                  viewMode === 'visual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                }`}
-                aria-label="냉장고 보기"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(t.id)}
+                className={[
+                  'shrink-0 text-sm font-semibold px-3 py-1.5 rounded-full transition-colors',
+                  isActive
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+                ].join(' ')}
               >
-                <LayoutGrid size={14} strokeWidth={2.2} />
+                <span className="mr-1">{t.emoji}</span>{t.label}
               </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={viewMode === 'list'}
-                onClick={() => setViewMode('list')}
-                className={`px-2.5 py-1.5 rounded-full transition-colors ${
-                  viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                }`}
-                aria-label="리스트 보기"
-              >
-                <List size={14} strokeWidth={2.2} />
-              </button>
-            </div>
-            <PaletteButton />
-          </div>
+            );
+          })}
         </div>
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
-        {/* 요약 카드 */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={springTransition}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <div className="flex justify-between text-center mb-3">
-            <div className="flex-1">
-              <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{allFood.length}</p>
-              <p className="text-sm text-gray-400 mt-0.5">전체</p>
-            </div>
-            <div className="flex-1">
-              <p className="text-2xl font-extrabold text-sky-600 tabular-nums">{coldCount}</p>
-              <p className="text-sm text-gray-400 mt-0.5">냉장</p>
-            </div>
-            <div className="flex-1">
-              <p className="text-2xl font-extrabold text-indigo-600 tabular-nums">{frozenCount}</p>
-              <p className="text-sm text-gray-400 mt-0.5">냉동</p>
-            </div>
-            <div className="flex-1">
-              <p className={`text-2xl font-extrabold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
-                {urgentCount}
-              </p>
-              <p className="text-sm text-gray-400 mt-0.5">임박</p>
-            </div>
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {foodGroupCounts.map(({ group, count }) => (
-              <span key={group} className="text-xs px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
-                {group} {count}
-              </span>
-            ))}
-          </div>
-        </motion.div>
 
-        {/* 빠른 추가 */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springTransition, delay: 0.1 }}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <div className="flex items-center gap-2 mb-2.5">
-            <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
-            <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
-          </div>
-          {/* 소유자 선택 — 프로필 2명 이상일 때만 */}
-          {profiles.length >= 2 && (
-            <div className="flex gap-1 mb-2 flex-wrap items-center">
-              <span className="text-sm text-gray-400">누구 것:</span>
-              <button
-                onClick={() => setQuickAddOwner(undefined)}
-                className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                  !quickAddOwner
-                    ? 'bg-gray-500 text-white'
-                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                공용
-              </button>
-              {profiles.map((p) => (
+        {/* ─── 냉장고 탭 ────────────────────────────── */}
+        {activeTab === 'fridge' && (
+          <>
+            {/* 시각화/리스트 토글 — 인라인 */}
+            <div className="flex items-center justify-end">
+              <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5">
                 <button
-                  key={p.id}
-                  onClick={() => setQuickAddOwner(p.id)}
-                  className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                    quickAddOwner === p.id
-                      ? 'bg-brand-primary text-white'
-                      : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                  type="button"
+                  role="tab"
+                  aria-selected={viewMode === 'visual'}
+                  onClick={() => setViewMode('visual')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    viewMode === 'visual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                   }`}
                 >
-                  {p.name}
+                  <LayoutGrid size={12} strokeWidth={2.4} />
+                  <span>냉장고</span>
                 </button>
-              ))}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={viewMode === 'list'}
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  }`}
+                >
+                  <List size={12} strokeWidth={2.4} />
+                  <span>리스트</span>
+                </button>
+              </div>
             </div>
-          )}
-          <div className="flex gap-1.5 flex-wrap">
-            {QUICK_ADD_FOODS.map((preset) => (
-              <button
-                key={preset.name}
-                onClick={() => handleQuickAdd(preset)}
-                className="flex items-center gap-1.5 text-xs pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
-              >
-                <div className="w-6 h-6 rounded-lg overflow-hidden bg-white shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={preset.img} alt="" className="w-full h-full object-cover" />
+
+            {/* 시각화 — 위계상 1순위 */}
+            {viewMode === 'visual' && allFood.length > 0 && (
+              <FridgeView
+                modelId={fridgeModelId}
+                items={items}
+                onSectionClick={setActiveSection}
+              />
+            )}
+
+            {/* 요약 4수치 (시각화 아래 작게) */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={springTransition}
+              className={CARD}
+              style={CARD_SHADOW}
+            >
+              <div className="flex justify-between text-center">
+                <div className="flex-1">
+                  <p className="text-xl font-extrabold text-gray-900 tabular-nums">{allFood.length}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">전체</p>
                 </div>
-                {preset.name}
-              </button>
-            ))}
-          </div>
-        </motion.div>
+                <div className="flex-1">
+                  <p className="text-xl font-extrabold text-sky-600 tabular-nums">{coldCount}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">냉장</p>
+                </div>
+                <div className="flex-1">
+                  <p className="text-xl font-extrabold text-indigo-600 tabular-nums">{frozenCount}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">냉동</p>
+                </div>
+                <div className="flex-1">
+                  <p className={`text-xl font-extrabold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
+                    {urgentCount}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">임박</p>
+                </div>
+              </div>
+              {foodGroupCounts.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap mt-3 pt-3 border-t border-gray-50">
+                  {foodGroupCounts.map(({ group, count }) => (
+                    <span key={group} className="text-xs px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
+                      {group} {count}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </motion.div>
 
-        {/* 제철 재료 추천 */}
-        <SectionErrorBoundary label="제철 재료">
-          <SeasonalProduceSection
-            currentNames={allFood.map((f) => f.name)}
-            onQuickAdd={handleSeasonalAdd}
-          />
-        </SectionErrorBoundary>
-
-        {/* 재구매 추천 */}
-        <RebuySection
-          history={discardHistory}
-          currentNames={allFood.map((f) => f.name)}
-          onQuickAdd={handleRebuy}
-        />
-
-        {/* 영양 밸런스 */}
-        <SectionErrorBoundary label="영양 밸런스">
-          <NutritionBalanceSection foods={allFood} />
-        </SectionErrorBoundary>
-
-        {/* 오늘 뭐 먹지? */}
-        <SectionErrorBoundary label="오늘 뭐 먹지">
-          <FeelingLuckySection foods={allFood} />
-        </SectionErrorBoundary>
-
-        {/* 레시피 추천 */}
-        <SectionErrorBoundary label="레시피 추천">
-          <RecipeSection foods={allFood} />
-        </SectionErrorBoundary>
-
-        {/* 검색은 상단 헤더에 통합됨 — 인라인 input 제거 (/search로 이동) */}
-        {/* 프로필 필터 */}
-        {profiles.length >= 2 && (
+            {/* 프로필 필터 */}
+            {profiles.length >= 2 && (
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
             <button
               onClick={() => setOwnerFilter('전체')}
@@ -464,67 +428,151 @@ export default function FridgePage() {
           </div>
         </div>
 
-        {/* 시각화 보기 — 냉장고 그리드 */}
-        {viewMode === 'visual' && allFood.length > 0 && (
-          <FridgeView
-            modelId={fridgeModelId}
-            items={items}
-            onSectionClick={setActiveSection}
-          />
-        )}
-
-        {/* 아이템 리스트 — viewMode === 'list'일 때만 표시 */}
-        {viewMode === 'list' && (
-          storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
-            <>
-              {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
-                const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
-                if (group.length === 0) return null;
-                const grpEmoji = grp === '신선식품' ? '🥬' : grp === '가공식품' ? '🍜' : grp === '음료·간식' ? '🧃' : '📦';
-                return (
-                  <div key={grp}>
-                    <div className="flex items-center gap-2 mb-2 mt-1">
-                      <span className="text-sm px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
-                        {grpEmoji} {grp} {group.length}
-                      </span>
-                      <div className="flex-1 h-px bg-gray-100" />
-                    </div>
-                    <AnimatePresence mode="popLayout">
-                      <div className="flex flex-col gap-3">
-                        {group.map((item, index) => (
-                          <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
-                        ))}
+            {/* 아이템 리스트 — viewMode === 'list'일 때만 표시 */}
+            {viewMode === 'list' && (
+              storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
+                <>
+                  {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
+                    const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
+                    if (group.length === 0) return null;
+                    const grpEmoji = grp === '신선식품' ? '🥬' : grp === '가공식품' ? '🍜' : grp === '음료·간식' ? '🧃' : '📦';
+                    return (
+                      <div key={grp}>
+                        <div className="flex items-center gap-2 mb-2 mt-1">
+                          <span className="text-sm px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
+                            {grpEmoji} {grp} {group.length}
+                          </span>
+                          <div className="flex-1 h-px bg-gray-100" />
+                        </div>
+                        <AnimatePresence mode="popLayout">
+                          <div className="flex flex-col gap-3">
+                            {group.map((item, index) => (
+                              <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+                            ))}
+                          </div>
+                        </AnimatePresence>
                       </div>
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-            </>
-          ) : (
-            <AnimatePresence mode="popLayout">
-              {items.map((item, index) => (
-                <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
-              ))}
-            </AnimatePresence>
-          )
+                    );
+                  })}
+                </>
+              ) : (
+                <AnimatePresence mode="popLayout">
+                  {items.map((item, index) => (
+                    <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+                  ))}
+                </AnimatePresence>
+              )
+            )}
+
+            {items.length === 0 && allFood.length > 0 && (
+              <div className="text-center py-12 text-gray-400">
+                <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
+                <p className="text-sm font-medium">검색 결과가 없어요</p>
+                <button onClick={() => { setSearch(''); setStorageFilter('전체'); setGroupFilter('전체'); }} className="text-xs text-brand-primary mt-1">
+                  필터 초기화
+                </button>
+              </div>
+            )}
+
+            {allFood.length === 0 && (
+              <div className="text-center py-16 text-gray-400">
+                <div className="flex justify-center mb-3"><EmojiIcon emoji="🧊" size={32} className="text-gray-400" /></div>
+                <p className="text-sm font-medium">냉장고가 비어있어요</p>
+                <p className="text-xs mt-1">+ 버튼을 눌러 식품을 추가해보세요.</p>
+              </div>
+            )}
+          </>
         )}
 
-        {items.length === 0 && allFood.length > 0 && (
-          <div className="text-center py-12 text-gray-400">
-            <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
-            <p className="text-sm font-medium">검색 결과가 없어요</p>
-            <button onClick={() => { setSearch(''); setStorageFilter('전체'); setGroupFilter('전체'); }} className="text-xs text-brand-primary mt-1">
-              필터 초기화
-            </button>
-          </div>
+        {/* ─── 추천 탭 ────────────────────────────── */}
+        {activeTab === 'suggest' && (
+          <>
+            <SectionErrorBoundary label="제철 재료">
+              <SeasonalProduceSection
+                currentNames={allFood.map((f) => f.name)}
+                onQuickAdd={handleSeasonalAdd}
+              />
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="영양 밸런스">
+              <NutritionBalanceSection foods={allFood} />
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="오늘 뭐 먹지">
+              <FeelingLuckySection foods={allFood} />
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="레시피 추천">
+              <RecipeSection foods={allFood} />
+            </SectionErrorBoundary>
+          </>
         )}
 
-        {allFood.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
-            <div className="flex justify-center mb-3"><EmojiIcon emoji="🧊" size={32} className="text-gray-400" /></div>
-            <p className="text-sm font-medium">냉장고가 비어있어요</p>
-            <p className="text-xs mt-1">+ 버튼을 눌러 식품을 추가해보세요.</p>
-          </div>
+        {/* ─── 장보기 탭 ────────────────────────────── */}
+        {activeTab === 'shopping' && (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={springTransition}
+              className={CARD}
+              style={CARD_SHADOW}
+            >
+              <div className="flex items-center gap-2 mb-2.5">
+                <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
+                <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
+              </div>
+              {profiles.length >= 2 && (
+                <div className="flex gap-1 mb-2 flex-wrap items-center">
+                  <span className="text-sm text-gray-400">누구 것:</span>
+                  <button
+                    onClick={() => setQuickAddOwner(undefined)}
+                    className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+                      !quickAddOwner
+                        ? 'bg-gray-500 text-white'
+                        : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    공용
+                  </button>
+                  {profiles.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setQuickAddOwner(p.id)}
+                      className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+                        quickAddOwner === p.id
+                          ? 'bg-brand-primary text-white'
+                          : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                      }`}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-1.5 flex-wrap">
+                {QUICK_ADD_FOODS.map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => handleQuickAdd(preset)}
+                    className="flex items-center gap-1.5 text-xs pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
+                  >
+                    <div className="w-6 h-6 rounded-lg overflow-hidden bg-white shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={preset.img} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            <RebuySection
+              history={discardHistory}
+              currentNames={allFood.map((f) => f.name)}
+              onQuickAdd={handleRebuy}
+            />
+          </>
         )}
       </div>
 
