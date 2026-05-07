@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { type FoodItem } from '@/types';
 import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
@@ -25,10 +25,15 @@ interface SwipeFoodCardProps {
   index:     number;
   onDiscard: (id: string) => void;
   onUpdate:  (id: string, updates: Partial<FoodItem>) => void;
+  /** 부모가 관리하는 펼침 상태 — 한 번에 하나만 펼치게 */
+  expanded?: boolean;
+  onToggle?: () => void;
 }
 
-export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }: SwipeFoodCardProps) {
-  const [expanded, setExpanded] = useState(false);
+export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, expanded: expandedProp, onToggle }: SwipeFoodCardProps) {
+  const [expandedLocal, setExpandedLocal] = useState(false);
+  const expanded = expandedProp ?? expandedLocal;
+  const toggleExpanded = onToggle ?? (() => setExpandedLocal((v) => !v));
   const [editing, setEditing]   = useState(false);
   const [recipeBrowser, setRecipeBrowser] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
@@ -39,25 +44,12 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
   const recipeCount = countRecipesByIngredient(item.name);
   const { discardHistory } = useCart();
   const cycle = estimateCycles(discardHistory, 2).find((c) => c.name === item.name);
-  const x = useMotionValue(0);
-  const bgColor = useTransform(
-    x, [-120, -30, 0],
-    ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)'],
-  );
-  const discardOpacity = useTransform(x, [-120, -40], [1, 0]);
   const isUrgent = dDay <= 3;
 
   const style = STORAGE_STYLE[item.storageType];
   const Icon  = STORAGE_ICON[item.storageType];
   const season  = currentSeasonByMonth();
   const inSeason = isSeasonalProduce(item.name, season);
-
-  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -80) {
-      haptic('action');
-      onDiscard(item.id);
-    }
-  }
 
   return (
     <motion.div
@@ -68,21 +60,10 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
       transition={{ ...springTransition, delay: 0.1 + index * 0.04 }}
       className="relative overflow-hidden rounded-[32px]"
     >
-      <div className="absolute inset-0 flex items-center justify-end px-6 pointer-events-none">
-        <motion.div style={{ opacity: discardOpacity }} className="flex flex-col items-center gap-0.5">
-          <span className="text-xl">🗑️</span>
-          <span className="text-xs font-semibold text-brand-warning">소진</span>
-        </motion.div>
-      </div>
-
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: -130, right: 0 }}
-        dragElastic={0.12}
-        style={{ x, backgroundColor: bgColor, ...CARD_SHADOW }}
-        onDragEnd={handleDragEnd}
-        onClick={() => setExpanded(!expanded)}
-        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
+      <div
+        style={{ backgroundColor: 'rgb(255,255,255)', ...CARD_SHADOW }}
+        onClick={toggleExpanded}
+        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-pointer"
       >
         <div className="flex items-start gap-3">
           {/* 좌측: 사용자 업로드 사진 우선, 없으면 카테고리 톤 + 이모지 */}
@@ -401,7 +382,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                   )}
                 </div>
 
-                {/* 액션 버튼 — 레시피 찾기 + 수정 토글 */}
+                {/* 액션 버튼 — 레시피 / 수정 / 소진 */}
                 <div className="flex gap-1.5">
                   {recipeCount > 0 && !editing && (
                     <button
@@ -421,7 +402,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                         setEditing(true);
                       }
                     }}
-                    className={`${recipeCount > 0 && !editing ? 'flex-1' : 'w-full'} py-2 rounded-xl text-xs font-semibold transition-colors ${
+                    className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${
                       editing
                         ? 'bg-brand-primary text-white hover:opacity-90'
                         : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
@@ -430,11 +411,25 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
                     {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
                   </button>
                 </div>
+
+                {/* 소진 (삭제) — 명확히 분리, 빨간 톤 */}
+                {!editing && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      haptic('action');
+                      onDiscard(item.id);
+                    }}
+                    className="w-full py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors"
+                  >
+                    🗑️ 소진 처리
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
 
       {recipeBrowser && (
         <RecipeBrowserModal
