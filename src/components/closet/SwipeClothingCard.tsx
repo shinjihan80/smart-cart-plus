@@ -92,7 +92,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
 
             {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
 
-            {/* 메타 칩 — 한 줄, 너무 많으면 wrap */}
+            {/* 핵심 칩만 — 오늘 매치 + 착용 빈도 + 소유자 (펼치면 자세히) */}
             <div className="flex items-center gap-1.5 flex-wrap">
               {matchBadge && (
                 <span
@@ -103,21 +103,6 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   <span>{matchBadge.label}</span>
                 </span>
               )}
-              <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${thick.bg} ${thick.text}`}>
-                <ThickIcon size={10} />
-                {item.thickness}
-              </span>
-              <span className="inline-flex text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                {item.material}
-              </span>
-              {item.weatherTags?.map((tag) => (
-                <span
-                  key={tag}
-                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-500'}`}
-                >
-                  {tag}
-                </span>
-              ))}
               {daysAgo !== null && (
                 <span
                   className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
@@ -136,17 +121,8 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   {owner.name}
                 </span>
               )}
-              {sizeMatch.status !== 'unknown' && sizeMatch.label && (
-                <span
-                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${
-                    sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
-                    sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
-                    'bg-brand-warning/10 text-brand-warning'
-                  }`}
-                  title={sizeMatch.detail}
-                >
-                  {sizeMatch.label}
-                </span>
+              {!expanded && (
+                <span className="text-xs text-gray-300">자세히 보기 ›</span>
               )}
             </div>
           </div>
@@ -162,6 +138,37 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               className="overflow-hidden"
             >
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-sm">
+                {/* 자세한 칩 — 펼침 시에만 노출 (collapsed에서 숨긴 정보) */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${thick.bg} ${thick.text}`}>
+                    <ThickIcon size={10} />
+                    {item.thickness}
+                  </span>
+                  <span className="inline-flex text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                    {item.material}
+                  </span>
+                  {item.weatherTags?.map((tag) => (
+                    <span
+                      key={tag}
+                      className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-500'}`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {sizeMatch.status !== 'unknown' && sizeMatch.label && (
+                    <span
+                      className={`inline-flex text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${
+                        sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
+                        sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
+                        'bg-brand-warning/10 text-brand-warning'
+                      }`}
+                      title={sizeMatch.detail}
+                    >
+                      {sizeMatch.label}
+                    </span>
+                  )}
+                </div>
+
                 {/* 이미지 — 편집 모드에서만 변경/삭제 버튼, 없으면 "사진 추가" 버튼 */}
                 {item.imageUrl ? (
                   <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
