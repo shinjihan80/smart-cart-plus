@@ -15,7 +15,6 @@ import UrgentAlert     from '@/components/home/UrgentAlert';
 import DailyBriefing   from '@/components/home/DailyBriefing';
 import TodayDishCard   from '@/components/home/TodayDishCard';
 import WeeklyInsight   from '@/components/home/WeeklyInsight';
-import SeasonalChipRow from '@/components/home/SeasonalChipRow';
 import SeasonalHintWidget from '@/components/home/SeasonalHintWidget';
 import QuickLinks from '@/components/home/QuickLinks';
 import SavedOutfitSuggestion from '@/components/home/SavedOutfitSuggestion';
@@ -82,9 +81,6 @@ export default function HomePage() {
             </SectionErrorBoundary>
             <SectionErrorBoundary label="제철 힌트">
               <SeasonalHintWidget items={items} />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="제철 재료">
-              <SeasonalChipRow items={items} />
             </SectionErrorBoundary>
           </SectionHeader>
 

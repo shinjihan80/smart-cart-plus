@@ -131,6 +131,57 @@ export const clothingItems: ClothingItem[] = [
     category: '스카프', size: 'Free', thickness: '두꺼움', material: '울',
     weatherTags: ['가을', '겨울'], colorFamily: '어스톤',
   },
+  // ── 추가 의류 (10종) ──
+  {
+    id: 'c12', name: '코스 베이직 화이트 티',
+    category: '상의', size: 'M', thickness: '얇음', material: '면',
+    weatherTags: ['봄', '여름'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c13', name: '에잇세컨즈 슬랙스',
+    category: '하의', size: 'M', thickness: '보통', material: '폴리에스터',
+    weatherTags: ['봄', '가을'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c14', name: 'H&M 트렌치 코트',
+    category: '아우터', size: 'M', thickness: '보통', material: '면',
+    weatherTags: ['봄', '가을'], colorFamily: '어스톤',
+  },
+  {
+    id: 'c15', name: '자라 니트 가디건',
+    category: '아우터', size: 'M', thickness: '보통', material: '울',
+    weatherTags: ['가을', '겨울'], colorFamily: '파스텔',
+  },
+  {
+    id: 'c16', name: '아디다스 스탠스미스',
+    category: '신발', size: '255', thickness: '보통', material: '가죽',
+    weatherTags: ['봄', '여름', '가을'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c17', name: '룰루레몬 요가 레깅스',
+    category: '하의', size: 'S', thickness: '얇음', material: '나일론',
+    weatherTags: ['봄', '여름'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c18', name: 'Maison Kitsuné 스웻셔츠',
+    category: '상의', size: 'M', thickness: '보통', material: '면',
+    weatherTags: ['봄', '가을'], colorFamily: '비비드',
+  },
+  {
+    id: 'c19', name: 'Carhartt 비니',
+    category: '모자', size: 'Free', thickness: '두꺼움', material: '울',
+    weatherTags: ['겨울'], colorFamily: '모노톤',
+  },
+  {
+    id: 'c20', name: 'Daniel Wellington 시계',
+    category: '시계', size: 'Free', thickness: '얇음', material: '스테인리스',
+    colorFamily: '메탈릭',
+  },
+  {
+    id: 'c21', name: 'Apoc 미니 토트백',
+    category: '가방', size: 'Free', thickness: '보통', material: '캔버스',
+    weatherTags: ['봄', '여름', '가을'], colorFamily: '파스텔',
+  },
 ];
 
 // ────────────────────────────────────────────────

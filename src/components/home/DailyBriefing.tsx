@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Sun, Moon, Sunrise, CloudSun, CloudMoon, Sparkles as SparklesIcon, type LucideIcon } from 'lucide-react';
+import { ChevronRight, Sun, Moon, Sunrise, CloudSun, CloudMoon, Check, Sparkles as SparklesIcon, type LucideIcon } from 'lucide-react';
 import { isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
 import {
   fetchWeather, dressingTip, clothingMatch,
@@ -88,7 +88,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
             <span className={`w-8 h-8 rounded-xl ${iconColor.bg} flex items-center justify-center shrink-0`}>
               <Icon size={16} strokeWidth={2} className={iconColor.text} />
             </span>
-            <p className="text-xs text-gray-400 font-medium">네모아의 오늘 브리핑</p>
+            <p className="text-xs text-gray-400 font-medium">오늘 코디</p>
             {useLive && (
               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-brand-success/10">
                 <span className="w-1 h-1 rounded-full bg-brand-success" />
@@ -110,36 +110,52 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
           </p>
 
           {topMatches.length > 0 && (
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-sm text-gray-400 shrink-0">오늘의 추천</span>
-              <div className="flex gap-1.5 overflow-hidden">
+            <div className="mt-3">
+              <p className="text-xs text-gray-400 mb-1.5">탭하면 오늘 입었어요로 기록 — ✨ 오늘 가장 어울림 · 🌙 오래 안 입음</p>
+              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
                 {topMatches.map(({ item, match, idleDays }) => {
                   const ItemIcon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
+                  const today = new Date().toISOString().split('T')[0];
+                  const wornToday = getEntry(item.id).lastWorn === today;
                   return (
                     <button
                       key={item.id}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        if (wornToday) {
+                          showToast(`"${item.name}" 이미 오늘 기록됐어요`);
+                          return;
+                        }
                         markWorn(item.id);
                         haptic('toggle');
-                        showToast(`"${item.name}" 오늘 착용 기록 완료`);
+                        showToast(`"${item.name}" 오늘 입었어요 ✓`);
                       }}
-                      aria-label={`${item.name} 오늘 입었어요`}
-                      className="shrink-0 flex items-center gap-1 max-w-[96px] pl-1 pr-2 py-0.5 rounded-full bg-white/80 border border-gray-100 hover:border-brand-primary/30 hover:bg-white transition-colors active:scale-95"
-                      title={idleDays >= 30 ? `${idleDays}일째 안 입은 옷 · 탭해서 기록` : '탭해서 오늘 착용 기록'}
+                      aria-label={`${item.name} 오늘 입었어요${wornToday ? ' (이미 기록됨)' : ''}`}
+                      className={`shrink-0 flex items-center gap-1 max-w-[110px] pl-1 pr-2 py-0.5 rounded-full border transition-colors active:scale-95 ${
+                        wornToday
+                          ? 'bg-brand-success/10 border-brand-success/30'
+                          : 'bg-white/80 border-gray-100 hover:border-brand-primary/30 hover:bg-white'
+                      }`}
+                      title={
+                        wornToday ? '오늘 이미 기록됨'
+                        : idleDays >= 30 ? `${idleDays}일째 안 입은 옷 — 탭해서 오늘 입었어요로 기록`
+                        : '탭해서 오늘 입었어요로 기록'
+                      }
                     >
                       <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                        {item.imageUrl ? (
+                        {wornToday ? (
+                          <Check size={11} strokeWidth={2.6} className="text-brand-success" />
+                        ) : item.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <ItemIcon size={11} strokeWidth={2} className="text-gray-600" />
                         )}
                       </div>
-                      <span className="text-sm text-gray-700 font-medium truncate">{item.name}</span>
-                      {match.level === 'perfect' && <SparklesIcon size={10} strokeWidth={2.2} className="text-amber-500 shrink-0" />}
-                      {idleDays >= 30 && idleDays < 9999 && <Moon size={10} strokeWidth={2} className="text-sky-500 shrink-0" />}
+                      <span className={`text-sm font-medium truncate ${wornToday ? 'text-brand-success' : 'text-gray-700'}`}>{item.name}</span>
+                      {!wornToday && match.level === 'perfect' && <SparklesIcon size={10} strokeWidth={2.2} className="text-amber-500 shrink-0" />}
+                      {!wornToday && idleDays >= 30 && idleDays < 9999 && <Moon size={10} strokeWidth={2} className="text-sky-500 shrink-0" />}
                     </button>
                   );
                 })}

@@ -317,7 +317,8 @@ export default function FridgePage() {
                   <p className="text-xs text-gray-400 mt-0.5">임박</p>
                 </div>
               </div>
-              {foodGroupCounts.length > 0 && (
+              {/* 그룹 칩(신선/가공/음료)은 리스트 모드에서 필터로 활용 — 시각화에선 노이즈라 제거 */}
+              {viewMode === 'list' && foodGroupCounts.length > 0 && (
                 <div className="flex gap-1.5 flex-wrap mt-3 pt-3 border-t border-gray-50">
                   {foodGroupCounts.map(({ group, count }) => (
                     <span key={group} className="text-xs px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
@@ -503,16 +504,9 @@ export default function FridgePage() {
           </>
         )}
 
-        {/* ─── 추천 탭 ────────────────────────────── */}
+        {/* ─── 추천 탭 (정보성 — 무엇을 보여주거나 분석) ─── */}
         {activeTab === 'suggest' && (
           <>
-            <SectionErrorBoundary label="제철 재료">
-              <SeasonalProduceSection
-                currentNames={allFood.map((f) => f.name)}
-                onQuickAdd={handleSeasonalAdd}
-              />
-            </SectionErrorBoundary>
-
             <SectionErrorBoundary label="영양 밸런스">
               <NutritionBalanceSection foods={allFood} />
             </SectionErrorBoundary>
@@ -593,6 +587,13 @@ export default function FridgePage() {
               currentNames={allFood.map((f) => f.name)}
               onQuickAdd={handleRebuy}
             />
+
+            <SectionErrorBoundary label="제철 재료">
+              <SeasonalProduceSection
+                currentNames={allFood.map((f) => f.name)}
+                onQuickAdd={handleSeasonalAdd}
+              />
+            </SectionErrorBoundary>
           </>
         )}
       </div>
