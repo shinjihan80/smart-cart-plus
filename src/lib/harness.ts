@@ -1,6 +1,5 @@
 import fs   from 'fs';
 import path from 'path';
-import Anthropic from '@anthropic-ai/sdk';
 
 // ─── 타입 ────────────────────────────────────────────────────────────────────
 export type AgentType = 'parser' | 'nutrition' | 'style' | 'image' | 'url' | 'vision';
@@ -19,37 +18,25 @@ function loadRules() {
 // ─── 1. 글로벌 컨텍스트 주입 ──────────────────────────────────────────────────
 /**
  * harness/global-context.md 내용을 문자열로 반환한다.
- * 모든 에이전트의 System Prompt 앞부분에 prepend되어 공통 규칙을 강제한다.
+ * 모든 에이전트의 systemInstruction 앞부분에 prepend되어 공통 규칙을 강제한다.
  */
 export function injectGlobalContext(): string {
   const contextPath = path.join(process.cwd(), 'harness', 'global-context.md');
   return fs.readFileSync(contextPath, 'utf-8');
 }
 
-// ─── 2. 캐시-친화적 시스템 프롬프트 블록 빌더 ─────────────────────────────────
+// ─── 2. 시스템 instruction 빌더 (Gemini용) ──────────────────────────────────
 /**
- * Anthropic 프롬프트 캐싱을 위해 system 배열을 두 블록으로 분리한다.
- *  - block[0]: global-context.md (가장 안정적 — 캐시 히트 최대화)
- *  - block[1]: 에이전트별 전문 지시 (상대적으로 안정적)
+ * Gemini는 systemInstruction을 단일 문자열로 받는다.
+ * (Claude의 캐시 블록 분할 구조는 Gemini에 없음)
  *
- * 두 블록 모두 cache_control: ephemeral 을 적용해 5분 캐시 TTL을 유지한다.
- * 가변 데이터(식품/의류 목록, rawText)는 user 메시지에 포함해 캐시를 오염시키지 않는다.
+ *  - 앞부분: global-context.md (공통 규칙)
+ *  - 뒷부분: 에이전트별 전문 지시
+ *
+ * 가변 데이터(식품/의류 목록, rawText)는 user 메시지에 포함해 분리.
  */
-export function buildSystemBlocks(
-  agentInstruction: string,
-): Anthropic.Messages.TextBlockParam[] {
-  return [
-    {
-      type: 'text',
-      text: injectGlobalContext(),
-      cache_control: { type: 'ephemeral' }, // 가장 안정적 — 우선 캐싱
-    },
-    {
-      type: 'text',
-      text: agentInstruction,
-      cache_control: { type: 'ephemeral' }, // 에이전트 지시도 캐싱
-    },
-  ];
+export function buildSystemInstruction(agentInstruction: string): string {
+  return `${injectGlobalContext()}\n\n---\n\n${agentInstruction}`;
 }
 
 // ─── 3. 입력 검증 ─────────────────────────────────────────────────────────────
@@ -168,6 +155,8 @@ export function validateOutput(
 /**
  * LLM이 반환한 텍스트에서 JSON을 추출한다.
  * 코드 블록(```json ... ```)이 있을 경우 벗겨내고 파싱한다.
+ * Gemini는 responseMimeType=application/json 옵션 시 순수 JSON 반환,
+ * 그래도 안전망으로 fenced 블록·잡음 텍스트 처리.
  */
 export function extractJSON(text: string): unknown {
   // 코드 블록 제거

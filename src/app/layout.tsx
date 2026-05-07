@@ -2,10 +2,14 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
-import FloatingAdd from "@/components/layout/FloatingAdd";
 import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import ConsentGate from "@/components/layout/ConsentGate";
+import SwRegister from "@/components/layout/SwRegister";
+import ErrorCapture from "@/components/layout/ErrorCapture";
+import CommandPalette from "@/components/CommandPalette";
+import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -15,19 +19,61 @@ const geistMono = Geist_Mono({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // 사용자 핀치 줌·시스템 글자 크기 설정 허용 (WCAG 1.4.4)
+  // maximumScale·userScalable 명시 안 함 → 브라우저 기본값 (사용자 zoom 가능)
   themeColor: "#4F46E5",
 };
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Smart Cart Plus",
-  description: "라이프스타일 AI 매니저",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default:  "NEMOA - 일상을 반듯하게 모으다",
+    template: "%s · NEMOA",
+  },
+  description: "스마트 냉장고와 옷장을 하나로. AI 라이프스타일 비서 네모아가 식품 보관·코디·재구매·레시피·제철·날씨까지 챙겨드려요.",
+  keywords: ["NEMOA", "네모아", "스마트 냉장고", "스마트 옷장", "식품 관리", "옷장 관리", "레시피 추천", "제철 식재료", "AI 라이프스타일"],
+  authors: [{ name: "NEMOA Team" }],
+  creator: "NEMOA",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "SmartCart",
+    title: "NEMOA",
+  },
+  openGraph: {
+    type:        "website",
+    locale:      "ko_KR",
+    url:         SITE_URL,
+    siteName:    "NEMOA",
+    title:       "NEMOA - 일상을 반듯하게 모으다",
+    description: "스마트 냉장고와 옷장을 하나로. AI 라이프스타일 비서 네모아.",
+    images: [
+      {
+        url:    "/icon.svg",
+        width:  512,
+        height: 512,
+        alt:    "NEMOA 로고",
+      },
+    ],
+  },
+  twitter: {
+    card:        "summary",
+    title:       "NEMOA - 일상을 반듯하게 모으다",
+    description: "스마트 냉장고와 옷장을 하나로. AI 라이프스타일 비서 네모아.",
+    images:      ["/icon.svg"],
+  },
+  robots: {
+    index:  true,
+    follow: true,
+    googleBot: {
+      index:  true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
   },
 };
 
@@ -42,15 +88,29 @@ export default function RootLayout({
       className={`${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-gray-50">
+      <body
+        className="min-h-full flex flex-col"
+        style={{ backgroundColor: 'var(--background)' }}
+      >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:rounded-xl focus:bg-brand-primary focus:text-white focus:text-xs focus:font-semibold"
+        >
+          본문으로 건너뛰기
+        </a>
         <Providers>
-          <main className="flex-1 pb-20 max-w-md mx-auto w-full">
-            {children}
-          </main>
-          <FloatingAdd />
-          <ScrollToTop />
-          <BottomNav />
-          <OnboardingModal />
+          <ConsentGate>
+            <main id="main-content" className="flex-1 pb-20 max-w-md sm:max-w-lg mx-auto w-full">
+              {children}
+            </main>
+            <ScrollToTop />
+            <BottomNav />
+            <OnboardingModal />
+            <CommandPalette />
+            <GlobalRecipeModal />
+            <SwRegister />
+            <ErrorCapture />
+          </ConsentGate>
         </Providers>
       </body>
     </html>

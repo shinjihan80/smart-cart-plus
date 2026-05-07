@@ -48,6 +48,24 @@ export interface NutritionFacts {
   carbs?:    number;
 }
 
+/**
+ * 냉장고 칸 ID — 모델 프리셋(양문형/4도어/1도어/김치)이 공유하는 슈퍼셋
+ * - main_*       : 본체 냉장실 (위/중/아래)
+ * - door_*       : 도어 포켓
+ * - crisper      : 야채실
+ * - butter       : 버터/치즈 보관실
+ * - freezer_*    : 냉동실
+ * - kimchi_*     : 김치냉장고 칸
+ * - pantry       : 실온 보관 (찬장/팬트리)
+ */
+export type FridgeSection =
+  | 'main_top' | 'main_middle' | 'main_bottom'
+  | 'door_top' | 'door_middle' | 'door_bottom'
+  | 'crisper' | 'butter'
+  | 'freezer_top' | 'freezer_bottom'
+  | 'kimchi_top' | 'kimchi_bottom'
+  | 'pantry';
+
 export interface FoodItem {
   id:                string;
   name:              string;
@@ -61,6 +79,8 @@ export interface FoodItem {
   memo?:           string;
   nutritionFacts?: NutritionFacts;
   openedDate?:     string;
+  ownerId?:        string;        // 프로필 id — undefined면 공용
+  fridgeSection?:  FridgeSection; // Phase 8.0 — 냉장고 시각화 보관 위치
 }
 
 // ────────────────────────────────────────────────
@@ -112,6 +132,8 @@ export interface ClothingItem {
   memo?:         string;
   weatherTags?:  WeatherTag[];
   colorFamily?:  string;
+  ownerId?:      string;   // 프로필 id — undefined면 공용
+  hibernating?:  boolean;  // 계절 보관 중 — 옷장 메인에서 숨김
 }
 
 // ────────────────────────────────────────────────

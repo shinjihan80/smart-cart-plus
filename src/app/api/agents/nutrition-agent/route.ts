@@ -7,14 +7,14 @@
  * 출력: { results: NutritionResult[], summary: string }
  *
  * 토큰 최적화: foodItems만 주입 (clothingItems 완전 차단)
- * 모델: claude-sonnet-4-6 — D-Day 계산 + 식단 분석, 추론 필요
+ * 모델: gemini-2.5-flash — D-Day 계산 + 식단 분석
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateInput, validateOutput } from '@/lib/harness';
 import { routeData, runWithDualReview } from '@/lib/agentPipeline';
 
 const AGENT_INSTRUCTION = `
-당신은 Smart Cart Plus의 **영양사 에이전트(nutrition-agent)**다.
+당신은 NEMOA(네모아)의 **영양사 에이전트(nutrition-agent)**다.
 
 ## 역할
 사용자가 구매한 식품 목록을 분석해 보관 가능 기한 D-Day를 계산하고,
@@ -73,7 +73,6 @@ export async function POST(req: NextRequest) {
       agentType:        'nutrition',
       agentInstruction: AGENT_INSTRUCTION,
       userContent,
-      model:            'claude-sonnet-4-6',  // 분석·추천 → 균형 모델
     });
 
     // Step 4: 출력 검증

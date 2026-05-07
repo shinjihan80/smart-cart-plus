@@ -5,7 +5,7 @@
  * 입력: { url: string }
  * 출력: { items: (FoodItem | ClothingItem)[] }
  *
- * 모델: claude-haiku-4-5 — 텍스트 추출 → 저비용
+ * 모델: gemini-2.5-flash — URL 텍스트 추출
  * 주의: JS 기반 SPA 사이트(쿠팡 앱 딥링크 등)는 정적 HTML만 가져오므로 제한될 수 있음
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,7 +13,7 @@ import { validateOutput } from '@/lib/harness';
 import { runWithDualReview } from '@/lib/agentPipeline';
 
 const AGENT_INSTRUCTION = `
-당신은 Smart Cart Plus의 **URL 분석 에이전트(url-agent)**다.
+당신은 NEMOA(네모아)의 **URL 분석 에이전트(url-agent)**다.
 
 ## 역할
 쇼핑몰 상품 페이지의 HTML 텍스트를 분석해
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     try {
       const response = await fetch(parsedUrl.toString(), {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; SmartCartPlus/1.0)',
+          'User-Agent': 'Mozilla/5.0 (compatible; NEMOA/1.0)',
           'Accept':     'text/html,application/xhtml+xml',
           'Accept-Language': 'ko-KR,ko;q=0.9',
         },
@@ -147,7 +147,6 @@ export async function POST(req: NextRequest) {
       agentType:        'url',
       agentInstruction: AGENT_INSTRUCTION,
       userContent,
-      model:            'claude-haiku-4-5',
     });
 
     const outputCheck = validateOutput(result, 'parser');

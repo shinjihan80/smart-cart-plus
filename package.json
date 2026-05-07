@@ -1,15 +1,16 @@
 {
-  "name": "smart-cart-plus",
+  "name": "nemoa",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test --test-reporter=spec 'tests/*.test.mts'"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.89.0",
+    "@google/generative-ai": "^0.24.1",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "next": "16.2.4",

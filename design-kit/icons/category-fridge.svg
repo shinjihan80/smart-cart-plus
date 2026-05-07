@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="112" height="112" viewBox="0 0 56 56">
+  <rect width="56" height="56" rx="16" fill="#E0F2FE"/>
+  <g transform="translate(16 16)" fill="none" stroke="#0284C7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Lucide Refrigerator -->
+    <path d="M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14H5V6Z"/>
+    <path d="M5 10h14"/>
+    <path d="M15 2v20"/>
+  </g>
+</svg>

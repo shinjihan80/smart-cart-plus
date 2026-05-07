@@ -1,0 +1,57 @@
+'use client';
+
+import Link from 'next/link';
+import { ChevronRight, Bookmark, Shirt } from 'lucide-react';
+import { isClothingItem, type CartItem } from '@/types';
+import { useSavedOutfits } from '@/lib/savedOutfits';
+import { Widget } from './shared';
+
+/**
+ * 홈 벤토에 저장된 코디 중 하나 랜덤 추천.
+ * 저장된 코디가 1개+ 있을 때만 노출.
+ */
+export default function SavedOutfitSuggestion({ items }: { items: CartItem[] }) {
+  const { outfits } = useSavedOutfits();
+  if (outfits.length === 0) return null;
+
+  // 날짜 시드로 "오늘의 코디" 선택 — 하루 동안 일관된 추천
+  const today = new Date().toISOString().slice(0, 10);
+  const seedNum = [...today].reduce((s, c) => s + c.charCodeAt(0), 0);
+  const pick = outfits[seedNum % outfits.length];
+
+  const clothes = items.filter(isClothingItem);
+  const resolved = Object.entries(pick.slots)
+    .map(([slot, id]) => {
+      const item = clothes.find((c) => c.id === id);
+      return item ? { slot, item } : null;
+    })
+    .filter((x): x is { slot: string; item: typeof clothes[number] } => x !== null);
+
+  // 저장된 코디의 아이템이 모두 삭제됐으면 숨김
+  if (resolved.length === 0) return null;
+
+  return (
+    <Link href="/closet" className="block">
+      <Widget index={2}>
+        <div className="flex items-center gap-3">
+          <span className="w-11 h-11 rounded-2xl bg-brand-primary/10 flex items-center justify-center shrink-0">
+            <Bookmark size={20} strokeWidth={2} className="text-brand-primary" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-500 font-medium">오늘 저장된 코디</p>
+            <p className="text-sm font-bold text-gray-900 truncate">{pick.name}</p>
+            <div className="flex gap-1 mt-1 flex-wrap">
+              {resolved.slice(0, 4).map(({ item }) => (
+                <span key={item.id} className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                  <Shirt size={10} strokeWidth={2} />
+                  <span className="font-medium truncate max-w-[60px]">{item.name}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+          <ChevronRight size={16} className="text-gray-300 shrink-0" />
+        </div>
+      </Widget>
+    </Link>
+  );
+}

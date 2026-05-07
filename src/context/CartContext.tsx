@@ -26,15 +26,27 @@ interface CartContextValue {
   removeItem:      (id: string) => void;
   undoRemove:      () => void;
   resetData:       () => void;
+  /** 샘플(mockData 22개)로 초기화 — 처음 체험용. resetData와 구분 (resetData는 샘플 복원이기도 함). */
+  loadSampleData:  () => number;
   archiveExpired:  () => number;
+  /** 아카이브에서 items로 되돌림. 식품은 구매일을 오늘로 갱신해 신선도 회복. */
+  restoreFromArchive: (id: string) => boolean;
   discardCount:    number;
   discardHistory:  DiscardRecord[];
+  /** 백업 복원용 — 카트 상태 전체 교체. 호출 전 유효성 검증은 호출자 책임. */
+  restoreAll: (snapshot: {
+    items?:          CartItem[];
+    archived?:       CartItem[];
+    discardCount?:   number;
+    discardHistory?: DiscardRecord[];
+  }) => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems]               = useState<CartItem[]>(mockCartItems);
+  // 신규 사용자는 빈 카트로 시작 — 원하면 설정·온보딩에서 샘플 데이터 불러오기
+  const [items, setItems]               = useState<CartItem[]>([]);
   const [archived, setArchived]         = useState<CartItem[]>([]);
   const [discardCount, setDiscardCount] = useState(0);
   const [hydrated, setHydrated]         = useState(false);
@@ -192,6 +204,34 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return count;
   }, []);
 
+  const restoreFromArchive = useCallback((id: string): boolean => {
+    let ok = false;
+    setArchived((prev) => {
+      const target = prev.find((x) => x.id === id);
+      if (!target) return prev;
+      setItems((cur) => {
+        if (cur.some((x) => x.id === id)) return cur;
+        // 식품은 구매일을 오늘로 갱신해 보관 기한 리셋
+        const restored = isFoodItem(target)
+          ? { ...target, purchaseDate: new Date().toISOString().split('T')[0] }
+          : target;
+        return [restored, ...cur];
+      });
+      ok = true;
+      return prev.filter((x) => x.id !== id);
+    });
+    return ok;
+  }, []);
+
+  const loadSampleData = useCallback((): number => {
+    setItems((prev) => {
+      const existing = new Set(prev.map((p) => p.id));
+      const fresh = mockCartItems.filter((m) => !existing.has(m.id));
+      return [...prev, ...fresh];
+    });
+    return mockCartItems.length;
+  }, []);
+
   const resetData = useCallback(() => {
     setItems(mockCartItems);
     setArchived([]);
@@ -204,10 +244,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(HISTORY_KEY);
   }, []);
 
+  const restoreAll = useCallback((snapshot: {
+    items?:          CartItem[];
+    archived?:       CartItem[];
+    discardCount?:   number;
+    discardHistory?: DiscardRecord[];
+  }) => {
+    if (Array.isArray(snapshot.items))           setItems(snapshot.items);
+    if (Array.isArray(snapshot.archived))        setArchived(snapshot.archived);
+    if (typeof snapshot.discardCount === 'number') setDiscardCount(snapshot.discardCount);
+    if (Array.isArray(snapshot.discardHistory))  setDiscardHistory(snapshot.discardHistory);
+    setLastRemoved(null);
+    // localStorage 동기화는 기존 useEffect 체인이 items/archived/discardCount/history 변경 시 자동 수행
+  }, []);
+
   return (
     <CartContext.Provider value={{
-      items, archived, addItems, updateItem, removeItem, undoRemove, resetData, archiveExpired,
-      discardCount, discardHistory,
+      items, archived, addItems, updateItem, removeItem, undoRemove, resetData, loadSampleData, archiveExpired, restoreFromArchive,
+      discardCount, discardHistory, restoreAll,
     }}>
       {children}
     </CartContext.Provider>

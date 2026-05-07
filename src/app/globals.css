@@ -2,8 +2,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F9FAFB;
-  --foreground: #171717;
+  /* 부드러운 쿨 그레이 — MG/우리페이 스타일의 깨끗한 백그라운드 */
+  --background: #F4F6F9;
+  --foreground: #1F1F2E;
 }
 
 @theme inline {
@@ -12,10 +13,12 @@
   --font-sans: 'SUIT', sans-serif;
   --font-mono: var(--font-geist-mono);
 
-  /* Brand Colors */
-  --color-brand-primary: #4F46E5;
+  /* Brand Colors — 검정 + 인디고 듀얼톤 (로고와 일관) */
+  --color-brand-primary: #4F46E5;   /* 시그니처 인디고 (보라끼 있는 파랑) — CTA·포인트 */
+  --color-brand-accent:  #4F46E5;   /* 동일 — 단일 포인트 색 */
+  --color-brand-ink:     #1F1F2E;   /* 잉크 — 헤드라인·로고 메인 */
   --color-brand-success: #10B981;
-  --color-brand-warning: #F43F5E;
+  --color-brand-warning: #EF4444;   /* 경고는 별도 빨강 (로고에는 안 씀) */
 
   /* Mall Colors */
   --color-mall-kurly: #5F0080;
@@ -27,10 +30,22 @@
   --color-mall-bmart: #2AC1BC;
 }
 
+/* SUIT 한국어 본문 가독성 — 모바일 표준 (토스·컬리·당근 스타일) */
+html {
+  /* 1rem = 18px — Tailwind 전 클래스 비례 12.5% ↑
+     text-xs 13.5 · text-sm 15.75 · text-base 18 · text-lg 20.25 · text-xl 22.5 */
+  font-size: 18px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'SUIT', sans-serif;
+  font-weight: 400;            /* 인터파크 스타일 — 본문은 regular, 제목만 bold */
+  letter-spacing: -0.005em;    /* 한글 자간 미세 보정 */
+  line-height: 1.55;           /* 본문 줄간격 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -1,0 +1,12 @@
+<!-- NEMOA 앱 아이콘 — iOS maskable -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="128" fill="#F9FAFB"/>
+  <!-- 외곽 큰 네모 -->
+  <rect x="72" y="72" width="368" height="368" rx="80"
+        fill="none" stroke="#4F46E5" stroke-width="28"/>
+  <!-- 내부 A — indigo -->
+  <rect x="136" y="136" width="176" height="176" rx="36" fill="#4F46E5"/>
+  <!-- 내부 B — pink -->
+  <rect x="200" y="200" width="176" height="176" rx="36"
+        fill="#EC4899" fill-opacity="0.92"/>
+</svg>

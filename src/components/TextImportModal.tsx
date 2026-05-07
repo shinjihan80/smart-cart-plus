@@ -2,6 +2,13 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingItem } from '@/types';
+import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
+import { useProfiles } from '@/lib/profile';
+import { useAiQuota } from '@/lib/aiQuota';
+import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
+import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
+import { Camera, X as XIcon } from 'lucide-react';
+import EmojiIcon from '@/components/EmojiIcon';
 
 interface TextImportModalProps {
   onClose:  () => void;
@@ -78,7 +85,7 @@ function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
-          <span>{emoji}</span>{label}
+          <EmojiIcon emoji={emoji} size={12} className="text-current" />{label}
         </button>
       ))}
     </div>
@@ -89,10 +96,10 @@ function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab
 function StepIndicator({ step }: { step: ModalStep }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${step === 'input' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>1</span>
+      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-sm font-bold ${step === 'input' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>1</span>
       <span className={`text-xs font-medium ${step === 'input' ? 'text-brand-primary' : 'text-gray-400'}`}>입력</span>
       <div className="flex-1 h-px bg-gray-200" />
-      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${step === 'confirm' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
+      <span className={`flex items-center justify-center w-5 h-5 rounded-full text-sm font-bold ${step === 'confirm' ? 'bg-brand-primary text-white' : 'bg-gray-200 text-gray-400'}`}>2</span>
       <span className={`text-xs font-medium ${step === 'confirm' ? 'text-brand-primary' : 'text-gray-400'}`}>결과 확인</span>
     </div>
   );
@@ -128,7 +135,7 @@ function ImageTab({
   return (
     <>
       <p className="text-xs text-gray-400 mb-3">
-        식품 뒷면 라벨, 의류 사이즈표, 세탁 정보 캡처본을 올려주세요. AI가 자동으로 분류해 정보를 추출합니다.
+        식품 뒷면 라벨, 의류 사이즈표, 세탁 정보 캡처본을 올려주세요. 네모아가 자동으로 분류해 정보를 추출합니다.
       </p>
 
       {!preview ? (
@@ -141,12 +148,12 @@ function ImageTab({
             dragging ? 'border-brand-primary/40 bg-brand-primary/5' : 'border-gray-200 bg-gray-50 hover:border-brand-primary/30'
           }`}
         >
-          <span className="text-3xl">📷</span>
+          <EmojiIcon emoji="📷" size={28} className="text-gray-500" />
           <p className="text-sm font-medium text-gray-500">사진을 끌어다 놓거나 클릭해서 선택</p>
           <p className="text-xs text-gray-400">JPG, PNG, WEBP · 최대 5MB</p>
           <div className="flex gap-2 mt-1 flex-wrap justify-center px-4">
             {['식품 라벨', '사이즈표', '세탁 정보'].map((hint) => (
-              <span key={hint} className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400">
+              <span key={hint} className="text-sm px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400">
                 {hint}
               </span>
             ))}
@@ -161,7 +168,7 @@ function ImageTab({
             onClick={() => { setFile(null); setPreview(null); }}
             className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/70"
           >
-            ✕
+            <EmojiIcon emoji="✕" size={11} className="text-white" />
           </button>
         </div>
       )}
@@ -225,7 +232,7 @@ function TextTab({
   return (
     <>
       <p className="text-xs text-gray-400 mb-3">
-        이메일, 영수증, 구매 내역 텍스트를 붙여넣으면 AI가 상품 정보를 추출합니다.
+        이메일, 영수증, 구매 내역 텍스트를 붙여넣으면 네모아가 상품 정보를 추출합니다.
       </p>
       <textarea
         value={text}
@@ -240,7 +247,7 @@ function TextTab({
         disabled={!text.trim() || loading}
         className="mt-3 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
-        {loading ? <LoadingSpinner label="AI 분석 중…" /> : 'AI로 분석하기'}
+        {loading ? <LoadingSpinner label="네모아가 분석 중…" /> : '네모아에게 맡기기'}
       </button>
     </>
   );
@@ -255,7 +262,7 @@ function UrlTab({
   return (
     <>
       <p className="text-xs text-gray-400 mb-3">
-        쇼핑몰 상품 페이지 주소를 붙여넣으면 AI가 상품 정보를 가져옵니다.
+        쇼핑몰 상품 페이지 주소를 붙여넣으면 네모아가 상품 정보를 가져옵니다.
       </p>
       <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-2xl px-3 py-2 mb-3">
         💡 쿠팡·네이버쇼핑·무신사 등에서 상품 페이지를 열고 주소창의 URL을 복사하세요.
@@ -270,7 +277,7 @@ function UrlTab({
       />
       <div className="flex gap-2 mt-2 flex-wrap">
         {['쿠팡', '네이버쇼핑', '무신사', '마켓컬리'].map((site) => (
-          <span key={site} className="text-[10px] px-2 py-1 rounded-full bg-gray-100 text-gray-500">
+          <span key={site} className="text-sm px-2 py-1 rounded-full bg-gray-100 text-gray-500">
             {site}
           </span>
         ))}
@@ -286,9 +293,25 @@ function UrlTab({
   );
 }
 
-// ── 도메인별 아이템 상세 태그 ──────────────────────────────────────────────────
+// ── 도메인별 편집 가능한 상세 폼 ──────────────────────────────────────────────
 
-function FoodConfirmDetail({ item }: { item: Extract<CartItem, { category: '식품' }> }) {
+const FOOD_CATEGORIES: import('@/types').FoodCategory[] = [
+  '채소·과일', '정육·계란', '수산·해산', '유제품', '음료',
+  '간식·과자', '양념·소스', '면·즉석', '빵·베이커리', '건강식품', '기타 식품',
+];
+const STORAGE_TYPES: import('@/types').StorageType[] = ['냉장', '냉동', '실온'];
+const THICKNESSES:   import('@/types').Thickness[]   = ['얇음', '보통', '두꺼움'];
+const FASHION_CATEGORIES: import('@/types').FashionCategory[] = [
+  '상의', '하의', '아우터', '원피스', '신발', '가방',
+  '모자', '스카프', '안경', '선글라스', '시계', '주얼리', '기타 액세서리',
+];
+
+interface FieldEditProps<T extends CartItem> {
+  item:   T;
+  onUpdate: (patch: Partial<T>) => void;
+}
+
+function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, { category: '식품' }>>) {
   const today  = new Date(); today.setHours(0, 0, 0, 0);
   const expiry = new Date(item.purchaseDate);
   expiry.setDate(expiry.getDate() + item.baseShelfLifeDays);
@@ -296,76 +319,119 @@ function FoodConfirmDetail({ item }: { item: Extract<CartItem, { category: '식�
   const isUrgent = dDay <= 2;
 
   return (
-    <div className="flex flex-wrap gap-1 mt-1">
-      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
-        {STORAGE_LABEL[item.storageType] ?? item.storageType}
-      </span>
-      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
-        isUrgent ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-600'
-      }`}>
-        {dDay <= 0 ? '만료' : `D-${dDay}`}
-      </span>
-      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
-        {item.baseShelfLifeDays}일 보관
-      </span>
-    </div>
-  );
-}
-
-function EnrichedFashionConfirmDetail({ item }: { item: import('@/types').EnrichedClothingItem }) {
-  const attrBadges: string[] = [];
-  if (item.attributes?.sheerness === true)  attrBadges.push('비침 있음');
-  if (item.attributes?.sheerness === false) attrBadges.push('비침 없음');
-  if (item.attributes?.stretch === true)    attrBadges.push('신축성 있음');
-  if (item.attributes?.stretch === false)   attrBadges.push('신축성 없음');
-  if (item.attributes?.lining === true)     attrBadges.push('안감 있음');
-  if (item.attributes?.lining === false)    attrBadges.push('안감 없음');
-
-  const hasMeasurements = item.measurements && Object.keys(item.measurements).length > 0;
-
-  return (
-    <div className="mt-1 flex flex-col gap-1">
+    <div className="mt-2 flex flex-col gap-2">
+      {/* 미리보기 배지 */}
       <div className="flex flex-wrap gap-1">
-        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.size}</span>
-        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{THICKNESS_LABEL[item.thickness] ?? item.thickness}</span>
-        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.material}</span>
+        <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+          isUrgent ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-600'
+        }`}>
+          {dDay <= 0 ? '만료' : `D-${dDay}`}
+        </span>
       </div>
-      {attrBadges.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {attrBadges.map((b) => (
-            <span key={b} className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary font-medium">{b}</span>
-          ))}
-        </div>
-      )}
-      {hasMeasurements && (
-        <div className="flex flex-wrap gap-1">
-          {item.measurements?.chest        && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">가슴 {item.measurements.chest}cm</span>}
-          {item.measurements?.totalLength  && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">총장 {item.measurements.totalLength}cm</span>}
-          {item.measurements?.waist        && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">허리 {item.measurements.waist}cm</span>}
-          {item.measurements?.waistBanding && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600">밴딩</span>}
-        </div>
-      )}
-      {item.washingTip && (
-        <p className="text-[10px] text-gray-400 leading-relaxed">{item.washingTip}</p>
-      )}
+
+      {/* 편집 — 카테고리·보관·기한·구매일 */}
+      <div className="grid grid-cols-2 gap-2">
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-gray-500 font-medium">카테고리</span>
+          <select
+            value={item.foodCategory}
+            onChange={(e) => onUpdate({ foodCategory: e.target.value as import('@/types').FoodCategory })}
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          >
+            {FOOD_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-gray-500 font-medium">보관 방법</span>
+          <select
+            value={item.storageType}
+            onChange={(e) => onUpdate({ storageType: e.target.value as import('@/types').StorageType })}
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          >
+            {STORAGE_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-gray-500 font-medium">보관 기한 (일)</span>
+          <input
+            type="number"
+            min={1}
+            max={365}
+            value={item.baseShelfLifeDays}
+            onChange={(e) => onUpdate({ baseShelfLifeDays: Math.max(1, parseInt(e.target.value, 10) || 1) })}
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-gray-500 font-medium">구매일</span>
+          <input
+            type="date"
+            value={item.purchaseDate}
+            onChange={(e) => onUpdate({ purchaseDate: e.target.value })}
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+        </label>
+      </div>
     </div>
   );
 }
 
-function BasicClothingConfirmDetail({ item }: { item: ClothingItem }) {
+function FashionConfirmDetail({ item, onUpdate }: FieldEditProps<ClothingItem>) {
   return (
-    <div className="flex flex-wrap gap-1 mt-1">
-      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.size}</span>
-      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{THICKNESS_LABEL[item.thickness] ?? item.thickness}</span>
-      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">{item.material}</span>
+    <div className="mt-2 flex flex-col gap-2">
+      <div className="grid grid-cols-2 gap-2">
+        <label className="flex flex-col gap-1 col-span-2">
+          <span className="text-[10px] text-gray-500 font-medium">카테고리</span>
+          <select
+            value={item.category}
+            onChange={(e) => onUpdate({ category: e.target.value as import('@/types').FashionCategory })}
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          >
+            {FASHION_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-gray-500 font-medium">사이즈</span>
+          <input
+            type="text"
+            value={item.size}
+            onChange={(e) => onUpdate({ size: e.target.value })}
+            placeholder="M / 32 / 260"
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-gray-500 font-medium">두께</span>
+          <select
+            value={item.thickness}
+            onChange={(e) => onUpdate({ thickness: e.target.value as import('@/types').Thickness })}
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          >
+            {THICKNESSES.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 col-span-2">
+          <span className="text-[10px] text-gray-500 font-medium">소재</span>
+          <input
+            type="text"
+            value={item.material}
+            onChange={(e) => onUpdate({ material: e.target.value })}
+            placeholder="면·울·폴리에스터…"
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+        </label>
+      </div>
     </div>
   );
 }
 
-function ItemDetailTags({ item }: { item: CartItem }) {
-  if (isFoodItem(item))              return <FoodConfirmDetail item={item} />;
-  if (isEnrichedClothingItem(item))  return <EnrichedFashionConfirmDetail item={item} />;
-  if (isClothingItem(item))          return <BasicClothingConfirmDetail item={item as ClothingItem} />;
+function ItemDetailTags({ item, onUpdate }: { item: CartItem; onUpdate: (patch: Partial<CartItem>) => void }) {
+  if (isFoodItem(item)) {
+    return <FoodConfirmDetail item={item} onUpdate={onUpdate as (p: Partial<typeof item>) => void} />;
+  }
+  if (isClothingItem(item)) {
+    return <FashionConfirmDetail item={item as ClothingItem} onUpdate={onUpdate as (p: Partial<ClothingItem>) => void} />;
+  }
   return null;
 }
 
@@ -376,14 +442,45 @@ function StepConfirm({
   items: CartItem[];
   setItems: (v: CartItem[]) => void;
   domainSummary?: { food: number; fashion: number };
-  onConfirm: () => void;
+  onConfirm: (tagged: CartItem[]) => void;
   onBack: () => void;
 }) {
+  const { profiles } = useProfiles();
+  // 모든 아이템 공통 소유자 — undefined = 공용
+  const [ownerId, setOwnerId] = useState<string | undefined>(undefined);
+
+  // 펼친 아이템 id 추적 — 한 번에 하나만
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   function updateName(id: string, name: string) {
     setItems(items.map((item) => (item.id === id ? { ...item, name } : item)));
   }
+  function updateItem(id: string, patch: Partial<CartItem>) {
+    setItems(items.map((item) => (item.id === id ? ({ ...item, ...patch } as CartItem) : item)));
+  }
   function removeItem(id: string) {
     setItems(items.filter((item) => item.id !== id));
+  }
+  async function pickItemImage(id: string) {
+    const file = await pickImage();
+    if (!file) return;
+    try {
+      const dataUrl = await resizeAndEncode(file);
+      setItems(items.map((item) => (item.id === id ? { ...item, imageUrl: dataUrl } : item)));
+    } catch {
+      // ignore
+    }
+  }
+  function clearItemImage(id: string) {
+    setItems(items.map((item) => {
+      if (item.id !== id) return item;
+      const { imageUrl: _ignored, ...rest } = item;
+      return rest as CartItem;
+    }));
+  }
+  function handleConfirm() {
+    const tagged = items.map((item) => ({ ...item, ownerId }) as CartItem);
+    onConfirm(tagged);
   }
 
   return (
@@ -402,12 +499,12 @@ function StepConfirm({
       {domainSummary && (domainSummary.food > 0 || domainSummary.fashion > 0) && (
         <div className="flex gap-2 mb-3 flex-wrap">
           {domainSummary.food > 0 && (
-            <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold">
+            <span className="text-sm px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold">
               🥦 식품 {domainSummary.food}개 감지됨
             </span>
           )}
           {domainSummary.fashion > 0 && (
-            <span className="text-[10px] px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+            <span className="text-sm px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
               👗 패션 {domainSummary.fashion}개 감지됨
             </span>
           )}
@@ -415,35 +512,161 @@ function StepConfirm({
       )}
 
       <p className="text-xs text-gray-400 mb-3">
-        AI가 추출한 목록입니다. 이름 수정 또는 불필요한 항목 삭제 후 추가하세요.
+        네모아가 추출한 목록입니다. 각 카드를 탭하면 카테고리·보관·사이즈 등을 직접 수정할 수 있어요.
       </p>
 
-      <div className="flex flex-col gap-y-2 max-h-64 overflow-y-auto pr-0.5">
-        {items.map((item) => (
-          <div key={item.id} className="rounded-2xl border border-gray-100 bg-gray-50 px-3 py-2.5 flex items-start gap-2">
-            <span className="mt-0.5 text-base shrink-0">
-              {isFoodItem(item) ? '🥦' : '👗'}
-            </span>
-            <div className="flex-1 min-w-0">
-              <input
-                type="text"
-                value={item.name}
-                onChange={(e) => updateName(item.id, e.target.value)}
-                className="w-full bg-transparent text-sm font-medium text-gray-900 focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
-              />
-              <span className="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-400 mt-1 mb-0.5">
-                {item.category}
-              </span>
-              <ItemDetailTags item={item} />
-            </div>
-            <button aria-label="항목 삭제" onClick={() => removeItem(item.id)} className="shrink-0 mt-0.5 text-gray-300 hover:text-red-400 transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+      {/* 소유자 선택 — 프로필 2명 이상일 때 */}
+      {profiles.length >= 2 && (
+        <div className="rounded-2xl bg-gray-50 px-3 py-2 mb-3">
+          <p className="text-sm text-gray-500 mb-1.5">누구 것으로 등록할까요?</p>
+          <div className="flex gap-1 flex-wrap">
+            <button
+              onClick={() => setOwnerId(undefined)}
+              className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+                !ownerId
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              공용
             </button>
+            {profiles.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setOwnerId(p.id)}
+                className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+                  ownerId === p.id
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
           </div>
-        ))}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-y-2 max-h-[60vh] overflow-y-auto pr-0.5">
+        {items.map((item) => {
+          const Icon = isFoodItem(item)
+            ? (FOOD_ICON[(item as import('@/types').FoodItem).foodCategory] ?? FOOD_ICON['기타 식품'])
+            : (FASHION_ICON[(item as ClothingItem).category] ?? FASHION_ICON['기타 액세서리']);
+          const isExpanded = expandedId === item.id;
+          return (
+            <div key={item.id} className="rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden">
+              <div className="px-3 py-3 flex items-start gap-3">
+                {/* 이미지 영역 */}
+                <button
+                  type="button"
+                  onClick={() => pickItemImage(item.id)}
+                  aria-label="이미지 추가/변경"
+                  className="relative shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-white border border-gray-200 flex items-center justify-center hover:border-brand-primary/40 transition-colors group"
+                >
+                  {item.imageUrl ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                      <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Camera size={16} className="text-white" />
+                      </span>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-0.5 text-gray-400">
+                      <Icon size={16} strokeWidth={2} />
+                      <span className="text-[9px] font-medium">사진 추가</span>
+                    </div>
+                  )}
+                </button>
+                {item.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); clearItemImage(item.id); }}
+                    aria-label="이미지 제거"
+                    className="-ml-3 -mt-1 w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center shrink-0 self-start"
+                  >
+                    <XIcon size={11} strokeWidth={2.5} />
+                  </button>
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <input
+                    type="text"
+                    value={item.name}
+                    onChange={(e) => updateName(item.id, e.target.value)}
+                    aria-label="제품명"
+                    className="w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
+                  />
+                  <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                      {item.category}
+                    </span>
+                    {isFoodItem(item) && (
+                      <>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          {(item as import('@/types').FoodItem).foodCategory}
+                        </span>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          {STORAGE_LABEL[item.storageType] ?? item.storageType}
+                        </span>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          {item.baseShelfLifeDays}일
+                        </span>
+                      </>
+                    )}
+                    {isClothingItem(item) && (
+                      <>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          {(item as ClothingItem).size}
+                        </span>
+                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          {THICKNESS_LABEL[(item as ClothingItem).thickness] ?? (item as ClothingItem).thickness}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {/* 우측: 편집 토글 + 삭제 */}
+                <div className="flex flex-col items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    aria-label={isExpanded ? '편집 닫기' : '편집 열기'}
+                    onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full transition-colors ${
+                      isExpanded
+                        ? 'bg-brand-primary text-white'
+                        : 'bg-white border border-gray-200 text-gray-600 hover:border-brand-primary/40'
+                    }`}
+                  >
+                    {isExpanded ? '닫기' : '편집'}
+                  </button>
+                  <button
+                    aria-label="항목 삭제"
+                    onClick={() => removeItem(item.id)}
+                    className="text-gray-300 hover:text-red-400 transition-colors p-0.5"
+                  >
+                    <XIcon size={16} strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
+
+              {/* 펼친 상태 — 모든 필드 편집 폼 */}
+              {isExpanded && (
+                <div className="px-3 pb-3 pt-1 border-t border-gray-100">
+                  <ItemDetailTags
+                    item={item}
+                    onUpdate={(patch) => updateItem(item.id, patch)}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      <p className="text-xs text-gray-400 mt-2 leading-relaxed">
+        💡 사진 영역을 탭하면 이미지를 추가할 수 있어요. 이름 옆 ✕로 항목을 빼고, 저장하면 냉장고/옷장에 등록됩니다.
+      </p>
 
       {items.length === 0 && (
         <p className="text-center text-sm text-gray-400 py-6">
@@ -453,7 +676,7 @@ function StepConfirm({
       )}
 
       <button
-        onClick={onConfirm}
+        onClick={handleConfirm}
         disabled={items.length === 0}
         className="mt-4 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
@@ -478,6 +701,7 @@ function LoadingSpinner({ label }: { label: string }) {
 
 // ── 메인 모달 ─────────────────────────────────────────────────────────────────
 export default function TextImportModal({ onClose, onImport }: TextImportModalProps) {
+  const { canUse: canUseAi, consume: consumeAi } = useAiQuota();
   const [step, setStep]               = useState<ModalStep>('input');
   const [activeTab, setActiveTab]     = useState<InputTab>('image');
   const [parsedItems, setParsedItems] = useState<CartItem[]>([]);
@@ -495,7 +719,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     body: FormData | Record<string, unknown>,
   ): Promise<{ items?: CartItem[]; domain_summary?: { food: number; fashion: number }; error?: string }> {
     const isFormData = body instanceof FormData;
-    const res = await fetch(endpoint, {
+    const res = await loggedFetch(agentIdFromEndpoint(endpoint), endpoint, {
       method:  'POST',
       headers: isFormData ? undefined : { 'Content-Type': 'application/json' },
       body:    isFormData ? body : JSON.stringify(body),
@@ -504,6 +728,12 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
   }
 
   async function handleAnalyze() {
+    // AI 쿼터 체크 — 탭에 따라 agent 결정
+    const agent = activeTab === 'text' ? 'parser' : activeTab === 'image' ? 'vision' : activeTab === 'url' ? 'url' : null;
+    if (agent && !canUseAi(agent)) {
+      setError(`오늘 ${agent === 'parser' ? '텍스트 파싱' : agent === 'vision' ? '사진 분석' : 'URL 분석'} 무료 사용량을 모두 썼어요. 자정 이후 다시 이용 가능해요.`);
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -533,6 +763,9 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
         return;
       }
 
+      // 쿼터 소진은 성공 반환 후
+      if (agent && !data.error) consumeAi(agent);
+
       if (data.error) { setError(data.error); return; }
       if (!data.items || data.items.length === 0) {
         setError('상품 정보를 찾지 못했습니다. 다른 내용을 시도해보세요.');
@@ -550,8 +783,8 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     }
   }
 
-  function handleConfirm() {
-    onImport(parsedItems);
+  function handleConfirm(tagged: CartItem[]) {
+    onImport(tagged);
     onClose();
   }
 
