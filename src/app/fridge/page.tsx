@@ -60,20 +60,6 @@ const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCateg
   { name: '요거트',     foodCategory: '유제품',      storageType: '냉장', days: 14 },
 ];
 
-const STORAGE_FILTERS: { key: StorageFilter; label: string }[] = [
-  { key: '전체', label: '전체' },
-  { key: '냉장', label: '❄️ 냉장' },
-  { key: '냉동', label: '🧊 냉동' },
-  { key: '실온', label: '📦 실온' },
-];
-
-const GROUP_FILTERS: { key: GroupFilter; label: string }[] = [
-  { key: '전체',     label: '전체' },
-  { key: '신선식품', label: '🥬 신선' },
-  { key: '가공식품', label: '🍜 가공' },
-  { key: '음료·간식', label: '🧃 음료·간식' },
-];
-
 export default function FridgePage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory } = useCart();
   const { showToast } = useToast();
@@ -368,68 +354,38 @@ export default function FridgePage() {
           </div>
         )}
 
-        {/* 필터·정렬 — 리스트 모드 전용. 시각화 모드에선 칸별로 보는 게 핵심이라 숨김 */}
+        {/* 정렬 + 제철 토글 — 리스트 모드 전용
+            STORAGE/GROUP 필터는 카드 칩(❄️ 냉장 / 🥬 신선식품 등)으로
+            이미 표시돼 필터 의미 적음 → 제거. 정렬·제철만 유지 */}
         {viewMode === 'list' && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2 min-w-0">
-              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
-                {STORAGE_FILTERS.map(({ key, label }) => (
-                  <button
-                    key={key}
-                    onClick={() => setStorageFilter(key)}
-                    className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                      storageFilter === key
-                        ? 'bg-brand-primary text-white'
-                        : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => setSortBy(SORT_CYCLE[sortBy].next)}
+              className="text-sm text-gray-600 font-medium px-2.5 py-1 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+            >
+              {SORT_CYCLE[sortBy].label}
+            </button>
+            {seasonalCount > 0 && (
               <button
-                onClick={() => setSortBy(SORT_CYCLE[sortBy].next)}
-                className="text-sm text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
+                onClick={() => setSeasonalOnly(!seasonalOnly)}
+                title={`${season}철 제철 재료만 보기 · ${seasonalCount}개`}
+                className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
+                  seasonalOnly
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
+                }`}
               >
-                {SORT_CYCLE[sortBy].label}
+                {(() => {
+                  const Icon = SEASON_ICON[season];
+                  return (
+                    <span className="inline-flex items-center gap-1">
+                      <Icon size={11} strokeWidth={2.4} />
+                      <span>제철 {seasonalCount}만 보기</span>
+                    </span>
+                  );
+                })()}
               </button>
-            </div>
-            <div className="flex gap-1.5 items-center overflow-x-auto scrollbar-hide -mx-1 px-1">
-              {GROUP_FILTERS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setGroupFilter(key)}
-                  className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                    groupFilter === key
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-              {seasonalCount > 0 && (
-                <button
-                  onClick={() => setSeasonalOnly(!seasonalOnly)}
-                  title={`${season}철 제철 재료만 보기 · ${seasonalCount}개`}
-                  className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                    seasonalOnly
-                      ? 'bg-brand-primary text-white'
-                      : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
-                  }`}
-                >
-                  {(() => {
-                    const Icon = SEASON_ICON[season];
-                    return (
-                      <span className="inline-flex items-center gap-1">
-                        <Icon size={11} strokeWidth={2.4} />
-                        <span>제철 {seasonalCount}</span>
-                      </span>
-                    );
-                  })()}
-                </button>
-              )}
-            </div>
+            )}
           </div>
         )}
 
