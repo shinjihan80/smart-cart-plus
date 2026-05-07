@@ -14,6 +14,7 @@ import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import EmojiIcon from '@/components/EmojiIcon';
 import { useBackupStatus, downloadBackup } from '@/lib/backup';
 import { useToast } from '@/context/ToastContext';
+import { usePersistedState } from '@/lib/usePersistedState';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import StatsSection                              from '@/components/mypage/StatsSection';
@@ -35,6 +36,18 @@ import FrequentIngredientsSection                  from '@/components/mypage/Fre
 import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 
+type MyTab = 'overview' | 'shopping' | 'closet' | 'cook';
+
+const TABS: { id: MyTab; emoji: string; label: string }[] = [
+  { id: 'overview', emoji: '📊', label: '요약' },
+  { id: 'shopping', emoji: '🛒', label: '쇼핑' },
+  { id: 'closet',   emoji: '👕', label: '옷장' },
+  { id: 'cook',     emoji: '🍳', label: '요리' },
+];
+
+const isMyTab = (v: unknown): v is MyTab =>
+  v === 'overview' || v === 'shopping' || v === 'closet' || v === 'cook';
+
 export default function MyPage() {
   const { items, archived, discardCount, discardHistory, addItems, restoreFromArchive } = useCart();
   const { showToast } = useToast();
@@ -43,6 +56,10 @@ export default function MyPage() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [browserOpen, setBrowserOpen]       = useState(false);
   const [archiveExpanded, setArchiveExpanded] = useState(false);
+  const [activeTab, setActiveTab] = usePersistedState<MyTab>(
+    'nemoa-mypage-tab', 'overview',
+    (raw) => (isMyTab(raw) ? raw : null),
+  );
 
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
@@ -79,22 +96,27 @@ export default function MyPage() {
             </Link>
           </div>
         </div>
-        <div className="px-4 pb-2 flex gap-1 overflow-x-auto scrollbar-hide">
-          {[
-            { id: 'shopping',     label: '🛒 쇼핑' },
-            { id: 'seasonal-hist', label: '🌸 제철' },
-            { id: 'closet-cleanup', label: '🧹 옷장' },
-            { id: 'cook-stats',   label: '🍳 조리' },
-            { id: 'partners',     label: '🚀 파트너' },
-          ].map((j) => (
-            <a
-              key={j.id}
-              href={`#${j.id}`}
-              className="shrink-0 text-sm px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
-            >
-              {j.label}
-            </a>
-          ))}
+        <div role="tablist" aria-label="마이페이지 탭" className="px-4 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
+          {TABS.map((t) => {
+            const isActive = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(t.id)}
+                className={[
+                  'shrink-0 text-sm font-semibold px-3 py-1.5 rounded-full transition-colors',
+                  isActive
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+                ].join(' ')}
+              >
+                <span className="mr-1">{t.emoji}</span>{t.label}
+              </button>
+            );
+          })}
         </div>
       </header>
 
@@ -182,105 +204,117 @@ export default function MyPage() {
 
         <SpendingSection />
 
-        <SectionErrorBoundary label="내 냉장고">
-          <MyFridgeSection />
-        </SectionErrorBoundary>
+        {/* ─── 탭별 섹션 ──────────────────────────────────── */}
 
-        <SectionErrorBoundary label="이번 달 활동">
-          <MonthlySummarySection discardHistory={discardHistory} />
-        </SectionErrorBoundary>
+        {activeTab === 'overview' && (
+          <>
+            <SectionErrorBoundary label="내 냉장고">
+              <MyFridgeSection />
+            </SectionErrorBoundary>
 
-        <SectionErrorBoundary label="자주 구매하는 재료">
-          <FrequentIngredientsSection
-            discardHistory={discardHistory}
-            currentItemNames={foodItemsList.map((f) => f.name)}
-          />
-        </SectionErrorBoundary>
+            <SectionErrorBoundary label="이번 달 활동">
+              <MonthlySummarySection discardHistory={discardHistory} />
+            </SectionErrorBoundary>
 
-        <SectionErrorBoundary label="올해 활동 요약">
-          <AnnualSummarySection discardHistory={discardHistory} />
-        </SectionErrorBoundary>
+            <SectionErrorBoundary label="자주 구매하는 재료">
+              <FrequentIngredientsSection
+                discardHistory={discardHistory}
+                currentItemNames={foodItemsList.map((f) => f.name)}
+              />
+            </SectionErrorBoundary>
 
-        {/* 쇼핑몰 연동 */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...springTransition, delay: 0.28 }}
-          className={CARD}
-          style={CARD_SHADOW}
-        >
-          <h3 className="text-xs text-gray-400 font-medium mb-3">쇼핑몰 자동 연동</h3>
-          <div className="flex flex-col gap-2.5">
-            {[
-              { name: '쿠팡',     mallBg: 'bg-mall-coupang',    status: '준비 중' },
-              { name: '네이버',   mallBg: 'bg-mall-naver',      status: '준비 중' },
-              { name: '마켓컬리', mallBg: 'bg-mall-kurly',      status: '준비 중' },
-              { name: '무신사',   mallBg: 'bg-mall-musinsa',    status: '준비 중' },
-            ].map((mall) => (
-              <div key={mall.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-7 h-7 rounded-full ${mall.mallBg} flex items-center justify-center`}>
-                    <span className="text-white text-xs font-bold">{mall.name.charAt(0)}</span>
+            <SectionErrorBoundary label="올해 활동 요약">
+              <AnnualSummarySection discardHistory={discardHistory} />
+            </SectionErrorBoundary>
+          </>
+        )}
+
+        {activeTab === 'shopping' && (
+          <>
+            {/* 쇼핑몰 연동 */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...springTransition, delay: 0.28 }}
+              className={CARD}
+              style={CARD_SHADOW}
+            >
+              <h3 className="text-xs text-gray-400 font-medium mb-3">쇼핑몰 자동 연동</h3>
+              <div className="flex flex-col gap-2.5">
+                {[
+                  { name: '쿠팡',     mallBg: 'bg-mall-coupang',    status: '준비 중' },
+                  { name: '네이버',   mallBg: 'bg-mall-naver',      status: '준비 중' },
+                  { name: '마켓컬리', mallBg: 'bg-mall-kurly',      status: '준비 중' },
+                  { name: '무신사',   mallBg: 'bg-mall-musinsa',    status: '준비 중' },
+                ].map((mall) => (
+                  <div key={mall.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-7 h-7 rounded-full ${mall.mallBg} flex items-center justify-center`}>
+                        <span className="text-white text-xs font-bold">{mall.name.charAt(0)}</span>
+                      </div>
+                      <span className="text-sm text-gray-700">{mall.name}</span>
+                    </div>
+                    <span className="text-sm text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                      {mall.status}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-700">{mall.name}</span>
-                </div>
-                <span className="text-sm text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                  {mall.status}
-                </span>
+                ))}
               </div>
-            ))}
-          </div>
-          <p className="text-sm text-gray-400 mt-3 leading-relaxed">
-            이메일 파싱으로 구매 내역을 자동 가져오는 기능이 곧 추가됩니다.
-          </p>
-        </motion.div>
+              <p className="text-sm text-gray-400 mt-3 leading-relaxed">
+                이메일 파싱으로 구매 내역을 자동 가져오는 기능이 곧 추가됩니다.
+              </p>
+            </motion.div>
 
-        <SectionErrorBoundary label="장볼 거 추천">
-          <ShoppingSuggestionsSection
-            items={items}
-            discardHistory={discardHistory}
-            showToast={showToast}
-          />
-        </SectionErrorBoundary>
+            <SectionErrorBoundary label="장볼 거 추천">
+              <ShoppingSuggestionsSection
+                items={items}
+                discardHistory={discardHistory}
+                showToast={showToast}
+              />
+            </SectionErrorBoundary>
 
-        <div id="shopping" className="scroll-mt-24">
-          <SectionErrorBoundary label="쇼핑 리스트">
-            <ShoppingListSection addItems={addItems} showToast={showToast} />
-          </SectionErrorBoundary>
-        </div>
+            <SectionErrorBoundary label="쇼핑 리스트">
+              <ShoppingListSection addItems={addItems} showToast={showToast} />
+            </SectionErrorBoundary>
+          </>
+        )}
 
-        <SectionErrorBoundary label="착용 로그 분석">
-          <WearStatsSection items={items} />
-        </SectionErrorBoundary>
+        {activeTab === 'closet' && (
+          <>
+            <SectionErrorBoundary label="착용 로그 분석">
+              <WearStatsSection items={items} />
+            </SectionErrorBoundary>
 
-        <SectionErrorBoundary label="계절 보관">
-          <SeasonalStorageSection items={items} />
-        </SectionErrorBoundary>
+            <SectionErrorBoundary label="계절 보관">
+              <SeasonalStorageSection items={items} />
+            </SectionErrorBoundary>
 
-        <div id="closet-cleanup" className="scroll-mt-24">
-          <SectionErrorBoundary label="옷장 정리 제안">
-            <ClosetCleanupSection items={items} />
-          </SectionErrorBoundary>
-        </div>
+            <SectionErrorBoundary label="옷장 정리 제안">
+              <ClosetCleanupSection items={items} />
+            </SectionErrorBoundary>
+          </>
+        )}
 
-        <div id="cook-stats" className="scroll-mt-24">
-          <SectionErrorBoundary label="조리 로그 분석">
-            <CookStatsSection onOpenRecipe={setSelectedRecipe} />
-          </SectionErrorBoundary>
-        </div>
+        {activeTab === 'cook' && (
+          <>
+            <SectionErrorBoundary label="조리 로그 분석">
+              <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+            </SectionErrorBoundary>
 
-        <div id="seasonal-hist" className="scroll-mt-24">
-          <SectionErrorBoundary label="제철 식탁 히스토리">
-            <SeasonalHistorySection history={discardHistory} />
-          </SectionErrorBoundary>
-        </div>
+            <SectionErrorBoundary label="제철 식탁 히스토리">
+              <SeasonalHistorySection history={discardHistory} />
+            </SectionErrorBoundary>
 
-        <SectionErrorBoundary label="즐겨찾기 레시피">
-          <FavoriteRecipesSection
-            onOpenRecipe={setSelectedRecipe}
-            onOpenBrowser={() => setBrowserOpen(true)}
-          />
-        </SectionErrorBoundary>
+            <SectionErrorBoundary label="즐겨찾기 레시피">
+              <FavoriteRecipesSection
+                onOpenRecipe={setSelectedRecipe}
+                onOpenBrowser={() => setBrowserOpen(true)}
+              />
+            </SectionErrorBoundary>
+          </>
+        )}
+
+        {/* ─── 탭과 무관하게 항상 노출 ────────────────── */}
 
         <SectionErrorBoundary label="파트너 로드맵">
           <PartnerRoadmapSection />
