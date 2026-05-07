@@ -368,67 +368,70 @@ export default function FridgePage() {
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
-              {STORAGE_FILTERS.map(({ key, label }) => (
+        {/* 필터·정렬 — 리스트 모드 전용. 시각화 모드에선 칸별로 보는 게 핵심이라 숨김 */}
+        {viewMode === 'list' && (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2 min-w-0">
+              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
+                {STORAGE_FILTERS.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setStorageFilter(key)}
+                    className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
+                      storageFilter === key
+                        ? 'bg-brand-primary text-white'
+                        : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setSortBy(SORT_CYCLE[sortBy].next)}
+                className="text-sm text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                {SORT_CYCLE[sortBy].label}
+              </button>
+            </div>
+            <div className="flex gap-1.5 items-center overflow-x-auto scrollbar-hide -mx-1 px-1">
+              {GROUP_FILTERS.map(({ key, label }) => (
                 <button
                   key={key}
-                  onClick={() => setStorageFilter(key)}
+                  onClick={() => setGroupFilter(key)}
                   className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                    storageFilter === key
-                      ? 'bg-brand-primary text-white'
+                    groupFilter === key
+                      ? 'bg-gray-900 text-white'
                       : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
                   }`}
                 >
                   {label}
                 </button>
               ))}
+              {seasonalCount > 0 && (
+                <button
+                  onClick={() => setSeasonalOnly(!seasonalOnly)}
+                  title={`${season}철 제철 재료만 보기 · ${seasonalCount}개`}
+                  className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
+                    seasonalOnly
+                      ? 'bg-brand-primary text-white'
+                      : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
+                  }`}
+                >
+                  {(() => {
+                    const Icon = SEASON_ICON[season];
+                    return (
+                      <span className="inline-flex items-center gap-1">
+                        <Icon size={11} strokeWidth={2.4} />
+                        <span>제철 {seasonalCount}</span>
+                      </span>
+                    );
+                  })()}
+                </button>
+              )}
             </div>
-            <button
-              onClick={() => setSortBy(SORT_CYCLE[sortBy].next)}
-              className="text-sm text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors"
-            >
-              {SORT_CYCLE[sortBy].label}
-            </button>
           </div>
-          <div className="flex gap-1.5 items-center overflow-x-auto scrollbar-hide -mx-1 px-1">
-            {GROUP_FILTERS.map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setGroupFilter(key)}
-                className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                  groupFilter === key
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-            {seasonalCount > 0 && (
-              <button
-                onClick={() => setSeasonalOnly(!seasonalOnly)}
-                title={`${season}철 제철 재료만 보기 · ${seasonalCount}개`}
-                className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                  seasonalOnly
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
-                }`}
-              >
-                {(() => {
-                  const Icon = SEASON_ICON[season];
-                  return (
-                    <span className="inline-flex items-center gap-1">
-                      <Icon size={11} strokeWidth={2.4} />
-                      <span>제철 {seasonalCount}</span>
-                    </span>
-                  );
-                })()}
-              </button>
-            )}
-          </div>
-        </div>
+        )}
 
             {/* 아이템 리스트 — viewMode === 'list'일 때만 표시 */}
             {viewMode === 'list' && (
