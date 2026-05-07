@@ -5,7 +5,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import { type FoodItem } from '@/types';
 import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
-import { getFoodCategoryImage } from '@/lib/categoryImages';
+import { getFoodCategoryTone } from '@/lib/categoryImages';
 import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth } from '@/lib/season';
@@ -85,16 +85,20 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate }
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
       >
         <div className="flex items-start gap-3">
-          {/* 좌측: 카테고리 이미지 (사용자 업로드 우선, 없으면 카테고리 fallback) */}
-          <div className="shrink-0 w-12 h-12 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={item.imageUrl ?? getFoodCategoryImage(item.foodCategory)}
-              alt=""
-              loading="lazy"
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* 좌측: 사용자 업로드 사진 우선, 없으면 카테고리 톤 + 이모지 */}
+          {(() => {
+            const tone = getFoodCategoryTone(item.foodCategory);
+            return (
+              <div className={`shrink-0 w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg}`}>
+                {item.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl" aria-hidden>{tone.emoji}</span>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 본문: 제목 + 메타 + 진행바 */}
           <div className="flex-1 min-w-0">

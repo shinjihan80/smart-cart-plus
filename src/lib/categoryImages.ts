@@ -1,70 +1,74 @@
 /**
- * 카테고리별 fallback 이미지 — 사용자가 직접 이미지를 업로드하지 않은 항목에
- * 카테고리에 어울리는 stock 사진을 매핑한다.
+ * 카테고리별 시각 정체성 — 사용자가 사진을 업로드하지 않은 항목에
+ * 카테고리에 어울리는 색·이모지를 표시한다.
  *
- * 출처: Unsplash (라이선스 무료, 출처 표기 권장이지만 강제 아님)
- * 크기: 200x200 cover crop — 카드 썸네일에 충분
+ * 외부 사진(Unsplash) 의존을 의도적으로 제거 — 검증되지 않은 이미지 ID로
+ * 잘못된 사진(예: 청바지 자리에 신발)이 들어가는 사고를 막기 위함.
  *
- * 적용 지점은 두 가지 방식이 가능하지만 현재는 *렌더 타임 폴백*만 사용:
- * - 저장된 데이터는 imageUrl을 비워둠 (사용자 의도 보존)
- * - 카드/리스트가 표시할 때만 getDisplayImage(item)으로 카테고리 사진을 채움
+ * 이 모듈은 카드/리스트가 표시할 때만 호출되며, 저장 데이터(item.imageUrl)는
+ * 그대로 유지된다.
  */
 
 import type { CartItem, FashionCategory, FoodCategory } from '@/types';
 import { isFoodItem } from '@/types';
 
-const UNSPLASH = (id: string, q = 'w=200&h=200&fit=crop') => `https://images.unsplash.com/photo-${id}?${q}`;
+// ─────────────────────────────────────────────
+// 카테고리별 톤 (Tailwind 클래스)
+// ─────────────────────────────────────────────
 
-const FOOD_FALLBACK: Record<FoodCategory, string> = {
-  '채소·과일':   UNSPLASH('1610348725531-843dff563e2c'),     // 신선 채소 그릇
-  '정육·계란':   UNSPLASH('1607623814075-e51df1bdc82f'),     // 붉은 고기
-  '수산·해산':   UNSPLASH('1535850452425-140ee4a8dbae'),     // 생선
-  '유제품':      UNSPLASH('1563636619-e9143da7973b'),        // 우유
-  '음료':        UNSPLASH('1437418747212-8d9709afab22'),     // 음료병
-  '간식·과자':   UNSPLASH('1599490659213-e2b9527bd087'),     // 쿠키
-  '양념·소스':   UNSPLASH('1505253213348-cd54c92b37cb'),     // 양념 병
-  '면·즉석':     UNSPLASH('1569718212165-3a8278d5f624'),     // 면류
-  '빵·베이커리': UNSPLASH('1509440159596-0249088772ff'),     // 빵
-  '건강식품':    UNSPLASH('1607619056574-7b8d3ee536b2'),     // 비타민/영양제
-  '기타 식품':   UNSPLASH('1546069901-ba9599a7e63c'),        // 일반 식품 보울
+export interface CategoryTone {
+  bg:    string;   // 카드 썸네일 배경
+  text:  string;   // 이모지/아이콘 텍스트 색
+  emoji: string;   // 표시용 이모지 (FOOD_EMOJI / FASHION_EMOJI와 동일)
+}
+
+const FOOD_TONE: Record<FoodCategory, CategoryTone> = {
+  '채소·과일':   { bg: 'bg-emerald-50', text: 'text-emerald-700', emoji: '🥬' },
+  '정육·계란':   { bg: 'bg-rose-50',    text: 'text-rose-700',    emoji: '🥩' },
+  '수산·해산':   { bg: 'bg-sky-50',     text: 'text-sky-700',     emoji: '🐟' },
+  '유제품':      { bg: 'bg-amber-50',   text: 'text-amber-700',   emoji: '🥛' },
+  '음료':        { bg: 'bg-orange-50',  text: 'text-orange-700',  emoji: '🧃' },
+  '간식·과자':   { bg: 'bg-yellow-50',  text: 'text-yellow-700',  emoji: '🍪' },
+  '양념·소스':   { bg: 'bg-stone-100',  text: 'text-stone-700',   emoji: '🧂' },
+  '면·즉석':     { bg: 'bg-amber-100',  text: 'text-amber-800',   emoji: '🍜' },
+  '빵·베이커리': { bg: 'bg-orange-100', text: 'text-orange-800',  emoji: '🍞' },
+  '건강식품':    { bg: 'bg-violet-50',  text: 'text-violet-700',  emoji: '💊' },
+  '기타 식품':   { bg: 'bg-gray-100',   text: 'text-gray-600',    emoji: '📦' },
 };
 
-const FASHION_FALLBACK: Record<FashionCategory, string> = {
-  '상의':         UNSPLASH('1521572163474-6864f9cf17ab'),    // 흰 티
-  '하의':         UNSPLASH('1542272604-787c3835535d'),       // 청바지
-  '아우터':       UNSPLASH('1551028719-00167b16eac5'),       // 코트
-  '원피스':       UNSPLASH('1572804013309-59a88b7e92f1'),    // 원피스
-  '신발':         UNSPLASH('1542291026-7eec264c27ff'),       // 운동화
-  '가방':         UNSPLASH('1548036328-c9fa89d128fa'),       // 토트백
-  '모자':         UNSPLASH('1521369909029-2afed882baee'),    // 모자
-  '스카프':       UNSPLASH('1601925260368-ae2f83cf8b7f'),    // 스카프
-  '안경':         UNSPLASH('1574258495973-f010dfbb5371'),    // 안경
-  '선글라스':     UNSPLASH('1572635196237-14b3f281503f'),    // 선글라스
-  '시계':         UNSPLASH('1524592094714-0f0654e20314'),    // 시계
-  '주얼리':       UNSPLASH('1599643478518-a784e5dc4c8f'),    // 주얼리
-  '기타 액세서리': UNSPLASH('1611591437281-460bfbe1220a'),   // 잡화
+const FASHION_TONE: Record<FashionCategory, CategoryTone> = {
+  '상의':         { bg: 'bg-sky-50',     text: 'text-sky-700',     emoji: '👕' },
+  '하의':         { bg: 'bg-indigo-50',  text: 'text-indigo-700',  emoji: '👖' },
+  '아우터':       { bg: 'bg-stone-100',  text: 'text-stone-700',   emoji: '🧥' },
+  '원피스':       { bg: 'bg-rose-50',    text: 'text-rose-700',    emoji: '👗' },
+  '신발':         { bg: 'bg-amber-50',   text: 'text-amber-800',   emoji: '👟' },
+  '가방':         { bg: 'bg-orange-50',  text: 'text-orange-700',  emoji: '👜' },
+  '모자':         { bg: 'bg-cyan-50',    text: 'text-cyan-700',    emoji: '🧢' },
+  '스카프':       { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', emoji: '🧣' },
+  '안경':         { bg: 'bg-slate-100',  text: 'text-slate-700',   emoji: '👓' },
+  '선글라스':     { bg: 'bg-zinc-100',   text: 'text-zinc-800',    emoji: '🕶️' },
+  '시계':         { bg: 'bg-gray-100',   text: 'text-gray-700',    emoji: '⌚' },
+  '주얼리':       { bg: 'bg-pink-50',    text: 'text-pink-700',    emoji: '💍' },
+  '기타 액세서리': { bg: 'bg-violet-50',  text: 'text-violet-700',  emoji: '✨' },
 };
 
-/**
- * 식품 카테고리에 어울리는 stock 이미지 URL 반환.
- */
-export function getFoodCategoryImage(category: FoodCategory): string {
-  return FOOD_FALLBACK[category] ?? FOOD_FALLBACK['기타 식품'];
+// ─────────────────────────────────────────────
+// 헬퍼
+// ─────────────────────────────────────────────
+
+export function getFoodCategoryTone(category: FoodCategory): CategoryTone {
+  return FOOD_TONE[category] ?? FOOD_TONE['기타 식품'];
+}
+
+export function getFashionCategoryTone(category: FashionCategory): CategoryTone {
+  return FASHION_TONE[category] ?? FASHION_TONE['기타 액세서리'];
 }
 
 /**
- * 패션 카테고리에 어울리는 stock 이미지 URL 반환.
+ * 표시용 톤 — 사용자 업로드 imageUrl과 무관하게 카테고리 톤만 반환.
+ * 카드는 imageUrl이 있으면 사진을, 없으면 이 톤 + emoji를 사용.
  */
-export function getFashionCategoryImage(category: FashionCategory): string {
-  return FASHION_FALLBACK[category] ?? FASHION_FALLBACK['기타 액세서리'];
-}
-
-/**
- * 표시용 이미지 — 사용자가 올린 imageUrl이 있으면 그대로,
- * 없으면 카테고리 fallback 사용.
- */
-export function getDisplayImage(item: CartItem): string {
-  if (item.imageUrl) return item.imageUrl;
-  if (isFoodItem(item)) return getFoodCategoryImage(item.foodCategory);
-  return getFashionCategoryImage(item.category);
+export function getCategoryTone(item: CartItem): CategoryTone {
+  if (isFoodItem(item)) return getFoodCategoryTone(item.foodCategory);
+  return getFashionCategoryTone(item.category);
 }
