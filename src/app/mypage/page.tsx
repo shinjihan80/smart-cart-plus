@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
@@ -32,6 +32,7 @@ import WaitlistBanner                            from '@/components/mypage/Waitl
 import PaletteButton                              from '@/components/PaletteButton';
 import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
 import MonthlySummarySection                      from '@/components/mypage/MonthlySummarySection';
+import WeeklySummarySection                       from '@/components/mypage/WeeklySummarySection';
 import FrequentIngredientsSection                  from '@/components/mypage/FrequentIngredientsSection';
 import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
@@ -60,6 +61,17 @@ export default function MyPage() {
     'nemoa-mypage-tab', 'overview',
     (raw) => (isMyTab(raw) ? raw : null),
   );
+
+  // ?tab=... 쿼리로 탭 초기화 (홈 "이번 주 더보기" 등 외부 진입용)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const requested = params.get('tab');
+    if (requested && isMyTab(requested) && requested !== activeTab) {
+      setActiveTab(requested);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
@@ -210,6 +222,10 @@ export default function MyPage() {
           <>
             <SectionErrorBoundary label="내 냉장고">
               <MyFridgeSection />
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="이번 주 활동">
+              <WeeklySummarySection discardHistory={discardHistory} />
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="이번 달 활동">

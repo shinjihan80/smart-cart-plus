@@ -110,7 +110,7 @@ export default function HomePage() {
           </SectionHeader>
 
           {/* 이번 주 — 한 줄 요약 */}
-          <SectionHeader title="이번 주" actionHref="/mypage" actionLabel="더보기">
+          <SectionHeader title="이번 주" actionHref="/mypage?tab=overview#weekly-stats" actionLabel="더보기">
             <SectionErrorBoundary label="주간 인사이트">
               <WeeklyInsight items={items} />
             </SectionErrorBoundary>
