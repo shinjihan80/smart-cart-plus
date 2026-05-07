@@ -403,13 +403,13 @@ export default function FridgePage() {
         )}
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-1.5">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
               {STORAGE_FILTERS.map(({ key, label }) => (
                 <button
                   key={key}
                   onClick={() => setStorageFilter(key)}
-                  className={`px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
+                  className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
                     storageFilter === key
                       ? 'bg-brand-primary text-white'
                       : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -426,12 +426,12 @@ export default function FridgePage() {
               {SORT_CYCLE[sortBy].label}
             </button>
           </div>
-          <div className="flex gap-1.5 items-center flex-wrap">
+          <div className="flex gap-1.5 items-center overflow-x-auto scrollbar-hide -mx-1 px-1">
             {GROUP_FILTERS.map(({ key, label }) => (
               <button
                 key={key}
                 onClick={() => setGroupFilter(key)}
-                className={`px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
+                className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
                   groupFilter === key
                     ? 'bg-gray-900 text-white'
                     : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
@@ -444,7 +444,7 @@ export default function FridgePage() {
               <button
                 onClick={() => setSeasonalOnly(!seasonalOnly)}
                 title={`${season}철 제철 재료만 보기 · ${seasonalCount}개`}
-                className={`px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
+                className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
                   seasonalOnly
                     ? 'bg-brand-primary text-white'
                     : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
