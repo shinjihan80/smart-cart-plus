@@ -6,6 +6,49 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 
 ---
 
+## v1.6 — 2026-05-07 · 냉장고 시각화 + 마이페이지 정리
+
+**테마: Phase 8.0 냉장고 시각화 + UX 정리 (사용자 피드백 반영)**
+
+### Added — 냉장고 시각화 (Phase 8.0)
+- **`FridgeSection` 13종 칸 타입** (본체/도어/야채/버터/냉동/김치/실온) + `FoodItem.fridgeSection?` 필드
+- **`recommendFridgeSection`** — 룰 기반 보관 위치 추천 (storageType → 키워드 → 카테고리)
+- **냉장고 모델 4종 프리셋** — 양문형 / 4도어 / 1도어 / 김치냉장고
+  - 각 모델은 그리드(cols × rows) + cells 좌표를 명시 → 시각화 컴포넌트가 그대로 렌더
+  - `resolveSectionForModel`: 추천 칸이 모델에 없으면 zone fallback
+- **`FridgeView`** — 냉장고 모양 그리드 시각화. 칸별 라벨·이모지·아이템 수·임박 강조
+- **`SectionDetailSheet`** — 칸 탭 시 바텀 시트, SwipeFoodCard 리스트 재사용
+- **헤더 시각화/리스트 토글** (LayoutGrid/List 아이콘) — 선택 영속화
+- **빠른 추가/재구매/제철 등록 시 자동 칸 매핑** (모델에 없으면 fallback)
+- **마이페이지 "내 냉장고" 아코디언** — 모델 변경 + 현재 모델 라벨/칸 수 노출
+- **온보딩 4번째 step** — 첫 진입 시 냉장고 모델 선택 (`smart-cart-onboarded-v3` 1회 재노출)
+- **단위 테스트 21개 추가** — `fridgeSection.test.mts` 14 + `fridgeModel.test.mts` 7
+
+### Changed — 마이페이지 정리 (사용자 "조잡함" 피드백)
+- **헤더 점프 칩(5개) → 4그룹 탭**: 요약 / 쇼핑 / 옷장 / 요리 (활성 탭은 `nemoa-mypage-tab` 영속화)
+- **그룹별 섹션 매핑**:
+  - 요약: 내 냉장고 · 이번 주 · 이번 달 · 자주 구매 · 올해 요약
+  - 쇼핑: 쇼핑몰 자동 연동 · 장볼 거 추천 · 쇼핑 리스트
+  - 옷장: 착용 로그 · 계절 보관 · 옷장 정리
+  - 요리: 조리 로그 · 제철 히스토리 · 즐겨찾기 레시피
+- **항상 노출**: 프로필 · 백업 배너 · 핵심 통계 · 지출 · 소진 히스토리 · 파트너 로드맵 · WaitlistBanner · 아카이브 · 설정 링크
+- **`?tab=overview` URL 쿼리**로 탭 초기 진입 가능 (외부 진입용)
+
+### Added — 그 외
+- **`WeeklySummarySection`** — 7일 윈도우 조리/착용/소진 카운트 (마이페이지 요약 탭, id="weekly-stats")
+- **홈 "이번 주" 더보기** → `/mypage?tab=overview#weekly-stats`로 정확히 라우팅
+- **카테고리별 fallback 이미지** (`src/lib/categoryImages.ts`) — Unsplash stock 24종 (Food 11 + Fashion 13)
+  - 적용처: SwipeFoodCard / SwipeClothingCard 썸네일 · ClosetCleanupSection
+  - 사용자 업로드 imageUrl이 있으면 우선, 없으면 카테고리 fallback (저장 데이터는 그대로)
+
+### 정량
+- 라우트 19개 빌드 성공 (0 에러)
+- 테스트 57/57 (기존 36 + 신규 21)
+- 신규 라이브러리 5: fridgeSection · fridgeModel · useFridgeModel · categoryImages · weeklySummary
+- 신규 컴포넌트 4: FridgeView · SectionDetailSheet · FridgeModelPicker · MyFridgeSection
+
+---
+
 ## v1.5.1 — 2026-04-22 · AI 백엔드 Gemini 전환
 
 **테마: Anthropic Claude → Google Gemini 백엔드 교체 (사용자 요청, 무료 티어 활용)**
