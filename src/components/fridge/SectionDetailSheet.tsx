@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -22,6 +23,7 @@ export function SectionDetailSheet({
   onDiscard,
   onUpdate,
 }: SectionDetailSheetProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   return (
     <AnimatePresence>
       {section && (() => {
@@ -92,6 +94,8 @@ export function SectionDetailSheet({
                       index={index}
                       onDiscard={onDiscard}
                       onUpdate={onUpdate}
+                      expanded={expandedId === item.id}
+                      onToggle={() => setExpandedId(expandedId === item.id ? null : item.id)}
                     />
                   ))}
                 </div>

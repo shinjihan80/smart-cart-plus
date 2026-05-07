@@ -29,6 +29,7 @@ import { usePersistedState }   from '@/lib/usePersistedState';
 import { useFridgeModel }      from '@/lib/useFridgeModel';
 import { recommendFridgeSection, FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import { FRIDGE_MODELS, resolveSectionForModel } from '@/lib/fridgeModel';
+import { getFoodCategoryTone } from '@/lib/categoryImages';
 
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
@@ -50,13 +51,13 @@ const SORT_CYCLE: Record<SortKey, { next: SortKey; label: string }> = {
   seasonal: { next: 'dDay',     label: '🌸 제철 먼저' },
 };
 
-const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType; days: number; img: string }[] = [
-  { name: '우유 1L',    foodCategory: '유제품',      storageType: '냉장', days: 10, img: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop' },
-  { name: '달걀 10구',  foodCategory: '정육·계란',   storageType: '냉장', days: 21, img: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=300&h=300&fit=crop' },
-  { name: '식빵',       foodCategory: '빵·베이커리', storageType: '실온', days: 4,  img: 'https://images.unsplash.com/photo-1549931319-a545753467c8?w=300&h=300&fit=crop' },
-  { name: '바나나',     foodCategory: '채소·과일',   storageType: '실온', days: 5,  img: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&h=300&fit=crop' },
-  { name: '닭가슴살',   foodCategory: '정육·계란',   storageType: '냉동', days: 60, img: 'https://images.unsplash.com/photo-1604503468506-a8da13d82571?w=300&h=300&fit=crop' },
-  { name: '요거트',     foodCategory: '유제품',      storageType: '냉장', days: 14, img: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=300&h=300&fit=crop' },
+const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType; days: number }[] = [
+  { name: '우유 1L',    foodCategory: '유제품',      storageType: '냉장', days: 10 },
+  { name: '달걀 10구',  foodCategory: '정육·계란',   storageType: '냉장', days: 21 },
+  { name: '식빵',       foodCategory: '빵·베이커리', storageType: '실온', days: 4  },
+  { name: '바나나',     foodCategory: '채소·과일',   storageType: '실온', days: 5  },
+  { name: '닭가슴살',   foodCategory: '정육·계란',   storageType: '냉동', days: 60 },
+  { name: '요거트',     foodCategory: '유제품',      storageType: '냉장', days: 14 },
 ];
 
 const STORAGE_FILTERS: { key: StorageFilter; label: string }[] = [
@@ -109,6 +110,7 @@ export default function FridgePage() {
   );
   const [fridgeModelId] = useFridgeModel();
   const [activeSection, setActiveSection] = useState<FridgeSection | null>(null);
+  const [expandedFoodId, setExpandedFoodId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchInputRef, () => setSearch(''));
   const season = currentSeasonByMonth();
@@ -168,7 +170,6 @@ export default function FridgePage() {
       storageType: preset.storageType,
       baseShelfLifeDays: preset.days,
       purchaseDate: new Date().toISOString().split('T')[0],
-      imageUrl: preset.img,
       ownerId: quickAddOwner,
       fridgeSection: pickSection(preset),
     }]);
@@ -447,7 +448,16 @@ export default function FridgePage() {
                         <AnimatePresence mode="popLayout">
                           <div className="flex flex-col gap-3">
                             {group.map((item, index) => (
-                              <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+                              <SwipeFoodCard
+                                key={item.id}
+                                item={item}
+                                dDay={item.dDay}
+                                index={index}
+                                onDiscard={handleDiscard}
+                                onUpdate={updateItem}
+                                expanded={expandedFoodId === item.id}
+                                onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)}
+                              />
                             ))}
                           </div>
                         </AnimatePresence>
@@ -458,7 +468,16 @@ export default function FridgePage() {
               ) : (
                 <AnimatePresence mode="popLayout">
                   {items.map((item, index) => (
-                    <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+                    <SwipeFoodCard
+                      key={item.id}
+                      item={item}
+                      dDay={item.dDay}
+                      index={index}
+                      onDiscard={handleDiscard}
+                      onUpdate={updateItem}
+                      expanded={expandedFoodId === item.id}
+                      onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)}
+                    />
                   ))}
                 </AnimatePresence>
               )
@@ -551,19 +570,21 @@ export default function FridgePage() {
                 </div>
               )}
               <div className="flex gap-1.5 flex-wrap">
-                {QUICK_ADD_FOODS.map((preset) => (
-                  <button
-                    key={preset.name}
-                    onClick={() => handleQuickAdd(preset)}
-                    className="flex items-center gap-1.5 text-xs pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
-                  >
-                    <div className="w-6 h-6 rounded-lg overflow-hidden bg-white shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={preset.img} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    {preset.name}
-                  </button>
-                ))}
+                {QUICK_ADD_FOODS.map((preset) => {
+                  const tone = getFoodCategoryTone(preset.foodCategory);
+                  return (
+                    <button
+                      key={preset.name}
+                      onClick={() => handleQuickAdd(preset)}
+                      className="flex items-center gap-1.5 text-xs pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
+                    >
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${tone.bg}`}>
+                        <span className="text-base leading-none" aria-hidden>{tone.emoji}</span>
+                      </div>
+                      {preset.name}
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
 

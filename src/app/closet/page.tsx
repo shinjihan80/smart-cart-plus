@@ -8,6 +8,7 @@ import {
   type FashionGroup,
 } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
+import { getFashionCategoryTone } from '@/lib/categoryImages';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Search } from 'lucide-react';
@@ -46,12 +47,12 @@ const MATCH_RANK      = { perfect: 0, good: 1, mismatch: 2 } as const;
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
 const GROUP_EMOJI: Record<FashionGroup, string> = { 의류: '👕', 신발: '👟', 가방: '👜', 액세서리: '✨' };
 
-const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string; img: string }[] = [
-  { name: '반팔 티셔츠', category: '상의',       size: 'M',    material: '면',     img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop' },
-  { name: '청바지',      category: '하의',       size: '32',   material: '데님',   img: 'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=300&h=300&fit=crop' },
-  { name: '운동화',      category: '신발',       size: '260',  material: '메쉬',   img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop' },
-  { name: '에코백',      category: '가방',       size: 'Free', material: '캔버스', img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&h=300&fit=crop' },
-  { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면',   img: 'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=300&h=300&fit=crop' },
+const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string }[] = [
+  { name: '반팔 티셔츠', category: '상의',          size: 'M',    material: '면'     },
+  { name: '청바지',      category: '하의',          size: '32',   material: '데님'   },
+  { name: '운동화',      category: '신발',          size: '260',  material: '메쉬'   },
+  { name: '에코백',      category: '가방',          size: 'Free', material: '캔버스' },
+  { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면'     },
 ];
 
 const FILTERS: { key: GroupFilter; label: string }[] = [
@@ -83,6 +84,7 @@ export default function ClosetPage() {
   );  // 'id' | '전체' | '공용'
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [showHibernating, setShowHibernating] = useState(false);
+  const [expandedClothingId, setExpandedClothingId] = useState<string | null>(null);
   const { log: wearLog } = useWearLog();
   const searchInputRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchInputRef, () => setSearch(''));
@@ -149,7 +151,6 @@ export default function ClosetPage() {
       size: preset.size,
       thickness: '보통' as const,
       material: preset.material,
-      imageUrl: preset.img,
       ownerId: quickAddOwner,
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
@@ -423,19 +424,21 @@ export default function ClosetPage() {
             </div>
           )}
           <div className="flex gap-1.5 flex-wrap">
-            {QUICK_ADD_FASHION.map((preset) => (
-              <button
-                key={preset.name}
-                onClick={() => handleQuickAdd(preset)}
-                className="flex items-center gap-1.5 text-xs pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
-              >
-                <div className="w-6 h-6 rounded-lg overflow-hidden bg-white shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={preset.img} alt="" className="w-full h-full object-cover" />
-                </div>
-                {preset.name}
-              </button>
-            ))}
+            {QUICK_ADD_FASHION.map((preset) => {
+              const tone = getFashionCategoryTone(preset.category);
+              return (
+                <button
+                  key={preset.name}
+                  onClick={() => handleQuickAdd(preset)}
+                  className="flex items-center gap-1.5 text-xs pl-1 pr-2.5 py-1 rounded-2xl bg-gray-50 border border-gray-100 text-gray-600 hover:bg-brand-primary/5 hover:border-brand-primary/20 hover:text-brand-primary active:scale-95 transition-all"
+                >
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${tone.bg}`}>
+                    <span className="text-base leading-none" aria-hidden>{tone.emoji}</span>
+                  </div>
+                  {preset.name}
+                </button>
+              );
+            })}
           </div>
         </motion.div>
 
@@ -539,6 +542,8 @@ export default function ClosetPage() {
                           onRemove={handleRemove}
                           onUpdate={updateItem}
                           matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined}
+                          expanded={expandedClothingId === item.id}
+                          onToggle={() => setExpandedClothingId(expandedClothingId === item.id ? null : item.id)}
                         />
                       ))}
                     </div>
@@ -557,6 +562,8 @@ export default function ClosetPage() {
                 onRemove={handleRemove}
                 onUpdate={updateItem}
                 matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined}
+                expanded={expandedClothingId === item.id}
+                onToggle={() => setExpandedClothingId(expandedClothingId === item.id ? null : item.id)}
               />
             ))}
           </AnimatePresence>

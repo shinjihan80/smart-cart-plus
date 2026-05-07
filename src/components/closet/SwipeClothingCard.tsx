@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { isEnrichedClothingItem, isClothingItem, type ClothingItem } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
@@ -21,10 +21,15 @@ interface SwipeClothingCardProps {
   onRemove:   (id: string) => void;
   onUpdate:   (id: string, updates: Partial<ClothingItem>) => void;
   matchBadge?: MatchBadge;
+  /** 부모가 관리하는 펼침 상태 — 한 번에 하나만 펼치게 */
+  expanded?: boolean;
+  onToggle?: () => void;
 }
 
-export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge }: SwipeClothingCardProps) {
-  const [expanded, setExpanded] = useState(false);
+export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge, expanded: expandedProp, onToggle }: SwipeClothingCardProps) {
+  const [expandedLocal, setExpandedLocal] = useState(false);
+  const expanded = expandedProp ?? expandedLocal;
+  const toggleExpanded = onToggle ?? (() => setExpandedLocal((v) => !v));
   const [editing, setEditing]   = useState(false);
   const { getEntry, markWorn, undoLast, getCoWornWith } = useWearLog();
   const { items: allItems } = useCart();
@@ -44,22 +49,9 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
       return { item: found, count: co.count };
     })
     .filter((x): x is { item: ClothingItem; count: number } => x !== null);
-  const x = useMotionValue(0);
-  const bgColor = useTransform(
-    x, [-120, -30, 0],
-    ['rgb(255,241,242)', 'rgb(255,254,253)', 'rgb(255,255,255)'],
-  );
-  const removeOpacity = useTransform(x, [-120, -40], [1, 0]);
 
   const thick = THICKNESS_STYLE[item.thickness];
   const ThickIcon = thick.icon;
-
-  function handleDragEnd(_: unknown, info: { offset: { x: number } }) {
-    if (info.offset.x < -80) {
-      haptic('action');
-      onRemove(item.id);
-    }
-  }
 
   return (
     <motion.div
@@ -70,21 +62,10 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
       transition={{ ...springTransition, delay: 0.1 + index * 0.04 }}
       className="relative overflow-hidden rounded-[32px]"
     >
-      <div className="absolute inset-0 flex items-center justify-end px-6 pointer-events-none">
-        <motion.div style={{ opacity: removeOpacity }} className="flex flex-col items-center gap-0.5">
-          <span className="text-xl">🗑️</span>
-          <span className="text-xs font-semibold text-brand-warning">삭제</span>
-        </motion.div>
-      </div>
-
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: -130, right: 0 }}
-        dragElastic={0.12}
-        style={{ x, backgroundColor: bgColor, ...CARD_SHADOW }}
-        onDragEnd={handleDragEnd}
-        onClick={() => setExpanded(!expanded)}
-        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-grab"
+      <div
+        style={{ backgroundColor: 'rgb(255,255,255)', ...CARD_SHADOW }}
+        onClick={toggleExpanded}
+        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-pointer"
       >
         <div className="flex items-start gap-3">
           {/* 좌측: 사용자 업로드 사진 우선, 없으면 카테고리 톤 + 이모지 */}
@@ -486,11 +467,25 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 >
                   {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
                 </button>
+
+                {/* 삭제 — 명확히 분리, 빨간 톤 */}
+                {!editing && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      haptic('action');
+                      onRemove(item.id);
+                    }}
+                    className="w-full py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors"
+                  >
+                    🗑️ 삭제
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
