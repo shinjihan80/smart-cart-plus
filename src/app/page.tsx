@@ -10,7 +10,6 @@ import { useSessionPing } from '@/lib/analytics';
 import { HomeSkeleton } from '@/components/home/shared';
 import HeroMessage     from '@/components/home/HeroMessage';
 import SectionHeader   from '@/components/home/SectionHeader';
-import TodayActivity   from '@/components/home/TodayActivity';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import UrgentAlert     from '@/components/home/UrgentAlert';
 import DailyBriefing   from '@/components/home/DailyBriefing';
@@ -68,13 +67,6 @@ export default function HomePage() {
       <div className="px-5 pt-6">
         <SectionErrorBoundary label="카테고리">
           <QuickLinks items={items} history={discardHistory} />
-        </SectionErrorBoundary>
-      </div>
-
-      {/* 오늘의 기록 — 회색 섹션 */}
-      <div className="px-5 pt-6">
-        <SectionErrorBoundary label="오늘의 기록">
-          <TodayActivity />
         </SectionErrorBoundary>
       </div>
 

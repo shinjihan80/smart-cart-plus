@@ -484,13 +484,13 @@ export default function ClosetPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <div className="flex gap-1.5">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
             {FILTERS.map(({ key, label }) => (
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className={`px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
+                className={`shrink-0 px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
                   filter === key
                     ? 'bg-brand-primary text-white'
                     : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
