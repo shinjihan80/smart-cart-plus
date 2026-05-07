@@ -2,11 +2,11 @@
 
 import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isFoodItem, type StorageType, type FoodGroup, FOOD_GROUP } from '@/types';
+import { isFoodItem, type StorageType, type FoodGroup, type FridgeSection, FOOD_GROUP } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { Search } from 'lucide-react';
+import { Search, LayoutGrid, List } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -19,11 +19,16 @@ import RecipeSection           from '@/components/fridge/RecipeSection';
 import RebuySection            from '@/components/fridge/RebuySection';
 import SeasonalProduceSection  from '@/components/fridge/SeasonalProduceSection';
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
+import { FridgeView }          from '@/components/fridge/FridgeView';
+import { SectionDetailSheet }  from '@/components/fridge/SectionDetailSheet';
 import { isSeasonalProduce, SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { SEASON_ICON }          from '@/lib/iconMap';
 import { useProfiles }         from '@/lib/profile';
 import { usePersistedState }   from '@/lib/usePersistedState';
+import { useFridgeModel }      from '@/lib/useFridgeModel';
+import { recommendFridgeSection, FRIDGE_SECTION_META } from '@/lib/fridgeSection';
+import { FRIDGE_MODELS, resolveSectionForModel } from '@/lib/fridgeModel';
 
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
@@ -84,6 +89,12 @@ export default function FridgePage() {
     'nemoa-fridge-seasonal-only', false,
     (raw) => typeof raw === 'boolean' ? raw : null,
   );
+  const [viewMode, setViewMode] = usePersistedState<'visual' | 'list'>(
+    'nemoa-fridge-view', 'visual',
+    (raw) => (raw === 'visual' || raw === 'list') ? raw : null,
+  );
+  const [fridgeModelId] = useFridgeModel();
+  const [activeSection, setActiveSection] = useState<FridgeSection | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchInputRef, () => setSearch(''));
   const season = currentSeasonByMonth();
@@ -128,6 +139,12 @@ export default function FridgePage() {
     showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
   }
 
+  function pickSection(input: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType }) {
+    const recommended = recommendFridgeSection(input);
+    const zone = FRIDGE_SECTION_META[recommended].zone;
+    return resolveSectionForModel(fridgeModelId, recommended, zone);
+  }
+
   function handleQuickAdd(preset: typeof QUICK_ADD_FOODS[number]) {
     const { added } = addItems([{
       id: `qa-${Date.now()}`,
@@ -139,12 +156,14 @@ export default function FridgePage() {
       purchaseDate: new Date().toISOString().split('T')[0],
       imageUrl: preset.img,
       ownerId: quickAddOwner,
+      fridgeSection: pickSection(preset),
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
   }
 
   function handleRebuy(name: string) {
+    const input = { name, foodCategory: '기타 식품' as const, storageType: '냉장' as const };
     const { added } = addItems([{
       id: `rb-${Date.now()}`,
       name,
@@ -153,6 +172,7 @@ export default function FridgePage() {
       storageType: '냉장',
       baseShelfLifeDays: 7,
       purchaseDate: new Date().toISOString().split('T')[0],
+      fridgeSection: pickSection(input),
     }]);
     if (added > 0) showToast(`"${name}" 재구매 등록됐어요!`);
     else showToast(`"${name}" 이미 있어요.`);
@@ -168,6 +188,7 @@ export default function FridgePage() {
       baseShelfLifeDays: p.baseShelfLifeDays,
       purchaseDate: new Date().toISOString().split('T')[0],
       ownerId: quickAddOwner,
+      fridgeSection: pickSection(p),
     }]);
     if (added > 0) showToast(`"${p.name}" 담았어요! 제철이라 가장 맛있을 때예요.`);
     else showToast(`"${p.name}" 이미 있어요.`);
@@ -179,9 +200,39 @@ export default function FridgePage() {
         <div className="px-4 py-3.5 flex items-center justify-between gap-3">
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
-            <p className="text-sm text-gray-400 mt-0.5">식품 {allFood.length}개 관리 중 · ← 밀어서 소진</p>
+            <p className="text-sm text-gray-400 mt-0.5">
+              {FRIDGE_MODELS[fridgeModelId].label} · 식품 {allFood.length}개
+            </p>
           </div>
-          <PaletteButton />
+          <div className="flex items-center gap-2">
+            <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === 'visual'}
+                onClick={() => setViewMode('visual')}
+                className={`px-2.5 py-1.5 rounded-full transition-colors ${
+                  viewMode === 'visual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+                aria-label="냉장고 보기"
+              >
+                <LayoutGrid size={14} strokeWidth={2.2} />
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === 'list'}
+                onClick={() => setViewMode('list')}
+                className={`px-2.5 py-1.5 rounded-full transition-colors ${
+                  viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+                aria-label="리스트 보기"
+              >
+                <List size={14} strokeWidth={2.2} />
+              </button>
+            </div>
+            <PaletteButton />
+          </div>
         </div>
       </header>
 
@@ -413,38 +464,49 @@ export default function FridgePage() {
           </div>
         </div>
 
-        {/* 아이템 리스트 */}
-        {storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
-          <>
-            {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
-              const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
-              if (group.length === 0) return null;
-              const grpEmoji = grp === '신선식품' ? '🥬' : grp === '가공식품' ? '🍜' : grp === '음료·간식' ? '🧃' : '📦';
-              return (
-                <div key={grp}>
-                  <div className="flex items-center gap-2 mb-2 mt-1">
-                    <span className="text-sm px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
-                      {grpEmoji} {grp} {group.length}
-                    </span>
-                    <div className="flex-1 h-px bg-gray-100" />
-                  </div>
-                  <AnimatePresence mode="popLayout">
-                    <div className="flex flex-col gap-3">
-                      {group.map((item, index) => (
-                        <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
-                      ))}
+        {/* 시각화 보기 — 냉장고 그리드 */}
+        {viewMode === 'visual' && allFood.length > 0 && (
+          <FridgeView
+            modelId={fridgeModelId}
+            items={items}
+            onSectionClick={setActiveSection}
+          />
+        )}
+
+        {/* 아이템 리스트 — viewMode === 'list'일 때만 표시 */}
+        {viewMode === 'list' && (
+          storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
+            <>
+              {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
+                const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
+                if (group.length === 0) return null;
+                const grpEmoji = grp === '신선식품' ? '🥬' : grp === '가공식품' ? '🍜' : grp === '음료·간식' ? '🧃' : '📦';
+                return (
+                  <div key={grp}>
+                    <div className="flex items-center gap-2 mb-2 mt-1">
+                      <span className="text-sm px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
+                        {grpEmoji} {grp} {group.length}
+                      </span>
+                      <div className="flex-1 h-px bg-gray-100" />
                     </div>
-                  </AnimatePresence>
-                </div>
-              );
-            })}
-          </>
-        ) : (
-          <AnimatePresence mode="popLayout">
-            {items.map((item, index) => (
-              <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
-            ))}
-          </AnimatePresence>
+                    <AnimatePresence mode="popLayout">
+                      <div className="flex flex-col gap-3">
+                        {group.map((item, index) => (
+                          <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+                        ))}
+                      </div>
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {items.map((item, index) => (
+                <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index} onDiscard={handleDiscard} onUpdate={updateItem} />
+              ))}
+            </AnimatePresence>
+          )
         )}
 
         {items.length === 0 && allFood.length > 0 && (
@@ -465,6 +527,22 @@ export default function FridgePage() {
           </div>
         )}
       </div>
+
+      {/* 칸 상세 바텀 시트 — 시각화에서 칸 탭 시 */}
+      <SectionDetailSheet
+        section={activeSection}
+        items={
+          activeSection
+            ? items.filter((i) => {
+                const sec = i.fridgeSection ?? recommendFridgeSection(i);
+                return sec === activeSection;
+              })
+            : []
+        }
+        onClose={() => setActiveSection(null)}
+        onDiscard={handleDiscard}
+        onUpdate={updateItem}
+      />
     </div>
   );
 }
