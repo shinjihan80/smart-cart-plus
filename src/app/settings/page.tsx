@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
+import { mockCartItems } from '@/data/mockData';
 import { useToast } from '@/context/ToastContext';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import {
@@ -155,7 +156,7 @@ export default function SettingsPage() {
     { label: '전체 데이터 초기화', emoji: '🔄', desc: '샘플 데이터로 복원 (주의: 아이템 삭제)', action: handleReset },
     { label: '온보딩 다시 보기', emoji: '🎓', desc: '네모아 소개 7단계 재생',
       action: () => window.dispatchEvent(new CustomEvent('nemoa:replay-onboarding')) },
-    { label: '샘플 데이터 추가',  emoji: '📋', desc: '데모용 식품·의류 22개 추가 (기존 유지)',
+    { label: '샘플 데이터 추가',  emoji: '📋', desc: `데모용 식품·의류 ${mockCartItems.length}개 추가 (기존 유지)`,
       action: () => {
         const n = loadSampleData();
         showToast(`샘플 ${n}개를 추가했어요.`);

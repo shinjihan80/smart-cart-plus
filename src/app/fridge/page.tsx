@@ -61,7 +61,7 @@ const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCateg
 ];
 
 export default function FridgePage() {
-  const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory } = useCart();
+  const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
   const { profiles } = useProfiles();
   const [search, setSearch]         = useState('');
@@ -454,10 +454,19 @@ export default function FridgePage() {
             )}
 
             {allFood.length === 0 && (
-              <div className="text-center py-16 text-gray-400">
-                <div className="flex justify-center mb-3"><EmojiIcon emoji="🧊" size={32} className="text-gray-400" /></div>
+              <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
+                <EmojiIcon emoji="🧊" size={32} className="text-gray-400" />
                 <p className="text-sm font-medium">냉장고가 비어있어요</p>
-                <p className="text-xs mt-1">+ 버튼을 눌러 식품을 추가해보세요.</p>
+                <p className="text-xs">+ 버튼을 눌러 식품을 추가하거나 샘플로 체험해보세요</p>
+                <button
+                  onClick={() => {
+                    const n = loadSampleData();
+                    showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
+                  }}
+                  className="mt-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
+                >
+                  🎯 샘플 데이터로 채우기
+                </button>
               </div>
             )}
           </>

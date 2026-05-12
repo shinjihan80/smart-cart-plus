@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
+import { mockCartItems } from '@/data/mockData';
 import { useToast } from '@/context/ToastContext';
 import EmojiIcon from '@/components/EmojiIcon';
 
@@ -102,7 +103,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
                 onClick={acceptWithSample}
                 className="w-full mt-2 rounded-2xl bg-gray-50 border border-gray-100 text-gray-700 text-xs font-semibold py-2.5 hover:bg-gray-100 transition-colors"
               >
-                샘플 22개로 체험해보기
+                샘플 {mockCartItems.length}개로 체험해보기
               </button>
             </motion.div>
           </motion.div>
