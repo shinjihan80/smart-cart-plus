@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { type FoodItem } from '@/types';
+import { type FoodItem, type FridgeSection } from '@/types';
 import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { getFoodCategoryTone } from '@/lib/categoryImages';
+import { useFridgeModel } from '@/lib/useFridgeModel';
+import { FRIDGE_MODELS } from '@/lib/fridgeModel';
+import { FRIDGE_SECTION_META, recommendFridgeSection } from '@/lib/fridgeSection';
 import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth } from '@/lib/season';
@@ -42,6 +45,9 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
   const { isFavorite, toggle } = useRecipeFavorites();
   const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
   const recipeCount = countRecipesByIngredient(item.name);
+  const [fridgeModelId] = useFridgeModel();
+  const modelCells = FRIDGE_MODELS[fridgeModelId].cells;
+  const currentSection = item.fridgeSection ?? recommendFridgeSection(item);
   const { discardHistory } = useCart();
   const cycle = estimateCycles(discardHistory, 2).find((c) => c.name === item.name);
   const isUrgent = dDay <= 3;
@@ -379,6 +385,37 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
                     />
                   ) : (
                     <p className="text-gray-700 mt-0.5">{item.memo || <span className="text-gray-300">—</span>}</p>
+                  )}
+                </div>
+
+                {/* 보관 위치 — 편집 모드에서 변경 가능 */}
+                <div>
+                  <span className="text-gray-400">보관 위치</span>
+                  {editing ? (
+                    <select
+                      aria-label={`${item.name} 보관 위치 수정`}
+                      value={currentSection}
+                      onChange={(e) => {
+                        const next = e.target.value as FridgeSection;
+                        if (next !== currentSection) onUpdate(item.id, { fridgeSection: next });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                    >
+                      {modelCells.map((cell) => {
+                        const meta = FRIDGE_SECTION_META[cell.section];
+                        return (
+                          <option key={cell.section} value={cell.section}>
+                            {meta.emoji} {meta.label}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  ) : (
+                    <p className="text-gray-700 mt-0.5">
+                      {FRIDGE_SECTION_META[currentSection].emoji} {FRIDGE_SECTION_META[currentSection].label}
+                      {!item.fridgeSection && <span className="text-gray-300 ml-1">(자동 추천)</span>}
+                    </p>
                   )}
                 </div>
 
