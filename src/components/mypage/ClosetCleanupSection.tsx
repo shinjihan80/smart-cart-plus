@@ -10,12 +10,13 @@ import { findCleanupCandidates } from '@/lib/closetCleanup';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import PartnerChip from '@/components/PartnerChip';
-import { PARTNERS } from '@/lib/partnerLinks';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { usePersistedState } from '@/lib/usePersistedState';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
+  const { partners: PARTNERS } = useMergedCatalog();
   const { log: wearLog } = useWearLog();
   const { removeItem, undoRemove } = useCart();
   const { showToast } = useToast();

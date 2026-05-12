@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
-import { matchRecipes, RECIPES, type Recipe } from '@/lib/recipes';
+import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
@@ -17,6 +18,7 @@ import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const season = currentSeasonByMonth();
+  const { recipes: RECIPES } = useMergedCatalog();
   const { cookCounts } = useCookLog();
   const balance = analyzeBalance(foods);
   const nutritionHint = balance.coverage.protein < 0.4 && balance.proteinCount < 3
@@ -41,7 +43,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const { main } = useProfiles();
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
 
-  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, nutritionHint, difficultyHint, dietary });
+  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, nutritionHint, difficultyHint, dietary }, RECIPES);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);

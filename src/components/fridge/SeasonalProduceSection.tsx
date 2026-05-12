@@ -5,6 +5,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { countRecipesByIngredient } from '@/lib/recipes';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -15,8 +16,9 @@ interface SeasonalProduceSectionProps {
 
 export default function SeasonalProduceSection({ currentNames, onQuickAdd }: SeasonalProduceSectionProps) {
   const season = currentSeasonByMonth();
+  const { seasonal } = useMergedCatalog();
 
-  const suggestions = currentSeasonalProduce(season, 10)
+  const suggestions = currentSeasonalProduce(season, 10, seasonal)
     .filter((p) => !currentNames.some((n) => n === p.name || n.includes(p.name)))
     .slice(0, 6);
 

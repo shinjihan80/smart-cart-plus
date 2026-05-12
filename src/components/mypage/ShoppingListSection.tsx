@@ -7,7 +7,7 @@ import type { CartItem } from '@/types';
 import { useShoppingList } from '@/lib/shoppingList';
 import { createFoodItemFromIngredient, inferFoodCategory, getFoodEmoji } from '@/lib/ingredientInference';
 import PartnerChip from '@/components/PartnerChip';
-import { PARTNERS } from '@/lib/partnerLinks';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -18,6 +18,7 @@ interface ShoppingListSectionProps {
 }
 
 export default function ShoppingListSection({ addItems, showToast }: ShoppingListSectionProps) {
+  const { partners: PARTNERS } = useMergedCatalog();
   const shopping = useShoppingList();
   const [query, setQuery] = useState('');
   const [importOpen, setImportOpen] = useState(false);

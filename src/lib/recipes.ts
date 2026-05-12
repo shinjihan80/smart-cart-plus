@@ -909,6 +909,8 @@ export function matchRecipes(
   foods: FoodItem[],
   maxResults = 8,
   opts: MatchOptions | Season = {},
+  /** admin overlay 적용된 레시피 — useMergedCatalog().recipes 전달 시. 미지정 시 정적 RECIPES */
+  recipes: readonly Recipe[] = RECIPES,
 ): MatchedRecipe[] {
   const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
   const { currentSeason, cookCounts, nutritionHint, difficultyHint, dietary } = options;
@@ -921,7 +923,7 @@ export function matchRecipes(
   const difficultyOrder = { 간단: 0, 보통: 1, 도전: 2 } as const;
 
   const results: MatchedRecipe[] = [];
-  for (const recipe of RECIPES) {
+  for (const recipe of recipes) {
     // dietary 필터 — 맞지 않으면 제외
     if (dietary && violatesDietary(recipe, dietary)) continue;
 

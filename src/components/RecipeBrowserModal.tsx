@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X } from 'lucide-react';
-import { RECIPES, recipeGradient, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { recipeGradient, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useProfiles } from '@/lib/profile';
@@ -22,6 +23,7 @@ interface RecipeBrowserModalProps {
 export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }: RecipeBrowserModalProps) {
   useModalA11y(onClose);
   const { isFavorite } = useRecipeFavorites();
+  const { recipes: RECIPES } = useMergedCatalog();
   const { main } = useProfiles();
   const dietary = main?.dietary && main.dietary !== 'none' ? main.dietary : null;
   const season = currentSeasonByMonth();

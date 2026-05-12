@@ -73,9 +73,14 @@ export const SEASONAL_PRODUCE: readonly SeasonalProduce[] = [
   { name: '단호박',   emoji: '🎃', foodCategory: '채소·과일', storageType: '실온', baseShelfLifeDays: 30, seasons: ['가을', '겨울'], peak: '가을', blurb: '수프·범벅에' },
 ];
 
-/** 현재 계절에 해당하는 제철 식재료. peak 우선 정렬. */
-export function currentSeasonalProduce(season: Season, limit = 6): SeasonalProduce[] {
-  return SEASONAL_PRODUCE
+/** 현재 계절에 해당하는 제철 식재료. peak 우선 정렬.
+ *  source 인자로 admin overlay 적용된 배열 주입 가능 (미지정 시 정적 SEASONAL_PRODUCE) */
+export function currentSeasonalProduce(
+  season:  Season,
+  limit  = 6,
+  source: readonly SeasonalProduce[] = SEASONAL_PRODUCE,
+): SeasonalProduce[] {
+  return source
     .filter((p) => p.seasons.includes(season))
     .sort((a, b) => {
       const aPeak = a.peak === season ? 0 : 1;

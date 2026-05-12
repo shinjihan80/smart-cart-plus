@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, AlertTriangle, Flower2, Trophy, Check } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
@@ -21,7 +22,8 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const { main } = useProfiles();
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
   const { showToast } = useToast();
-  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts, dietary });
+  const { recipes } = useMergedCatalog();
+  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts, dietary }, recipes);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 
