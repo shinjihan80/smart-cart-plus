@@ -66,6 +66,45 @@ export const foodItems: FoodItem[] = [
     category: '식품', foodCategory: '채소·과일', storageType: '냉장', baseShelfLifeDays: 30, purchaseDate: daysAgo(4),
     nutritionFacts: { calories: 18, protein: 1.8, fat: 0.5, carbs: 2.4 },
   },
+  // ── 추가 식품 (9종, 총 20) ──
+  {
+    id: 'f12', name: '국내산 한돈 안심',
+    category: '식품', foodCategory: '정육·계란', storageType: '냉장', baseShelfLifeDays: 4, purchaseDate: daysAgo(1),
+    nutritionFacts: { calories: 132, protein: 22.2, fat: 4.5, carbs: 0 },
+  },
+  {
+    id: 'f13', name: '활새우 1팩',
+    category: '식품', foodCategory: '수산·해산', storageType: '냉동', baseShelfLifeDays: 60, purchaseDate: daysAgo(15),
+  },
+  {
+    id: 'f14', name: '고등어 자반',
+    category: '식품', foodCategory: '수산·해산', storageType: '냉장', baseShelfLifeDays: 5, purchaseDate: daysAgo(2),
+  },
+  {
+    id: 'f15', name: '서울우유 모짜렐라 슬라이스',
+    category: '식품', foodCategory: '유제품', storageType: '냉장', baseShelfLifeDays: 14, purchaseDate: daysAgo(8),
+  },
+  {
+    id: 'f16', name: '샘표 진간장 골드',
+    category: '식품', foodCategory: '양념·소스', storageType: '실온', baseShelfLifeDays: 730, purchaseDate: daysAgo(60),
+  },
+  {
+    id: 'f17', name: '청정원 순창 고추장',
+    category: '식품', foodCategory: '양념·소스', storageType: '냉장', baseShelfLifeDays: 365, purchaseDate: daysAgo(30),
+  },
+  {
+    id: 'f18', name: '햇반 즉석밥 12입',
+    category: '식품', foodCategory: '면·즉석', storageType: '실온', baseShelfLifeDays: 270, purchaseDate: daysAgo(5),
+  },
+  {
+    id: 'f19', name: '센트룸 종합비타민',
+    category: '식품', foodCategory: '건강식품', storageType: '실온', baseShelfLifeDays: 365, purchaseDate: daysAgo(20),
+  },
+  {
+    id: 'f20', name: '청송 사과 5kg',
+    category: '식품', foodCategory: '채소·과일', storageType: '냉장', baseShelfLifeDays: 21, purchaseDate: daysAgo(3),
+    nutritionFacts: { calories: 52, protein: 0.3, fat: 0.2, carbs: 14 },
+  },
 ];
 
 // ────────────────────────────────────────────────
