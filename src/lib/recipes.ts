@@ -26,6 +26,8 @@ export interface Recipe {
   imageUrl?:   string;
   /** 영상 URL (옵셔널) */
   videoUrl?:   string;
+  /** 영상 라벨 (옵셔널) */
+  videoLabel?: string;
 }
 
 export const SEASON_EMOJI = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' } as const;
