@@ -294,6 +294,31 @@ export default function ClosetPage() {
 
         {/* ─── 코디 탭 — 추천성/감상용 ─── */}
         {activeTab === 'outfit' && (<>
+        {/* 옷이 너무 적으면 코디 추천이 거의 안 나오니 안내 */}
+        {activeClothing.length < 3 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={springTransition}
+            className={CARD}
+            style={CARD_SHADOW}
+          >
+            <div className="flex items-center gap-2 mb-1.5">
+              <EmojiIcon emoji="👗" size={16} className="text-brand-primary" />
+              <span className="text-xs text-gray-400 font-medium">코디 추천 시작 전</span>
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              현재 옷이 {activeClothing.length}벌이에요. 옷을 더 추가하면 날씨·계절에 맞는 코디 추천이 풍부해져요.
+            </p>
+            <button
+              onClick={() => setActiveTab('shopping')}
+              className="mt-2 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-colors"
+            >
+              🛍️ 쇼핑 탭으로 가기
+            </button>
+          </motion.div>
+        )}
+
         {/* 계절 추천 */}
         {(() => {
           const month = new Date().getMonth() + 1;
