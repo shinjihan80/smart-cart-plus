@@ -18,6 +18,14 @@ export interface Recipe {
   blurb?:      string;
   /** 이 계절에 특히 어울리는 레시피 (없으면 전계절) */
   seasons?:    readonly Season[];
+  /** 셰프 — admin 카탈로그에서 셰프별 추천 통계용 (옵셔널) */
+  chef?:       string;
+  /** 출처 — 'TV', '책', 'admin' 등 옵셔널 */
+  source?:     string;
+  /** 대표 이미지 URL — admin이 등록한 레시피에 첨부 (옵셔널) */
+  imageUrl?:   string;
+  /** 영상 URL (옵셔널) */
+  videoUrl?:   string;
 }
 
 export const SEASON_EMOJI = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' } as const;
