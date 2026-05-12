@@ -31,8 +31,15 @@ test('DAILY_LIMITS — url 5회', () => {
   assert.match(src, /url:\s*5\b/);
 });
 
-test('aiQuota — 네 개 agent 타입 정의', () => {
-  assert.match(src, /'vision'\s*\|\s*'parser'\s*\|\s*'nutrition'\s*\|\s*'url'/);
+test('DAILY_LIMITS — fridgeSection 10회 (Phase 8.0 Step 5)', () => {
+  assert.match(src, /fridgeSection:\s*10\b/);
+});
+
+test('aiQuota — 다섯 개 agent 타입 정의', () => {
+  assert.match(
+    src,
+    /'vision'\s*\|\s*'parser'\s*\|\s*'nutrition'\s*\|\s*'url'\s*\|\s*'fridgeSection'/,
+  );
 });
 
 test('aiQuota — localStorage key는 nemoa-ai-quota', () => {

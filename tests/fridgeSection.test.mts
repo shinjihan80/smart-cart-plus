@@ -7,7 +7,8 @@ import {
   isSectionCompatible,
   recommendFridgeSection,
 } from '../src/lib/fridgeSection.ts';
-import type { FoodItem } from '../src/types/index.ts';
+import { getSectionZone } from '../src/lib/fridgeModel.ts';
+import type { FoodItem, FridgeSection } from '../src/types/index.ts';
 
 const baseFood = (overrides: Partial<FoodItem>): FoodItem => ({
   id: 't1',
@@ -123,5 +124,16 @@ test('FRIDGE_SECTION_META — 모든 섹션이 메타를 가진다', () => {
     assert.ok(FRIDGE_SECTION_META[s]);
     assert.ok(FRIDGE_SECTION_META[s].label);
     assert.ok(FRIDGE_SECTION_META[s].emoji);
+  }
+});
+
+test('getSectionZone — FRIDGE_SECTION_META.zone과 동기화 (회귀 방지)', () => {
+  // getSectionZone은 prefix 룰로 zone을 도출. META의 zone과 모든 섹션에서 일치해야 함.
+  for (const [id, meta] of Object.entries(FRIDGE_SECTION_META)) {
+    assert.equal(
+      getSectionZone(id as FridgeSection),
+      meta.zone,
+      `${id}: META.zone=${meta.zone}, prefix=${getSectionZone(id as FridgeSection)}`,
+    );
   }
 });

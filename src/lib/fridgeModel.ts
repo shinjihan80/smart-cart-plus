@@ -6,7 +6,7 @@
  * 단위로 표현되어 Step 3 시각화 컴포넌트가 그대로 렌더링한다.
  */
 
-import type { FridgeSection } from '@/types';
+import type { CartItem, FoodItem, FridgeSection } from '@/types';
 
 // ─────────────────────────────────────────────
 // 모델 ID
@@ -183,4 +183,58 @@ export function resolveSectionForModel(
   if (fallback && modelHasSection(modelId, fallback)) return fallback;
   // 마지막 폴백 — 모델의 첫 셀
   return FRIDGE_MODELS[modelId].cells[0].section;
+}
+
+// ─────────────────────────────────────────────
+// 모델 변경 시 마이그레이션 계획
+// ─────────────────────────────────────────────
+
+export interface FridgeSectionMigration {
+  /** 식품 id */
+  id:   string;
+  /** 식품 이름 (UI 미리보기용) */
+  name: string;
+  /** 기존 칸 (현 모델에서 사용 중이던 값) */
+  from: FridgeSection;
+  /** 새 모델 기준으로 재계산된 칸 */
+  to:   FridgeSection;
+}
+
+/**
+ * FridgeSection id의 prefix로 zone을 도출한다.
+ * `FRIDGE_SECTION_META[s].zone`과 일치해야 하며, 단위 테스트가 동기화를 보장한다.
+ */
+export function getSectionZone(section: FridgeSection): string {
+  if (section.startsWith('freezer_')) return 'freezer';
+  if (section.startsWith('door_'))    return 'door';
+  if (section.startsWith('kimchi_'))  return 'kimchi';
+  if (section === 'crisper')          return 'crisper';
+  if (section === 'pantry')           return 'pantry';
+  return 'fridge'; // main_*, butter
+}
+
+/**
+ * 카트 아이템들의 `fridgeSection`을 `targetModelId` 기준으로 재매핑할 계획을 만든다.
+ * 새 모델이 같은 칸을 노출하면 마이그레이션 불필요(결과에서 제외).
+ *
+ * 사용 예: 사용자가 양문형 → 김치냉장고로 모델을 바꾸면 main_* 칸이 사라지므로
+ * 해당 식품들을 kimchi_top / kimchi_bottom 등으로 자동 재배치.
+ */
+export function planSectionMigrations(
+  items: ReadonlyArray<CartItem>,
+  targetModelId: FridgeModelId,
+): FridgeSectionMigration[] {
+  const migrations: FridgeSectionMigration[] = [];
+  for (const item of items) {
+    if (item.category !== '식품') continue;
+    const current = (item as FoodItem).fridgeSection;
+    if (!current) continue;
+    if (modelHasSection(targetModelId, current)) continue;
+
+    const next = resolveSectionForModel(targetModelId, current, getSectionZone(current));
+    if (next === current) continue;
+
+    migrations.push({ id: item.id, name: item.name, from: current, to: next });
+  }
+  return migrations;
 }

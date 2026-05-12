@@ -7,22 +7,24 @@ import { createSharedStore } from './sharedStore';
  * AI 호출 일일 한도 관리.
  *
  * 베이직(무료) 사용자당 기본 한도:
- *   - vision    (사진 분석):   10회/일
- *   - parser    (텍스트 파싱): 20회/일
- *   - nutrition (영양 분석):    5회/일
- *   - url       (URL 분석):     5회/일
+ *   - vision        (사진 분석):       10회/일
+ *   - parser        (텍스트 파싱):     20회/일
+ *   - nutrition     (영양 분석):        5회/일
+ *   - url           (URL 분석):         5회/일
+ *   - fridgeSection (AI 보관 위치):    10회/일 (Phase 8.0 Step 5)
  *
  * Pro 구독 연동 전에는 모든 사용자가 베이직 한도 적용.
  * Pro 활성화 시 quotaFor에서 Infinity 반환하도록 확장.
  */
 
-export type AiAgent = 'vision' | 'parser' | 'nutrition' | 'url';
+export type AiAgent = 'vision' | 'parser' | 'nutrition' | 'url' | 'fridgeSection';
 
 export const DAILY_LIMITS: Record<AiAgent, number> = {
-  vision:    10,
-  parser:    20,
-  nutrition:  5,
-  url:        5,
+  vision:        10,
+  parser:        20,
+  nutrition:      5,
+  url:            5,
+  fridgeSection: 10,
 };
 
 interface QuotaState {
@@ -39,7 +41,7 @@ function todayStr(): string {
 function emptyState(): QuotaState {
   return {
     date:   todayStr(),
-    counts: { vision: 0, parser: 0, nutrition: 0, url: 0 },
+    counts: { vision: 0, parser: 0, nutrition: 0, url: 0, fridgeSection: 0 },
   };
 }
 

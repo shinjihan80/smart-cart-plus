@@ -9,6 +9,7 @@ import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
 import { Camera, X as XIcon } from 'lucide-react';
 import EmojiIcon from '@/components/EmojiIcon';
+import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 
 interface TextImportModalProps {
   onClose:  () => void;
@@ -371,6 +372,13 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
             className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
         </label>
+        <FridgeSectionPicker
+          itemName={item.name}
+          foodCategory={item.foodCategory}
+          storageType={item.storageType}
+          value={item.fridgeSection}
+          onChange={(section) => onUpdate({ fridgeSection: section })}
+        />
       </div>
     </div>
   );
