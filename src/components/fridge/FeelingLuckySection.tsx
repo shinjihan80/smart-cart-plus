@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
 import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
@@ -19,7 +20,8 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
   const { cookCounts } = useCookLog();
   const { main } = useProfiles();
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
-  const matched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, dietary });
+  const { recipes } = useMergedCatalog();
+  const matched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, dietary }, recipes);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [pickIndex, setPickIndex] = useState(() => Math.floor(Math.random() * Math.max(1, matched.length)));
   const [selected, setSelected]   = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);

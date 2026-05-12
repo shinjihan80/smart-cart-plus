@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { RECIPES, type Recipe } from '@/lib/recipes';
+import { type Recipe } from '@/lib/recipes';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from './RecipeDetailModal';
 
@@ -13,16 +14,17 @@ import RecipeDetailModal from './RecipeDetailModal';
 export default function GlobalRecipeModal() {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const { isFavorite, toggle } = useRecipeFavorites();
+  const { recipes } = useMergedCatalog();
 
   useEffect(() => {
     function onOpen(e: Event) {
       const detail = (e as CustomEvent<{ recipeId: string }>).detail;
-      const r = RECIPES.find((x) => x.id === detail?.recipeId);
+      const r = recipes.find((x) => x.id === detail?.recipeId);
       if (r) setRecipe(r);
     }
     window.addEventListener('nemoa:open-recipe', onOpen);
     return () => window.removeEventListener('nemoa:open-recipe', onOpen);
-  }, []);
+  }, [recipes]);
 
   if (!recipe) return null;
   return (

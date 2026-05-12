@@ -5,6 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce, isSeasonalProduce } from '@/lib/seasonalProduce';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { Widget } from './shared';
 
@@ -18,11 +19,12 @@ import { Widget } from './shared';
  */
 export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
   const season = currentSeasonByMonth();
+  const { seasonal } = useMergedCatalog();
   const foods = items.filter(isFoodItem);
   const haveNames = new Set(foods.map((f) => f.name));
 
   const ownedSeasonal = foods.filter((f) => isSeasonalProduce(f.name, season));
-  const peakMissing = currentSeasonalProduce(season, 10)
+  const peakMissing = currentSeasonalProduce(season, 10, seasonal)
     .filter((p) => p.peak === season && !haveNames.has(p.name))
     .slice(0, 3);
 

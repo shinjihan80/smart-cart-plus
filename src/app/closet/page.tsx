@@ -11,7 +11,7 @@ import { FASHION_ICON } from '@/lib/iconMap';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { Search } from 'lucide-react';
+// (Search import 제거됨 — 미사용)
 import {
   fetchWeather, clothingMatch,
   type WeatherSnapshot,

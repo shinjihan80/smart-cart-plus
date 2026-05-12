@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, X } from 'lucide-react';
-import { parseRecipeSeconds, recipeGradient, RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { parseRecipeSeconds, recipeGradient, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { estimateRecipeNutrition } from '@/lib/nutritionAnalysis';
 import { useShoppingList } from '@/lib/shoppingList';
@@ -35,6 +36,7 @@ export default function RecipeDetailModal({
 }: RecipeDetailModalProps) {
   useModalA11y(onClose);
   const { showToast } = useToast();
+  const { recipes: RECIPES } = useMergedCatalog();
   // 쇼핑 리스트
   const { has: inShopping, add: addToShopping } = useShoppingList();
   // 조리 로그

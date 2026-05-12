@@ -6,7 +6,7 @@ import { isFoodItem, type StorageType, type FoodGroup, type FridgeSection, FOOD_
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { Search, LayoutGrid, List } from 'lucide-react';
+import { LayoutGrid, List } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -21,7 +21,7 @@ import SeasonalProduceSection  from '@/components/fridge/SeasonalProduceSection'
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
 import { FridgeView }          from '@/components/fridge/FridgeView';
 import { SectionDetailSheet }  from '@/components/fridge/SectionDetailSheet';
-import { isSeasonalProduce, SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
+import { isSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { SEASON_ICON }          from '@/lib/iconMap';
 import { useProfiles }         from '@/lib/profile';

@@ -10,7 +10,8 @@ import {
 import { isFoodItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { currentSeasonByMonth, seasonStart } from '@/lib/season';
-import { SEASONAL_PRODUCE, isSeasonalProduce } from '@/lib/seasonalProduce';
+import { isSeasonalProduce } from '@/lib/seasonalProduce';
+import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { useShoppingList } from '@/lib/shoppingList';
 import { springTransition } from './shared';
 
@@ -37,6 +38,7 @@ export default function QuickLinks({
   items, history,
 }: { items: CartItem[]; history: DiscardRecord[] }) {
   const season = currentSeasonByMonth();
+  const { seasonal: SEASONAL_PRODUCE } = useMergedCatalog();
   const { list: shopping } = useShoppingList();
 
   const foods = items.filter(isFoodItem);
