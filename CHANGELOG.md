@@ -6,6 +6,58 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 
 ---
 
+## v1.7 — 2026-05-12 · 3탭 일관화 + admin 데이터 연결
+
+**테마: 페이지 구조 일관화(3탭) + 관리자 콘솔 ↔ 모바일 양방향 데이터 흐름**
+
+### Changed — UI 구조 일관화
+- **냉장고**: 3탭(🧊 냉장고 / 💡 추천 / 🛒 장보기) + 시각화 위계 1순위
+- **옷장**: 3탭(👔 옷장 / 👗 코디 / 🛍️ 쇼핑) — 냉장고와 동일 패턴
+- **마이페이지**: 4탭(요약/쇼핑/옷장/요리), 외부 진입 URL 라우팅(`?tab=...`)
+- **카드 시각화**:
+  - drag-to-delete 제거 → 펼침 영역 하단의 빨간 "🗑️ 소진/삭제" 버튼
+  - 한 번에 하나만 펼침 (아코디언 패턴)
+  - 펼침 전: 핵심 정보만, 펼침 후: 상세 칩
+- **필터 정리**: 카드 칩에 이미 표시되는 정보(❄️ 냉장 / 🥬 신선 등)는 별도 필터 행 제거 (시각/리스트 모두)
+
+### Added — 관리자 데이터 연결 (옵션 A: KV 기반)
+- `src/app/api/admin/{catalog,partners,recipes,seasonal,views}/route.ts`
+  - X-Admin-Token 인증 + rate limit
+  - Vercel KV (Upstash) 영속화
+- `src/lib/catalogStore.ts` — KV 어댑터 + 인메모리 fallback
+- `src/lib/catalogTypes.ts` — Recipe/Seasonal/Partner overlay 타입
+- `src/lib/rateLimit.ts` + `rateLimitStore.ts` — 토큰 버킷 rate limit
+- `src/lib/useMergedCatalog.ts` — 정적 카탈로그 + admin overlay 병합 훅 (5분 SWR)
+- 모바일 6개 컴포넌트 통합:
+  - 홈 TodayDishCard, 냉장고 RecipeSection / SeasonalProduceSection,
+    마이페이지 ShoppingListSection / ClosetCleanupSection, RecipeBrowserModal
+- `matchRecipes`, `currentSeasonalProduce` 시그니처 확장 (옵셔널 source 인자)
+
+### Added — 그 외
+- **카테고리 fallback 톤** (`src/lib/categoryImages.ts`): 검증 안 된 Unsplash 사진 ID
+  제거 → 카테고리별 색 배경 + 이모지로 통일 (FOOD 11종 + FASHION 13종)
+- **옷장 코디 탭 빈 상태 안내**: 옷이 3벌 미만일 때 "쇼핑 탭으로 가기" CTA
+- **DailyBriefing**: "네모아의 오늘 브리핑" → "오늘 코디" + 착용 체크 시각화
+- **TodayActivity 제거**: 홈 화면 중복 정보 정리
+
+### Phase 8.0 Step 5 (별도 PR로 main 진입)
+- AI 보관 위치 에이전트 (Gemini 호출)
+- 모델별 fridgeSection 마이그레이션 모달
+- `weekly-stats` 앵커 자동 스크롤
+
+### 정량
+- 라우트 24개 빌드 성공 (0 에러)
+- 신규 admin 라우트: 5개 (catalog/partners/recipes/seasonal/views)
+- 신규 라이브러리: useMergedCatalog · catalogStore · catalogTypes · rateLimit · rateLimitStore
+- 컴포넌트 수정: 6개
+
+### 알려진 다음 단계
+- 자유 등록 폼(TextImportConfirmStep)에 fridgeSection 드롭다운
+- 카탈로그 동기화 round-trip 검증
+- admin-app도 main에 머지 (현재 별도 워크트리에 머무름)
+
+---
+
 ## v1.6 — 2026-05-07 · 냉장고 시각화 + 마이페이지 정리
 
 **테마: Phase 8.0 냉장고 시각화 + UX 정리 (사용자 피드백 반영)**
