@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
@@ -84,6 +84,39 @@ export default function MyPage() {
     if (mapped && mapped !== activeTab) setActiveTab(mapped);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 해시(#weekly-stats 등) 자동 스크롤 — 탭 전환 후 DOM 업데이트 완료를 기다린 뒤 1회 실행
+  // 탭 전환은 useEffect 비동기라 native hash scroll이 그 시점엔 element를 못 찾음.
+  // 두 번의 rAF로 React commit 후를 잡고, motion 애니메이션 보정용 setTimeout 200ms 폴백.
+  const hashScrolledRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (hashScrolledRef.current) return;
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) {
+      hashScrolledRef.current = true;
+      return;
+    }
+
+    function tryScroll() {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        hashScrolledRef.current = true;
+      }
+    }
+
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(tryScroll);
+    });
+    const fallback = setTimeout(tryScroll, 200);
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+      clearTimeout(fallback);
+    };
+  }, [activeTab]);
 
   const foodItemsList     = items.filter(isFoodItem);
   const clothingItemsList = items.filter(isClothingItem);
