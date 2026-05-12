@@ -28,22 +28,27 @@ export default function SpendingSection() {
           총 ₩{total.toLocaleString()}
         </span>
       </div>
-      <div className="flex items-end gap-2 h-24">
+      <div className="flex gap-2 items-stretch">
         {SPENDING_DATA.map((d, i) => {
-          const h = Math.max(12, (d.amount / max) * 88);
+          const heightPct = Math.max(15, (d.amount / max) * 100);
           const isLast = i === SPENDING_DATA.length - 1;
           return (
             <div key={d.month} className="flex-1 flex flex-col items-center gap-1.5">
-              <span className={`text-xs font-bold tabular-nums ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
+              {/* 위: 금액 — 고정 높이 */}
+              <span className={`h-4 text-xs font-bold tabular-nums leading-none ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
                 {(d.amount / 10000).toFixed(1)}만
               </span>
-              <motion.div
-                initial={{ height: 0 }}
-                animate={{ height: h }}
-                transition={{ ...springTransition, delay: 0.3 + i * 0.08 }}
-                className={`w-full rounded-xl ${isLast ? 'bg-brand-primary' : 'bg-gray-200'}`}
-              />
-              <span className={`text-sm font-medium ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
+              {/* 가운데: bar 영역 — 고정 96px, 안에서 % 높이로 정렬 */}
+              <div className="w-full h-24 flex flex-col justify-end">
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: `${heightPct}%` }}
+                  transition={{ ...springTransition, delay: 0.3 + i * 0.08 }}
+                  className={`w-full rounded-xl ${isLast ? 'bg-brand-primary' : 'bg-gray-200'}`}
+                />
+              </div>
+              {/* 아래: 월 — 고정 높이 */}
+              <span className={`h-5 text-sm font-medium leading-tight ${isLast ? 'text-brand-primary' : 'text-gray-400'}`}>
                 {d.month}
               </span>
             </div>
