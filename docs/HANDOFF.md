@@ -8,11 +8,13 @@
 
 ## 🌐 라이브 시스템
 
-| 시스템 | URL | 인증 |
-|--------|-----|------|
-| **모바일 앱** | https://nemoa.vercel.app | 없음 (베이직) |
-| **관리자 콘솔** | https://nemoa-admin.vercel.app | `admin` / `19ffb1d16255a7d9` |
-| **카탈로그 API** | https://nemoa.vercel.app/api/admin/* | GET 공개 / POST·DELETE는 `X-Admin-Token` 필요 |
+| 시스템 | URL | 인증 | 상태 |
+|--------|-----|------|------|
+| **모바일 앱** | https://nemoa.vercel.app | 없음 (베이직) | 운영 |
+| ~~관리자 콘솔~~ | — | — | **Phase 6 대기** — 별도 데스크탑 프로젝트(Next.js + shadcn/ui + Supabase + 토스페이먼츠)로 분리, 본 저장소 외부에서 추후 구축 |
+| ~~카탈로그 API~~ | — | — | **부재** — `/api/admin/*` 라우트는 커밋 `8ccd505`에서 의도적으로 제거됨. 관리자 프로젝트 착수 시 함께 설계 |
+
+> ℹ️ 이전 HANDOFF에 적힌 `nemoa-admin.vercel.app` 과 `/api/admin/*` 는 환상 상태였음 — 실제 코드에 존재하지 않으니 참조 금지. 카탈로그 데이터(레시피·코디·계절 식품 등)는 현재 모두 `src/lib/*.ts`에 정적 임베드.
 
 마지막 production 배포: **재배포 필요** (현재 변경분이 main에 머지되지 않은 워크트리 브랜치)
 
