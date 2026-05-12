@@ -174,7 +174,7 @@ export default function ClosetPage() {
 
   return (
     <div>
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-50">
+      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
         <div className="px-4 py-3.5 flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>

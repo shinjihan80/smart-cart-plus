@@ -65,7 +65,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
       <div
         style={{ backgroundColor: 'rgb(255,255,255)', ...CARD_SHADOW }}
         onClick={toggleExpanded}
-        className="rounded-[32px] border border-gray-50 p-5 flex flex-col relative z-10 cursor-pointer"
+        className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
         <div className="flex items-start gap-3">
           {/* 좌측: 사용자 업로드 사진 우선, 없으면 카테고리 톤 + 이모지 */}
