@@ -63,6 +63,17 @@ const FILTERS: { key: GroupFilter; label: string }[] = [
   { key: '액세서리', label: '✨ 액세서리' },
 ];
 
+type ClosetTab = 'closet' | 'outfit' | 'shopping';
+
+const CLOSET_TABS: { id: ClosetTab; emoji: string; label: string }[] = [
+  { id: 'closet',   emoji: '👔', label: '옷장' },
+  { id: 'outfit',   emoji: '👗', label: '코디' },
+  { id: 'shopping', emoji: '🛍️', label: '쇼핑' },
+];
+
+const isClosetTab = (v: unknown): v is ClosetTab =>
+  v === 'closet' || v === 'outfit' || v === 'shopping';
+
 export default function ClosetPage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove } = useCart();
   const { showToast } = useToast();
@@ -85,6 +96,10 @@ export default function ClosetPage() {
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [showHibernating, setShowHibernating] = useState(false);
   const [expandedClothingId, setExpandedClothingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = usePersistedState<ClosetTab>(
+    'nemoa-closet-tab', 'closet',
+    (raw) => (isClosetTab(raw) ? raw : null),
+  );
   const { log: wearLog } = useWearLog();
   const searchInputRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchInputRef, () => setSearch(''));
@@ -164,11 +179,11 @@ export default function ClosetPage() {
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
             <p className="text-sm text-gray-400 mt-0.5">
-              패션 {activeClothing.length}개 관리 중{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''} · ← 밀어서 삭제
+              패션 {activeClothing.length}개{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''}
             </p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            {hibernatingCount > 0 && (
+            {hibernatingCount > 0 && activeTab === 'closet' && (
               <button
                 onClick={() => setShowHibernating(!showHibernating)}
                 className={`text-sm font-semibold px-2.5 py-1 rounded-full transition-colors ${
@@ -183,9 +198,34 @@ export default function ClosetPage() {
             <PaletteButton />
           </div>
         </div>
+        <div role="tablist" aria-label="옷장 탭" className="px-4 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
+          {CLOSET_TABS.map((t) => {
+            const isActive = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(t.id)}
+                className={[
+                  'shrink-0 text-sm font-semibold px-3 py-1.5 rounded-full transition-colors',
+                  isActive
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+                ].join(' ')}
+              >
+                <span className="mr-1">{t.emoji}</span>{t.label}
+              </button>
+            );
+          })}
+        </div>
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
+
+        {/* ─── 옷장 탭 — 본인 옷장 콘텐츠 ─── */}
+        {activeTab === 'closet' && (<>
         {/* 요약 카드 */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -250,7 +290,10 @@ export default function ClosetPage() {
         <SectionErrorBoundary label="계절 꺼내기">
           <SeasonalUnstowBanner items={allItems} />
         </SectionErrorBoundary>
+        </>)}
 
+        {/* ─── 코디 탭 — 추천성/감상용 ─── */}
+        {activeTab === 'outfit' && (<>
         {/* 계절 추천 */}
         {(() => {
           const month = new Date().getMonth() + 1;
@@ -383,6 +426,14 @@ export default function ClosetPage() {
           <OutfitPreview items={activeClothing} />
         </SectionErrorBoundary>
 
+        {/* 코디 추천 */}
+        <SectionErrorBoundary label="오늘의 코디">
+          <OutfitSection items={activeClothing} />
+        </SectionErrorBoundary>
+        </>)}
+
+        {/* ─── 쇼핑 탭 — 새 옷 추가 액션 ─── */}
+        {activeTab === 'shopping' && (<>
         {/* 빠른 추가 */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -442,12 +493,10 @@ export default function ClosetPage() {
           </div>
         </motion.div>
 
-        {/* 코디 추천 */}
-        <SectionErrorBoundary label="오늘의 코디">
-          <OutfitSection items={activeClothing} />
-        </SectionErrorBoundary>
+        </>)}
 
-        {/* 검색은 상단 헤더에 통합됨 — 인라인 input 제거 (/search로 이동) */}
+        {/* ─── 옷장 탭 (이어서) — 프로필 필터, 정렬, 카드 리스트 ─── */}
+        {activeTab === 'closet' && (<>
         {/* 프로필 필터 (프로필 2명 이상일 때만) */}
         {profiles.length >= 2 && (
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
@@ -487,32 +536,17 @@ export default function ClosetPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
-            {FILTERS.map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setFilter(key)}
-                className={`shrink-0 px-3 py-1.5 rounded-2xl text-xs font-medium transition-colors ${
-                  filter === key
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        {/* 정렬 버튼만 — 카테고리 FILTERS는 카드 칩에 이미 표시되어 제거 */}
+        <div className="flex items-center justify-end">
           <button
             onClick={() => {
-              // 날씨 없을 땐 match 건너뛰기
               const cycle: ClosetSort[] = weather
                 ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast']
                 : ['name', 'thickness', 'wornMost', 'wornLeast'];
               const idx = cycle.indexOf(sortBy);
               setSortBy(cycle[(idx + 1) % cycle.length]);
             }}
-            className="text-sm text-gray-400 px-2 py-1 rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap"
+            className="text-sm text-gray-600 font-medium px-2.5 py-1 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors whitespace-nowrap"
           >
             {SORT_LABEL[sortBy]}
           </button>
@@ -586,6 +620,7 @@ export default function ClosetPage() {
             <p className="text-xs mt-1">+ 버튼을 눌러 의류를 추가해보세요.</p>
           </div>
         )}
+        </>)}
       </div>
     </div>
   );
