@@ -60,25 +60,17 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
         </div>
 
         {/* 가로 스와이프 캐러셀 — 1.3장 노출(다음 카드 살짝 보임)
-            touch-action: pan-x pinch-zoom — 가로 팬과 핀치줌만 허용, 세로 팬은 페이지로 전달
-            -webkit-overflow-scrolling 제거 (iOS에서 세로 스크롤 락 유발) */}
+            touch-action 미지정(=auto) → 브라우저 기본 동작 사용
+            iOS Safari 는 auto 일 때 방향 우세 감지로 가로/세로 적절히 분리 */}
         <div
-          className="-mx-5 px-5 flex gap-2.5 overflow-x-auto overflow-y-visible snap-x snap-mandatory scrollbar-hide"
-          style={{
-            scrollPaddingLeft: '1.25rem',
-            touchAction: 'pan-x pinch-zoom',
-            overscrollBehaviorX: 'contain',
-            overscrollBehaviorY: 'auto',
-          }}
+          className="-mx-5 px-5 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          style={{ scrollPaddingLeft: '1.25rem' }}
         >
           {outfits.map((o, i) => (
             <div
               key={o.id}
               className="snap-start shrink-0"
-              style={{
-                width: 'calc((100% - 0.625rem) / 1.3)',
-                touchAction: 'pan-x pan-y pinch-zoom',
-              }}
+              style={{ width: 'calc((100% - 0.625rem) / 1.3)' }}
             >
               <OutfitCard outfit={o} index={i} onClick={() => setSelected(o)} />
             </div>
