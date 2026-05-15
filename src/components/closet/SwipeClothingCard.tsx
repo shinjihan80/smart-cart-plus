@@ -68,7 +68,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
         <div className="flex items-start gap-3">
-          {/* 좌측: 사진 — 탭하면 변경/추가 (카테고리 톤 + 이모지가 placeholder) */}
+          {/* 좌측: 큰 사진 — 탭하면 변경/추가. 사진이 배경처럼 영역 꽉 채움. */}
           {(() => {
             const tone = getFashionCategoryTone(item.category);
             return (
@@ -88,14 +88,20 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 }}
                 aria-label={item.imageUrl ? `${item.name} 사진 변경` : `${item.name} 사진 추가`}
                 title={item.imageUrl ? '탭해서 사진 변경' : '탭해서 사진 추가'}
-                className={`shrink-0 w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
+                className={`relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
               >
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  <img src={item.imageUrl} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
-                  <span className="text-3xl" aria-hidden>{tone.emoji}</span>
+                  <span className="text-4xl" aria-hidden>{tone.emoji}</span>
                 )}
+                <span
+                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white/95 flex items-center justify-center text-[12px] shadow-md ring-1 ring-gray-100"
+                  aria-hidden
+                >
+                  📷
+                </span>
               </button>
             );
           })()}

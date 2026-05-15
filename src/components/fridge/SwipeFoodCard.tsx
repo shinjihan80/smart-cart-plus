@@ -72,7 +72,7 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
         <div className="flex items-start gap-3">
-          {/* 좌측: 사진 — 탭하면 변경/추가 (카테고리 톤 + 이모지가 placeholder) */}
+          {/* 좌측: 큰 사진 — 탭하면 변경/추가. 사진이 배경처럼 영역 꽉 채움. */}
           {(() => {
             const tone = getFoodCategoryTone(item.foodCategory);
             return (
@@ -92,16 +92,19 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
                 }}
                 aria-label={item.imageUrl ? `${item.name} 사진 변경` : `${item.name} 사진 추가`}
                 title={item.imageUrl ? '탭해서 사진 변경' : '탭해서 사진 추가'}
-                className={`relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
+                className={`relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
               >
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  <img src={item.imageUrl} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
-                  <span className="text-3xl" aria-hidden>{tone.emoji}</span>
+                  <span className="text-4xl" aria-hidden>{tone.emoji}</span>
                 )}
-                {/* 사진 변경/추가 표시 — hover에서만 살짝 보임 */}
-                <span className="absolute bottom-0.5 right-0.5 w-5 h-5 rounded-full bg-white/90 flex items-center justify-center text-[10px] shadow-sm opacity-0 group-hover:opacity-100">
+                {/* 변경 가능 표시 — 사진 우하단에 항상 작게 보임 */}
+                <span
+                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white/95 flex items-center justify-center text-[12px] shadow-md ring-1 ring-gray-100"
+                  aria-hidden
+                >
                   📷
                 </span>
               </button>
