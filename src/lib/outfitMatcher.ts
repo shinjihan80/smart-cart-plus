@@ -37,6 +37,19 @@ interface MatchOptions {
   thickness?:    string[];
   /** 코디 개수 (기본 6) */
   count?:        number;
+  /**
+   * 사용자가 저장한 코디에서 추출한 함께 입은 쌍.
+   *   key   = clothing id
+   *   value = 같은 코디에 등장한 다른 clothing id 집합
+   * 매칭 시 양쪽이 서로의 집합에 있으면 +1.5 (사용자 검증된 조합 우대).
+   */
+  coWornPairs?:  Map<string, Set<string>>;
+}
+
+/** 두 아이템이 사용자 저장 코디에서 함께 등장한 적 있는지 검사 */
+function isCoWorn(a: string, b: string, pairs?: Map<string, Set<string>>): boolean {
+  if (!pairs) return false;
+  return pairs.get(a)?.has(b) ?? false;
 }
 
 function pickTopN<T extends { score: number }>(arr: T[], n: number): T[] {
@@ -98,10 +111,18 @@ export function generateOutfits(
       if (seenSig.has(sig)) continue;
       seenSig.add(sig);
 
-      const total = t.score + b.score + (ou ? 1 : 0);
+      // co-worn 보너스 — 사용자가 저장한 코디에서 본 조합이면 가산
+      let coBoost = 0;
+      if (isCoWorn(t.item.id, b.item.id, opts.coWornPairs)) coBoost += 1.5;
+      if (sh && isCoWorn(t.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
+      if (sh && isCoWorn(b.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
+
+      const total = t.score + b.score + (ou ? 1 : 0) + coBoost;
       result.push({
         id:    `o-${sig}`,
-        label: `${opts.season ?? ''} 코디`.trim() || '추천 코디',
+        label: coBoost > 0
+          ? '💞 자주 입는 조합'
+          : (`${opts.season ?? ''} 코디`.trim() || '추천 코디'),
         slots: { top: t.item, bottom: b.item, outer: ou, shoes: sh, accessory: ac },
         score: total,
       });

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import type { ClothingItem } from '@/types';
 import { generateOutfits, type Outfit } from '@/lib/outfitMatcher';
 import { useWearLog, daysSince } from '@/lib/wearLog';
+import { useSavedOutfits } from '@/lib/savedOutfits';
 import OutfitCard from './OutfitCard';
 import OutfitDetailModal from './OutfitDetailModal';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -28,7 +29,25 @@ interface OutfitGridProps {
  */
 export default function OutfitGrid({ items, count = 6, season, thickness }: OutfitGridProps) {
   const { log } = useWearLog();
+  const { outfits: saved } = useSavedOutfits();
   const [selected, setSelected] = useState<Outfit | null>(null);
+
+  // 저장 코디에서 함께 입은 쌍 추출
+  const coWornPairs = useMemo(() => {
+    const pairs = new Map<string, Set<string>>();
+    for (const o of saved) {
+      const ids = Object.values(o.slots).filter((id): id is string => !!id);
+      for (let i = 0; i < ids.length; i += 1) {
+        for (let j = i + 1; j < ids.length; j += 1) {
+          if (!pairs.has(ids[i])) pairs.set(ids[i], new Set());
+          if (!pairs.has(ids[j])) pairs.set(ids[j], new Set());
+          pairs.get(ids[i])!.add(ids[j]);
+          pairs.get(ids[j])!.add(ids[i]);
+        }
+      }
+    }
+    return pairs;
+  }, [saved]);
 
   const outfits = useMemo(() => {
     if (items.length < 3) return [];
@@ -37,8 +56,8 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
       const dates = log[item.id] ?? [];
       idleByItem[item.id] = dates.length > 0 ? daysSince(dates[0]) : 9999;
     }
-    return generateOutfits(items, idleByItem, { season, thickness, count });
-  }, [items, log, season, thickness, count]);
+    return generateOutfits(items, idleByItem, { season, thickness, count, coWornPairs });
+  }, [items, log, season, thickness, count, coWornPairs]);
 
   if (outfits.length === 0) return null;
 
