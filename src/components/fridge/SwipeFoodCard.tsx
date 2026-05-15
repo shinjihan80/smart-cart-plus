@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { type FoodItem, type FridgeSection } from '@/types';
 import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
@@ -159,11 +160,22 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
               <p className="text-xs text-gray-300 mt-1.5">영양 정보 없음 · 자세히 보기에서 수정</p>
             )}
 
-            {!expanded && (
-              <p className="text-xs text-gray-300 mt-1.5">자세히 보기 ›</p>
-            )}
           </div>
         </div>
+
+        {/* 상세 버튼 — 카드 하단, 펼침 토글 */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+          aria-expanded={expanded}
+          className="mt-3 -mb-1 w-full flex items-center justify-center gap-1 py-2 text-xs font-semibold text-gray-500 hover:text-brand-primary hover:bg-gray-50 rounded-xl transition-colors"
+        >
+          {expanded ? (
+            <>닫기 <ChevronUp size={14} strokeWidth={2.4} /></>
+          ) : (
+            <>상세 보기 <ChevronDown size={14} strokeWidth={2.4} /></>
+          )}
+        </button>
 
         <AnimatePresence>
           {expanded && (

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { isEnrichedClothingItem, isClothingItem, FASHION_EMOJI, type ClothingItem } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
@@ -128,12 +129,23 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   {tag}
                 </span>
               ))}
-              {!expanded && (
-                <span className="text-xs text-gray-300">자세히 보기 ›</span>
-              )}
             </div>
           </div>
         </div>
+
+        {/* 상세 버튼 — 카드 하단, 펼침 토글 */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+          aria-expanded={expanded}
+          className="mt-3 -mb-1 w-full flex items-center justify-center gap-1 py-2 text-xs font-semibold text-gray-500 hover:text-brand-primary hover:bg-gray-50 rounded-xl transition-colors"
+        >
+          {expanded ? (
+            <>닫기 <ChevronUp size={14} strokeWidth={2.4} /></>
+          ) : (
+            <>상세 보기 <ChevronDown size={14} strokeWidth={2.4} /></>
+          )}
+        </button>
 
         <AnimatePresence>
           {expanded && (
