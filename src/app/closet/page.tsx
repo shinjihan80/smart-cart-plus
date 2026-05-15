@@ -320,54 +320,18 @@ export default function ClosetPage() {
           </motion.div>
         )}
 
-        {/* 계절 추천 */}
-        {(() => {
-          const month = new Date().getMonth() + 1;
-          const season = month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
-          const allSeasonItems = activeClothing.filter((c) => c.weatherTags?.includes(season));
-          if (allSeasonItems.length === 0) return null;
-          const seasonItems = allSeasonItems.filter((c) => {
-            if (ownerFilter === '전체') return true;
-            if (ownerFilter === '공용') return !c.ownerId;
-            return c.ownerId === ownerFilter;
-          });
-          const filteredOut = allSeasonItems.length - seasonItems.length;
-          return (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...springTransition, delay: 0.08 }}
-              className={`${CARD} !py-3 !px-4`}
-              style={CARD_SHADOW}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-gray-400 font-medium">
-                  {season === '봄' ? '🌸' : season === '여름' ? '☀️' : season === '가을' ? '🍂' : '❄️'} 지금 입기 좋은 옷
-                </p>
-                {filteredOut > 0 && (
-                  <span className="text-xs text-gray-400 shrink-0">필터로 {filteredOut}벌 숨김</span>
-                )}
-              </div>
-              {seasonItems.length > 0 ? (
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                  {seasonItems.map((item) => {
-                    const Icon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
-                    return (
-                      <div key={item.id} className="shrink-0 flex items-center gap-2 bg-gray-100 rounded-2xl px-3 py-1.5">
-                        <Icon size={13} strokeWidth={2} className="text-gray-600" />
-                        <span className="text-xs font-medium text-gray-800 whitespace-nowrap">{item.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400 py-2">
-                  현재 필터에 {season}철 옷이 없어요. &ldquo;전체 보기&rdquo;로 바꿔보세요.
-                </p>
-              )}
-            </motion.div>
-          );
-        })()}
+        {/* 자동 생성 코디 그리드 — 메인 (이미지 위주) — 코디 탭 최상단 */}
+        <SectionErrorBoundary label="오늘 입을 코디">
+          <OutfitGrid
+            items={activeClothing}
+            count={6}
+            season={(() => {
+              const month = new Date().getMonth() + 1;
+              return month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
+            })()}
+            thickness={weather ? (weather.tempC >= 23 ? ['얇음'] : weather.tempC >= 15 ? ['얇음', '보통'] : weather.tempC >= 5 ? ['보통', '두꺼움'] : ['두꺼움']) : undefined}
+          />
+        </SectionErrorBoundary>
 
         {/* 아직 안 입어본 옷 — 구매 후 한 번도 안 입은 의류 */}
         {(() => {
@@ -441,19 +405,6 @@ export default function ClosetPage() {
             </motion.div>
           );
         })()}
-
-        {/* 자동 생성 코디 그리드 — 메인 (이미지 위주) */}
-        <SectionErrorBoundary label="오늘 입을 코디">
-          <OutfitGrid
-            items={activeClothing}
-            count={6}
-            season={(() => {
-              const month = new Date().getMonth() + 1;
-              return month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
-            })()}
-            thickness={weather ? (weather.tempC >= 23 ? ['얇음'] : weather.tempC >= 15 ? ['얇음', '보통'] : weather.tempC >= 5 ? ['보통', '두꺼움'] : ['두꺼움']) : undefined}
-          />
-        </SectionErrorBoundary>
 
         {/* 저장된 코디 — 사용자가 직접 저장한 것 */}
         <SectionErrorBoundary label="저장된 코디">
