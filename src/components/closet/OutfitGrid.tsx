@@ -56,13 +56,30 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
           <h3 className="text-sm font-bold text-gray-900">
             👗 오늘 입을 코디
           </h3>
-          <span className="text-xs text-gray-400">탭하면 상세</span>
+          <span className="text-xs text-gray-400">← 스와이프 · 탭하면 상세</span>
         </div>
-        <div className="grid grid-cols-2 gap-2.5">
+
+        {/* 가로 스와이프 캐러셀 — 1.3장 노출(다음 카드 살짝 보임) */}
+        <div
+          className="-mx-4 px-4 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          style={{ scrollPaddingLeft: '1rem', WebkitOverflowScrolling: 'touch' }}
+        >
           {outfits.map((o, i) => (
-            <OutfitCard key={o.id} outfit={o} index={i} onClick={() => setSelected(o)} />
+            <div
+              key={o.id}
+              className="snap-start shrink-0"
+              style={{ width: 'calc((100% - 1rem) / 1.3)' }}
+            >
+              <OutfitCard outfit={o} index={i} onClick={() => setSelected(o)} />
+            </div>
           ))}
+          {/* 우측 패딩 보정 — 마지막 카드도 스냅 후 충분한 여백 */}
+          <div className="shrink-0 w-1" aria-hidden />
         </div>
+
+        <p className="text-xs text-gray-400 mt-2 text-center">
+          {outfits.length}개 코디 · 좌우로 넘겨보세요
+        </p>
       </motion.div>
 
       <OutfitDetailModal outfit={selected} onClose={() => setSelected(null)} />
