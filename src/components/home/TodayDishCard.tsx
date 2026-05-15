@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, AlertTriangle, Flower2, Trophy, Check, Moon } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { matchRecipes, type Recipe } from '@/lib/recipes';
+import { logReasonsAction } from '@/lib/reasonsLog';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
@@ -35,6 +36,8 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
     e.stopPropagation();
     e.preventDefault();
     markCooked(recipe.id);
+    // 사용자가 추천을 수용 → reasons 학습 (오늘의 추천 신호 선호도 파악)
+    if (reasons.length > 0) logReasonsAction(reasons);
     haptic('toggle');
     showToast(`"${recipe.name}" ${cookCount + 1}번째 조리 기록 완료 🍲`);
   }

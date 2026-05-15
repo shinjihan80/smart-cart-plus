@@ -24,6 +24,7 @@ import AiQuotaCard          from '@/components/settings/AiQuotaCard';
 import ErrorLogCard         from '@/components/settings/ErrorLogCard';
 import ProPreviewCard       from '@/components/settings/ProPreviewCard';
 import PartnerClickInsights from '@/components/settings/PartnerClickInsights';
+import ReasonsInsights      from '@/components/settings/ReasonsInsights';
 import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
 
@@ -253,6 +254,8 @@ export default function SettingsPage() {
         <ProPreviewCard />
 
         <PartnerClickInsights />
+
+        <ReasonsInsights />
 
         <AiQuotaCard />
 

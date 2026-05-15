@@ -10,6 +10,7 @@ import { useSavedOutfits } from '@/lib/savedOutfits';
 import { useToast } from '@/context/ToastContext';
 import { haptic } from '@/lib/haptics';
 import { useModalA11y } from '@/lib/useModalA11y';
+import { logReasonsAction } from '@/lib/reasonsLog';
 
 interface OutfitDetailModalProps {
   outfit:  Outfit | null;
@@ -34,6 +35,8 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
 
         function handleWearAll() {
           for (const id of ids) markWorn(id);
+          // 사용자가 추천을 수용 → 어떤 reasons 가 행동으로 이어졌는지 학습
+          if (outfit!.reasons.length > 0) logReasonsAction(outfit!.reasons);
           haptic('toggle');
           showToast(`${items.length}벌 오늘 착용 기록됐어요 ✓`);
           onClose();
