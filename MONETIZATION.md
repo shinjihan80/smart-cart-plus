@@ -9,12 +9,15 @@
 
 ---
 
-## 현 상태 (v1.5, 베이직 무료 출시)
+## 현 상태 (v1.9, 베이직 무료 + Pro 결제 예고)
 
 - 전체 기능 무료 개방, 로컬 저장, 광고 없음
 - AI 호출만 일일 한도 (vision 10 · parser 20 · nutrition 5 · url 5)
-- Phase 7 파트너 9개 전부 `enabled: false` (스텁)
-- 서버 인프라: Next.js SSR + Gemini API (사용자당 월 평균 비용만 발생)
+- **Phase 7 파트너 18개 모두 enabled + 실제 URL** (중고 3 · 기부 3 · 보관 2 신규 + 기존 식품 5 · 패션 5)
+- **Pro 출시 예고 카드** 노출 중 — `nemoa-pro-interest` localStorage 의향 수집
+- **익명 클릭 텔레메트리** 가동 — opt-in 일별 집계 `/api/admin/telemetry/clicks`
+- 추천 신호 7종 통합 (시즌·날씨·로테이션·co-worn·임박·자주·균형)
+- 서버 인프라: Next.js SSR + Gemini API + Vercel KV (Upstash) admin overlay
 
 ---
 
@@ -93,23 +96,37 @@
 
 ## 지금 베이직 단계에서 해둘 것
 
-Pro 전환을 위한 **토대는 이미 마련됨**:
+Pro 전환을 위한 **토대는 이미 마련됨** (v1.9 기준 ✅ 표시):
 
-- ✅ `partnerLinks.ts` 레지스트리 — `enabled: true`만 토글하면 활성
+### 기능 분기 토대
+- ✅ `partnerLinks.ts` 레지스트리 — 18개 enabled + admin overlay 로 동적 토글
 - ✅ `aiQuota.ts` 한도 로직 — Pro 분기로 `Infinity` 반환 확장 용이
 - ✅ `savedOutfits.ts` 20개 제한 — 분기 1줄로 해제
 - ✅ `profile.ts` 2명 제한 — UI 분기만
 - ✅ 백업 v3 스키마 — 클라우드 동기화 때 재사용 가능
 - ✅ 에러 로깅 (`errorLog.ts`) — Pro에서 opt-in 원격 전송 추가만 하면 됨
 
-**추가로 지금 해두면 전환 수월**:
+### 데이터 인프라 (v1.9 신규)
+- ✅ **익명 사용 통계 (opt-in)** — `analytics.ts` + `partnerClickLog.ts` + `/api/admin/telemetry/clicks` 완비
+  - 매일 어제 데이터만 batch 전송 (개별 클릭 ❌, 사용자 식별자 ❌)
+  - 동의 UI: `FeedbackToggles` "익명 사용 통계" 토글로 통합
+  - MAU/DAU 측정 즉시 가능
+- ✅ **Pro 의향 수집** — `ProPreviewCard` "출시 알림 받기" → `nemoa-pro-interest` 의향 저장
+  - Phase A 진입 시 의향 등록자에게 우선 알림 가능
+- ✅ **인기 파트너 협상 데이터** — admin GET `/api/admin/telemetry/clicks?days=30` → 누적 클릭 + 도메인 트래픽 확인
+  - 협상 우선순위: 클릭 많은 파트너부터
 
-1. **익명 사용 통계 수집 (opt-in)**
-   - MAU/DAU 측정 없이는 전환 시점 판단 불가
-   - PostHog 자체 호스팅 or 자체 로깅 엔드포인트
-   - 동의 UI 필수 (`ConsentGate` 확장)
-2. **홈에 "Pro 곧 출시" 배너** — 사전 등록 이메일 수집 (MAU 500 도달 시)
-3. **Sentry 도입 검토** — 현재는 로컬 `errorLog`만, 사용자 1,000명+부터 서버 수집 필요성 검토
+### 추천 알고리즘 토대 (v1.9 신규)
+사용자 행동 데이터가 쌓일수록 자동으로 똑똑해지는 구조:
+- ✅ `wearLog` 14일+ 미착용 가산 + 3일 이내 −1.5 (옷장 순환)
+- ✅ `cookLog.daysSinceCook` 4일 이내 −1.5 / 10일+ +0.5 (메뉴 순환)
+- ✅ `savedOutfits` 페어 +1.5 / +0.75 (사용자 검증된 조합 우선)
+- ✅ `reasons` 배지 — 추천 근거 명시로 사용자 신뢰 확보
+
+**추가로 지금 해두면 전환 수월**:
+1. **홈에 "Pro 곧 출시" 배너** — MAU 500 도달 시 적극 노출 (현재는 설정 카드만)
+2. **Sentry 도입 검토** — 현재는 로컬 `errorLog`만, 사용자 1,000명+부터 서버 수집
+3. **이메일 파싱 주문 내역** — Gmail OAuth + Claude AI 이메일 분석 (Phase B 후반)
 
 ---
 

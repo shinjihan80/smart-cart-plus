@@ -21,14 +21,21 @@ const DOMAIN_LABEL: Record<PartnerDomain, string> = {
  * 사용자가 어떤 파트너를 얼마나 자주 쓰는지 본인의 데이터로 시각화.
  * 30일 보관, 데이터는 localStorage 만에 저장 (외부 전송 없음).
  */
+const WEEKDAY_LABEL = ['일', '월', '화', '수', '목', '금', '토'];
+
 export default function PartnerClickInsights() {
-  const { total, topPartners, byDomain, clearAll } = usePartnerClicks();
+  const { total, topPartners, byDomain, byWeekday, clearAll } = usePartnerClicks();
 
   if (total === 0) return null;
 
   const top5 = topPartners(5);
   const domains = byDomain().sort((a, b) => b.count - a.count);
   const maxDomainCount = Math.max(...domains.map((d) => d.count), 1);
+  const weekdays = byWeekday();
+  const maxWeekday = Math.max(...weekdays, 1);
+  const peakWeekdayIdx = weekdays.indexOf(maxWeekday);
+  const weekendCount = weekdays[0] + weekdays[6];
+  const weekdayCount = weekdays[1] + weekdays[2] + weekdays[3] + weekdays[4] + weekdays[5];
 
   return (
     <motion.div
@@ -66,6 +73,44 @@ export default function PartnerClickInsights() {
           );
         })}
       </div>
+
+      {/* 요일별 클릭 패턴 — 막대 그래프 */}
+      {total >= 3 && (
+        <div className="border-t border-gray-50 pt-2.5 mb-2.5">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-xs text-gray-400 font-medium">요일별 패턴</p>
+            <p className="text-[10px] text-gray-400 tabular-nums">
+              평일 {weekdayCount} · 주말 {weekendCount}
+            </p>
+          </div>
+          <div className="flex items-end justify-between gap-1 h-12">
+            {WEEKDAY_LABEL.map((m, i) => {
+              const v = weekdays[i];
+              const heightPct = (v / maxWeekday) * 100;
+              const isPeak = i === peakWeekdayIdx && v > 0;
+              const isWeekend = i === 0 || i === 6;
+              return (
+                <div key={m} className="flex-1 flex flex-col items-center justify-end gap-0.5 h-full">
+                  <div
+                    className={`w-full rounded-sm ${
+                      isWeekend ? 'bg-amber-400' : 'bg-brand-primary/70'
+                    }`}
+                    style={{ height: `${Math.max(heightPct, v > 0 ? 4 : 1)}%`, minHeight: '2px' }}
+                    title={`${m}요일 ${v}회`}
+                  />
+                  <span
+                    className={`text-[10px] tabular-nums ${
+                      isPeak ? 'text-gray-700 font-bold' : isWeekend ? 'text-amber-600' : 'text-gray-400'
+                    }`}
+                  >
+                    {m}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 자주 쓰는 파트너 TOP 5 */}
       {top5.length > 0 && (

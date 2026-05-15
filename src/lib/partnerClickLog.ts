@@ -112,6 +112,19 @@ export function usePartnerClicks() {
     return [...counts.entries()].map(([domain, count]) => ({ domain, count }));
   }, [clicks]);
 
+  /**
+   * 요일별 클릭 패턴 — 일=0, 월=1, ..., 토=6
+   * 평일 vs 주말 차이 파악용.
+   */
+  const byWeekday = useCallback(() => {
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+    for (const c of clicks) {
+      const day = new Date(c.ts).getDay();
+      counts[day] += 1;
+    }
+    return counts;
+  }, [clicks]);
+
   /** 전체 정리 (사용자 옵션) */
   function clearAll() {
     if (typeof window === 'undefined') return;
@@ -126,6 +139,7 @@ export function usePartnerClicks() {
     total:        clicks.length,
     topPartners,
     byDomain,
+    byWeekday,
     clearAll,
   };
 }
