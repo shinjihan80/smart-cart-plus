@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, Wind } from 'lucide-react';
+import { ChevronRight, Wind, X } from 'lucide-react';
 import { isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
+import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { springTransition } from './shared';
 
 const SEASON_EMOJI: Record<string, string> = {
@@ -25,10 +26,15 @@ const SEASON_EMOJI: Record<string, string> = {
  * 클릭 → 마이페이지 옷장 탭의 SeasonalStorageSection 으로 이동.
  */
 export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
+  const { isDismissedToday, dismiss } = useDismissedAlerts();
   const today  = new Date();
   const month  = today.getMonth() + 1; // 1-12
   const day    = today.getDate();
   const season = currentSeasonByMonth();
+
+  // 시즌별 dismiss 키 — 다음 시즌이 되면 자동 노출
+  const dismissKey = `season-${season}`;
+  if (isDismissedToday(dismissKey)) return null;
 
   // 시즌 전환 직후 21일 동안만 — 진입한 첫 달 1-31, 두 번째 달 1-7
   // 봄: 3월, 여름: 6월, 가을: 9월, 겨울: 12월 진입
@@ -60,28 +66,44 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
   if (toStow > 0)   messageParts.push(`${toStow}벌 보관할 때`);
   const message = messageParts.join(' · ');
 
+  function handleDismiss(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    dismiss(dismissKey);
+  }
+
   return (
-    <Link href="/mypage?tab=closet#seasonal" className="block">
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={springTransition}
-        className="bg-brand-primary/8 border border-brand-primary/15 rounded-[24px] px-4 py-3 flex items-center gap-3 hover:bg-brand-primary/10 transition-colors"
-      >
-        <span className="w-9 h-9 rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0 text-lg">
-          {SEASON_EMOJI[season] ?? '🍃'}
-        </span>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-brand-primary">
-            {season} 옷장 정리 시즌 — {total}벌
-          </p>
-          <p className="text-xs text-gray-600 mt-0.5 truncate">
-            <Wind size={11} strokeWidth={2} className="inline mr-0.5 -mt-px" />
-            {message} · 마이페이지에서 한 번에 정리하세요
-          </p>
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={springTransition}
+      className="relative"
+    >
+      <Link href="/mypage?tab=closet#seasonal" className="block">
+        <div className="bg-brand-primary/8 border border-brand-primary/15 rounded-[24px] px-4 py-3 flex items-center gap-3 hover:bg-brand-primary/10 transition-colors">
+          <span className="w-9 h-9 rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0 text-lg">
+            {SEASON_EMOJI[season] ?? '🍃'}
+          </span>
+          <div className="flex-1 min-w-0 pr-6">
+            <p className="text-xs font-bold text-brand-primary">
+              {season} 옷장 정리 시즌 — {total}벌
+            </p>
+            <p className="text-xs text-gray-600 mt-0.5 truncate">
+              <Wind size={11} strokeWidth={2} className="inline mr-0.5 -mt-px" />
+              {message} · 마이페이지에서 한 번에 정리하세요
+            </p>
+          </div>
+          <ChevronRight size={16} strokeWidth={2.2} className="text-brand-primary shrink-0" />
         </div>
-        <ChevronRight size={16} strokeWidth={2.2} className="text-brand-primary shrink-0" />
-      </motion.div>
-    </Link>
+      </Link>
+      <button
+        onClick={handleDismiss}
+        aria-label={`${season} 알림 오늘 안 보기`}
+        title="오늘 안 보기"
+        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-brand-primary/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
+      >
+        <X size={12} strokeWidth={2.4} />
+      </button>
+    </motion.div>
   );
 }
