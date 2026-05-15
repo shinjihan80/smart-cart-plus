@@ -17,8 +17,8 @@ interface OutfitCardProps {
  * - 사진 없는 아이템은 카테고리 톤 + 이모지로 대체
  * - 클릭하면 상세 모달
  *
- * NOTE: framer-motion 의 whileTap/whileHover 는 포인터 캡쳐가 발생해
- * 가로 캐러셀 내부 세로 스크롤을 막을 수 있어 일반 <button>+CSS 로 구현
+ * NOTE: 가벼운 <button>+CSS active scale 만 사용. framer-motion gesture 는
+ * 캐러셀 안에서 포인터 캡쳐를 유발할 가능성이 있어 의도적으로 생략.
  */
 export default function OutfitCard({ outfit, onClick, index: _index = 0 }: OutfitCardProps) {
   const items = outfitItemList(outfit).slice(0, 4); // 최대 4개 표시

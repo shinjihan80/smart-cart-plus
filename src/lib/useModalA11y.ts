@@ -8,8 +8,19 @@ import { useEffect } from 'react';
  *  2. 모달 열리는 동안 body 스크롤 잠금
  *  3. 해제 시 포커스를 모달 열기 전 요소로 복원 (키보드·스크린리더 UX)
  *
- * 호출자가 모달의 열림 상태와 무관하게 훅을 호출해도 되도록 `active` 플래그를 받는다.
- * (항상 마운트되는 CommandPalette 같은 컴포넌트에서 안전하게 사용 가능)
+ * ⚠️ 사용 패턴 — 모달이 항상 마운트되는 경우 반드시 active 플래그를 명시할 것
+ *
+ *   // ✅ 패턴 A — 조건부 마운트 (대부분)
+ *   {open && <MyModal onClose={...} />}
+ *   // 내부: useModalA11y(onClose)   ← active 기본값 true 로 충분
+ *
+ *   // ✅ 패턴 B — 항상 마운트 (AnimatePresence 등)
+ *   <MyModal item={maybeNull} onClose={...} />
+ *   // 내부: useModalA11y(onClose, !!item)   ← active 명시 필수
+ *
+ *   // ❌ 위험 패턴 — 항상 마운트인데 active 미지정
+ *   <MyModal item={maybeNull} onClose={...} />
+ *   // 내부: useModalA11y(onClose)   ← body.overflow=hidden 가 영구 적용됨
  *
  * 포커스 트랩은 복잡도 대비 이득이 낮아 생략.
  */
