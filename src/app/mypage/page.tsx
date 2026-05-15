@@ -354,6 +354,27 @@ export default function MyPage() {
               emoji="👕"
             />
 
+            <ShoppingMallCard
+              domain="secondhand"
+              title="중고 판매"
+              subtitle="안 입는 옷 판매 — 당근·번개장터·KREAM"
+              emoji="💰"
+            />
+
+            <ShoppingMallCard
+              domain="donation"
+              title="기부하기"
+              subtitle="오래 안 입은 옷 따뜻하게 보내기"
+              emoji="❤️"
+            />
+
+            <ShoppingMallCard
+              domain="storage"
+              title="짐 보관 서비스"
+              subtitle="계절 옷 잠깐 빼두기 — 세탁특공대·다락"
+              emoji="📦"
+            />
+
             <SectionErrorBoundary label="장볼 거 추천">
               <ShoppingSuggestionsSection
                 items={items}

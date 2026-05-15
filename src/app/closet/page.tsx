@@ -417,7 +417,7 @@ export default function ClosetPage() {
         </SectionErrorBoundary>
         </>)}
 
-        {/* ─── 쇼핑 탭 — 새 옷 추가 액션 ─── */}
+        {/* ─── 쇼핑 탭 — 새 옷 추가 + 정리 액션 ─── */}
         {activeTab === 'shopping' && (<>
         <ShoppingMallCard
           domain="fashion"
@@ -429,8 +429,22 @@ export default function ClosetPage() {
         <ShoppingMallCard
           domain="secondhand"
           title="중고 판매"
-          subtitle="안 입는 옷 — 탭하면 당근마켓으로 이동"
+          subtitle="안 입는 옷 빠르게 팔기 — 당근·번개장터·KREAM"
           emoji="💰"
+        />
+
+        <ShoppingMallCard
+          domain="donation"
+          title="기부하기"
+          subtitle="오래 안 입은 옷 따뜻하게 — 아름다운가게·굿윌·옷캔"
+          emoji="❤️"
+        />
+
+        <ShoppingMallCard
+          domain="storage"
+          title="짐 보관 서비스"
+          subtitle="계절 옷 잠깐 빼두기 — 세탁특공대·다락"
+          emoji="📦"
         />
 
         {/* 빠른 추가 */}

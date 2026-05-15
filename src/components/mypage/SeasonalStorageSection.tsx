@@ -139,13 +139,14 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                     >
                       {stowCandidates.length}벌 모두 앱에서 보관
                     </button>
-                    <button
-                      disabled={!PARTNERS.storage_box.enabled}
-                      title={PARTNERS.storage_box.comingSoon}
-                      className="text-xs font-semibold py-2 px-3 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed whitespace-nowrap"
+                    <a
+                      href={PARTNERS.thelaundry.buildUrl?.() ?? '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold py-2 px-3 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-brand-primary/30 hover:text-brand-primary active:scale-95 transition-all whitespace-nowrap text-center"
                     >
-                      📦 업체 보관 <span className="text-xs text-gray-300 block leading-none">준비 중</span>
-                    </button>
+                      📦 업체 보관 <span className="text-xs text-gray-400 block leading-none">세탁특공대</span>
+                    </a>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     {stowCandidates.slice(0, 10).map((c) => {

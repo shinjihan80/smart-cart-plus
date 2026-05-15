@@ -61,13 +61,36 @@ export const PARTNERS: Readonly<Record<string, Partner>> = {
                  buildUrl: (q) => q ? `https://zigzag.kr/search?keyword=${encodeURIComponent(q)}` : 'https://zigzag.kr',
                  comingSoon: '' },
 
-  // 의류 중고·기부·보관 (기존 stub 유지)
-  karrot:      { id: 'karrot',      label: '중고 판매',     emoji: '💰', domain: 'secondhand', enabled: true,
+  // 중고 판매 (Phase 7 — 3개로 확장)
+  karrot:      { id: 'karrot',      label: '당근마켓',      emoji: '🥕', domain: 'secondhand', enabled: true,
                  buildUrl: (q) => q ? `https://www.daangn.com/search/${encodeURIComponent(q)}` : 'https://www.daangn.com',
                  comingSoon: '' },
-  beautiful:   { id: 'beautiful',   label: '기부하기',      emoji: '❤️', domain: 'donation',   enabled: false, comingSoon: '곧 연결됩니다 — 아름다운가게·굿윌스토어 등' },
-  storage_box: { id: 'storage_box', label: '업체 보관',     emoji: '📦', domain: 'storage',    enabled: false, comingSoon: '곧 연결됩니다 — 세탁특공대·다락 등 짐 보관 업체' },
-  storage_svc: { id: 'storage_svc', label: '짐 보관',       emoji: '📦', domain: 'storage',    enabled: false, comingSoon: '곧 연결됩니다 — 세탁특공대·다락 등' },
+  bunjang:     { id: 'bunjang',     label: '번개장터',      emoji: '⚡', domain: 'secondhand', enabled: true,
+                 buildUrl: (q) => q ? `https://m.bunjang.co.kr/search/products?q=${encodeURIComponent(q)}` : 'https://m.bunjang.co.kr',
+                 comingSoon: '' },
+  kream:       { id: 'kream',       label: 'KREAM',         emoji: '👟', domain: 'secondhand', enabled: true,
+                 buildUrl: (q) => q ? `https://kream.co.kr/search?keyword=${encodeURIComponent(q)}` : 'https://kream.co.kr',
+                 comingSoon: '' },
+
+  // 기부 (Phase 7 — 실제 연결)
+  beautiful:   { id: 'beautiful',   label: '아름다운가게',  emoji: '🏪', domain: 'donation',   enabled: true,
+                 buildUrl: ()  => 'https://www.beautifulstore.org/giving',
+                 comingSoon: '' },
+  goodwill:    { id: 'goodwill',    label: '굿윌스토어',    emoji: '🤝', domain: 'donation',   enabled: true,
+                 buildUrl: ()  => 'https://www.goodwillstore.org',
+                 comingSoon: '' },
+  otcan:       { id: 'otcan',       label: '옷캔',          emoji: '👕', domain: 'donation',   enabled: true,
+                 buildUrl: ()  => 'http://otcan.org',
+                 comingSoon: '' },
+
+  // 짐 보관·세탁 (Phase 7 — 실제 연결)
+  thelaundry:  { id: 'thelaundry',  label: '세탁특공대',    emoji: '🧺', domain: 'storage',    enabled: true,
+                 buildUrl: ()  => 'https://www.thelaundrygo.com/box-storage',
+                 comingSoon: '' },
+  darak:       { id: 'darak',       label: '다락',          emoji: '📦', domain: 'storage',    enabled: true,
+                 buildUrl: ()  => 'https://www.darakhouse.com',
+                 comingSoon: '' },
+
 };
 
 /** 특정 도메인의 모든 파트너 (UI에서 그룹 렌더용). */

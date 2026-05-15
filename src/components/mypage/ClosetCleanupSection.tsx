@@ -125,7 +125,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               네모아가 고른 정리 후보예요. 계속 입을 옷은 &ldquo;유지&rdquo;, 정리할 옷은 &ldquo;정리&rdquo;를 눌러주세요.
             </p>
 
-            {/* 파트너 연결 placeholder — Phase 7 · 정리 경로별 그룹 */}
+            {/* 파트너 연결 — Phase 7 · 정리 경로별 그룹 (각 그룹별 다중 파트너) */}
             <div className="flex flex-col gap-2 mb-3">
               {dispositions.resell > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -133,6 +133,8 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                     💰 중고 판매 <span className="text-gray-400 font-normal">· {dispositions.resell}벌</span>
                   </span>
                   <PartnerChip partner={PARTNERS.karrot} />
+                  <PartnerChip partner={PARTNERS.bunjang} />
+                  <PartnerChip partner={PARTNERS.kream} />
                 </div>
               )}
               {dispositions.donate > 0 && (
@@ -141,13 +143,16 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                     ❤️ 기부 추천 <span className="text-gray-400 font-normal">· {dispositions.donate}벌 (6개월+)</span>
                   </span>
                   <PartnerChip partner={PARTNERS.beautiful} />
+                  <PartnerChip partner={PARTNERS.goodwill} />
+                  <PartnerChip partner={PARTNERS.otcan} />
                 </div>
               )}
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-sm font-semibold text-gray-500 shrink-0">
                   📦 계절 보관 <span className="text-gray-400 font-normal">· 잠깐 빼둘 때</span>
                 </span>
-                <PartnerChip partner={PARTNERS.storage_svc} />
+                <PartnerChip partner={PARTNERS.thelaundry} />
+                <PartnerChip partner={PARTNERS.darak} />
               </div>
             </div>
             <div className="flex flex-col gap-2">
