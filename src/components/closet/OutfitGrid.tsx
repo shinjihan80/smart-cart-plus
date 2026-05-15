@@ -59,16 +59,21 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
           <span className="text-xs text-gray-400">← 스와이프 · 탭하면 상세</span>
         </div>
 
-        {/* 가로 스와이프 캐러셀 — 1.3장 노출(다음 카드 살짝 보임) */}
+        {/* 가로 스와이프 캐러셀 — 1.3장 노출(다음 카드 살짝 보임)
+            touch-action: pan-x — 세로 제스처는 부모(페이지)로 전달, 가로만 캐러셀이 처리 */}
         <div
-          className="-mx-4 px-4 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-          style={{ scrollPaddingLeft: '1rem', WebkitOverflowScrolling: 'touch' }}
+          className="-mx-5 px-5 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          style={{
+            scrollPaddingLeft: '1.25rem',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x',
+          }}
         >
           {outfits.map((o, i) => (
             <div
               key={o.id}
               className="snap-start shrink-0"
-              style={{ width: 'calc((100% - 1rem) / 1.3)' }}
+              style={{ width: 'calc((100% - 0.625rem) / 1.3)' }}
             >
               <OutfitCard outfit={o} index={i} onClick={() => setSelected(o)} />
             </div>
