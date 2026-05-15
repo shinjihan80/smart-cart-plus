@@ -81,5 +81,31 @@ export function useDismissedAlerts() {
     });
   }, []);
 
-  return { isDismissedToday, dismiss };
+  /** 특정 알림 dismiss 해제 (다시 노출) */
+  const restore = useCallback((alertKey: string) => {
+    setMap((prev) => {
+      if (!(alertKey in prev)) return prev;
+      const { [alertKey]: _removed, ...rest } = prev;
+      void _removed;
+      save(rest);
+      return rest;
+    });
+  }, []);
+
+  /** 모든 dismiss 해제 — '오늘 안 보기' 일괄 해제 */
+  const restoreAll = useCallback(() => {
+    setMap({});
+    save({});
+  }, []);
+
+  /** 오늘 dismiss 한 항목 목록 (UI 표시용) */
+  const dismissedToday = useCallback((): string[] => {
+    if (!hydrated) return [];
+    const t = today();
+    return Object.entries(map)
+      .filter(([_, date]) => date === t)
+      .map(([key]) => key);
+  }, [map, hydrated]);
+
+  return { isDismissedToday, dismiss, restore, restoreAll, dismissedToday };
 }
