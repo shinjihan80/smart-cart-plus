@@ -11,7 +11,7 @@
  * - 광고비
  */
 
-export type PartnerDomain = 'groceries' | 'secondhand' | 'donation' | 'storage' | 'laundry';
+export type PartnerDomain = 'groceries' | 'fashion' | 'secondhand' | 'donation' | 'storage' | 'laundry';
 
 export interface Partner {
   id:      string;
@@ -27,15 +27,44 @@ export interface Partner {
 }
 
 export const PARTNERS: Readonly<Record<string, Partner>> = {
-  // 식품 쇼핑몰
-  coupang:     { id: 'coupang',     label: '쿠팡',         emoji: '📦',  domain: 'groceries',  enabled: false, comingSoon: '곧 연결됩니다 — 쿠팡 로켓배송 제휴 API' },
-  kurly:       { id: 'kurly',       label: '마켓컬리',     emoji: '🌙',  domain: 'groceries',  enabled: false, comingSoon: '곧 연결됩니다 — 마켓컬리 새벽배송' },
-  naver_shop:  { id: 'naver_shop',  label: '네이버 장보기', emoji: '🛍️', domain: 'groceries',  enabled: false, comingSoon: '곧 연결됩니다 — 네이버 장보기' },
-  mart:        { id: 'mart',        label: '대형마트',      emoji: '🏪', domain: 'groceries',  enabled: false, comingSoon: '곧 연결됩니다 — SSG·이마트몰·홈플러스' },
-  quick_mart:  { id: 'quick_mart',  label: '바로 장보기',   emoji: '🛒', domain: 'groceries',  enabled: false, comingSoon: '곧 연결됩니다 — 쿠팡·네이버·마켓컬리 제휴 API' },
+  // 식품 쇼핑몰 — 검색 가능 / 메인 페이지 fallback
+  coupang:     { id: 'coupang',     label: '쿠팡',         emoji: '📦',  domain: 'groceries',  enabled: true,
+                 buildUrl: (q) => q ? `https://www.coupang.com/np/search?q=${encodeURIComponent(q)}` : 'https://www.coupang.com',
+                 comingSoon: '' },
+  kurly:       { id: 'kurly',       label: '마켓컬리',     emoji: '🌙',  domain: 'groceries',  enabled: true,
+                 buildUrl: (q) => q ? `https://www.kurly.com/search?sword=${encodeURIComponent(q)}` : 'https://www.kurly.com',
+                 comingSoon: '' },
+  naver_shop:  { id: 'naver_shop',  label: '네이버 장보기', emoji: '🛍️', domain: 'groceries',  enabled: true,
+                 buildUrl: (q) => q ? `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(q)}` : 'https://shopping.naver.com',
+                 comingSoon: '' },
+  ssg:         { id: 'ssg',         label: 'SSG·이마트몰',  emoji: '🏪', domain: 'groceries',  enabled: true,
+                 buildUrl: (q) => q ? `https://emart.ssg.com/search.ssg?target=all&query=${encodeURIComponent(q)}` : 'https://emart.ssg.com',
+                 comingSoon: '' },
+  homeplus:    { id: 'homeplus',    label: '홈플러스',      emoji: '🛒', domain: 'groceries',  enabled: true,
+                 buildUrl: (q) => q ? `https://front.homeplus.co.kr/search?searchTerm=${encodeURIComponent(q)}` : 'https://front.homeplus.co.kr',
+                 comingSoon: '' },
 
-  // 의류 중고·기부·보관
-  karrot:      { id: 'karrot',      label: '중고 판매',     emoji: '💰', domain: 'secondhand', enabled: false, comingSoon: '곧 연결됩니다 — 당근마켓·번개장터 등' },
+  // 의류 쇼핑몰 (Phase 7 신규)
+  musinsa:     { id: 'musinsa',     label: '무신사',        emoji: '👕', domain: 'fashion',    enabled: true,
+                 buildUrl: (q) => q ? `https://www.musinsa.com/search/musinsa/goods?q=${encodeURIComponent(q)}` : 'https://www.musinsa.com',
+                 comingSoon: '' },
+  twentynine:  { id: 'twentynine',  label: '29CM',         emoji: '✨', domain: 'fashion',    enabled: true,
+                 buildUrl: (q) => q ? `https://search.29cm.co.kr/search?keyword=${encodeURIComponent(q)}` : 'https://www.29cm.co.kr',
+                 comingSoon: '' },
+  wconcept:    { id: 'wconcept',    label: 'W컨셉',         emoji: '🎀', domain: 'fashion',    enabled: true,
+                 buildUrl: (q) => q ? `https://www.wconcept.co.kr/Search?kwd=${encodeURIComponent(q)}` : 'https://www.wconcept.co.kr',
+                 comingSoon: '' },
+  ably:        { id: 'ably',        label: '에이블리',      emoji: '💄', domain: 'fashion',    enabled: true,
+                 buildUrl: (q) => q ? `https://m.a-bly.com/search/${encodeURIComponent(q)}` : 'https://a-bly.com',
+                 comingSoon: '' },
+  zigzag:      { id: 'zigzag',      label: '지그재그',      emoji: '⚡', domain: 'fashion',    enabled: true,
+                 buildUrl: (q) => q ? `https://zigzag.kr/search?keyword=${encodeURIComponent(q)}` : 'https://zigzag.kr',
+                 comingSoon: '' },
+
+  // 의류 중고·기부·보관 (기존 stub 유지)
+  karrot:      { id: 'karrot',      label: '중고 판매',     emoji: '💰', domain: 'secondhand', enabled: true,
+                 buildUrl: (q) => q ? `https://www.daangn.com/search/${encodeURIComponent(q)}` : 'https://www.daangn.com',
+                 comingSoon: '' },
   beautiful:   { id: 'beautiful',   label: '기부하기',      emoji: '❤️', domain: 'donation',   enabled: false, comingSoon: '곧 연결됩니다 — 아름다운가게·굿윌스토어 등' },
   storage_box: { id: 'storage_box', label: '업체 보관',     emoji: '📦', domain: 'storage',    enabled: false, comingSoon: '곧 연결됩니다 — 세탁특공대·다락 등 짐 보관 업체' },
   storage_svc: { id: 'storage_svc', label: '짐 보관',       emoji: '📦', domain: 'storage',    enabled: false, comingSoon: '곧 연결됩니다 — 세탁특공대·다락 등' },

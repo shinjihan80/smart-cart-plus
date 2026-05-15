@@ -10,6 +10,7 @@ import { LayoutGrid, List } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import EmojiIcon from '@/components/EmojiIcon';
+import ShoppingMallCard from '@/components/ShoppingMallCard';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/fridge/shared';
 import SwipeFoodCard           from '@/components/fridge/SwipeFoodCard';
@@ -492,6 +493,13 @@ export default function FridgePage() {
         {/* ─── 장보기 탭 ────────────────────────────── */}
         {activeTab === 'shopping' && (
           <>
+            <ShoppingMallCard
+              domain="groceries"
+              title="식품 쇼핑몰"
+              subtitle="장보기 — 탭하면 새 창으로 이동"
+              emoji="🥬"
+            />
+
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}

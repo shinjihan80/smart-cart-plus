@@ -29,6 +29,7 @@ import ClosetCleanupSection                      from '@/components/mypage/Close
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
 import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
 import WaitlistBanner                            from '@/components/mypage/WaitlistBanner';
+import ShoppingMallCard                           from '@/components/ShoppingMallCard';
 import PaletteButton                              from '@/components/PaletteButton';
 import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
 import MonthlySummarySection                      from '@/components/mypage/MonthlySummarySection';
@@ -224,47 +225,45 @@ export default function MyPage() {
           </motion.div>
         )}
 
-        <StatsSection
-          items={items}
-          foodItems={foodItemsList}
-          clothingItems={clothingItemsList}
-          urgentCount={urgentCount}
-          discardCount={discardCount}
-          coldCount={coldCount}
-          frozenCount={frozenCount}
-          roomCount={roomCount}
-        />
-
-        {/* 소진 히스토리 */}
-        {discardHistory.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springTransition, delay: 0.22 }}
-            className={CARD}
-            style={CARD_SHADOW}
-          >
-            <h3 className="text-xs text-gray-400 font-medium mb-2">최근 소진 내역</h3>
-            <div className="flex flex-col gap-2">
-              {discardHistory.slice(0, 5).map((record, i) => (
-                <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
-                  <div className="flex items-center gap-2">
-                    <EmojiIcon emoji={record.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-600" />
-                    <span className="text-sm text-gray-700 truncate">{record.name}</span>
-                  </div>
-                  <span className="text-sm text-gray-400 tabular-nums shrink-0">{record.date}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        <SpendingSection />
-
         {/* ─── 탭별 섹션 ──────────────────────────────────── */}
 
         {activeTab === 'overview' && (
           <>
+            <StatsSection
+              items={items}
+              foodItems={foodItemsList}
+              clothingItems={clothingItemsList}
+              urgentCount={urgentCount}
+              discardCount={discardCount}
+              coldCount={coldCount}
+              frozenCount={frozenCount}
+              roomCount={roomCount}
+            />
+
+            {/* 소진 히스토리 */}
+            {discardHistory.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...springTransition, delay: 0.22 }}
+                className={CARD}
+                style={CARD_SHADOW}
+              >
+                <h3 className="text-xs text-gray-400 font-medium mb-2">최근 소진 내역</h3>
+                <div className="flex flex-col gap-2">
+                  {discardHistory.slice(0, 5).map((record, i) => (
+                    <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
+                      <div className="flex items-center gap-2">
+                        <EmojiIcon emoji={record.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-600" />
+                        <span className="text-sm text-gray-700 truncate">{record.name}</span>
+                      </div>
+                      <span className="text-sm text-gray-400 tabular-nums shrink-0">{record.date}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
             <SectionErrorBoundary label="내 냉장고">
               <MyFridgeSection />
             </SectionErrorBoundary>
@@ -287,44 +286,73 @@ export default function MyPage() {
             <SectionErrorBoundary label="올해 활동 요약">
               <AnnualSummarySection discardHistory={discardHistory} />
             </SectionErrorBoundary>
+
+            {/* 아카이브 — 요약 탭 끝 (소진/복원 = 데이터 관리) */}
+            {archived.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...springTransition, delay: 0.29 }}
+                className={CARD}
+                style={CARD_SHADOW}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs text-gray-400 font-medium">아카이브 ({archived.length}개)</h3>
+                  {archived.length > 5 && (
+                    <button
+                      onClick={() => setArchiveExpanded(!archiveExpanded)}
+                      className="text-sm text-brand-primary font-semibold hover:underline"
+                    >
+                      {archiveExpanded ? '접기' : `전체 보기 (${archived.length})`}
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {(archiveExpanded ? archived : archived.slice(0, 5)).map((item, i) => (
+                    <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1 gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <EmojiIcon emoji={item.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-500 shrink-0" />
+                        <span className="text-sm text-gray-500 truncate">{item.name}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-sm text-gray-300">{item.category}</span>
+                        <button
+                          onClick={() => {
+                            const ok = restoreFromArchive(item.id);
+                            if (ok) {
+                              showToast(`"${item.name}" 복원했어요${item.category === '식품' ? ' (구매일 오늘로)' : ''}.`);
+                            }
+                          }}
+                          className="text-sm font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                        >
+                          복원
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </>
         )}
 
         {activeTab === 'shopping' && (
           <>
-            {/* 쇼핑몰 연동 */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...springTransition, delay: 0.28 }}
-              className={CARD}
-              style={CARD_SHADOW}
-            >
-              <h3 className="text-xs text-gray-400 font-medium mb-3">쇼핑몰 자동 연동</h3>
-              <div className="flex flex-col gap-2.5">
-                {[
-                  { name: '쿠팡',     mallBg: 'bg-mall-coupang',    status: '준비 중' },
-                  { name: '네이버',   mallBg: 'bg-mall-naver',      status: '준비 중' },
-                  { name: '마켓컬리', mallBg: 'bg-mall-kurly',      status: '준비 중' },
-                  { name: '무신사',   mallBg: 'bg-mall-musinsa',    status: '준비 중' },
-                ].map((mall) => (
-                  <div key={mall.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-7 h-7 rounded-full ${mall.mallBg} flex items-center justify-center`}>
-                        <span className="text-white text-xs font-bold">{mall.name.charAt(0)}</span>
-                      </div>
-                      <span className="text-sm text-gray-700">{mall.name}</span>
-                    </div>
-                    <span className="text-sm text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                      {mall.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-gray-400 mt-3 leading-relaxed">
-                이메일 파싱으로 구매 내역을 자동 가져오는 기능이 곧 추가됩니다.
-              </p>
-            </motion.div>
+            <SpendingSection />
+
+            <ShoppingMallCard
+              domain="groceries"
+              title="식품 쇼핑몰"
+              subtitle="장보기 — 탭하면 새 창으로 이동"
+              emoji="🥬"
+            />
+
+            <ShoppingMallCard
+              domain="fashion"
+              title="패션 쇼핑몰"
+              subtitle="옷 사러 가기 — 탭하면 새 창으로 이동"
+              emoji="👕"
+            />
 
             <SectionErrorBoundary label="장볼 거 추천">
               <ShoppingSuggestionsSection
@@ -336,6 +364,10 @@ export default function MyPage() {
 
             <SectionErrorBoundary label="쇼핑 리스트">
               <ShoppingListSection addItems={addItems} showToast={showToast} />
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="파트너 로드맵">
+              <PartnerRoadmapSection />
             </SectionErrorBoundary>
           </>
         )}
@@ -377,58 +409,7 @@ export default function MyPage() {
 
         {/* ─── 탭과 무관하게 항상 노출 ────────────────── */}
 
-        <SectionErrorBoundary label="파트너 로드맵">
-          <PartnerRoadmapSection />
-        </SectionErrorBoundary>
-
         <WaitlistBanner />
-
-        {/* 아카이브 */}
-        {archived.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springTransition, delay: 0.29 }}
-            className={CARD}
-            style={CARD_SHADOW}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs text-gray-400 font-medium">아카이브 ({archived.length}개)</h3>
-              {archived.length > 5 && (
-                <button
-                  onClick={() => setArchiveExpanded(!archiveExpanded)}
-                  className="text-sm text-brand-primary font-semibold hover:underline"
-                >
-                  {archiveExpanded ? '접기' : `전체 보기 (${archived.length})`}
-                </button>
-              )}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              {(archiveExpanded ? archived : archived.slice(0, 5)).map((item, i) => (
-                <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1 gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <EmojiIcon emoji={item.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-500 shrink-0" />
-                    <span className="text-sm text-gray-500 truncate">{item.name}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-sm text-gray-300">{item.category}</span>
-                    <button
-                      onClick={() => {
-                        const ok = restoreFromArchive(item.id);
-                        if (ok) {
-                          showToast(`"${item.name}" 복원했어요${item.category === '식품' ? ' (구매일 오늘로)' : ''}.`);
-                        }
-                      }}
-                      className="text-sm font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
-                    >
-                      복원
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
 
         {/* 설정 진입 링크 (하단) */}
         <Link

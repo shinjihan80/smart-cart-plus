@@ -22,6 +22,7 @@ import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import EmojiIcon from '@/components/EmojiIcon';
+import ShoppingMallCard from '@/components/ShoppingMallCard';
 import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
@@ -459,6 +460,20 @@ export default function ClosetPage() {
 
         {/* ─── 쇼핑 탭 — 새 옷 추가 액션 ─── */}
         {activeTab === 'shopping' && (<>
+        <ShoppingMallCard
+          domain="fashion"
+          title="패션 쇼핑몰"
+          subtitle="옷 사러 가기 — 탭하면 새 창으로 이동"
+          emoji="👕"
+        />
+
+        <ShoppingMallCard
+          domain="secondhand"
+          title="중고 판매"
+          subtitle="안 입는 옷 — 탭하면 당근마켓으로 이동"
+          emoji="💰"
+        />
+
         {/* 빠른 추가 */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}

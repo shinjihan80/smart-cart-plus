@@ -8,7 +8,8 @@ import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const DOMAIN_LABEL: Record<PartnerDomain, { emoji: string; label: string; desc: string }> = {
-  groceries:  { emoji: '🛒', label: '냉장고 — 바로 장보기', desc: '쇼핑 리스트에서 원탭으로 배송 주문' },
+  groceries:  { emoji: '🛒', label: '냉장고 — 바로 장보기',  desc: '쿠팡·컬리·SSG·홈플러스로 바로 이동' },
+  fashion:    { emoji: '👕', label: '옷장 — 패션 쇼핑',      desc: '무신사·29CM·W컨셉·에이블리·지그재그' },
   secondhand: { emoji: '💰', label: '옷장 — 중고 판매',      desc: '안 입는 옷 바로 판매 게시' },
   donation:   { emoji: '❤️', label: '옷장 — 기부하기',       desc: '기부 수거 예약 + 기부증' },
   storage:    { emoji: '📦', label: '옷장 — 짐 보관',         desc: '비시즌 옷 업체 위탁 보관' },
