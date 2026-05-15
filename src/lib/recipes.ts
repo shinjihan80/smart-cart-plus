@@ -827,11 +827,13 @@ export const RECIPES: readonly Recipe[] = [
 export interface MatchedRecipe {
   recipe:         Recipe;
   matchedItems:   string[];
-  matchScore:     number;  // 매칭 개수 + 임박(+2) + 계절(+1.5) + 선호(+최대3)
+  matchScore:     number;  // 매칭 개수 + 임박(+2) + 계절(+1.5) + 선호(+최대3) + 로테이션(±1.5)
   urgentBoosted:  boolean; // 소비 임박 아이템 포함
   seasonBoosted:  boolean; // 현재 계절과 매칭
   loveBoosted:    boolean; // 사용자가 자주 만든 레시피 (3회 이상)
   cookCount:      number;  // 조리 횟수
+  /** 추천 이유 — UI 배지용 (이모지+텍스트) */
+  reasons:        string[];
 }
 
 export interface MatchOptions {
@@ -976,6 +978,19 @@ export function matchRecipes(
       if (recipe.difficulty === '도전') difficultyBoost = 1;
     }
 
+    // 추천 이유 배지 수집
+    const reasons: string[] = [];
+    if (urgentBoost > 0) reasons.push('⏰ 임박 소비');
+    if (seasonBoosted) {
+      const seasonEmoji = currentSeason
+        ? ({ 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' }[currentSeason])
+        : '🍽';
+      reasons.push(`${seasonEmoji} ${currentSeason ?? ''} 제철`.trim());
+    }
+    if (loveBoosted) reasons.push('❤️ 자주 만드는');
+    if (rotationBoost > 0) reasons.push('🌙 오랜만에');
+    if (nutritionBoost > 0) reasons.push('🥬 균형 채움');
+
     results.push({
       recipe,
       matchedItems,
@@ -984,6 +999,7 @@ export function matchRecipes(
       seasonBoosted,
       loveBoosted,
       cookCount,
+      reasons,
     });
   }
 

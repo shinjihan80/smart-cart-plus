@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, AlertTriangle, Flower2, Trophy, Check } from 'lucide-react';
+import { ChevronRight, AlertTriangle, Flower2, Trophy, Check, Moon } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { matchRecipes, type Recipe } from '@/lib/recipes';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
@@ -28,7 +28,8 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 
   if (matched.length === 0) return null;
-  const { recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount } = matched[0];
+  const { recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount, reasons } = matched[0];
+  const rotationBoosted = reasons.includes('🌙 오랜만에');
 
   function handleQuickCook(e: React.MouseEvent) {
     e.stopPropagation();
@@ -67,7 +68,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                   )}
                 </p>
                 {/* 배지 줄 — 가로 wrap 허용 */}
-                {(urgentBoosted || seasonBoosted || loveBoosted) && (
+                {(urgentBoosted || seasonBoosted || loveBoosted || rotationBoosted) && (
                   <div className="flex items-center gap-1 mt-2 flex-wrap">
                     {urgentBoosted && (
                       <span className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold whitespace-nowrap">
@@ -88,6 +89,15 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                       >
                         <Trophy size={10} strokeWidth={2.4} />
                         <span>단골</span>
+                      </span>
+                    )}
+                    {rotationBoosted && (
+                      <span
+                        title="10일 이상 만들지 않은 메뉴"
+                        className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-semibold whitespace-nowrap"
+                      >
+                        <Moon size={10} strokeWidth={2.4} />
+                        <span>오랜만에</span>
                       </span>
                     )}
                   </div>

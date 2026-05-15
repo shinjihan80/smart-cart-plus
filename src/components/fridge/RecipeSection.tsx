@@ -100,8 +100,9 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
           </div>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
-          {matched.map(({ recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount }) => {
+          {matched.map(({ recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount, reasons }) => {
             const fav = isFavorite(recipe.id);
+            const rotationBoosted = reasons.includes('🌙 오랜만에');
             return (
               <button
                 key={recipe.id}
@@ -129,6 +130,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                       );
                     })()}
                     {urgentBoosted && <EmojiIcon emoji="⚠️" size={11} className="text-brand-warning" />}
+                    {rotationBoosted && <span title="오랜만에 다시 추천"><EmojiIcon emoji="🌙" size={11} className="text-indigo-500" /></span>}
                   </div>
                 </div>
                 <p className="text-xs font-semibold text-gray-800 mt-1.5 truncate">{recipe.name}</p>
