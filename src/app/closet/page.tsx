@@ -27,7 +27,7 @@ import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
-import OutfitSection      from '@/components/closet/OutfitSection';
+import OutfitGrid         from '@/components/closet/OutfitGrid';
 import SwipeClothingCard  from '@/components/closet/SwipeClothingCard';
 import SeasonalUnstowBanner from '@/components/closet/SeasonalUnstowBanner';
 import SavedOutfitsSection from '@/components/closet/SavedOutfitsSection';
@@ -442,19 +442,27 @@ export default function ClosetPage() {
           );
         })()}
 
-        {/* 저장된 코디 */}
+        {/* 자동 생성 코디 그리드 — 메인 (이미지 위주) */}
+        <SectionErrorBoundary label="오늘 입을 코디">
+          <OutfitGrid
+            items={activeClothing}
+            count={6}
+            season={(() => {
+              const month = new Date().getMonth() + 1;
+              return month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
+            })()}
+            thickness={weather ? (weather.tempC >= 23 ? ['얇음'] : weather.tempC >= 15 ? ['얇음', '보통'] : weather.tempC >= 5 ? ['보통', '두꺼움'] : ['두꺼움']) : undefined}
+          />
+        </SectionErrorBoundary>
+
+        {/* 저장된 코디 — 사용자가 직접 저장한 것 */}
         <SectionErrorBoundary label="저장된 코디">
           <SavedOutfitsSection items={allItems} />
         </SectionErrorBoundary>
 
-        {/* 코디 미리보기 */}
-        <SectionErrorBoundary label="코디 미리보기">
+        {/* 코디 빌더 — 직접 만들고 저장 */}
+        <SectionErrorBoundary label="코디 만들기">
           <OutfitPreview items={activeClothing} />
-        </SectionErrorBoundary>
-
-        {/* 코디 추천 */}
-        <SectionErrorBoundary label="오늘의 코디">
-          <OutfitSection items={activeClothing} />
         </SectionErrorBoundary>
         </>)}
 
