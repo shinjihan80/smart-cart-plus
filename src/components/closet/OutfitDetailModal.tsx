@@ -17,7 +17,9 @@ interface OutfitDetailModalProps {
 }
 
 export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModalProps) {
-  useModalA11y(outfit ? onClose : () => {});
+  // ⚠️ active 플래그 필수 — 미지정 시 모달이 닫혀있어도 body.overflow=hidden
+  //   이 항상 적용되어 페이지 스크롤이 영구 잠김 (원인이었던 버그)
+  useModalA11y(onClose, !!outfit);
   const { markWorn, getEntry } = useWearLog();
   const { save } = useSavedOutfits();
   const { showToast } = useToast();

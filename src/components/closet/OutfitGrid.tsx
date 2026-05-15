@@ -20,10 +20,11 @@ interface OutfitGridProps {
 /**
  * 코디 그리드 — 옷장에서 자동 생성한 N개 코디.
  *
- * v4 (스크롤 보존 우선):
- * - 캐러셀/스와이프 모두 제거 → 2열 세로 그리드
- * - touch 가로채는 요소 0개 → 페이지 스크롤 100% 보장
- * - 페이지 스크롤로 모든 코디 자연스럽게 탐색
+ * v5: 가로 스와이프 캐러셀 복구 (1.3장 노출)
+ *   - 진짜 원인이었던 body 스크롤 잠금 버그(OutfitDetailModal useModalA11y) 수정 후
+ *     이제 가로 스와이프 캐러셀도 안전하게 사용 가능
+ *   - native overflow-x-auto + scroll-snap-mandatory
+ *   - 카드 폭 calc((100% - 0.625rem) / 1.3) → 다음 카드 30% 미리 보임
  */
 export default function OutfitGrid({ items, count = 6, season, thickness }: OutfitGridProps) {
   const { log } = useWearLog();
@@ -54,17 +55,29 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
           <h3 className="text-sm font-bold text-gray-900">
             👗 오늘 입을 코디
           </h3>
-          <span className="text-[10px] text-gray-300">v1.5.4</span>
+          <span className="text-xs text-gray-400">← 스와이프 · 탭하면 상세</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5">
+        {/* 가로 스와이프 캐러셀 — 1.3장 노출
+            body 스크롤 잠금 버그가 해소되어 native overflow-x 로 안전하게 작동 */}
+        <div
+          className="-mx-5 px-5 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1"
+          style={{ scrollPaddingLeft: '1.25rem' }}
+        >
           {outfits.map((o, i) => (
-            <OutfitCard key={o.id} outfit={o} index={i} onClick={() => setSelected(o)} />
+            <div
+              key={o.id}
+              className="snap-start shrink-0"
+              style={{ width: 'calc((100% - 0.625rem) / 1.3)' }}
+            >
+              <OutfitCard outfit={o} index={i} onClick={() => setSelected(o)} />
+            </div>
           ))}
+          <div className="shrink-0 w-1" aria-hidden />
         </div>
 
-        <p className="text-xs text-gray-400 mt-3 text-center">
-          {outfits.length}개 코디 · 카드 탭하면 상세
+        <p className="text-xs text-gray-400 mt-2 text-center">
+          {outfits.length}개 코디 · 좌우로 넘겨보세요
         </p>
       </motion.div>
 
