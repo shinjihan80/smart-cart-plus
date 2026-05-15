@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isEnrichedClothingItem, isClothingItem, type ClothingItem } from '@/types';
+import { isEnrichedClothingItem, isClothingItem, FASHION_EMOJI, type ClothingItem } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
@@ -92,35 +92,19 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
 
             {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
 
-            {/* 핵심 칩만 — 오늘 매치 + 착용 빈도 + 소유자 (펼치면 자세히) */}
+            {/* 핵심 칩만 — 카테고리 + 추천 시즌 (펼치면 자세히) */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              {matchBadge && (
+              <span className="inline-flex text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-700 whitespace-nowrap">
+                {FASHION_EMOJI[item.category]} {item.category}
+              </span>
+              {item.weatherTags?.map((tag) => (
                 <span
-                  className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
-                  title={matchBadge.label}
+                  key={tag}
+                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-500'}`}
                 >
-                  <span>{matchBadge.emoji}</span>
-                  <span>{matchBadge.label}</span>
+                  {tag}
                 </span>
-              )}
-              {daysAgo !== null && (
-                <span
-                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                    daysAgo === 0 ? 'bg-brand-success/10 text-brand-success' :
-                    daysAgo <= 7 ? 'bg-gray-100 text-gray-500' :
-                    daysAgo <= 30 ? 'bg-amber-50 text-amber-600' :
-                    'bg-brand-warning/10 text-brand-warning'
-                  }`}
-                  title={`마지막 착용: ${wear.lastWorn}`}
-                >
-                  {daysAgo === 0 ? '오늘 착용' : `${daysAgo}일 전`}
-                </span>
-              )}
-              {owner && (
-                <span className="inline-flex text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                  {owner.name}
-                </span>
-              )}
+              ))}
               {!expanded && (
                 <span className="text-xs text-gray-300">자세히 보기 ›</span>
               )}
@@ -140,6 +124,33 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-sm">
                 {/* 자세한 칩 — 펼침 시에만 노출 (collapsed에서 숨긴 정보) */}
                 <div className="flex items-center gap-1.5 flex-wrap">
+                  {matchBadge && (
+                    <span
+                      className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
+                      title={matchBadge.label}
+                    >
+                      <span>{matchBadge.emoji}</span>
+                      <span>{matchBadge.label}</span>
+                    </span>
+                  )}
+                  {daysAgo !== null && (
+                    <span
+                      className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                        daysAgo === 0 ? 'bg-brand-success/10 text-brand-success' :
+                        daysAgo <= 7 ? 'bg-gray-100 text-gray-500' :
+                        daysAgo <= 30 ? 'bg-amber-50 text-amber-600' :
+                        'bg-brand-warning/10 text-brand-warning'
+                      }`}
+                      title={`마지막 착용: ${wear.lastWorn}`}
+                    >
+                      {daysAgo === 0 ? '오늘 착용' : `${daysAgo}일 전`}
+                    </span>
+                  )}
+                  {owner && (
+                    <span className="inline-flex text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                      {owner.name}
+                    </span>
+                  )}
                   <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${thick.bg} ${thick.text}`}>
                     <ThickIcon size={10} />
                     {item.thickness}
@@ -147,14 +158,6 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   <span className="inline-flex text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
                     {item.material}
                   </span>
-                  {item.weatherTags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-500'}`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
                   {sizeMatch.status !== 'unknown' && sizeMatch.label && (
                     <span
                       className={`inline-flex text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${
@@ -211,10 +214,10 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   </button>
                 ) : null}
 
-                {/* 상품명 */}
-                <div>
-                  <span className="text-gray-400">상품명</span>
-                  {editing ? (
+                {/* 상품명 — 편집 모드에서만 노출 (비편집 시 카드 상단에 이미 표시되어 중복 제거) */}
+                {editing && (
+                  <div>
+                    <span className="text-gray-400">상품명</span>
                     <input
                       type="text"
                       aria-label={`${item.name} 상품명 수정`}
@@ -226,10 +229,8 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                       onClick={(e) => e.stopPropagation()}
                       className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
                     />
-                  ) : (
-                    <p className="text-xs text-gray-800 font-medium mt-0.5">{item.name}</p>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* 사이즈 · 소재 · 두께 */}
                 <div className="grid grid-cols-2 gap-2">

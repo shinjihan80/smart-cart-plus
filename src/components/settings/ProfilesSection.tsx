@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, ChevronDown } from 'lucide-react';
-import { useProfiles, type Profile, type Relation, type Dietary } from '@/lib/profile';
+import {
+  useProfiles, calcTDEE, resolveDailyCalorieTarget,
+  type Profile, type Relation, type Dietary, type Gender, type ActivityLevel,
+} from '@/lib/profile';
 import { recommendSizes } from '@/lib/sizeRecommend';
 import { useToast } from '@/context/ToastContext';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -25,6 +28,22 @@ const DIETARY_OPTIONS: { key: Dietary; label: string; emoji: string }[] = [
   { key: 'vegetarian',   label: '채식',       emoji: '🥬' },
   { key: 'vegan',        label: '비건',       emoji: '🌱' },
 ];
+
+const GENDER_OPTIONS: { key: Gender; label: string; emoji: string }[] = [
+  { key: 'female', label: '여성',   emoji: '👩' },
+  { key: 'male',   label: '남성',   emoji: '👨' },
+  { key: 'other',  label: '기타',   emoji: '🧑' },
+];
+
+const ACTIVITY_OPTIONS: { key: ActivityLevel; label: string; emoji: string; sub: string }[] = [
+  { key: 'sedentary',  label: '거의 안함',  emoji: '🪑', sub: '주로 앉아서' },
+  { key: 'light',      label: '가볍게',     emoji: '🚶', sub: '주 1-3회 운동' },
+  { key: 'moderate',   label: '보통',       emoji: '🏃', sub: '주 3-5회 운동' },
+  { key: 'active',     label: '활발',       emoji: '💪', sub: '주 6-7회 운동' },
+  { key: 'veryActive', label: '매우 활발',  emoji: '🔥', sub: '하루 2회 또는 육체 노동' },
+];
+
+const COMMON_ALLERGENS = ['갑각류', '땅콩', '계란', '우유', '밀', '대두', '복숭아', '토마토', '견과류', '메밀'];
 
 const AVATAR_OPTIONS = ['🧑', '👩', '👨', '🧒', '👧', '👦', '🧓', '🐶', '🐱', '🦁', '🌸', '⭐', '🎨', '🎯'];
 
@@ -263,6 +282,135 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* 나이·성별 */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-sm text-gray-500">나이</label>
+                  <input
+                    type="number"
+                    defaultValue={profile.body.age ?? ''}
+                    min={1} max={120}
+                    placeholder="예: 30"
+                    onBlur={(e) => {
+                      const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
+                      if (v !== profile.body.age) onUpdate({ body: { age: v } });
+                    }}
+                    className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-gray-100 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">성별</label>
+                  <div className="flex gap-1 mt-0.5">
+                    {GENDER_OPTIONS.map((opt) => {
+                      const active = profile.body.gender === opt.key;
+                      return (
+                        <button
+                          key={opt.key}
+                          onClick={() => onUpdate({ body: { gender: opt.key } })}
+                          className={`flex-1 text-xs py-1 rounded-xl transition-colors ${
+                            active ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                        >
+                          {opt.emoji} {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 활동량 */}
+              <div>
+                <label className="text-sm text-gray-500">활동량 (운동 빈도)</label>
+                <div className="grid grid-cols-5 gap-1 mt-0.5">
+                  {ACTIVITY_OPTIONS.map((opt) => {
+                    const active = (profile.body.activity ?? 'sedentary') === opt.key;
+                    return (
+                      <button
+                        key={opt.key}
+                        onClick={() => onUpdate({ body: { activity: opt.key } })}
+                        title={opt.sub}
+                        className={`flex flex-col items-center text-xs py-1 rounded-xl transition-colors ${
+                          active ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        <span className="text-base leading-none">{opt.emoji}</span>
+                        <span className="mt-0.5 text-[10px] leading-tight text-center">{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 일일 칼로리 목표 (자동 계산 + 수동 덮어쓰기) */}
+              <div className="rounded-2xl bg-brand-primary/5 border border-brand-primary/10 px-3 py-2">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm text-gray-500">일일 칼로리 목표</p>
+                  <span className="text-xs font-bold text-brand-primary tabular-nums">
+                    {resolveDailyCalorieTarget(profile.body)} kcal
+                  </span>
+                </div>
+                {(() => {
+                  const tdee = calcTDEE(profile.body);
+                  return (
+                    <p className="text-xs text-gray-400 leading-snug">
+                      {tdee
+                        ? `TDEE 자동 계산값: ${tdee} kcal. 수동으로 덮어쓰려면 아래 입력.`
+                        : '키·몸무게·나이·성별·활동량을 모두 입력하면 자동 계산돼요. (현재 평균 2000 kcal)'}
+                    </p>
+                  );
+                })()}
+                <input
+                  type="number"
+                  defaultValue={profile.body.dailyCalorieTarget ?? ''}
+                  min={800} max={5000}
+                  placeholder={`자동: ${calcTDEE(profile.body) ?? 2000}`}
+                  onBlur={(e) => {
+                    const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
+                    if (v !== profile.body.dailyCalorieTarget) onUpdate({ body: { dailyCalorieTarget: v } });
+                  }}
+                  className="w-full mt-1.5 text-xs text-gray-800 bg-white border border-brand-primary/20 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30 tabular-nums"
+                />
+              </div>
+
+              {/* 알레르기 */}
+              <div>
+                <label className="text-sm text-gray-500">알레르기</label>
+                {(() => {
+                  const current = profile.body.allergies ?? [];
+                  function toggleAllergen(a: string) {
+                    const has = current.includes(a);
+                    const next = has ? current.filter((x) => x !== a) : [...current, a];
+                    onUpdate({ body: { allergies: next.length > 0 ? next : undefined } });
+                  }
+                  return (
+                    <div className="flex gap-1 mt-1 flex-wrap">
+                      {COMMON_ALLERGENS.map((a) => {
+                        const active = current.includes(a);
+                        return (
+                          <button
+                            key={a}
+                            onClick={() => toggleAllergen(a)}
+                            className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
+                              active
+                                ? 'bg-brand-warning text-white'
+                                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                            }`}
+                          >
+                            {active && '✓ '}{a}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+                {(profile.body.allergies?.length ?? 0) > 0 && (
+                  <p className="text-xs text-gray-400 mt-1.5 leading-snug">
+                    레시피 추천 시 {profile.body.allergies!.join(', ')} 포함 메뉴는 표시되지 않아요.
+                  </p>
+                )}
               </div>
 
               {/* 삭제 (본인 아닐 때만) */}

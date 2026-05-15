@@ -101,52 +101,13 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
 
             {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
 
-            {/* 메타 칩 — 한 줄, 너무 많으면 자연 스크롤 */}
-            <div className="flex items-center gap-1.5 flex-wrap mb-2">
-              <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${style.bg} ${style.text}`}>
-                <Icon size={10} />
-                {style.label}
+            {/* 핵심 정보: 구매일 + 만료일 — 한 줄 (펼치면 자세히) */}
+            <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-1.5">
+              <span>📅 구매 {item.purchaseDate}</span>
+              <span className="text-gray-300">·</span>
+              <span>
+                ⏳ {dDay <= 0 ? '만료됨' : `${dDay}일 남음`}
               </span>
-              {(() => {
-                const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
-                return (
-                  <span className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                    <FoodIcon size={11} strokeWidth={2} />
-                    <span>{item.foodCategory ?? '기타'}</span>
-                  </span>
-                );
-              })()}
-              {(() => {
-                const SeasonIcon = SEASON_ICON[season];
-                const seasonColor = SEASON_COLOR[season];
-                if (inSeason && dDay <= 2) {
-                  return (
-                    <span
-                      className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold bg-brand-warning/10 text-brand-warning whitespace-nowrap"
-                      title={`${season}철 제철인데 ${dDay <= 0 ? '오늘이 마지막' : `${dDay}일 뒤 만료`}`}
-                    >
-                      <SeasonIcon size={10} strokeWidth={2.4} />
-                      <span>제철 {dDay <= 0 ? '오늘' : `D-${dDay}`}</span>
-                    </span>
-                  );
-                }
-                if (inSeason) {
-                  return (
-                    <span
-                      className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${seasonColor.bg} ${seasonColor.text}`}
-                    >
-                      <SeasonIcon size={10} strokeWidth={2.4} />
-                      <span>제철</span>
-                    </span>
-                  );
-                }
-                return null;
-              })()}
-              {owner && (
-                <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                  {owner.name}
-                </span>
-              )}
             </div>
 
             {/* 진행바 */}
@@ -159,10 +120,10 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
               />
             </div>
 
-            {/* 영양 정보 — 한 줄, 작은 글씨 */}
-            {item.nutritionFacts && (
-              <p className="text-xs text-gray-400 tabular-nums mt-1.5 truncate">
-                {item.nutritionFacts.calories}kcal
+            {/* 칼로리·영양소 — 한 줄 (펼치면 자세히) */}
+            {item.nutritionFacts ? (
+              <p className="text-xs text-gray-600 tabular-nums mt-1.5">
+                🔥 <span className="font-semibold">{item.nutritionFacts.calories}</span>kcal
                 <span className="text-gray-300"> · </span>
                 단 {item.nutritionFacts.protein}g
                 <span className="text-gray-300"> · </span>
@@ -170,6 +131,12 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
                 <span className="text-gray-300"> · </span>
                 탄 {item.nutritionFacts.carbs}g
               </p>
+            ) : (
+              <p className="text-xs text-gray-300 mt-1.5">영양 정보 없음 · 자세히 보기에서 수정</p>
+            )}
+
+            {!expanded && (
+              <p className="text-xs text-gray-300 mt-1.5">자세히 보기 ›</p>
             )}
           </div>
         </div>
@@ -184,6 +151,43 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
               className="overflow-hidden"
             >
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-sm">
+                {/* 자세한 칩 — 펼침 시에만 노출 (collapsed에서 숨긴 정보) */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${style.bg} ${style.text}`}>
+                    <Icon size={10} />
+                    {style.label}
+                  </span>
+                  {(() => {
+                    const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
+                    return (
+                      <span className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        <FoodIcon size={11} strokeWidth={2} />
+                        <span>{item.foodCategory ?? '기타'}</span>
+                      </span>
+                    );
+                  })()}
+                  {(() => {
+                    const SeasonIcon = SEASON_ICON[season];
+                    const seasonColor = SEASON_COLOR[season];
+                    if (inSeason) {
+                      return (
+                        <span
+                          className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${seasonColor.bg} ${seasonColor.text}`}
+                        >
+                          <SeasonIcon size={10} strokeWidth={2.4} />
+                          <span>제철</span>
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
+                  {owner && (
+                    <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                      {owner.name}
+                    </span>
+                  )}
+                </div>
+
                 {/* 이미지 — 편집 모드에서만 변경/삭제·추가 */}
                 {item.imageUrl ? (
                   <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
@@ -226,10 +230,10 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
                   </button>
                 ) : null}
 
-                {/* 상품명 */}
-                <div>
-                  <span className="text-gray-400">상품명</span>
-                  {editing ? (
+                {/* 상품명 — 편집 모드에서만 노출 (비편집 시 카드 상단에 이미 표시되어 중복 제거) */}
+                {editing && (
+                  <div>
+                    <span className="text-gray-400">상품명</span>
                     <input
                       type="text"
                       aria-label={`${item.name} 상품명 수정`}
@@ -241,10 +245,8 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
                       onClick={(e) => e.stopPropagation()}
                       className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
                     />
-                  ) : (
-                    <p className="text-xs text-gray-800 font-medium mt-0.5">{item.name}</p>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* 구매일 · 보관 만료 */}
                 <div className="grid grid-cols-2 gap-2">
