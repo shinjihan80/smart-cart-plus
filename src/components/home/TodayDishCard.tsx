@@ -18,12 +18,12 @@ import { Widget } from './shared';
 export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const foods = items.filter(isFoodItem);
   const season = currentSeasonByMonth();
-  const { cookCounts, markCooked } = useCookLog();
+  const { cookCounts, daysSinceCook, markCooked } = useCookLog();
   const { main } = useProfiles();
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
   const { showToast } = useToast();
   const { recipes } = useMergedCatalog();
-  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts, dietary }, recipes);
+  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts, daysSinceCook, dietary }, recipes);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 

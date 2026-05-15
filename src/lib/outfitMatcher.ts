@@ -51,6 +51,8 @@ function scoreItem(item: ClothingItem, opts: MatchOptions, idleDays: number): nu
   if (opts.thickness?.includes(item.thickness)) score += 1;
   // 오래 안 입은 옷 가산 (로테이션 유도) — 14일+ 마다 +0.5
   if (idleDays > 14) score += Math.min(2, (idleDays - 14) / 14);
+  // 최근 3일 이내 착용한 옷 회피 — 같은 옷 연속 노출 방지 (−1.5)
+  if (idleDays <= 3 && idleDays !== 9999) score -= 1.5;
   return score;
 }
 

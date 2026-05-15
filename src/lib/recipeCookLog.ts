@@ -60,6 +60,24 @@ export function useCookLog() {
   }, [log]);
 
   /**
+   * recipe id → 마지막 조리 후 경과 일수 맵.
+   * matchRecipes 에 전달하면 rotationBoost (4일 이내 -1.5, 10일+ +0.5) 적용.
+   */
+  const daysSinceCook = useMemo(() => {
+    const map: Record<string, number> = {};
+    const todayMs = Date.now();
+    for (const [id, dates] of Object.entries(log)) {
+      if (dates.length === 0) continue;
+      // 첫번째가 최신 (sort 유지) — daysSince 계산
+      const last = new Date(dates[0]).getTime();
+      if (!isNaN(last)) {
+        map[id] = Math.max(0, Math.round((todayMs - last) / 86_400_000));
+      }
+    }
+    return map;
+  }, [log]);
+
+  /**
    * 같은 날짜에 함께 조리된 다른 레시피 id 빈도 TOP N.
    * "파스타 만들 때 함께 만든 메뉴" 같은 조합 추천용.
    */
@@ -79,5 +97,5 @@ export function useCookLog() {
       .slice(0, limit);
   }, [log]);
 
-  return { log, cookCounts, markCooked, undoLast, getEntry, getCoCookedWith };
+  return { log, cookCounts, daysSinceCook, markCooked, undoLast, getEntry, getCoCookedWith };
 }

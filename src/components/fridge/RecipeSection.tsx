@@ -19,7 +19,7 @@ import { springTransition, CARD, CARD_SHADOW } from './shared';
 export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const season = currentSeasonByMonth();
   const { recipes: RECIPES } = useMergedCatalog();
-  const { cookCounts } = useCookLog();
+  const { cookCounts, daysSinceCook } = useCookLog();
   const balance = analyzeBalance(foods);
   const nutritionHint = balance.coverage.protein < 0.4 && balance.proteinCount < 3
     ? 'protein' as const
@@ -43,7 +43,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const { main } = useProfiles();
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
 
-  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, nutritionHint, difficultyHint, dietary }, RECIPES);
+  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, daysSinceCook, nutritionHint, difficultyHint, dietary }, RECIPES);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);

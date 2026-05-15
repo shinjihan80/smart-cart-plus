@@ -837,6 +837,14 @@ export interface MatchedRecipe {
 export interface MatchOptions {
   currentSeason?: Season;
   cookCounts?:    Record<string, number>;
+  /**
+   * recipe id → 마지막 조리 후 경과 일수.
+   *   - 1~4일: 같은 음식 연속 회피 −1.5
+   *   - 5~9일: 보통 0
+   *   - 10일+: 다시 해볼 만함 +0.5
+   * cookLog 에서 daysSinceCook 으로 계산해 전달.
+   */
+  daysSinceCook?: Record<string, number>;
   /** 영양 편향 보정 — 'protein' → 단백질 레시피 +1, 'veg' → 채소·과일 위주 레시피 +1 */
   nutritionHint?: 'protein' | 'veg';
   /**
@@ -913,7 +921,7 @@ export function matchRecipes(
   recipes: readonly Recipe[] = RECIPES,
 ): MatchedRecipe[] {
   const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
-  const { currentSeason, cookCounts, nutritionHint, difficultyHint, dietary } = options;
+  const { currentSeason, cookCounts, daysSinceCook, nutritionHint, difficultyHint, dietary } = options;
 
   const nameIndex = foods.map((f) => ({
     name:  f.name,
@@ -945,6 +953,14 @@ export function matchRecipes(
     const loveBoost  = Math.min(cookCount, 3);
     const loveBoosted = cookCount >= 3;
 
+    // 최근 조리 회피 / 오랜만 가산
+    let rotationBoost = 0;
+    const sinceCook = daysSinceCook?.[recipe.id];
+    if (typeof sinceCook === 'number') {
+      if (sinceCook <= 4)       rotationBoost = -1.5; // 4일 이내 다시 조리 회피
+      else if (sinceCook >= 10) rotationBoost =  0.5; // 10일+ 다시 해볼 만함
+    }
+
     let nutritionBoost = 0;
     if (nutritionHint) {
       const { isProtein, isVeg } = recipeTags(recipe);
@@ -963,7 +979,7 @@ export function matchRecipes(
     results.push({
       recipe,
       matchedItems,
-      matchScore:     matchedItems.length + urgentBoost + seasonBoost + loveBoost + nutritionBoost + difficultyBoost,
+      matchScore:     matchedItems.length + urgentBoost + seasonBoost + loveBoost + nutritionBoost + difficultyBoost + rotationBoost,
       urgentBoosted:  urgentBoost > 0,
       seasonBoosted,
       loveBoosted,
