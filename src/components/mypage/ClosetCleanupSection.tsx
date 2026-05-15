@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { isClothingItem, type CartItem } from '@/types';
@@ -24,6 +25,8 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
     'nemoa-mypage-cleanup-open', false,
     (raw) => typeof raw === 'boolean' ? raw : null,
   );
+  // 아이템별 처분 옵션 메뉴 열림 상태
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const clothes = items.filter(isClothingItem);
   const candidates = findCleanupCandidates(clothes, wearLog);
@@ -156,36 +159,84 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              {candidates.slice(0, 12).map(({ item, idleDays, reason }) => (
-                <div key={item.id} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
-                  {(() => {
-                    const tone = getFashionCategoryTone(item.category);
-                    return (
-                      <div className={`w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shrink-0 ${tone.bg}`}>
-                        {item.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={item.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-base" aria-hidden>{tone.emoji}</span>
-                        )}
+              {candidates.slice(0, 12).map(({ item, idleDays, reason }) => {
+                const isMenuOpen = activeMenuId === item.id;
+                const isLongIdle = idleDays !== null && idleDays >= 180;
+                return (
+                  <div key={item.id} className="border-b border-gray-50 last:border-0">
+                    <div className="flex items-center gap-2 py-1.5">
+                      {(() => {
+                        const tone = getFashionCategoryTone(item.category);
+                        return (
+                          <div className={`w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shrink-0 ${tone.bg}`}>
+                            {item.imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={item.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-base" aria-hidden>{tone.emoji}</span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-800 truncate">{item.name}</p>
+                        <p className="text-sm text-gray-400 truncate">
+                          {reason}
+                          {isLongIdle && <span className="text-brand-warning ml-1">· 정리 추천</span>}
+                        </p>
                       </div>
-                    );
-                  })()}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-gray-800 truncate">{item.name}</p>
-                    <p className="text-sm text-gray-400 truncate">
-                      {reason}
-                      {idleDays !== null && idleDays >= 180 && <span className="text-brand-warning ml-1">· 정리 추천</span>}
-                    </p>
+                      <button
+                        onClick={() => setActiveMenuId(isMenuOpen ? null : item.id)}
+                        aria-label={`${item.name} 처분 옵션`}
+                        className={`shrink-0 text-sm font-semibold px-2 py-1 rounded-full transition-colors ${
+                          isMenuOpen
+                            ? 'bg-brand-primary text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        🔗
+                      </button>
+                      <button
+                        onClick={() => handleRemove(item.id, item.name)}
+                        className="shrink-0 text-sm font-semibold px-2 py-1 rounded-full bg-brand-warning/10 text-brand-warning hover:bg-brand-warning/15 transition-colors"
+                      >
+                        정리
+                      </button>
+                    </div>
+                    <AnimatePresence>
+                      {isMenuOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.18 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pb-2 pl-11 flex flex-col gap-1.5">
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className="text-xs text-gray-400 mr-1">💰 팔기</span>
+                              <PartnerChip partner={PARTNERS.karrot} query={item.name} />
+                              <PartnerChip partner={PARTNERS.bunjang} query={item.name} />
+                              <PartnerChip partner={PARTNERS.kream} query={item.name} />
+                            </div>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className="text-xs text-gray-400 mr-1">❤️ 기부</span>
+                              <PartnerChip partner={PARTNERS.beautiful} />
+                              <PartnerChip partner={PARTNERS.goodwill} />
+                              <PartnerChip partner={PARTNERS.otcan} />
+                            </div>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className="text-xs text-gray-400 mr-1">📦 보관</span>
+                              <PartnerChip partner={PARTNERS.thelaundry} />
+                              <PartnerChip partner={PARTNERS.darak} />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                  <button
-                    onClick={() => handleRemove(item.id, item.name)}
-                    className="shrink-0 text-sm font-semibold px-2 py-1 rounded-full bg-brand-warning/10 text-brand-warning hover:bg-brand-warning/15 transition-colors"
-                  >
-                    정리
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
             {candidates.length > 12 && (
               <p className="text-sm text-gray-400 text-center mt-2">
