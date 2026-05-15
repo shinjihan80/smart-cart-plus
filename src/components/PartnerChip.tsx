@@ -11,9 +11,12 @@ interface PartnerChipProps {
 
 /**
  * Phase 7 제휴 파트너 칩.
- * 현재는 전부 비활성(`enabled: false`) 상태로 "준비 중" 스텁 렌더.
- * 파트너 연결 시 `PARTNERS`의 `enabled: true` + `buildUrl` 채우면
- * 앱 전역에서 클릭 가능 링크로 자동 전환된다.
+ *
+ * v1.8 시점: 18개 파트너 모두 enabled + 실제 URL 활성화 상태.
+ *   - 검색 URL 지원 파트너: query 인자 전달 시 자동 검색 (예: 당근에 옷 이름 검색)
+ *   - 검색 미지원 파트너: 메인 페이지로 이동 (예: 아름다운가게 기부 페이지)
+ *
+ * disabled 분기는 admin overlay 로 향후 일부 파트너 비활성화하는 경우 대비.
  */
 export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChipProps) {
   const base = size === 'sm'

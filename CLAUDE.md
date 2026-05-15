@@ -51,3 +51,5 @@
 | 2026-04-22 | 문서 정비 — CHANGELOG·BASIC_SPEC·PRO_SPEC 분리 + MONETIZATION.md 전환 타이밍 중심 슬림화 | v1.5 |
 | 2026-05-15 | 코디 UI 재설계 — outfitMatcher 자동 코디 생성 + OutfitCard 2x2 이미지 콜라주 + OutfitDetailModal 바텀시트 + 가로 스와이프 캐러셀(1.3장 노출, snap-mandatory) | v1.8 |
 | 2026-05-15 | 🔴 페이지 스크롤 영구 잠금 버그 픽스 — OutfitDetailModal 의 useModalA11y(onClose) 에 active 인자 누락으로 body.overflow=hidden 영구 적용 → useModalA11y(onClose, !!outfit) 로 수정 + JSDoc 에 ✅/❌ 패턴 명시 (회귀 방지) | v1.8 |
+| 2026-05-15 | Phase 7 파트너 18개 enabled — 중고 3(당근·번개장터·KREAM) · 기부 3(아름다운가게·굿윌·옷캔) · 보관 2(세탁특공대·다락) + ClosetCleanupSection 아이템별 처분 메뉴 (옷 이름 자동 검색) | v1.8 |
+| 2026-05-15 | ProPreviewCard 설정 페이지 노출 — Pro 출시 예고(₩4,900/월) + 베이직 vs Pro 8개 비교표 + 출시 알림 의향 수집(`nemoa-pro-interest`) | v1.8 |

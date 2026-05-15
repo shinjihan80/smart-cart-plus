@@ -98,7 +98,7 @@ export default function KnowledgeSummary() {
               </p>
               <p>
                 <strong className="text-gray-700">파트너 레지스트리</strong> — 쇼핑몰·중고·기부·보관
-                {partners}개. Phase 7에 실제 연결 예정 (현재 모두 준비 중).
+                {partners}개. Phase 7 활성화 완료 (당근·번개장터·KREAM·아름다운가게·세탁특공대 등).
               </p>
               <p>
                 <strong className="text-gray-700">로그</strong> — 조리 기록(cookLog)·착용

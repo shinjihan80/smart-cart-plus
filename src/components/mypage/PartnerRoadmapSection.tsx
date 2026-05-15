@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
 import { usePersistedState } from '@/lib/usePersistedState';
 import EmojiIcon from '@/components/EmojiIcon';
+import PartnerChip from '@/components/PartnerChip';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 const DOMAIN_LABEL: Record<PartnerDomain, { emoji: string; label: string; desc: string }> = {
@@ -41,10 +42,10 @@ export default function PartnerRoadmapSection() {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <EmojiIcon emoji="🚀" size={16} className="text-brand-primary" />
-          <span className="text-xs text-gray-400 font-medium">곧 연결될 파트너 서비스</span>
-          <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium">
-            Phase 7
+          <EmojiIcon emoji="🤝" size={16} className="text-brand-primary" />
+          <span className="text-xs text-gray-400 font-medium">제휴 파트너</span>
+          <span className="text-xs px-1.5 py-0.5 rounded-full bg-brand-success/10 text-brand-success font-medium">
+            {Object.values(PARTNERS).filter((p) => p.enabled).length}개 연결됨
           </span>
         </div>
         <ChevronDown
@@ -55,7 +56,7 @@ export default function PartnerRoadmapSection() {
 
       {!expanded && (
         <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-          쇼핑몰·중고·기부·짐 보관 등 {Object.keys(PARTNERS).length}개 제휴를 준비 중이에요. 탭해서 전체 보기.
+          쇼핑몰·중고·기부·짐 보관 {Object.values(PARTNERS).filter((p) => p.enabled).length}개를 바로 이용할 수 있어요. 탭해서 전체 보기.
         </p>
       )}
 
@@ -82,13 +83,7 @@ export default function PartnerRoadmapSection() {
                     </p>
                     <div className="ml-5 flex gap-1.5 flex-wrap">
                       {partners.map((p) => (
-                        <span
-                          key={p.id}
-                          title={p.comingSoon}
-                          className="text-sm px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-gray-500"
-                        >
-                          {p.emoji} {p.label}
-                        </span>
+                        <PartnerChip key={p.id} partner={p} />
                       ))}
                     </div>
                   </div>

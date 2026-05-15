@@ -51,7 +51,34 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 ### SW
 - v1.5.0 → **v1.5.6** (디버깅 중 6회 bump, 캐시 강제 무효화)
 
-### 정량
+### Added — Phase 7 파트너 확장 (이번 세션 후반)
+- **중고 판매 3개사**: 당근마켓 · 번개장터 · KREAM (모두 검색 URL 지원)
+- **기부 단체 3개**: 아름다운가게 · 굿윌스토어 · 옷캔
+- **짐 보관 2개사**: 세탁특공대 박스 보관 · 다락
+- 총 **18개 파트너 enabled + 실제 URL** (이전 disabled stub 제거)
+- 중복된 `storage_box` / `storage_svc` stub 제거 → 실제 파트너로 대체
+
+### Added — 아이템별 처분 옵션 메뉴 (`ClosetCleanupSection`)
+- 정리 후보 옷마다 🔗 토글 — 펼치면 카테고리별 파트너 칩
+- 💰 팔기: 당근·번개장터·KREAM — **옷 이름으로 자동 검색** (PartnerChip `query` 활용)
+- ❤️ 기부: 아름다운가게·굿윌·옷캔
+- 📦 보관: 세탁특공대·다락
+- `SeasonalStorageSection`: "준비 중" disabled 버튼 → 세탁특공대 실연결
+
+### Added — Pro 미리보기 카드 (`ProPreviewCard`)
+- 설정 페이지에 NEMOA Pro 출시 예고 카드
+- 핵심 4가지 배지: AI 무제한 · 자동 동기화 · 파트너 할인 · 레시피 142+
+- 펼침 시 베이직 vs Pro 8개 항목 비교표
+- "출시 알림 받기" → `localStorage.nemoa-pro-interest` 의향 저장
+- 가격: 월 ₩4,900 / 연 ₩49,000 (PRO_SPEC.md 일치)
+- Phase A 결제 인프라 도입 시 의향 데이터 활용 가능
+
+### 추가 정량
+- 신규 파일: 5 (위 4개 + `ProPreviewCard.tsx`)
+- 파트너: 9 enabled → **18 enabled**
+- 신규 의향 키: `nemoa-pro-interest` (Pro 출시 알림 신청자)
+
+### 정량 (Phase 1)
 - 신규 파일: 4 (`outfitMatcher.ts`, `OutfitCard.tsx`, `OutfitDetailModal.tsx`, `OutfitGrid.tsx`)
 - 신규 자동 코디 알고리즘: 시즌(+2) · 두께(+1) · 14일+ 미착용(+0.5~2) 점수
 - 디버깅 커밋 12개 끝에 진짜 원인(`useModalA11y` 잘못된 활성화) 발견

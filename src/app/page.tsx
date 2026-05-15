@@ -14,6 +14,7 @@ import HeroMessage     from '@/components/home/HeroMessage';
 import SectionHeader   from '@/components/home/SectionHeader';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import UrgentAlert     from '@/components/home/UrgentAlert';
+import SeasonChangeAlert from '@/components/home/SeasonChangeAlert';
 import DailyBriefing   from '@/components/home/DailyBriefing';
 import TodayDishCard   from '@/components/home/TodayDishCard';
 import WeeklyInsight   from '@/components/home/WeeklyInsight';
@@ -103,6 +104,9 @@ export default function HomePage() {
           <SectionHeader title="지금 바로" actionHref="/fridge" actionLabel="냉장고">
             <SectionErrorBoundary label="임박 식품">
               <UrgentAlert items={items} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="시즌 옷장 정리">
+              <SeasonChangeAlert items={items} />
             </SectionErrorBoundary>
             <SectionErrorBoundary label="제철 힌트">
               <SeasonalHintWidget items={items} />
