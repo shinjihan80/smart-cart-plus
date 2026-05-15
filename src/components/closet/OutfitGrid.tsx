@@ -64,13 +64,13 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
           className="-mx-5 px-5 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1"
           style={{ scrollPaddingLeft: '1.25rem' }}
         >
-          {outfits.map((o, i) => (
+          {outfits.map((o) => (
             <div
               key={o.id}
               className="snap-start shrink-0"
               style={{ width: 'calc((100% - 0.625rem) / 1.3)' }}
             >
-              <OutfitCard outfit={o} index={i} onClick={() => setSelected(o)} />
+              <OutfitCard outfit={o} onClick={() => setSelected(o)} />
             </div>
           ))}
           <div className="shrink-0 w-1" aria-hidden />

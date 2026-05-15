@@ -6,7 +6,6 @@ import { outfitItemList, type Outfit } from '@/lib/outfitMatcher';
 interface OutfitCardProps {
   outfit:  Outfit;
   onClick: () => void;
-  index?:  number;
 }
 
 /**
@@ -20,7 +19,7 @@ interface OutfitCardProps {
  * NOTE: 가벼운 <button>+CSS active scale 만 사용. framer-motion gesture 는
  * 캐러셀 안에서 포인터 캡쳐를 유발할 가능성이 있어 의도적으로 생략.
  */
-export default function OutfitCard({ outfit, onClick, index: _index = 0 }: OutfitCardProps) {
+export default function OutfitCard({ outfit, onClick }: OutfitCardProps) {
   const items = outfitItemList(outfit).slice(0, 4); // 최대 4개 표시
   const filled = items.length;
 

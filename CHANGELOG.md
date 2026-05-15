@@ -6,6 +6,58 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 
 ---
 
+## v1.8 — 2026-05-15 · 코디 UI 재설계 + 모달 a11y 버그 픽스
+
+**테마: 옷장 코디 탭 이미지 콜라주 UI 도입 + 가로 스와이프 캐러셀 + 페이지 스크롤 락 버그 해결**
+
+### Added — 코디 UI 재설계
+- **`outfitMatcher.ts`** — 자동 코디 생성기 (시즌·두께·로테이션 점수)
+  - `generateOutfits(items, idleByItem, opts)` — 상의/하의/원피스 조합 + 신발 + 액세서리
+  - `outfitItemIds()` / `outfitItemList()` 헬퍼
+- **`OutfitCard.tsx`** — 2x2 이미지 콜라주 카드 (텍스트 최소, 라벨만 오버레이)
+  - 정사각형 카드, 사진 없는 슬롯은 카테고리 톤 + 이모지로 대체
+  - 일반 `<button>` + CSS `active:scale-[0.97]` (gesture 캡쳐 회피)
+- **`OutfitDetailModal.tsx`** — 바텀 시트 상세 모달
+  - 각 아이템 사진/카테고리/사이즈 표시 + 오늘 착용 ✓ 뱃지
+  - "코디 저장" + "✓ 오늘 입었어요" (`markWorn` 일괄 호출)
+- **`OutfitGrid.tsx`** — **가로 스와이프 캐러셀 (1.3장 노출)**
+  - native `overflow-x-auto` + `snap-x snap-mandatory`
+  - `-mx-5 px-5` 풀 블리드, `scrollPaddingLeft: 1.25rem`
+  - 카드 폭 `calc((100% - 0.625rem) / 1.3)` — 다음 카드 30% 미리 보임
+
+### Fixed — 🔴 페이지 스크롤 영구 잠금 버그
+- **`OutfitDetailModal` 의 `useModalA11y` 호출에서 `active` 인자 누락**
+  - `useModalA11y(outfit ? onClose : () => {})` → `active` 기본값 `true` 활성화
+  - 모달이 닫혀있어도 `document.body.style.overflow = 'hidden'` 영구 적용
+  - **코디 탭 진입 후 페이지 세로 스크롤 완전히 막힘**
+  - 수정: `useModalA11y(onClose, !!outfit)` — 모달 열렸을 때만 잠금
+
+### Changed — 코디 탭 구조 정리
+- "오늘 입을 코디" **최상단 이동** (이전: 하단)
+- "지금 입기 좋은 옷" 칩 리스트 **제거** (코디 카드에 시즌 매칭 이미 반영)
+- 코디 탭 순서: 코디 그리드 → 안 입어본 옷 → 자주 입는 옷 TOP 3 → 저장된 코디 → 코디 만들기
+
+### Docs
+- **`useModalA11y` JSDoc 강화** — ✅/❌ 사용 패턴 명시 (조건부 vs 항상 마운트)
+- 회귀 방지: 향후 모달 추가 시 동일 실수 방지
+
+### 감사 결과 (회귀 위험 점검)
+- `useModalA11y` 5개 사용처 점검:
+  - OutfitDetailModal: **수정 완료**
+  - CommandPalette: `active=open` 명시 — 안전
+  - RecipeDetailModal / RecipeBrowserModal / OnboardingContent: 모두 조건부 마운트 — 안전
+- `document.body.style` 조작은 `useModalA11y` 하나뿐 — 다른 영구 잠금 위험 없음
+
+### SW
+- v1.5.0 → **v1.5.6** (디버깅 중 6회 bump, 캐시 강제 무효화)
+
+### 정량
+- 신규 파일: 4 (`outfitMatcher.ts`, `OutfitCard.tsx`, `OutfitDetailModal.tsx`, `OutfitGrid.tsx`)
+- 신규 자동 코디 알고리즘: 시즌(+2) · 두께(+1) · 14일+ 미착용(+0.5~2) 점수
+- 디버깅 커밋 12개 끝에 진짜 원인(`useModalA11y` 잘못된 활성화) 발견
+
+---
+
 ## v1.7 — 2026-05-12 · 3탭 일관화 + admin 데이터 연결
 
 **테마: 페이지 구조 일관화(3탭) + 관리자 콘솔 ↔ 모바일 양방향 데이터 흐름**
