@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
+import { logPartnerClick } from '@/lib/partnerClickLog';
 
 interface ShoppingMallCardProps {
   /** 'groceries' | 'fashion' 등 도메인 */
@@ -50,6 +51,7 @@ export default function ShoppingMallCard({
             href={p.buildUrl!()}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => logPartnerClick({ partnerId: p.id, domain: p.domain })}
             className="group relative flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-brand-primary/5 hover:border-brand-primary/20 active:scale-95 transition-all"
           >
             <span className="text-xl" aria-hidden>{p.emoji}</span>

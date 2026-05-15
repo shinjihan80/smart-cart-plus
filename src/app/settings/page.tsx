@@ -23,6 +23,7 @@ import StorageUsage         from '@/components/settings/StorageUsage';
 import AiQuotaCard          from '@/components/settings/AiQuotaCard';
 import ErrorLogCard         from '@/components/settings/ErrorLogCard';
 import ProPreviewCard       from '@/components/settings/ProPreviewCard';
+import PartnerClickInsights from '@/components/settings/PartnerClickInsights';
 import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
 
@@ -250,6 +251,8 @@ export default function SettingsPage() {
         <FeedbackToggles />
 
         <ProPreviewCard />
+
+        <PartnerClickInsights />
 
         <AiQuotaCard />
 

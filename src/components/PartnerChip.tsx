@@ -1,6 +1,7 @@
 'use client';
 
 import type { Partner } from '@/lib/partnerLinks';
+import { logPartnerClick } from '@/lib/partnerClickLog';
 
 interface PartnerChipProps {
   partner: Partner;
@@ -29,6 +30,7 @@ export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChip
         href={partner.buildUrl(query)}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => logPartnerClick({ partnerId: partner.id, domain: partner.domain, query })}
         className={`${base} rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors`}
       >
         {partner.emoji} {partner.label}
