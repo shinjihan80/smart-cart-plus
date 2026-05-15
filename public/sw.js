@@ -10,7 +10,7 @@
  * 로컬 전용 앱 특성상 네트워크 나가도 대부분 동작 — 페이지 셸만 살아있으면 OK.
  */
 
-const VERSION  = 'nemoa-v1.5.2';
+const VERSION  = 'nemoa-v1.5.3';
 const SHELL    = `nemoa-shell-${VERSION}`;
 const ASSETS   = `nemoa-assets-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
