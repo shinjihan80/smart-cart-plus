@@ -52,4 +52,11 @@
 | 2026-05-15 | 코디 UI 재설계 — outfitMatcher 자동 코디 생성 + OutfitCard 2x2 이미지 콜라주 + OutfitDetailModal 바텀시트 + 가로 스와이프 캐러셀(1.3장 노출, snap-mandatory) | v1.8 |
 | 2026-05-15 | 🔴 페이지 스크롤 영구 잠금 버그 픽스 — OutfitDetailModal 의 useModalA11y(onClose) 에 active 인자 누락으로 body.overflow=hidden 영구 적용 → useModalA11y(onClose, !!outfit) 로 수정 + JSDoc 에 ✅/❌ 패턴 명시 (회귀 방지) | v1.8 |
 | 2026-05-15 | Phase 7 파트너 18개 enabled — 중고 3(당근·번개장터·KREAM) · 기부 3(아름다운가게·굿윌·옷캔) · 보관 2(세탁특공대·다락) + ClosetCleanupSection 아이템별 처분 메뉴 (옷 이름 자동 검색) | v1.8 |
-| 2026-05-15 | ProPreviewCard 설정 페이지 노출 — Pro 출시 예고(₩4,900/월) + 베이직 vs Pro 8개 비교표 + 출시 알림 의향 수집(`nemoa-pro-interest`) | v1.8 |
+| 2026-05-15 | ProPreviewCard — Pro 출시 예고(₩4,900/월) + 베이직 vs Pro 비교표 + 알림 의향 수집(`nemoa-pro-interest`) | v1.9 |
+| 2026-05-15 | 파트너 클릭 추적 + 익명 텔레메트리 — `partnerClickLog.ts` localStorage 200건/30일 + opt-in 일별 집계 `/api/admin/telemetry/clicks` POST/GET + 설정 PartnerClickInsights 카드 | v1.9 |
+| 2026-05-15 | 홈 알림 배너 3종 — UrgentAlert(D-Day≤1) · RebuyAlert(구매 주기 dueInDays≤2) · SeasonChangeAlert(시즌 진입 21일 + 옷장 정리 필요) | v1.9 |
+| 2026-05-15 | AnnualSummary 월별 히스토그램 — 조리/착용/소진 12 칸 스택 막대 + 연말 페이스 프로젝션 + 최다 활동 달 강조 | v1.9 |
+| 2026-05-15 | 추천 알고리즘 로테이션 — outfit: 3일 이내 착용 −1.5 / matchRecipes: daysSinceCook 4일 −1.5, 10일+ +0.5 | v1.9 |
+| 2026-05-15 | savedOutfits 기반 co-worn 추천 — 사용자 저장 코디 페어 +1.5 / +0.75 보너스 + 라벨 자동 `💞 자주 입는 조합` | v1.9 |
+| 2026-05-15 | 추천 reasons 배지 (옷장 + 레시피 통일) — Outfit/MatchedRecipe 에 reasons[] 추가 + OutfitCard/Modal/TodayDishCard/RecipeSection UI 배지 | v1.9 |
+| 2026-05-15 | Admin API 강화 — GET /api/admin/partners 에 currentUrl·supportsSearch·summary 추가 + CatalogResource 'telemetry' 확장 | v1.9 |

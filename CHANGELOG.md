@@ -6,9 +6,89 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 
 ---
 
-## v1.8 — 2026-05-15 · 코디 UI 재설계 + 모달 a11y 버그 픽스
+## v1.9 — 2026-05-15 · AI 추천 강화 + Pro 결제 예고 + 익명 텔레메트리
 
-**테마: 옷장 코디 탭 이미지 콜라주 UI 도입 + 가로 스와이프 캐러셀 + 페이지 스크롤 락 버그 해결**
+**테마: 사용자 행동 데이터 기반 추천 알고리즘 강화 + Pro 출시 준비 + 익명 집계 인프라**
+
+### Added — 추천 알고리즘 로테이션 신호
+- **`outfitMatcher.ts`**: 3일 이내 착용 옷 −1.5 페널티 (연속 노출 회피)
+- **`matchRecipes` (recipes.ts)**:
+  - 신규 `MatchOptions.daysSinceCook` 옵션
+  - 4일 이내 다시 조리 −1.5 (같은 음식 회피)
+  - 10일+ 미조리 +0.5 (오랜만에 해볼 만함)
+- `useCookLog` 에 `daysSinceCook` 맵 노출 → 3곳(TodayDishCard·RecipeSection·FeelingLuckySection) 자동 적용
+
+### Added — savedOutfits 기반 co-worn 추천
+- `MatchOptions.coWornPairs: Map<id, Set<id>>` 신규
+- 사용자 저장 코디에서 함께 등장한 페어 자동 추출
+- top × bottom 페어 +1.5 / top × shoes, bottom × shoes 각 +0.75
+- 라벨 자동 변경: `💞 자주 입는 조합`
+
+### Added — 추천 reasons 배지 (옷장 + 레시피 통일)
+- **Outfit 인터페이스**: 신규 `reasons: string[]` 필드
+  - 수집: 시즌 매칭 / co-worn / 오랜만에 / 추울 때
+  - OutfitCard 우상단(최대 2개 반투명 배지) + OutfitDetailModal 헤더 아래(전체)
+- **MatchedRecipe 인터페이스**: 신규 `reasons: string[]` 필드
+  - 수집: ⏰ 임박 / 시즌 제철 / ❤️ 자주 / 🌙 오랜만에 / 🥬 균형
+  - TodayDishCard 임박/시즌/단골 배지에 🌙 Moon 추가
+  - RecipeSection 카드 우상단 아이콘 줄에 🌙 추가
+
+### Added — Pro 미리보기 카드 (`ProPreviewCard`)
+- 설정 페이지에 NEMOA Pro 출시 예고 카드
+- 핵심 4가지 배지: AI 무제한 · 자동 동기화 · 파트너 할인 · 레시피 142+
+- 펼침 시 베이직 vs Pro 8개 항목 비교표
+- "출시 알림 받기" → `localStorage.nemoa-pro-interest` 의향 저장
+- 가격: 월 ₩4,900 / 연 ₩49,000 (PRO_SPEC.md 일치)
+- Phase A 결제 인프라 도입 시 의향 데이터 활용 가능
+
+### Added — 파트너 클릭 추적 + 익명 텔레메트리
+- **`partnerClickLog.ts`** — localStorage 기반 클릭 로그
+  - `logPartnerClick(entry)` — PartnerChip/ShoppingMallCard 클릭 시 자동 호출
+  - 최대 200건, 30일 자동 정리
+  - `usePartnerClicks()` — total · topPartners · byDomain · clearAll
+- **`PartnerClickInsights.tsx`** (설정) — 사용자 본인의 클릭 패턴 시각화
+  - 도메인별 가로 막대 + 자주 가는 곳 TOP 5
+- **`/api/admin/telemetry/clicks`** (신규 API)
+  - **POST**: opt-in 사용자의 일별 집계 push (rate limited, 인증 없음, 비정상 차단)
+  - **GET**: 관리자 콘솔에서 N일치 누적 fetch (X-Admin-Token 필수)
+  - KV 키: `telemetry:partner-clicks:YYYY-MM-DD` (사용자 식별자 없음)
+- **`flushPartnerClicksIfDue()`** — 홈 마운트 시 1회/일 호출, opt-in 사용자만 어제 데이터 전송
+
+### Added — 홈 알림 배너 (자동 트리거)
+- **`SeasonChangeAlert.tsx`** — 시즌 진입 후 21일 이내 옷장 정리 알림
+  - 보관할 옷 + 꺼낼 옷 합산 → `/mypage?tab=closet#seasonal`
+- **`RebuyAlert.tsx`** — 재구매 시점 자동 감지 (구매 주기 기반)
+  - `estimateCycles` `dueInDays ≤ 2` + 비보유 식품 → `/mypage?tab=shopping`
+- 홈 '지금 바로' 순서: 임박 식품 → 재구매 → 시즌 옷장 정리 → 제철 힌트
+
+### Changed — AnnualSummary 월별 히스토그램
+- 기존: 조리/착용/소진 누적 숫자 3개
+- 추가: **월별 12 칸 스택 히스토그램** + 연말 페이스 프로젝션
+- 최다 활동 달 인사이트 + 현재 달/최다 달 강조
+
+### Changed — Admin API 강화
+- `GET /api/admin/partners` 응답에 추가:
+  - `currentUrl`: 각 파트너의 현재 활성 URL (검증용)
+  - `supportsSearch`: 검색 쿼리 지원 여부
+  - `summary`: { total, enabled, searchable, overridden } 한눈에 보기
+- `CatalogResource` 타입 확장: `'telemetry'` 추가 + 동적 operation 키 허용
+
+### Changed — Outdated 파트너 UI 정리
+- `PartnerChip.tsx` JSDoc: "전부 비활성" → "18개 enabled 상태"
+- `KnowledgeSummary.tsx`: "준비 중" → "Phase 7 활성화 완료"
+- `PartnerRoadmapSection.tsx`: "곧 연결될" → "{N}개 연결됨" + 정적 span → 클릭 가능한 PartnerChip
+
+### 정량
+- 신규 파일: 6 (`ProPreviewCard.tsx`·`partnerClickLog.ts`·`PartnerClickInsights.tsx`·`telemetry/clicks/route.ts`·`SeasonChangeAlert.tsx`·`RebuyAlert.tsx`)
+- 신규 의향 키: `nemoa-pro-interest`
+- 자동 트리거 알림: 3종 (Urgent·Rebuy·SeasonChange)
+- 추천 신호 통합: 시즌·날씨·로테이션·co-worn·임박·자주·균형 (7종)
+
+---
+
+## v1.8 — 2026-05-15 · 코디 UI 재설계 + 모달 a11y 버그 픽스 + Phase 7 파트너
+
+**테마: 옷장 코디 탭 이미지 콜라주 UI 도입 + 가로 스와이프 캐러셀 + 페이지 스크롤 락 버그 해결 + Phase 7 제휴 파트너 18개 출범**
 
 ### Added — 코디 UI 재설계
 - **`outfitMatcher.ts`** — 자동 코디 생성기 (시즌·두께·로테이션 점수)
@@ -65,63 +145,11 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 - 📦 보관: 세탁특공대·다락
 - `SeasonalStorageSection`: "준비 중" disabled 버튼 → 세탁특공대 실연결
 
-### Added — Pro 미리보기 카드 (`ProPreviewCard`)
-- 설정 페이지에 NEMOA Pro 출시 예고 카드
-- 핵심 4가지 배지: AI 무제한 · 자동 동기화 · 파트너 할인 · 레시피 142+
-- 펼침 시 베이직 vs Pro 8개 항목 비교표
-- "출시 알림 받기" → `localStorage.nemoa-pro-interest` 의향 저장
-- 가격: 월 ₩4,900 / 연 ₩49,000 (PRO_SPEC.md 일치)
-- Phase A 결제 인프라 도입 시 의향 데이터 활용 가능
-
-### Added — 파트너 클릭 추적 + 익명 텔레메트리
-- **`partnerClickLog.ts`** — localStorage 기반 클릭 로그
-  - `logPartnerClick(entry)` — PartnerChip/ShoppingMallCard 클릭 시 자동 호출
-  - 최대 200건, 30일 자동 정리
-  - `usePartnerClicks()` — total · topPartners · byDomain · clearAll
-- **`PartnerClickInsights.tsx`** (설정) — 사용자 본인의 클릭 패턴 시각화
-  - 도메인별 가로 막대 (식품·패션·중고·기부·보관·세탁)
-  - 자주 가는 곳 TOP 5 + 클릭 횟수
-- **`/api/admin/telemetry/clicks`** (신규 API)
-  - **POST**: opt-in 사용자의 일별 집계 push (rate limited, 인증 없음, 비정상 차단)
-  - **GET**: 관리자 콘솔에서 N일치 누적 fetch (X-Admin-Token 필수)
-  - KV 키: `telemetry:partner-clicks:YYYY-MM-DD` (사용자 식별자 없음)
-- **`flushPartnerClicksIfDue()`** — 홈 마운트 시 호출
-  - `isAnalyticsEnabled()` opt-in 사용자만 어제 데이터 1회 전송
-  - 일별 `{ date, counts: { partnerId: N } }` 만 전송 (개별 클릭 ❌)
-- 수익 전략: 인기 파트너 협상 데이터 + 도메인별 트래픽 추이 분석
-
-### Added — 홈 알림 배너 (자동 트리거)
-- **`SeasonChangeAlert.tsx`** — 시즌 진입 후 21일 이내 옷장 정리 알림
-  - 보관할 옷(off-season + 활성) + 꺼낼 옷(보관 중 + 매칭) 합산
-  - 클릭 → `/mypage?tab=closet#seasonal` 의 `SeasonalStorageSection` 진입
-- **`RebuyAlert.tsx`** — 재구매 시점 자동 감지 (구매 주기 기반)
-  - `estimateCycles` 으로 `dueInDays ≤ 2` + 현재 비보유 식품 추출
-  - 늦은 개수 강조 + 상위 3개 이름 표시
-  - 클릭 → `/mypage?tab=shopping` 의 `ShoppingSuggestionsSection` 진입
-- 홈 '지금 바로' 섹션 순서: 임박 식품 → 재구매 → 시즌 옷장 정리 → 제철 힌트
-
-### Changed — Outdated 파트너 UI 정리
-- `PartnerChip.tsx` JSDoc: "전부 비활성, 준비 중 스텁" → "18개 enabled 상태"
-- `KnowledgeSummary.tsx`: "Phase 7에 실제 연결 예정 (현재 모두 준비 중)" → "Phase 7 활성화 완료"
-- `PartnerRoadmapSection.tsx`:
-  - "곧 연결될 파트너 서비스" → "제휴 파트너 {N}개 연결됨"
-  - 정적 `<span>` → 클릭 가능한 `<PartnerChip>`
-
-### Changed — Admin API 강화
-- `GET /api/admin/partners` 응답에 추가:
-  - `currentUrl`: 각 파트너의 현재 활성 URL (검증용)
-  - `supportsSearch`: 검색 쿼리 지원 여부
-  - `summary`: { total, enabled, searchable, overridden } 한눈에 보기
-
-### 추가 정량
-- 신규 파일: 7 (`outfitMatcher.ts`·`OutfitCard.tsx`·`OutfitDetailModal.tsx`·`OutfitGrid.tsx`·`ProPreviewCard.tsx`·`SeasonChangeAlert.tsx`·`RebuyAlert.tsx`)
-- 파트너: 9 enabled → **18 enabled**
-- 신규 의향 키: `nemoa-pro-interest` (Pro 출시 알림 신청자)
-- 자동 트리거 알림: 3종 (UrgentAlert·RebuyAlert·SeasonChangeAlert)
-
-### 정량 (Phase 1)
-- 신규 파일: 4 (`outfitMatcher.ts`, `OutfitCard.tsx`, `OutfitDetailModal.tsx`, `OutfitGrid.tsx`)
+### 정량 (v1.8 단독)
+- 신규 파일: 4 (`outfitMatcher.ts`·`OutfitCard.tsx`·`OutfitDetailModal.tsx`·`OutfitGrid.tsx`)
 - 신규 자동 코디 알고리즘: 시즌(+2) · 두께(+1) · 14일+ 미착용(+0.5~2) 점수
+- 파트너: 9 enabled → **18 enabled** (중고 3 · 기부 3 · 보관 2 신규 + URL)
+- 중복된 `storage_box` / `storage_svc` stub 제거
 - 디버깅 커밋 12개 끝에 진짜 원인(`useModalA11y` 잘못된 활성화) 발견
 
 ---
