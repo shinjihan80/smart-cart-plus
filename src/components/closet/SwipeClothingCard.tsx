@@ -108,19 +108,54 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
           })()}
 
           <div className="flex-1 min-w-0">
-            {/* 제목 줄: 제품명 + 사이즈 우측 작게 */}
+            {/* 제목 줄: 제품명 + 사이즈 우측 작게 (냉장고와 동일 패턴) */}
             <div className="flex items-baseline justify-between gap-2 mb-1">
               <p className="text-sm font-bold text-brand-ink truncate">{item.name}</p>
-              <p className="text-sm font-bold text-gray-500 tabular-nums shrink-0">{item.size}</p>
+              <p className={`text-sm font-bold tabular-nums shrink-0 ${daysAgo !== null && daysAgo > 30 ? 'text-brand-warning' : 'text-gray-500'}`}>
+                {item.size}
+              </p>
             </div>
 
             {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
 
-            {/* 핵심 칩만 — 카테고리 + 추천 시즌 (펼치면 자세히) */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="inline-flex text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-700 whitespace-nowrap">
-                {FASHION_EMOJI[item.category]} {item.category}
+            {/* 핵심 정보: 카테고리 + 마지막 착용 — 한 줄 (냉장고의 구매일·만료일 패턴) */}
+            <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-1.5">
+              <span>👔 {item.category}</span>
+              <span className="text-gray-300">·</span>
+              <span>
+                {daysAgo === null ? '🆕 아직 안 입음' :
+                 daysAgo === 0    ? '✓ 오늘 입음' :
+                 daysAgo <= 7     ? `👕 ${daysAgo}일 전 입음` :
+                 daysAgo <= 30    ? `🕒 ${daysAgo}일째 안 입음` :
+                                    `🌙 ${daysAgo}일째 안 입음`}
               </span>
+            </div>
+
+            {/* 진행바 — 마지막 착용 후 일수 (오래 될수록 채워짐, 30일 기준) */}
+            {daysAgo !== null && daysAgo > 0 && (
+              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    daysAgo > 60 ? 'bg-brand-warning' :
+                    daysAgo > 30 ? 'bg-amber-400' :
+                    'bg-brand-success'
+                  }`}
+                  style={{ width: `${Math.max(4, Math.min(100, (daysAgo / 60) * 100))}%` }}
+                />
+              </div>
+            )}
+
+            {/* 시즌 + 매치 한 줄 (펼치면 자세한 칩) */}
+            <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+              {matchBadge && (
+                <span
+                  className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
+                  title={matchBadge.label}
+                >
+                  <span>{matchBadge.emoji}</span>
+                  <span>{matchBadge.label}</span>
+                </span>
+              )}
               {item.weatherTags?.map((tag) => (
                 <span
                   key={tag}
@@ -157,30 +192,8 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               className="overflow-hidden"
             >
               <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-sm">
-                {/* 자세한 칩 — 펼침 시에만 노출 (collapsed에서 숨긴 정보) */}
+                {/* 자세한 칩 — 펼침 시에만 노출 (collapsed의 매치/시즌은 제외) */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  {matchBadge && (
-                    <span
-                      className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
-                      title={matchBadge.label}
-                    >
-                      <span>{matchBadge.emoji}</span>
-                      <span>{matchBadge.label}</span>
-                    </span>
-                  )}
-                  {daysAgo !== null && (
-                    <span
-                      className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                        daysAgo === 0 ? 'bg-brand-success/10 text-brand-success' :
-                        daysAgo <= 7 ? 'bg-gray-100 text-gray-500' :
-                        daysAgo <= 30 ? 'bg-amber-50 text-amber-600' :
-                        'bg-brand-warning/10 text-brand-warning'
-                      }`}
-                      title={`마지막 착용: ${wear.lastWorn}`}
-                    >
-                      {daysAgo === 0 ? '오늘 착용' : `${daysAgo}일 전`}
-                    </span>
-                  )}
                   {owner && (
                     <span className="inline-flex text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
                       {owner.name}
