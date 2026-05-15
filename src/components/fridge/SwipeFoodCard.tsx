@@ -72,18 +72,39 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
         <div className="flex items-start gap-3">
-          {/* 좌측: 사용자 업로드 사진 우선, 없으면 카테고리 톤 + 이모지 */}
+          {/* 좌측: 사진 — 탭하면 변경/추가 (카테고리 톤 + 이모지가 placeholder) */}
           {(() => {
             const tone = getFoodCategoryTone(item.foodCategory);
             return (
-              <div className={`shrink-0 w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg}`}>
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const file = await pickImage();
+                  if (!file) return;
+                  try {
+                    const dataUrl = await resizeAndEncode(file);
+                    onUpdate(item.id, { imageUrl: dataUrl });
+                    showToast('사진이 변경됐어요.');
+                  } catch {
+                    showToast('사진 변경 실패');
+                  }
+                }}
+                aria-label={item.imageUrl ? `${item.name} 사진 변경` : `${item.name} 사진 추가`}
+                title={item.imageUrl ? '탭해서 사진 변경' : '탭해서 사진 추가'}
+                className={`relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
+              >
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-2xl" aria-hidden>{tone.emoji}</span>
+                  <span className="text-3xl" aria-hidden>{tone.emoji}</span>
                 )}
-              </div>
+                {/* 사진 변경/추가 표시 — hover에서만 살짝 보임 */}
+                <span className="absolute bottom-0.5 right-0.5 w-5 h-5 rounded-full bg-white/90 flex items-center justify-center text-[10px] shadow-sm opacity-0 group-hover:opacity-100">
+                  📷
+                </span>
+              </button>
             );
           })()}
 
@@ -188,47 +209,16 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
                   )}
                 </div>
 
-                {/* 이미지 — 편집 모드에서만 변경/삭제·추가 */}
-                {item.imageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                    {editing && (
-                      <div className="absolute bottom-1.5 right-1.5 flex gap-1">
-                        <button
-                          aria-label="사진 변경"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            const file = await pickImage();
-                            if (!file) return;
-                            const dataUrl = await resizeAndEncode(file);
-                            onUpdate(item.id, { imageUrl: dataUrl });
-                          }}
-                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                        >📷</button>
-                        <button
-                          aria-label="사진 삭제"
-                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
-                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                        >✕</button>
-                      </div>
-                    )}
-                  </div>
-                ) : editing ? (
+                {/* 사진 — 편집 + imageUrl 있을 때만 '삭제' 옵션 (변경은 카드 상단 썸네일 탭) */}
+                {editing && item.imageUrl && (
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      const file = await pickImage();
-                      if (!file) return;
-                      const dataUrl = await resizeAndEncode(file);
-                      onUpdate(item.id, { imageUrl: dataUrl });
-                    }}
-                    className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
+                    className="self-start text-xs text-gray-500 hover:text-brand-warning"
                   >
-                    <span className="text-lg">📷</span>
-                    <span className="text-sm font-medium">사진 추가</span>
+                    🗑️ 사진 삭제
                   </button>
-                ) : null}
+                )}
 
                 {/* 상품명 — 편집 모드에서만 노출 (비편집 시 카드 상단에 이미 표시되어 중복 제거) */}
                 {editing && (
@@ -248,36 +238,35 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
                   </div>
                 )}
 
-                {/* 구매일 · 보관 만료 */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-gray-400">구매일</span>
-                    {editing ? (
-                      <input
-                        type="date"
-                        aria-label={`${item.name} 구매일 수정`}
-                        defaultValue={item.purchaseDate}
-                        onBlur={(e) => {
-                          const v = e.target.value;
-                          if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v });
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full mt-0.5 text-xs text-gray-700 font-medium bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 tabular-nums"
-                      />
-                    ) : (
-                      <p className="text-gray-700 font-medium mt-0.5 tabular-nums">{item.purchaseDate}</p>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-gray-400">보관 만료</span>
-                    <p className={`font-medium tabular-nums mt-0.5 ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
-                      {(() => {
-                        const d = new Date(item.purchaseDate);
-                        d.setDate(d.getDate() + item.baseShelfLifeDays);
-                        return d.toISOString().split('T')[0];
-                      })()}
-                    </p>
-                  </div>
+                {/* 구매일 · 보관 만료 — date input이 좁은 컬럼에서 겹치므로 한 줄씩 배치 */}
+                <div>
+                  <span className="text-gray-400">구매일</span>
+                  {editing ? (
+                    <input
+                      type="date"
+                      aria-label={`${item.name} 구매일 수정`}
+                      defaultValue={item.purchaseDate}
+                      onBlur={(e) => {
+                        const v = e.target.value;
+                        if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="block w-full mt-0.5 text-xs text-gray-700 font-medium bg-white border border-brand-primary/30 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 tabular-nums"
+                    />
+                  ) : (
+                    <p className="text-gray-700 font-medium mt-0.5 tabular-nums">{item.purchaseDate}</p>
+                  )}
+                </div>
+                <div>
+                  <span className="text-gray-400">보관 만료</span>
+                  <p className={`font-medium tabular-nums mt-0.5 ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
+                    {(() => {
+                      const d = new Date(item.purchaseDate);
+                      d.setDate(d.getDate() + item.baseShelfLifeDays);
+                      return d.toISOString().split('T')[0];
+                    })()}
+                    <span className="text-gray-400 ml-1.5 text-xs">({dDay <= 0 ? '만료' : `${dDay}일 남음`})</span>
+                  </p>
                 </div>
 
                 {/* 영양소 */}

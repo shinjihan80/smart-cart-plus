@@ -68,18 +68,35 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
         <div className="flex items-start gap-3">
-          {/* 좌측: 사용자 업로드 사진 우선, 없으면 카테고리 톤 + 이모지 */}
+          {/* 좌측: 사진 — 탭하면 변경/추가 (카테고리 톤 + 이모지가 placeholder) */}
           {(() => {
             const tone = getFashionCategoryTone(item.category);
             return (
-              <div className={`shrink-0 w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg}`}>
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  const file = await pickImage();
+                  if (!file) return;
+                  try {
+                    const dataUrl = await resizeAndEncode(file);
+                    onUpdate(item.id, { imageUrl: dataUrl });
+                    showToast('사진이 변경됐어요.');
+                  } catch {
+                    showToast('사진 변경 실패');
+                  }
+                }}
+                aria-label={item.imageUrl ? `${item.name} 사진 변경` : `${item.name} 사진 추가`}
+                title={item.imageUrl ? '탭해서 사진 변경' : '탭해서 사진 추가'}
+                className={`shrink-0 w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
+              >
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-2xl" aria-hidden>{tone.emoji}</span>
+                  <span className="text-3xl" aria-hidden>{tone.emoji}</span>
                 )}
-              </div>
+              </button>
             );
           })()}
 
@@ -172,47 +189,16 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   )}
                 </div>
 
-                {/* 이미지 — 편집 모드에서만 변경/삭제 버튼, 없으면 "사진 추가" 버튼 */}
-                {item.imageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-gray-100 h-32">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                    {editing && (
-                      <div className="absolute bottom-1.5 right-1.5 flex gap-1">
-                        <button
-                          aria-label="사진 변경"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            const file = await pickImage();
-                            if (!file) return;
-                            const dataUrl = await resizeAndEncode(file);
-                            onUpdate(item.id, { imageUrl: dataUrl });
-                          }}
-                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                        >📷</button>
-                        <button
-                          aria-label="사진 삭제"
-                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); }}
-                          className="w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center text-xs hover:bg-black/60"
-                        >✕</button>
-                      </div>
-                    )}
-                  </div>
-                ) : editing ? (
+                {/* 사진 — 편집 + imageUrl 있을 때만 '삭제' 옵션 (변경은 카드 상단 썸네일 탭) */}
+                {editing && item.imageUrl && (
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      const file = await pickImage();
-                      if (!file) return;
-                      const dataUrl = await resizeAndEncode(file);
-                      onUpdate(item.id, { imageUrl: dataUrl });
-                    }}
-                    className="h-20 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center gap-1.5 text-gray-400 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
+                    className="self-start text-xs text-gray-500 hover:text-brand-warning"
                   >
-                    <span className="text-lg">📷</span>
-                    <span className="text-sm font-medium">사진 추가</span>
+                    🗑️ 사진 삭제
                   </button>
-                ) : null}
+                )}
 
                 {/* 상품명 — 편집 모드에서만 노출 (비편집 시 카드 상단에 이미 표시되어 중복 제거) */}
                 {editing && (
