@@ -54,12 +54,25 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
   - KV 키: `telemetry:partner-clicks:YYYY-MM-DD` (사용자 식별자 없음)
 - **`flushPartnerClicksIfDue()`** — 홈 마운트 시 1회/일 호출, opt-in 사용자만 어제 데이터 전송
 
-### Added — 홈 알림 배너 (자동 트리거)
+### Added — 홈 알림 배너 (자동 트리거) + dismiss 관리
 - **`SeasonChangeAlert.tsx`** — 시즌 진입 후 21일 이내 옷장 정리 알림
   - 보관할 옷 + 꺼낼 옷 합산 → `/mypage?tab=closet#seasonal`
 - **`RebuyAlert.tsx`** — 재구매 시점 자동 감지 (구매 주기 기반)
   - `estimateCycles` `dueInDays ≤ 2` + 비보유 식품 → `/mypage?tab=shopping`
 - 홈 '지금 바로' 순서: 임박 식품 → 재구매 → 시즌 옷장 정리 → 제철 힌트
+- **`useDismissedAlerts.ts`** (신규) — 일일 dismiss + 자동 GC
+  - 3개 배너 모두 우상단 ✕ 버튼 → 그날만 안 보이기
+  - 시즌 알림은 `season-{봄/여름/가을/겨울}` 키로 시즌별 분리
+  - 한 주 이상 지난 항목 자동 정리
+- **`NotificationSettings`** 강화 — "🙈 오늘 안 보기" 섹션 추가
+  - dismiss한 알림 칩으로 표시 → 단건 / 전체 복원 가능
+
+### Changed — WeeklyInsight 시각화 강화
+- 기존: 텍스트 메시지 1~5줄
+- 추가: **7일 미니 차트** (cook + wear 스택 막대 × 일자별 라벨)
+  - 오늘 라벨 brand-primary 굵게 강조
+  - 범례: 조리 amber / 착용 brand-primary
+- 텍스트는 가장 임팩트 있는 1~2개만 노출 (압축)
 
 ### Changed — AnnualSummary 월별 히스토그램
 - 기존: 조리/착용/소진 누적 숫자 3개
