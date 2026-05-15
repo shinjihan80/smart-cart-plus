@@ -73,10 +73,34 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 - 가격: 월 ₩4,900 / 연 ₩49,000 (PRO_SPEC.md 일치)
 - Phase A 결제 인프라 도입 시 의향 데이터 활용 가능
 
+### Added — 홈 알림 배너 (자동 트리거)
+- **`SeasonChangeAlert.tsx`** — 시즌 진입 후 21일 이내 옷장 정리 알림
+  - 보관할 옷(off-season + 활성) + 꺼낼 옷(보관 중 + 매칭) 합산
+  - 클릭 → `/mypage?tab=closet#seasonal` 의 `SeasonalStorageSection` 진입
+- **`RebuyAlert.tsx`** — 재구매 시점 자동 감지 (구매 주기 기반)
+  - `estimateCycles` 으로 `dueInDays ≤ 2` + 현재 비보유 식품 추출
+  - 늦은 개수 강조 + 상위 3개 이름 표시
+  - 클릭 → `/mypage?tab=shopping` 의 `ShoppingSuggestionsSection` 진입
+- 홈 '지금 바로' 섹션 순서: 임박 식품 → 재구매 → 시즌 옷장 정리 → 제철 힌트
+
+### Changed — Outdated 파트너 UI 정리
+- `PartnerChip.tsx` JSDoc: "전부 비활성, 준비 중 스텁" → "18개 enabled 상태"
+- `KnowledgeSummary.tsx`: "Phase 7에 실제 연결 예정 (현재 모두 준비 중)" → "Phase 7 활성화 완료"
+- `PartnerRoadmapSection.tsx`:
+  - "곧 연결될 파트너 서비스" → "제휴 파트너 {N}개 연결됨"
+  - 정적 `<span>` → 클릭 가능한 `<PartnerChip>`
+
+### Changed — Admin API 강화
+- `GET /api/admin/partners` 응답에 추가:
+  - `currentUrl`: 각 파트너의 현재 활성 URL (검증용)
+  - `supportsSearch`: 검색 쿼리 지원 여부
+  - `summary`: { total, enabled, searchable, overridden } 한눈에 보기
+
 ### 추가 정량
-- 신규 파일: 5 (위 4개 + `ProPreviewCard.tsx`)
+- 신규 파일: 7 (`outfitMatcher.ts`·`OutfitCard.tsx`·`OutfitDetailModal.tsx`·`OutfitGrid.tsx`·`ProPreviewCard.tsx`·`SeasonChangeAlert.tsx`·`RebuyAlert.tsx`)
 - 파트너: 9 enabled → **18 enabled**
 - 신규 의향 키: `nemoa-pro-interest` (Pro 출시 알림 신청자)
+- 자동 트리거 알림: 3종 (UrgentAlert·RebuyAlert·SeasonChangeAlert)
 
 ### 정량 (Phase 1)
 - 신규 파일: 4 (`outfitMatcher.ts`, `OutfitCard.tsx`, `OutfitDetailModal.tsx`, `OutfitGrid.tsx`)

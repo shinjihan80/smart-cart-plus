@@ -51,19 +51,34 @@ export async function GET(req: NextRequest) {
   const overlay = await loadOverlay();
   // 정적 PARTNERS는 Record 형태이므로 array로 변환해 반환
   // (admin이 enabled·buildUrl 함수를 직렬화 가능 형태로 받게)
-  const staticArr = Object.values(PARTNERS).map((p) => ({
-    id:         p.id,
-    label:      p.label,
-    emoji:      p.emoji,
-    domain:     p.domain,
-    enabled:    p.enabled,
-    comingSoon: p.comingSoon,
-  }));
+  // currentUrl: 빈 query 호출 결과 — admin UI 에서 현재 URL 검증용
+  // searchUrl: '예시' 쿼리 호출 결과 — 검색 URL 패턴 검증용
+  const staticArr = Object.values(PARTNERS).map((p) => {
+    const currentUrl = p.buildUrl?.() ?? null;
+    const searchUrl  = p.buildUrl?.('예시') ?? null;
+    const supportsSearch = currentUrl !== searchUrl;
+    return {
+      id:             p.id,
+      label:          p.label,
+      emoji:          p.emoji,
+      domain:         p.domain,
+      enabled:        p.enabled,
+      comingSoon:     p.comingSoon,
+      currentUrl,     // 현재 활성 URL (null 이면 미연결)
+      supportsSearch, // 검색 쿼리 지원 여부
+    };
+  });
   return NextResponse.json({
     overlay,
     static:     staticArr,
     persistent: catalogStore.persistent,
     storeKind:  catalogStore.persistent ? 'upstash' : 'in-memory',
+    summary:    {
+      total:       staticArr.length,
+      enabled:     staticArr.filter((p) => p.enabled).length,
+      searchable:  staticArr.filter((p) => p.supportsSearch).length,
+      overridden:  Object.keys(overlay.overrides).length,
+    },
   }, { headers: corsHeaders });
 }
 
