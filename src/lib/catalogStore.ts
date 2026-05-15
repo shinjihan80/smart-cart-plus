@@ -24,8 +24,9 @@
  * Pro 단계:    Upstash 연결 → 관리자 CRUD 변경분이 즉시 모든 사용자에게 반영
  */
 
-export type CatalogResource = 'recipes' | 'seasonal' | 'partners';
-export type CatalogOperation = 'created' | 'updated' | 'deleted' | 'overrides';
+export type CatalogResource = 'recipes' | 'seasonal' | 'partners' | 'telemetry';
+// operation: 'partner-clicks:YYYY-MM-DD' 같은 동적 키도 telemetry 용으로 허용
+export type CatalogOperation = string;
 
 export interface CatalogStore {
   /** 키별 JSON 저장. value는 직렬화 가능한 객체. */

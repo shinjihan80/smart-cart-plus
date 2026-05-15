@@ -47,7 +47,7 @@ export default function FeedbackToggles() {
   const toggles = [
     { label: '햅틱 피드백', desc: '탭·스와이프 시 짧은 진동', on: hapticOn, toggle: toggleHaptic },
     { label: '알림음',       desc: '타이머 완료 시 짧은 비프', on: chimeOn,  toggle: toggleChime  },
-    { label: '익명 사용 통계', desc: '개인정보 없이 "오늘 몇 명이 썼나"만 집계 — 서비스 개선용', on: analyticsOn, toggle: toggleAnalytics },
+    { label: '익명 사용 통계', desc: '세션 핑 + 어제 파트너 클릭 집계 (개인정보·식별자 없음) — 인기 파트너 협상에 사용', on: analyticsOn, toggle: toggleAnalytics },
   ];
 
   return (

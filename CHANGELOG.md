@@ -73,6 +73,23 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 - 가격: 월 ₩4,900 / 연 ₩49,000 (PRO_SPEC.md 일치)
 - Phase A 결제 인프라 도입 시 의향 데이터 활용 가능
 
+### Added — 파트너 클릭 추적 + 익명 텔레메트리
+- **`partnerClickLog.ts`** — localStorage 기반 클릭 로그
+  - `logPartnerClick(entry)` — PartnerChip/ShoppingMallCard 클릭 시 자동 호출
+  - 최대 200건, 30일 자동 정리
+  - `usePartnerClicks()` — total · topPartners · byDomain · clearAll
+- **`PartnerClickInsights.tsx`** (설정) — 사용자 본인의 클릭 패턴 시각화
+  - 도메인별 가로 막대 (식품·패션·중고·기부·보관·세탁)
+  - 자주 가는 곳 TOP 5 + 클릭 횟수
+- **`/api/admin/telemetry/clicks`** (신규 API)
+  - **POST**: opt-in 사용자의 일별 집계 push (rate limited, 인증 없음, 비정상 차단)
+  - **GET**: 관리자 콘솔에서 N일치 누적 fetch (X-Admin-Token 필수)
+  - KV 키: `telemetry:partner-clicks:YYYY-MM-DD` (사용자 식별자 없음)
+- **`flushPartnerClicksIfDue()`** — 홈 마운트 시 호출
+  - `isAnalyticsEnabled()` opt-in 사용자만 어제 데이터 1회 전송
+  - 일별 `{ date, counts: { partnerId: N } }` 만 전송 (개별 클릭 ❌)
+- 수익 전략: 인기 파트너 협상 데이터 + 도메인별 트래픽 추이 분석
+
 ### Added — 홈 알림 배너 (자동 트리거)
 - **`SeasonChangeAlert.tsx`** — 시즌 진입 후 21일 이내 옷장 정리 알림
   - 보관할 옷(off-season + 활성) + 꺼낼 옷(보관 중 + 매칭) 합산

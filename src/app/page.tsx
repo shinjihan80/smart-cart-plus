@@ -8,6 +8,7 @@ import { useToast } from '@/context/ToastContext';
 import NemoaLogo from '@/components/layout/NemoaLogo';
 import EmojiIcon from '@/components/EmojiIcon';
 import { useSessionPing } from '@/lib/analytics';
+import { flushPartnerClicksIfDue } from '@/lib/partnerClickLog';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import HeroMessage     from '@/components/home/HeroMessage';
@@ -33,6 +34,11 @@ export default function HomePage() {
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 300);
     return () => clearTimeout(t);
+  }, []);
+
+  // 일일 익명 파트너 클릭 집계 flush — opt-in (analytics enabled) 사용자만 어제 데이터 전송
+  useEffect(() => {
+    flushPartnerClicksIfDue();
   }, []);
 
   return (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { isAnalyticsEnabled } from './analytics';
 
 /**
  * 파트너 클릭 로그 (localStorage 기반).
@@ -18,6 +19,7 @@ import { useEffect, useState, useCallback } from 'react';
  */
 
 const STORAGE_KEY = 'nemoa-partner-clicks';
+const FLUSH_KEY   = 'nemoa-partner-clicks-flush'; // 마지막 텔레메트리 전송 날짜
 const MAX_ENTRIES = 200;
 const RETENTION_DAYS = 30;
 
@@ -126,4 +128,62 @@ export function usePartnerClicks() {
     byDomain,
     clearAll,
   };
+}
+
+/**
+ * 일일 텔레메트리 배치 flush.
+ *
+ * 조건
+ *  1. `isAnalyticsEnabled()` 가 true (opt-in)
+ *  2. 오늘 아직 flush 안 함 (`nemoa-partner-clicks-flush` 가 오늘과 다름)
+ *  3. 클릭 기록 1건 이상
+ *
+ * 전송 내용: `{ date: 'YYYY-MM-DD', counts: { partnerId: N } }`
+ *   - 개별 클릭 ❌, 일별 집계 ⭕
+ *   - 사용자 식별자 없음
+ *
+ * 실패해도 조용히 무시 — 다음 세션에서 재시도.
+ */
+export async function flushPartnerClicksIfDue(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  if (!isAnalyticsEnabled()) return;
+
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const lastFlush = localStorage.getItem(FLUSH_KEY);
+    if (lastFlush === today) return; // 오늘 이미 보냄
+
+    const clicks = loadInitial();
+    if (clicks.length === 0) return;
+
+    // 어제와 그제 클릭만 집계 (오늘 데이터는 다음 날 보냄 — 완성된 1일치만)
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+    const yesterdayClicks = clicks.filter((c) => {
+      const d = new Date(c.ts).toISOString().split('T')[0];
+      return d === yesterday;
+    });
+    if (yesterdayClicks.length === 0) {
+      // 어제 클릭 없으면 flush 날짜만 갱신
+      localStorage.setItem(FLUSH_KEY, today);
+      return;
+    }
+
+    const counts: Record<string, number> = {};
+    for (const c of yesterdayClicks) {
+      counts[c.partnerId] = (counts[c.partnerId] ?? 0) + 1;
+    }
+
+    const res = await fetch('/api/admin/telemetry/clicks', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: yesterday, counts }),
+    });
+
+    if (res.ok) {
+      localStorage.setItem(FLUSH_KEY, today);
+    }
+  } catch {
+    // 실패해도 조용히 — 다음 세션에서 재시도
+  }
 }
