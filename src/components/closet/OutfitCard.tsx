@@ -54,6 +54,20 @@ export default function OutfitCard({ outfit, onClick }: OutfitCardProps) {
         </div>
       )}
 
+      {/* 이유 배지 — 우상단 */}
+      {outfit.reasons.length > 0 && (
+        <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[80%]">
+          {outfit.reasons.slice(0, 2).map((r) => (
+            <span
+              key={r}
+              className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-white/90 backdrop-blur-sm text-gray-800 shadow-sm"
+            >
+              {r}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* 라벨 오버레이 — 하단 그라데이션 */}
       <div className="absolute inset-x-0 bottom-0 px-3 py-2 bg-gradient-to-t from-black/60 to-transparent pointer-events-none">
         <p className="text-xs font-bold text-white truncate text-left">

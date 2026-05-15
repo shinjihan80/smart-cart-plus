@@ -29,6 +29,11 @@ export interface Outfit {
   };
   /** 매칭 점수 — 정렬용 */
   score: number;
+  /**
+   * 추천 이유 — UI 에 작은 배지로 표시.
+   * 예: ['🌸 봄 매칭', '💞 자주 입는 조합', '🌙 오랜만에']
+   */
+  reasons: string[];
 }
 
 interface MatchOptions {
@@ -117,6 +122,18 @@ export function generateOutfits(
       if (sh && isCoWorn(t.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
       if (sh && isCoWorn(b.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
 
+      // 추천 이유 수집
+      const reasons: string[] = [];
+      if (coBoost > 0) reasons.push('💞 자주 입는 조합');
+      if (opts.season && (t.item.weatherTags?.includes(opts.season) || b.item.weatherTags?.includes(opts.season))) {
+        const seasonEmoji = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' }[opts.season];
+        reasons.push(`${seasonEmoji} ${opts.season} 매칭`);
+      }
+      if (ou) reasons.push('🧥 추울 때');
+      const tIdle = idleByItem[t.item.id] ?? 0;
+      const bIdle = idleByItem[b.item.id] ?? 0;
+      if (tIdle > 14 || bIdle > 14) reasons.push('🌙 오랜만에');
+
       const total = t.score + b.score + (ou ? 1 : 0) + coBoost;
       result.push({
         id:    `o-${sig}`,
@@ -125,6 +142,7 @@ export function generateOutfits(
           : (`${opts.season ?? ''} 코디`.trim() || '추천 코디'),
         slots: { top: t.item, bottom: b.item, outer: ou, shoes: sh, accessory: ac },
         score: total,
+        reasons,
       });
       if (result.length >= count) break;
     }
@@ -138,11 +156,20 @@ export function generateOutfits(
     const sig = [op.item.id, sh?.id].join('|');
     if (seenSig.has(sig)) continue;
     seenSig.add(sig);
+
+    const reasons: string[] = [];
+    if (opts.season && op.item.weatherTags?.includes(opts.season)) {
+      const seasonEmoji = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' }[opts.season];
+      reasons.push(`${seasonEmoji} ${opts.season} 매칭`);
+    }
+    if ((idleByItem[op.item.id] ?? 0) > 14) reasons.push('🌙 오랜만에');
+
     result.push({
       id:    `o-${sig}`,
       label: '원피스 코디',
       slots: { onepiece: op.item, shoes: sh, accessory: ac },
       score: op.score,
+      reasons,
     });
     if (result.length >= count) break;
   }

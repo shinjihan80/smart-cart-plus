@@ -82,6 +82,18 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
               <div className="mb-3 pr-10">
                 <h2 className="text-base font-extrabold text-gray-900">{outfit.label}</h2>
                 <p className="text-xs text-gray-500 mt-0.5">{items.length}벌 · {allWornToday ? '오늘 모두 기록됨' : '탭으로 일괄 기록 가능'}</p>
+                {outfit.reasons.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {outfit.reasons.map((r) => (
+                      <span
+                        key={r}
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/15"
+                      >
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* 아이템 리스트 — 사진 + 카테고리 + 이름 */}
