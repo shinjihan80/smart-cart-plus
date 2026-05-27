@@ -15,24 +15,36 @@ const src = readFileSync(
   'utf8',
 );
 
-test('DAILY_LIMITS — vision 10회', () => {
-  assert.match(src, /vision:\s*10\b/);
+test('TIER_LIMITS.free — vision 5회', () => {
+  assert.match(src, /vision:\s*5\b/);
 });
 
-test('DAILY_LIMITS — parser 20회', () => {
-  assert.match(src, /parser:\s*20\b/);
+test('TIER_LIMITS.free — parser 10회', () => {
+  assert.match(src, /parser:\s*10\b/);
 });
 
-test('DAILY_LIMITS — nutrition 5회', () => {
-  assert.match(src, /nutrition:\s*5\b/);
+test('TIER_LIMITS.free — nutrition 2회', () => {
+  assert.match(src, /nutrition:\s*2\b/);
 });
 
-test('DAILY_LIMITS — url 5회', () => {
-  assert.match(src, /url:\s*5\b/);
+test('TIER_LIMITS.free — url 2회', () => {
+  assert.match(src, /url:\s*2\b/);
 });
 
-test('DAILY_LIMITS — fridgeSection 10회 (Phase 8.0 Step 5)', () => {
-  assert.match(src, /fridgeSection:\s*10\b/);
+test('TIER_LIMITS.free — fridgeSection 5회 (Phase 8.0 Step 5)', () => {
+  assert.match(src, /fridgeSection:\s*5\b/);
+});
+
+test('TIER_LIMITS.pro_lite — vision 30회', () => {
+  assert.match(src, /vision:\s*30\b/);
+});
+
+test('TIER_LIMITS.pro_max — Infinity 정의', () => {
+  assert.match(src, /Infinity/);
+});
+
+test('DAILY_LIMITS — free tier 별칭 존재', () => {
+  assert.match(src, /DAILY_LIMITS\s*=\s*TIER_LIMITS\.free/);
 });
 
 test('aiQuota — 다섯 개 agent 타입 정의', () => {
