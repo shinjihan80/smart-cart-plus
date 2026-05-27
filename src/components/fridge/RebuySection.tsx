@@ -23,19 +23,19 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
   if (suggestions.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: 0.18 }}
-      className={CARD}
-      style={CARD_SHADOW}
-    >
-      <div className="flex items-center gap-2 mb-2.5">
+    <>
+      <div className="flex items-center gap-2">
         <EmojiIcon emoji="🔄" size={16} className="text-amber-600" />
         <span className="text-sm font-bold text-gray-700">재구매 추천</span>
         <span className="text-xs text-gray-400">소진한 식품 기반</span>
-        <div className="flex-1 h-px bg-gray-100" />
       </div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springTransition, delay: 0.18 }}
+        className={CARD}
+        style={CARD_SHADOW}
+      >
       <div className="flex gap-1.5 flex-wrap">
         {suggestions.map((s) => (
           <button
@@ -52,5 +52,6 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
         <PartnerChip partner={PARTNERS.quick_mart} />
       </div>
     </motion.div>
+    </>
   );
 }

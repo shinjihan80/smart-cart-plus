@@ -26,6 +26,15 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
 
   return (
     <>
+      <div className="flex items-center gap-2">
+        {(() => {
+          const Icon = SEASON_ICON[season];
+          const color = SEASON_COLOR[season];
+          return <Icon size={16} strokeWidth={2} className={color.text} />;
+        })()}
+        <span className="text-sm font-bold text-gray-700">지금 {season}철 재료</span>
+        <span className="text-xs text-gray-400">가장 맛있을 때</span>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -33,16 +42,6 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
         className={CARD}
         style={CARD_SHADOW}
       >
-        <div className="flex items-center gap-2 mb-2.5">
-          {(() => {
-            const Icon = SEASON_ICON[season];
-            const color = SEASON_COLOR[season];
-            return <Icon size={16} strokeWidth={2} className={color.text} />;
-          })()}
-          <span className="text-sm font-bold text-gray-700">지금 {season}철 재료</span>
-          <span className="text-xs text-gray-400">가장 맛있을 때</span>
-          <div className="flex-1 h-px bg-gray-100" />
-        </div>
         <div className="flex gap-1.5 flex-wrap">
           {suggestions.map((p) => {
             const recipeCount = countRecipesByIngredient(p.name);

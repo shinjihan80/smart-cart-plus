@@ -63,18 +63,10 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...springTransition, delay: 0.15 }}
-        className={CARD}
-        style={CARD_SHADOW}
-      >
-        <div className="flex items-center gap-2 mb-3">
-            <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
-            <span className="text-sm font-bold text-gray-700">오늘의 메뉴 추천</span>
-            <div className="flex-1 h-px bg-gray-100" />
-          <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-2">
+        <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
+        <span className="text-sm font-bold text-gray-700">오늘의 메뉴 추천</span>
+        <div className="flex items-center gap-1.5 ml-auto shrink-0">
             {favoriteCount > 0 && (
               <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
                 ♥ {favoriteCount}
@@ -97,7 +89,14 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
               전체 보기 →
             </button>
           </div>
-        </div>
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springTransition, delay: 0.15 }}
+        className={CARD}
+        style={CARD_SHADOW}
+      >
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
           {matched.map(({ recipe, matchedItems, urgentBoosted, seasonBoosted, loveBoosted, cookCount, reasons }) => {
             const fav = isFavorite(recipe.id);

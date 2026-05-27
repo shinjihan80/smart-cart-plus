@@ -51,23 +51,23 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: 0.13 }}
-      className={CARD}
-      style={CARD_SHADOW}
-    >
-      <div className="flex items-center gap-2 mb-3">
-          <EmojiIcon emoji="📊" size={16} className="text-gray-700" />
-          <span className="text-sm font-bold text-gray-700">이번 주 영양 밸런스</span>
-          <div className="flex-1 h-px bg-gray-100" />
-          <div className="flex items-center gap-1.5 text-xs text-gray-400 shrink-0">
+    <>
+      <div className="flex items-center gap-2">
+        <EmojiIcon emoji="📊" size={16} className="text-gray-700" />
+        <span className="text-sm font-bold text-gray-700">이번 주 영양 밸런스</span>
+        <div className="flex items-center gap-1.5 text-xs text-gray-400 ml-auto">
           <span>🥬 {balance.vegFruitCount}</span>
           <span className="text-gray-200">·</span>
           <span>🥩 {balance.proteinCount}</span>
         </div>
       </div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springTransition, delay: 0.13 }}
+        className={CARD}
+        style={CARD_SHADOW}
+      >
 
       {!hasPersonalized && (
         <div className="mb-3 rounded-2xl bg-amber-50 border border-amber-100 px-3 py-2">
@@ -125,5 +125,6 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
         })()}
       </div>
     </motion.div>
+    </>
   );
 }

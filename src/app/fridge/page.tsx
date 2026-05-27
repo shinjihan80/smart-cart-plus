@@ -505,6 +505,10 @@ export default function FridgePage() {
               emoji="🥬"
             />
 
+            <div className="flex items-center gap-2">
+              <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
+              <span className="text-sm font-bold text-gray-700">빠른 추가</span>
+            </div>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -512,11 +516,6 @@ export default function FridgePage() {
               className={CARD}
               style={CARD_SHADOW}
             >
-              <div className="flex items-center gap-2 mb-2.5">
-                <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
-                <span className="text-sm font-bold text-gray-700">빠른 추가</span>
-                <div className="flex-1 h-px bg-gray-100" />
-              </div>
               {profiles.length >= 2 && (
                 <div className="flex gap-1 mb-2 flex-wrap items-center">
                   <span className="text-sm text-gray-400">누구 것:</span>

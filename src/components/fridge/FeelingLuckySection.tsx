@@ -44,6 +44,17 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
 
   return (
     <>
+      <div className="flex items-center gap-2">
+        <EmojiIcon emoji="🎲" size={16} className="text-gray-700" />
+        <span className="text-sm font-bold text-gray-700">오늘 뭐 먹지?</span>
+        <button
+          onClick={handleShuffle}
+          disabled={spinning || matched.length < 2}
+          className="ml-auto text-sm text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors disabled:opacity-40"
+        >
+          🔀 다시 고르기
+        </button>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -51,18 +62,6 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
         className={CARD}
         style={CARD_SHADOW}
       >
-        <div className="flex items-center gap-2 mb-3">
-            <EmojiIcon emoji="🎲" size={16} className="text-gray-700" />
-            <span className="text-sm font-bold text-gray-700">오늘 뭐 먹지?</span>
-            <div className="flex-1 h-px bg-gray-100" />
-          <button
-            onClick={handleShuffle}
-            disabled={spinning || matched.length < 2}
-            className="text-sm text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors disabled:opacity-40"
-          >
-            🔀 다시 고르기
-          </button>
-        </div>
 
         <button
           onClick={() => setSelected({ recipe: pick.recipe, matchedItems: pick.matchedItems })}
