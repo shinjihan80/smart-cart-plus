@@ -6,7 +6,7 @@ import { isFoodItem, type StorageType, type FoodGroup, type FridgeSection, FOOD_
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { LayoutGrid, List } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -55,6 +55,12 @@ const SORT_CYCLE: Record<SortKey, { next: SortKey; label: string }> = {
   name:     { next: 'seasonal', label: '🔤 이름순' },
   seasonal: { next: 'dDay',     label: '🌸 제철 먼저' },
 };
+const SORT_PLAIN: Record<SortKey, string> = {
+  dDay: '임박순', name: '이름순', seasonal: '제철 먼저',
+};
+const FOOD_GROUP_EMOJI: Record<string, string> = {
+  신선식품: '🥬', 가공식품: '🍜', '음료·간식': '🧃', 기타: '📦',
+};
 
 const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType; days: number }[] = [
   { name: '우유 1L',    foodCategory: '유제품',      storageType: '냉장', days: 10 },
@@ -91,15 +97,18 @@ export default function FridgePage() {
     'nemoa-fridge-seasonal-only', false,
     (raw) => typeof raw === 'boolean' ? raw : null,
   );
-  const [viewMode, setViewMode] = usePersistedState<'visual' | 'list'>(
+  const [viewMode, setViewMode] = usePersistedState<'visual' | 'list' | 'compact'>(
     'nemoa-fridge-view', 'visual',
-    (raw) => (raw === 'visual' || raw === 'list') ? raw : null,
+    (raw) => (raw === 'visual' || raw === 'list' || raw === 'compact') ? raw : null,
   );
   const [activeTab, setActiveTab] = usePersistedState<FridgeTab>(
     'nemoa-fridge-tab', 'fridge',
     (raw) => (isFridgeTab(raw) ? raw : null),
   );
   useEffect(() => { setActiveTab('fridge'); }, []);
+  const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
+  const compactDetailItem = compactDetailId ? allItems.filter(isFoodItem).find(i => i.id === compactDetailId) ?? null : null;
+  const compactDetailDDay = compactDetailItem ? calcRemainingDays(compactDetailItem.purchaseDate, compactDetailItem.baseShelfLifeDays) : 0;
   const [fridgeModelId] = useFridgeModel();
   const [activeSection, setActiveSection] = useState<FridgeSection | null>(null);
   const [expandedFoodId, setExpandedFoodId] = useState<string | null>(null);
@@ -169,6 +178,11 @@ export default function FridgePage() {
     else showToast(`"${preset.name}" 이미 있어요.`);
   }
 
+  function cycleFridgeSort() {
+    const keys: SortKey[] = ['dDay', 'name', 'seasonal'];
+    setSortBy(keys[(keys.indexOf(sortBy) + 1) % keys.length]);
+  }
+
   function handleRebuy(name: string) {
     const input = { name, foodCategory: '기타 식품' as const, storageType: '냉장' as const };
     const { added } = addItems([{
@@ -200,6 +214,8 @@ export default function FridgePage() {
     if (added > 0) showToast(`"${p.name}" 담았어요! 제철이라 가장 맛있을 때예요.`);
     else showToast(`"${p.name}" 이미 있어요.`);
   }
+
+  const vm = viewMode;
 
   return (
     <div>
@@ -279,29 +295,17 @@ export default function FridgePage() {
 
               {/* 보기 방식 세그먼트 */}
               <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={viewMode === 'visual'}
-                  onClick={() => setViewMode('visual')}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                    viewMode === 'visual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                  }`}
-                >
-                  <LayoutGrid size={12} strokeWidth={2.4} />
-                  <span>냉장고</span>
+                <button type="button" role="tab" aria-selected={viewMode === 'visual'} onClick={() => setViewMode('visual')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'visual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                  <LayoutGrid size={12} strokeWidth={2.4} /><span>냉장고</span>
                 </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={viewMode === 'list'}
-                  onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                    viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                  }`}
-                >
-                  <List size={12} strokeWidth={2.4} />
-                  <span>리스트</span>
+                <button type="button" role="tab" aria-selected={viewMode === 'list'} onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                  <List size={12} strokeWidth={2.4} /><span>리스트</span>
+                </button>
+                <button type="button" role="tab" aria-selected={viewMode === 'compact'} onClick={() => setViewMode('compact')}
+                  className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                  <LayoutGrid size={12} strokeWidth={2.4} />
                 </button>
               </div>
             </div>
@@ -356,74 +360,61 @@ export default function FridgePage() {
             </motion.div>
 
 
-        {/* 정렬 탭 + 제철 토글 — 리스트 모드 전용 */}
-        {viewMode === 'list' && (
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex bg-gray-100 rounded-full p-0.5">
-              {(['dDay', 'name', 'seasonal'] as SortKey[]).map((key) => (
-                <button
-                  key={key}
-                  onClick={() => setSortBy(key)}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                    sortBy === key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                  }`}
-                >
-                  {SORT_CYCLE[key].label}
-                </button>
-              ))}
-            </div>
+        {/* 정렬·제철 행 — 필터/검색 모드(비그룹)일 때만 표시 */}
+        {(viewMode === 'list' || viewMode === 'compact') &&
+          (storageFilter !== '전체' || groupFilter !== '전체' || !!search || seasonalOnly) && (
+          <div className="flex items-center justify-between gap-2 px-0.5">
+            <button onClick={cycleFridgeSort} className="flex items-center gap-1.5 hover:opacity-70 transition-opacity active:scale-95">
+              <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
+              <span className="text-xs font-medium text-gray-600">{SORT_PLAIN[sortBy]}</span>
+            </button>
             {seasonalCount > 0 && (
-              <button
-                onClick={() => setSeasonalOnly(!seasonalOnly)}
-                title={`${season}철 제철 재료만 보기 · ${seasonalCount}개`}
+              <button onClick={() => setSeasonalOnly(!seasonalOnly)}
                 className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                  seasonalOnly
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
-                }`}
-              >
-                {(() => {
-                  const Icon = SEASON_ICON[season];
-                  return (
-                    <span className="inline-flex items-center gap-1">
-                      <Icon size={11} strokeWidth={2.4} />
-                      <span>제철 {seasonalCount}만 보기</span>
-                    </span>
-                  );
-                })()}
+                  seasonalOnly ? 'bg-brand-primary text-white' : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
+                }`}>
+                {(() => { const Icon = SEASON_ICON[season]; return <span className="inline-flex items-center gap-1"><Icon size={11} strokeWidth={2.4} /><span>제철 {seasonalCount}</span></span>; })()}
               </button>
             )}
           </div>
         )}
 
-            {/* 아이템 리스트 — viewMode === 'list'일 때만 표시 */}
+            {/* ─── 리스트 뷰 ─── */}
             {viewMode === 'list' && (
               storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
                 <>
                   {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
                     const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
                     if (group.length === 0) return null;
-                    const grpEmoji = grp === '신선식품' ? '🥬' : grp === '가공식품' ? '🍜' : grp === '음료·간식' ? '🧃' : '📦';
                     return (
-                      <div key={grp}>
+                      <div key={grp} id={`fridge-group-${grp}`} className="scroll-mt-28">
                         <div className="flex items-center gap-2 mb-2 mt-1">
-                          <span className="text-base font-bold text-gray-900 tracking-tight">{grpEmoji} {grp}</span>
+                          <span className="text-base font-bold text-gray-900 tracking-tight">{FOOD_GROUP_EMOJI[grp]} {grp}</span>
                           <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                           <div className="flex-1 h-px bg-gray-100" />
+                          <button onClick={cycleFridgeSort} title={SORT_PLAIN[sortBy]}
+                            className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
+                            <SlidersHorizontal size={12} strokeWidth={2.5} />
+                            <span className="text-xs font-medium">{SORT_PLAIN[sortBy]}</span>
+                          </button>
+                          <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+                            <button type="button" onClick={() => setViewMode('list')}
+                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              <List size={12} strokeWidth={2.4} />
+                            </button>
+                            <button type="button" onClick={() => setViewMode('compact')}
+                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              <LayoutGrid size={12} strokeWidth={2.4} />
+                            </button>
+                          </div>
                         </div>
                         <AnimatePresence mode="popLayout">
                           <div className="flex flex-col gap-3">
                             {group.map((item, index) => (
-                              <SwipeFoodCard
-                                key={item.id}
-                                item={item}
-                                dDay={item.dDay}
-                                index={index}
-                                onDiscard={handleDiscard}
-                                onUpdate={updateItem}
+                              <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index}
+                                onDiscard={handleDiscard} onUpdate={updateItem}
                                 expanded={expandedFoodId === item.id}
-                                onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)}
-                              />
+                                onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)} />
                             ))}
                           </div>
                         </AnimatePresence>
@@ -434,18 +425,87 @@ export default function FridgePage() {
               ) : (
                 <AnimatePresence mode="popLayout">
                   {items.map((item, index) => (
-                    <SwipeFoodCard
-                      key={item.id}
-                      item={item}
-                      dDay={item.dDay}
-                      index={index}
-                      onDiscard={handleDiscard}
-                      onUpdate={updateItem}
+                    <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index}
+                      onDiscard={handleDiscard} onUpdate={updateItem}
                       expanded={expandedFoodId === item.id}
-                      onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)}
-                    />
+                      onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)} />
                   ))}
                 </AnimatePresence>
+              )
+            )}
+
+            {/* ─── 간략(그리드) 뷰 ─── */}
+            {viewMode === 'compact' && (
+              storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
+                <>
+                  {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
+                    const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
+                    if (group.length === 0) return null;
+                    return (
+                      <div key={grp} id={`fridge-group-${grp}`} className="scroll-mt-28">
+                        <div className="flex items-center gap-2 mb-2 mt-1">
+                          <span className="text-base font-bold text-gray-900 tracking-tight">{FOOD_GROUP_EMOJI[grp]} {grp}</span>
+                          <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
+                          <div className="flex-1 h-px bg-gray-100" />
+                          <button onClick={cycleFridgeSort} title={SORT_PLAIN[sortBy]}
+                            className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
+                            <SlidersHorizontal size={12} strokeWidth={2.5} />
+                            <span className="text-xs font-medium">{SORT_PLAIN[sortBy]}</span>
+                          </button>
+                          <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+                            <button type="button" onClick={() => setViewMode('list')}
+                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              <List size={12} strokeWidth={2.4} />
+                            </button>
+                            <button type="button" onClick={() => setViewMode('compact')}
+                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              <LayoutGrid size={12} strokeWidth={2.4} />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {group.map((item) => {
+                            const tone = getFoodCategoryTone(item.foodCategory);
+                            return (
+                              <button key={item.id} onClick={() => setCompactDetailId(item.id)}
+                                className="rounded-2xl overflow-hidden bg-white border border-gray-100 text-left active:scale-95 transition-transform">
+                                <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
+                                  <span className="text-3xl" aria-hidden>{tone.emoji}</span>
+                                  {item.dDay <= 3 && (
+                                    <span className={`absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${item.dDay <= 0 ? 'bg-red-500 text-white' : 'bg-orange-400 text-white'}`}>
+                                      {item.dDay <= 0 ? 'D-day' : `D-${item.dDay}`}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                <div className="grid grid-cols-3 gap-2">
+                  {items.map((item) => {
+                    const tone = getFoodCategoryTone(item.foodCategory);
+                    return (
+                      <button key={item.id} onClick={() => setCompactDetailId(item.id)}
+                        className="rounded-2xl overflow-hidden bg-white border border-gray-100 text-left active:scale-95 transition-transform">
+                        <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
+                          <span className="text-3xl" aria-hidden>{tone.emoji}</span>
+                          {item.dDay <= 3 && (
+                            <span className={`absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${item.dDay <= 0 ? 'bg-red-500 text-white' : 'bg-orange-400 text-white'}`}>
+                              {item.dDay <= 0 ? 'D-day' : `D-${item.dDay}`}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                      </button>
+                    );
+                  })}
+                </div>
               )
             )}
 
@@ -573,6 +633,41 @@ export default function FridgePage() {
           </>
         )}
       </div>
+
+      {/* ─── 간략 뷰 상세 바텀시트 ─── */}
+      <AnimatePresence>
+        {compactDetailItem && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/40" onClick={() => setCompactDetailId(null)} />
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl overflow-y-auto max-h-[88vh] pb-10"
+            >
+              <div className="sticky top-0 bg-white pt-3 pb-2 flex flex-col items-center">
+                <div className="w-8 h-1 bg-gray-200 rounded-full" />
+              </div>
+              <div className="flex items-center justify-between px-4 pb-1">
+                <span className="text-sm font-bold text-gray-900 truncate">{compactDetailItem.name}</span>
+                <button onClick={() => setCompactDetailId(null)}
+                  className="shrink-0 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors" aria-label="닫기">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                </button>
+              </div>
+              <div className="px-4 pt-1">
+                <SwipeFoodCard item={compactDetailItem} dDay={compactDetailDDay} index={0}
+                  onDiscard={(id) => { handleDiscard(id); setCompactDetailId(null); }}
+                  onUpdate={updateItem}
+                  expanded={true}
+                  onToggle={() => setCompactDetailId(null)}
+                  hideToggle={true}
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* 칸 상세 바텀 시트 — 시각화에서 칸 탭 시 */}
       <SectionDetailSheet
