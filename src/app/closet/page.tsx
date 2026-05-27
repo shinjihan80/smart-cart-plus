@@ -569,12 +569,41 @@ export default function ClosetPage() {
 
         {/* 정렬 세그먼트 + 보기 방식 */}
         <div className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-1.5 px-0.5">
-          <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
-          <span className="text-xs font-medium text-gray-500">{SORT_LABEL[sortBy]}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide flex-1">
+          {/* 1행: 필터 레이블 + 보기 방식 토글 */}
+          <div className="flex items-center justify-between px-0.5">
+            <div className="flex items-center gap-1.5">
+              <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
+              <span className="text-xs font-medium text-gray-600">{SORT_LABEL[sortBy]}</span>
+            </div>
+            <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === 'list'}
+                onClick={() => setViewMode('list')}
+                title="리스트 보기"
+                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+              >
+                <List size={13} strokeWidth={2.4} />
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === 'compact'}
+                onClick={() => setViewMode('compact')}
+                title="간략 보기"
+                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+              >
+                <LayoutGrid size={13} strokeWidth={2.4} />
+              </button>
+            </div>
+          </div>
+          {/* 2행: 정렬 pills */}
+          <div className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide">
             {(weather
               ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast']
               : ['name', 'thickness', 'wornMost', 'wornLeast']
@@ -590,33 +619,6 @@ export default function ClosetPage() {
               </button>
             ))}
           </div>
-          <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === 'list'}
-              onClick={() => setViewMode('list')}
-              title="리스트 보기"
-              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-              }`}
-            >
-              <List size={13} strokeWidth={2.4} />
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === 'compact'}
-              onClick={() => setViewMode('compact')}
-              title="간략 보기"
-              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-              }`}
-            >
-              <LayoutGrid size={13} strokeWidth={2.4} />
-            </button>
-          </div>
-        </div>
         </div>
 
         {/* ─── 리스트 뷰 ─── */}
