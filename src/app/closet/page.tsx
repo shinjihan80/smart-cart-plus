@@ -188,7 +188,7 @@ export default function ClosetPage() {
             {hibernatingCount > 0 && activeTab === 'closet' && (
               <button
                 onClick={() => setShowHibernating(!showHibernating)}
-                className={`text-sm font-semibold px-2.5 py-1 rounded-full transition-colors ${
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${
                   showHibernating
                     ? 'bg-brand-primary text-white'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
@@ -272,7 +272,7 @@ export default function ClosetPage() {
             <>
               <div className="flex items-center gap-2">
                 <EmojiIcon emoji="📊" size={16} className="text-gray-600" />
-                <span className="text-sm font-bold text-gray-700">이번 주 착용 요약</span>
+                <span className="text-base font-bold text-gray-900 tracking-tight">이번 주 착용 요약</span>
               </div>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -305,7 +305,7 @@ export default function ClosetPage() {
           <>
             <div className="flex items-center gap-2">
               <EmojiIcon emoji="👗" size={16} className="text-brand-primary" />
-              <span className="text-sm font-bold text-gray-700">코디 추천 시작 전</span>
+              <span className="text-base font-bold text-gray-900 tracking-tight">코디 추천 시작 전</span>
             </div>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -351,7 +351,7 @@ export default function ClosetPage() {
             <>
               <div className="flex items-center gap-2">
                 <EmojiIcon emoji="🆕" size={16} className="text-gray-600" />
-                <span className="text-sm font-bold text-gray-700">아직 안 입어본 옷 {untried.length}벌</span>
+                <span className="text-base font-bold text-gray-900 tracking-tight">아직 안 입어본 옷 {untried.length}벌</span>
               </div>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -391,7 +391,7 @@ export default function ClosetPage() {
             <>
               <div className="flex items-center gap-2">
                 <EmojiIcon emoji="🔥" size={16} className="text-gray-600" />
-                <span className="text-sm font-bold text-gray-700">자주 입는 옷 TOP 3</span>
+                <span className="text-base font-bold text-gray-900 tracking-tight">자주 입는 옷 TOP 3</span>
               </div>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -461,7 +461,7 @@ export default function ClosetPage() {
         {/* 빠른 추가 */}
         <div className="flex items-center gap-2">
           <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
-          <span className="text-sm font-bold text-gray-700">빠른 추가</span>
+          <span className="text-base font-bold text-gray-900 tracking-tight">빠른 추가</span>
         </div>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -518,40 +518,28 @@ export default function ClosetPage() {
         {activeTab === 'closet' && (<>
         {/* 프로필 필터 (프로필 2명 이상일 때만) */}
         {profiles.length >= 2 && (
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
-            <button
-              onClick={() => setOwnerFilter('전체')}
-              className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                ownerFilter === '전체'
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              전체 보기
-            </button>
-            {profiles.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setOwnerFilter(p.id)}
-                className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  ownerFilter === p.id
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {p.name}
-              </button>
-            ))}
-            <button
-              onClick={() => setOwnerFilter('공용')}
-              className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                ownerFilter === '공용'
-                  ? 'bg-gray-500 text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              공용
-            </button>
+          <div role="tablist" aria-label="구성원 필터" className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide w-fit">
+            {([
+              { key: '전체', label: '전체' },
+              ...profiles.map((p) => ({ key: p.id, label: p.name })),
+              { key: '공용', label: '공용' },
+            ] as { key: string; label: string }[]).map(({ key, label }) => {
+              const isActive = ownerFilter === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setOwnerFilter(key)}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -565,7 +553,7 @@ export default function ClosetPage() {
               const idx = cycle.indexOf(sortBy);
               setSortBy(cycle[(idx + 1) % cycle.length]);
             }}
-            className="text-sm text-gray-600 font-medium px-2.5 py-1 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors whitespace-nowrap"
+            className="text-xs text-gray-500 font-medium px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors whitespace-nowrap"
           >
             {SORT_LABEL[sortBy]}
           </button>
@@ -580,9 +568,8 @@ export default function ClosetPage() {
               return (
                 <div key={grp}>
                   <div className="flex items-center gap-2 mb-2 mt-1">
-                    <span className="text-sm px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
-                      {GROUP_EMOJI[grp]} {grp} {group.length}
-                    </span>
+                    <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
+                    <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                     <div className="flex-1 h-px bg-gray-100" />
                   </div>
                   <AnimatePresence mode="popLayout">

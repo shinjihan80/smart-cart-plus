@@ -47,11 +47,11 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
     <>
       <div className="flex items-center gap-2">
         <EmojiIcon emoji="🎲" size={16} className="text-gray-700" />
-        <span className="text-sm font-bold text-gray-700">오늘 뭐 먹지?</span>
+        <span className="text-base font-bold text-gray-900 tracking-tight">오늘 뭐 먹지?</span>
         <button
           onClick={handleShuffle}
           disabled={spinning || matched.length < 2}
-          className="ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-brand-primary/50 text-brand-primary hover:bg-brand-primary/5 active:scale-95 transition-all disabled:opacity-40"
+          className="ml-auto flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-40"
         >
           <RefreshCw size={12} strokeWidth={2.5} className="shrink-0" />
           다시 고르기

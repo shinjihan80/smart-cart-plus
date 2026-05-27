@@ -55,14 +55,18 @@ export default function NotificationSettings() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: 0.3 }}
-      className={CARD}
-      style={CARD_SHADOW}
-    >
-      <h3 className="text-xs text-gray-400 font-medium mb-2">알림 설정</h3>
+    <>
+      <div className="flex items-center gap-2">
+        <EmojiIcon emoji="🔔" size={16} className="text-gray-600" />
+        <span className="text-base font-bold text-gray-900 tracking-tight">알림 설정</span>
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springTransition, delay: 0.3 }}
+        className={CARD}
+        style={CARD_SHADOW}
+      >
 
       {/* 오늘 닫은 알림 — dismiss 항목이 1건 이상이면 표시 */}
       {dismissed.length > 0 && (
@@ -125,6 +129,7 @@ export default function NotificationSettings() {
           </div>
         ))}
       </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { FoodItem } from '@/types';
 import { matchRecipes, type Recipe } from '@/lib/recipes';
@@ -65,7 +66,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
     <>
       <div className="flex items-center gap-2">
         <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
-        <span className="text-sm font-bold text-gray-700">오늘의 메뉴 추천</span>
+        <span className="text-base font-bold text-gray-900 tracking-tight">오늘의 메뉴 추천</span>
         <div className="flex items-center gap-1.5 ml-auto shrink-0">
             {favoriteCount > 0 && (
               <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
@@ -79,9 +80,9 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
             )}
             <button
               onClick={() => setBrowserOpen(true)}
-              className="text-xs font-medium px-3 py-1.5 rounded-xl border border-brand-primary/50 text-brand-primary hover:bg-brand-primary/5 active:scale-95 transition-all whitespace-nowrap"
+              className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap"
             >
-              전체 보기 →
+              전체 보기 <ChevronRight size={12} />
             </button>
           </div>
       </div>

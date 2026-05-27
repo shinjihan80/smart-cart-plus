@@ -2,18 +2,23 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function AppInfo() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: 0.4 }}
-      className={CARD}
-      style={CARD_SHADOW}
-    >
-      <h3 className="text-xs text-gray-400 font-medium mb-2">앱 정보</h3>
+    <>
+      <div className="flex items-center gap-2">
+        <EmojiIcon emoji="ℹ️" size={16} className="text-gray-600" />
+        <span className="text-base font-bold text-gray-900 tracking-tight">앱 정보</span>
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springTransition, delay: 0.4 }}
+        className={CARD}
+        style={CARD_SHADOW}
+      >
       <div className="flex flex-col gap-1.5 text-xs text-gray-400">
         <div className="flex justify-between">
           <span>버전</span>
@@ -57,6 +62,7 @@ export default function AppInfo() {
           <span className="text-xs text-gray-300">© NEMOA</span>
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 }

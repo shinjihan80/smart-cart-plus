@@ -51,17 +51,18 @@ export default function FeedbackToggles() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...springTransition, delay: 0.2 }}
-      className={CARD}
-      style={CARD_SHADOW}
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <EmojiIcon emoji="✨" size={16} className="text-brand-primary" />
-        <span className="text-xs text-gray-400 font-medium">피드백</span>
+    <>
+      <div className="flex items-center gap-2">
+        <EmojiIcon emoji="✨" size={16} className="text-gray-600" />
+        <span className="text-base font-bold text-gray-900 tracking-tight">피드백</span>
       </div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...springTransition, delay: 0.2 }}
+        className={CARD}
+        style={CARD_SHADOW}
+      >
       <div className="flex flex-col gap-2">
         {toggles.map((t) => (
           <button
@@ -89,6 +90,7 @@ export default function FeedbackToggles() {
           </button>
         ))}
       </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 }

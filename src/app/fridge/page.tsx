@@ -407,7 +407,7 @@ export default function FridgePage() {
                     return (
                       <div key={grp}>
                         <div className="flex items-center gap-2 mb-2 mt-1">
-                          <span className="text-sm font-bold text-gray-700">{grpEmoji} {grp}</span>
+                          <span className="text-base font-bold text-gray-900 tracking-tight">{grpEmoji} {grp}</span>
                           <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                           <div className="flex-1 h-px bg-gray-100" />
                         </div>
@@ -507,7 +507,7 @@ export default function FridgePage() {
 
             <div className="flex items-center gap-2">
               <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
-              <span className="text-sm font-bold text-gray-700">빠른 추가</span>
+              <span className="text-base font-bold text-gray-900 tracking-tight">빠른 추가</span>
             </div>
             <motion.div
               initial={{ opacity: 0, y: 16 }}

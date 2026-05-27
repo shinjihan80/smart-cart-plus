@@ -26,7 +26,7 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
     <>
       <div className="flex items-center gap-2">
         <EmojiIcon emoji="🔄" size={16} className="text-amber-600" />
-        <span className="text-sm font-bold text-gray-700">재구매 추천</span>
+        <span className="text-base font-bold text-gray-900 tracking-tight">재구매 추천</span>
         <span className="text-xs text-gray-400">소진한 식품 기반</span>
       </div>
       <motion.div

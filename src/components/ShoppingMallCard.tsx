@@ -33,7 +33,7 @@ export default function ShoppingMallCard({
     <>
       <div className="flex items-center gap-2">
         <span className="text-base" aria-hidden>{emoji}</span>
-        <h3 className="text-sm font-bold text-gray-700">{title}</h3>
+        <h3 className="text-base font-bold text-gray-900 tracking-tight">{title}</h3>
         {subtitle && <span className="text-xs text-gray-400">{subtitle}</span>}
       </div>
       <motion.div

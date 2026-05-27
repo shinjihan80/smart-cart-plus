@@ -159,6 +159,10 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* 프로필은 마이페이지 > 사용자 탭에서 관리 */}
+        <div className="flex items-center gap-2">
+          <EmojiIcon emoji="👤" size={16} className="text-gray-600" />
+          <span className="text-base font-bold text-gray-900 tracking-tight">프로필 관리</span>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -167,15 +171,12 @@ export default function SettingsPage() {
           style={CARD_SHADOW}
         >
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs text-gray-400 font-medium">프로필 관리</h3>
-              <p className="text-xs text-gray-300 mt-0.5">이름·신체·식습관·아바타 수정</p>
-            </div>
+            <p className="text-xs text-gray-400">이름·신체·식습관·아바타 수정</p>
             <Link
               href="/mypage"
-              className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex items-center gap-1"
+              className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors"
             >
-              마이페이지 →
+              마이페이지 <ChevronRight size={12} />
             </Link>
           </div>
         </motion.div>
@@ -183,6 +184,10 @@ export default function SettingsPage() {
         <NotificationSettings />
 
         {/* 백업 & 내보내기 */}
+        <div className="flex items-center gap-2">
+          <EmojiIcon emoji="📦" size={16} className="text-gray-600" />
+          <span className="text-base font-bold text-gray-900 tracking-tight">백업 & 내보내기</span>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -190,7 +195,6 @@ export default function SettingsPage() {
           className={CARD}
           style={CARD_SHADOW}
         >
-          <h3 className="text-xs text-gray-400 font-medium mb-2">백업 & 내보내기</h3>
           <div className="divide-y divide-gray-50">
             {dataItems.map((m) => (
               <button
@@ -210,6 +214,10 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* 앱 */}
+        <div className="flex items-center gap-2">
+          <EmojiIcon emoji="📱" size={16} className="text-gray-600" />
+          <span className="text-base font-bold text-gray-900 tracking-tight">앱</span>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -217,7 +225,6 @@ export default function SettingsPage() {
           className={CARD}
           style={CARD_SHADOW}
         >
-          <h3 className="text-xs text-gray-400 font-medium mb-2">앱</h3>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('nemoa:replay-onboarding'))}
             className="flex items-center gap-3 w-full py-3 text-left hover:bg-gray-50/50 -mx-2 px-2 rounded-2xl transition-colors"

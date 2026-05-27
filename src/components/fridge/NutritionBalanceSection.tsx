@@ -54,7 +54,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
     <>
       <div className="flex items-center gap-2">
         <EmojiIcon emoji="📊" size={16} className="text-gray-700" />
-        <span className="text-sm font-bold text-gray-700">이번 주 영양 밸런스</span>
+        <span className="text-base font-bold text-gray-900 tracking-tight">이번 주 영양 밸런스</span>
         <div className="flex items-center gap-1.5 text-xs text-gray-400 ml-auto">
           <span>🥬 {balance.vegFruitCount}</span>
           <span className="text-gray-200">·</span>

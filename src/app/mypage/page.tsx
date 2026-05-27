@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { Settings as SettingsIcon, Check, Users } from 'lucide-react';
+import { Settings as SettingsIcon, Check, Users, ChevronRight } from 'lucide-react';
 import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
@@ -272,7 +272,7 @@ export default function MyPage() {
             {/* 사용자 요약 카드 */}
             <div className="flex items-center gap-2">
               <EmojiIcon emoji="📋" size={16} className="text-gray-600" />
-              <h3 className="text-sm font-bold text-gray-700">내 활동 요약</h3>
+              <h3 className="text-base font-bold text-gray-900 tracking-tight">내 활동 요약</h3>
             </div>
             <motion.div
               initial={{ opacity: 0, y: 24 }}
@@ -332,7 +332,7 @@ export default function MyPage() {
               <>
                 <div className="flex items-center gap-2">
                   <EmojiIcon emoji="🗑️" size={16} className="text-gray-600" />
-                  <h3 className="text-sm font-bold text-gray-700">최근 소진 내역</h3>
+                  <h3 className="text-base font-bold text-gray-900 tracking-tight">최근 소진 내역</h3>
                 </div>
                 <motion.div
                   initial={{ opacity: 0, y: 24 }}
@@ -390,13 +390,14 @@ export default function MyPage() {
               <>
                 <div className="flex items-center gap-2">
                   <EmojiIcon emoji="📦" size={16} className="text-gray-600" />
-                  <h3 className="text-sm font-bold text-gray-700">아카이브 ({archived.length}개)</h3>
+                  <h3 className="text-base font-bold text-gray-900 tracking-tight">아카이브 ({archived.length}개)</h3>
                   {archived.length > 5 && (
                     <button
                       onClick={() => setArchiveExpanded(!archiveExpanded)}
-                      className="ml-auto text-sm text-brand-primary font-semibold hover:underline"
+                      className="ml-auto flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors"
                     >
                       {archiveExpanded ? '접기' : `전체 보기 (${archived.length})`}
+                      <ChevronRight size={12} />
                     </button>
                   )}
                 </div>
