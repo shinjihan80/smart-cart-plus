@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { LayoutGrid, List } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
@@ -567,8 +567,12 @@ export default function ClosetPage() {
           </div>
         )}
 
-        {/* 정렬 버튼만 — 카테고리 FILTERS는 카드 칩에 이미 표시되어 제거 */}
         {/* 정렬 세그먼트 + 보기 방식 */}
+        <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-1.5 px-0.5">
+          <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
+          <span className="text-xs font-medium text-gray-500">{SORT_LABEL[sortBy]}</span>
+        </div>
         <div className="flex items-center gap-2">
           <div className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide flex-1">
             {(weather
@@ -612,6 +616,7 @@ export default function ClosetPage() {
               <LayoutGrid size={13} strokeWidth={2.4} />
             </button>
           </div>
+        </div>
         </div>
 
         {/* ─── 리스트 뷰 ─── */}
