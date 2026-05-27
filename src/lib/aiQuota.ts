@@ -3,33 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createSharedStore } from './sharedStore';
 import { usePlan } from './usePlan';
-import type { PlanTier } from '@/types';
+import { TIER_LIMITS, type AiAgent } from './aiQuotaConstants';
 
-export type AiAgent = 'vision' | 'parser' | 'nutrition' | 'url' | 'fridgeSection';
-
-export const TIER_LIMITS: Record<PlanTier, Record<AiAgent, number>> = {
-  free: {
-    vision:        5,
-    parser:        10,
-    nutrition:      2,
-    url:            2,
-    fridgeSection:  5,
-  },
-  pro_lite: {
-    vision:        30,
-    parser:        60,
-    nutrition:     15,
-    url:           15,
-    fridgeSection: 30,
-  },
-  pro_max: {
-    vision:        Infinity,
-    parser:        Infinity,
-    nutrition:     Infinity,
-    url:           Infinity,
-    fridgeSection: Infinity,
-  },
-};
+export type { AiAgent };
+export { TIER_LIMITS };
 
 // backward-compat alias — consumers that haven't migrated still compile
 export const DAILY_LIMITS = TIER_LIMITS.free;
