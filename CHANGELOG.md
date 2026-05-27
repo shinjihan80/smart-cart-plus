@@ -6,6 +6,53 @@ NEMOA 버전별 변경 이력. 최신 → 과거 역순.
 
 ---
 
+## v2.0 — 2026-05-27 · 운영 인프라 + 사용자 문서 정비
+
+**테마: 비개발자 운영 환경 완성 + 사용자 도움말·메뉴얼 전면 개편 + 관리자 자동 동기화**
+
+### Added — /manual 웹 가이드 페이지 (신규)
+- `src/app/manual/page.tsx` — 10섹션 데스크탑 가이드 사이트
+  - 좌측 고정 사이드바 목차 (IntersectionObserver scroll-aware 하이라이트)
+  - 사이드바 버튼 클릭 시 fixed 스크롤 컨테이너 기준 부드러운 이동
+  - 섹션: 앱 소개 · 시작하기 · 홈 화면 · 냉장고 · 옷장 · AI 자동 등록 · 알림 · 마이페이지 · 설정 · **요금제** · FAQ
+- `src/app/manual/layout.tsx` — `fixed inset-0 z-50` 오버레이로 앱 모바일 쉘(하단 탭바·max-w-md) 우회
+- `public/help/screen-*.jpg` — Playwright로 캡처한 실제 앱 스크린샷 5종 (홈·냉장고·옷장·마이·설정)
+- `PhoneFrame` 컴포넌트: 200×400px 폰 목업 + 각 섹션 우측 배치
+
+### Updated — /help 모바일 도움말 전면 업데이트
+- v1.4~v1.9 모든 기능 반영
+  - 냉장고 3탭 구조 (🧊/💡/🛒), AI 보관 위치 추천, FridgeModelPicker
+  - 옷장 3탭 (👔/👗/🛍️), ClosetCleanupSection 파트너 처분 메뉴
+  - 마이페이지 AnnualSummary 연간 히스토그램, 사용자 교체
+  - 알림 5종 (D-Day·D-1·D-3·날씨·홈 배너 3종)
+- **요금제 섹션 추가**: 베이직(무료) / Pro Lite(₩4,900/월) / Pro Max(₩9,900/월) 3단 카드 + 기능 요약
+- **FAQ 9개**: "Pro로 업그레이드하면 뭐가 달라지나요?" 항목 신규 추가
+
+### Added — /api/admin/config 런타임 노출
+- `src/app/api/admin/config/route.ts` — TIER_LIMITS·RATE_LIMITS를 JSON으로 노출
+  - `Infinity` → `null` 직렬화 (JSON 호환)
+  - X-Admin-Token 인증, Cache-Control 1h, CORS 허용
+- `src/lib/aiQuotaConstants.ts` — TIER_LIMITS·RATE_LIMITS를 `'use client'` 없이 분리
+  - 서버(API 라우트)·클라이언트(aiQuota.ts) 양쪽 임포트 가능
+
+### Updated — nemoa-admin 비개발자 리팩터
+- 7개 페이지(settings · storage · categories · users · usage · quota · partners)
+  - env var 이름, npm 명령어, 파일 경로, 코드 블록 → 제거
+  - 상태 카드(켜짐/꺼짐), 한국어 안내, 넘버드 로드맵으로 교체
+- `quota/page.tsx` → async 서버 컴포넌트 + 10분 ISR
+  - nemoa `/api/admin/config` 실시간 페칭 → 한도 변경 시 자동 반영
+  - API 미응답 시 경고 배너 + 폴백 표시
+
+### Fixed — 문서 수치 오류
+- `CLAUDE.md` v1.5 항목: AI 한도 `vision10/parser20` → `vision5/parser10/nutrition2/url2/fridgeSection5`
+- `MONETIZATION.md` 현 상태: 동일 수치 수정 + v2.0으로 갱신
+
+### Chore
+- `package.json` version: `1.0.0` → `2.0.0`
+- `nemoa-admin/CLAUDE.md` 신설: 프로젝트 개요·페이지 구성·API 구조·변경이력
+
+---
+
 ## v1.9 — 2026-05-15 · AI 추천 강화 + Pro 결제 예고 + 익명 텔레메트리
 
 **테마: 사용자 행동 데이터 기반 추천 알고리즘 강화 + Pro 출시 준비 + 익명 집계 인프라**
