@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { calcRemainingDays } from '@/components/FoodTags';
@@ -135,15 +135,15 @@ export default function MyPage() {
     };
   }, [activeTab]);
 
-  const foodItemsList     = items.filter(isFoodItem);
-  const clothingItemsList = items.filter(isClothingItem);
+  const foodItemsList     = useMemo(() => items.filter(isFoodItem),     [items]);
+  const clothingItemsList = useMemo(() => items.filter(isClothingItem), [items]);
 
-  const urgentCount = foodItemsList.filter(
+  const urgentCount = useMemo(() => foodItemsList.filter(
     (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
-  ).length;
-  const coldCount   = foodItemsList.filter((f) => f.storageType === '냉장').length;
-  const frozenCount = foodItemsList.filter((f) => f.storageType === '냉동').length;
-  const roomCount   = foodItemsList.filter((f) => f.storageType === '실온').length;
+  ).length, [foodItemsList]);
+  const coldCount   = useMemo(() => foodItemsList.filter((f) => f.storageType === '냉장').length,  [foodItemsList]);
+  const frozenCount = useMemo(() => foodItemsList.filter((f) => f.storageType === '냉동').length,  [foodItemsList]);
+  const roomCount   = useMemo(() => foodItemsList.filter((f) => f.storageType === '실온').length,  [foodItemsList]);
 
   function handleBackupNow() {
     const filename = downloadBackup();
@@ -554,12 +554,18 @@ export default function MyPage() {
       )}
 
       {/* 사용자 교체 시트 */}
+      <AnimatePresence>
       {showSwitcher && (
         <div
           className="fixed inset-0 z-50 flex items-end"
           onClick={() => setShowSwitcher(false)}
         >
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+          <motion.div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -613,6 +619,7 @@ export default function MyPage() {
           </motion.div>
         </div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

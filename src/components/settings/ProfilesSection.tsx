@@ -93,13 +93,35 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
   const [expanded, setExpanded] = useState(initialExpanded);
   const rec = recommendSizes(profile.body);
 
+  const photoInputId = `avatar-photo-${profile.id}`;
+  const isPhoto = !!profile.avatar && isPhotoAvatar(profile.avatar);
+  const isEmoji = !!profile.avatar && !isPhoto;
+  const noAvatar = !profile.avatar;
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const dataUrl = await compressPhoto(file);
+      onUpdate({ avatar: dataUrl });
+    } catch {
+      /* 무시 — 파일 오류 시 변경 없음 */
+    }
+  }
+
   return (
     <div className="rounded-2xl border border-gray-100 overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 transition-colors"
       >
-        <EmojiIcon emoji={profile.avatar ?? RELATION_EMOJI[profile.relation]} size={22} className="text-gray-700" />
+        {isPhoto ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={profile.avatar} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+        ) : (
+          <EmojiIcon emoji={profile.avatar ?? RELATION_EMOJI[profile.relation]} size={22} className="text-gray-700 shrink-0" />
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">
             {profile.name}
@@ -268,98 +290,74 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
               </div>
 
               {/* 아바타 */}
-              {(() => {
-                const photoInputId = `avatar-photo-${profile.id}`;
-                const isPhoto = !!profile.avatar && isPhotoAvatar(profile.avatar);
-                const isEmoji = !!profile.avatar && !isPhoto;
-                const noAvatar = !profile.avatar;
-
-                async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-                  const file = e.target.files?.[0];
-                  e.target.value = '';
-                  if (!file) return;
-                  try {
-                    const dataUrl = await compressPhoto(file);
-                    onUpdate({ avatar: dataUrl });
-                  } catch {
-                    /* 무시 — 파일 오류 시 변경 없음 */
-                  }
-                }
-
-                return (
-                  <div>
-                    <label className="text-sm text-gray-500">아바타</label>
-                    {/* 현재 아바타 프리뷰 + 사진 업로드 */}
-                    <div className="flex items-center gap-3 mt-1.5 mb-2">
-                      <div className="relative shrink-0">
-                        <div className="w-14 h-14 rounded-full bg-brand-primary/10 border-2 border-brand-primary/20 flex items-center justify-center overflow-hidden">
-                          {isPhoto ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={profile.avatar} alt="아바타" className="w-full h-full object-cover" />
-                          ) : (
-                            <EmojiIcon
-                              emoji={profile.avatar ?? RELATION_EMOJI[profile.relation]}
-                              size={28}
-                              className="text-brand-primary"
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-1.5">
-                        <label
-                          htmlFor={photoInputId}
-                          className="cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 transition-colors"
-                        >
-                          <Camera size={12} /> 사진 등록
-                        </label>
-                        <input
-                          id={photoInputId}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handlePhotoChange}
-                        />
-                        {(isPhoto || isEmoji) && (
-                          <button
-                            onClick={() => onUpdate({ avatar: undefined })}
-                            className="text-xs text-gray-400 hover:text-brand-warning transition-colors text-left"
-                          >
-                            기본으로 돌리기
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    {/* 이모지 선택 */}
-                    <div className="flex gap-1 flex-wrap">
-                      {/* 기본 이모지 (관계 기반) */}
+              <div>
+                <label className="text-sm text-gray-500">아바타</label>
+                {/* 프리뷰 + 사진 업로드 */}
+                <div className="flex items-center gap-3 mt-1.5 mb-2">
+                  <div className="w-14 h-14 rounded-full bg-brand-primary/10 border-2 border-brand-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
+                    {isPhoto ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={profile.avatar} alt="아바타" className="w-full h-full object-cover" />
+                    ) : (
+                      <EmojiIcon
+                        emoji={profile.avatar ?? RELATION_EMOJI[profile.relation]}
+                        size={28}
+                        className="text-brand-primary"
+                      />
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label
+                      htmlFor={photoInputId}
+                      className="cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 transition-colors"
+                    >
+                      <Camera size={12} /> 사진 등록
+                    </label>
+                    <input
+                      id={photoInputId}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handlePhotoChange}
+                    />
+                    {(isPhoto || isEmoji) && (
                       <button
                         onClick={() => onUpdate({ avatar: undefined })}
-                        title="관계 기본"
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                          noAvatar
-                            ? 'ring-2 ring-brand-primary bg-brand-primary/10'
-                            : 'bg-white border border-gray-200 hover:bg-gray-50'
-                        }`}
+                        className="text-xs text-gray-400 hover:text-brand-warning transition-colors text-left"
                       >
-                        <EmojiIcon emoji={RELATION_EMOJI[profile.relation]} size={18} className="text-gray-700" />
+                        기본으로 돌리기
                       </button>
-                      {AVATAR_EMOJIS.map((a) => (
-                        <button
-                          key={a}
-                          onClick={() => onUpdate({ avatar: a })}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                            profile.avatar === a
-                              ? 'ring-2 ring-brand-primary bg-brand-primary/10'
-                              : 'bg-white border border-gray-200 hover:bg-gray-50'
-                          }`}
-                        >
-                          <EmojiIcon emoji={a} size={18} className="text-gray-700" />
-                        </button>
-                      ))}
-                    </div>
+                    )}
                   </div>
-                );
-              })()}
+                </div>
+                {/* 이모지 선택 */}
+                <div className="flex gap-1 flex-wrap">
+                  <button
+                    onClick={() => onUpdate({ avatar: undefined })}
+                    title="관계 기본"
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                      noAvatar
+                        ? 'ring-2 ring-brand-primary bg-brand-primary/10'
+                        : 'bg-white border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    <EmojiIcon emoji={RELATION_EMOJI[profile.relation]} size={18} className="text-gray-700" />
+                  </button>
+                  {AVATAR_EMOJIS.map((a) => (
+                    <button
+                      key={a}
+                      onClick={() => onUpdate({ avatar: a })}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                        profile.avatar === a
+                          ? 'ring-2 ring-brand-primary bg-brand-primary/10'
+                          : 'bg-white border border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <EmojiIcon emoji={a} size={18} className="text-gray-700" />
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* 식습관 */}
               <div>
