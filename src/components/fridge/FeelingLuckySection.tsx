@@ -13,6 +13,7 @@ import { useProfiles } from '@/lib/profile';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import EmojiIcon from '@/components/EmojiIcon';
+import { RefreshCw } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
@@ -50,9 +51,10 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
         <button
           onClick={handleShuffle}
           disabled={spinning || matched.length < 2}
-          className="ml-auto text-xs font-medium px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm hover:border-brand-primary/50 hover:text-brand-primary active:scale-95 transition-all disabled:opacity-40"
+          className="ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm hover:border-brand-primary/50 hover:text-brand-primary active:scale-95 transition-all disabled:opacity-40"
         >
-          🔀 다시 고르기
+          <RefreshCw size={12} strokeWidth={2.5} className="shrink-0" />
+          다시 고르기
         </button>
       </div>
       <motion.div
