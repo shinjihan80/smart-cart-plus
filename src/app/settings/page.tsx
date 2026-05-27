@@ -17,14 +17,7 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared'
 import NotificationSettings from '@/components/mypage/NotificationSettings';
 import AppInfo              from '@/components/mypage/AppInfo';
 import ProfilesSection      from '@/components/settings/ProfilesSection';
-import KnowledgeSummary     from '@/components/settings/KnowledgeSummary';
 import FeedbackToggles      from '@/components/settings/FeedbackToggles';
-import StorageUsage         from '@/components/settings/StorageUsage';
-import AiQuotaCard          from '@/components/settings/AiQuotaCard';
-import ErrorLogCard         from '@/components/settings/ErrorLogCard';
-import ProPreviewCard       from '@/components/settings/ProPreviewCard';
-import PartnerClickInsights from '@/components/settings/PartnerClickInsights';
-import ReasonsInsights      from '@/components/settings/ReasonsInsights';
 import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
 
@@ -179,7 +172,7 @@ export default function SettingsPage() {
           </Link>
           <div className="flex-1 min-w-0">
             <h1 className="text-base font-bold text-gray-900 tracking-tight">설정</h1>
-            <p className="text-sm text-gray-400 mt-0.5">알림 · 백업 · 데이터 관리</p>
+            <p className="text-sm text-gray-400 mt-0.5">알림 · 백업 · 내보내기</p>
           </div>
           <PaletteButton />
         </div>
@@ -250,20 +243,6 @@ export default function SettingsPage() {
         </motion.div>
 
         <FeedbackToggles />
-
-        <ProPreviewCard />
-
-        <PartnerClickInsights />
-
-        <ReasonsInsights />
-
-        <AiQuotaCard />
-
-        <ErrorLogCard />
-
-        <StorageUsage />
-
-        <KnowledgeSummary />
 
         <AppInfo />
       </div>

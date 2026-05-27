@@ -43,12 +43,12 @@ import { useProfiles }                           from '@/lib/profile';
 import ProfilesSection                           from '@/components/settings/ProfilesSection';
 import ProPreviewCard                            from '@/components/settings/ProPreviewCard';
 import AiQuotaCard                              from '@/components/settings/AiQuotaCard';
-import AppInfo                                  from '@/components/mypage/AppInfo';
 
-type MyTab = 'user' | 'overview' | 'shopping' | 'closet' | 'cook';
+type MyTab = 'user' | 'plan' | 'overview' | 'shopping' | 'closet' | 'cook';
 
 const TABS: { id: MyTab; emoji: string; label: string }[] = [
   { id: 'user',     emoji: '👤', label: '사용자' },
+  { id: 'plan',     emoji: '💳', label: '요금제' },
   { id: 'overview', emoji: '📊', label: '요약' },
   { id: 'shopping', emoji: '🛒', label: '쇼핑' },
   { id: 'closet',   emoji: '👕', label: '옷장' },
@@ -56,7 +56,7 @@ const TABS: { id: MyTab; emoji: string; label: string }[] = [
 ];
 
 const isMyTab = (v: unknown): v is MyTab =>
-  v === 'user' || v === 'overview' || v === 'shopping' || v === 'closet' || v === 'cook';
+  v === 'user' || v === 'plan' || v === 'overview' || v === 'shopping' || v === 'closet' || v === 'cook';
 
 const RELATION_EMOJI: Record<string, string> = {
   본인: '👤', 배우자: '💞', 자녀: '🧒', 부모: '🧑‍🦳', 기타: '👥',
@@ -292,15 +292,13 @@ export default function MyPage() {
 
             {/* 프로필 관리 */}
             <ProfilesSection />
+          </>
+        )}
 
-            {/* 플랜 정보 */}
+        {activeTab === 'plan' && (
+          <>
             <ProPreviewCard />
-
-            {/* AI 사용량 */}
             <AiQuotaCard />
-
-            {/* 앱 정보 */}
-            <AppInfo />
           </>
         )}
 
