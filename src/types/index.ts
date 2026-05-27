@@ -4,6 +4,7 @@
 export type StorageType = '냉장' | '냉동' | '실온';
 export type Thickness   = '얇음' | '보통' | '두꺼움';
 export type WeatherTag  = '봄' | '여름' | '가을' | '겨울' | '우천' | '맑음';
+export type PlanTier    = 'free' | 'pro_lite' | 'pro_max';
 
 // ────────────────────────────────────────────────
 // A. 식품 (Food)

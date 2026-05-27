@@ -37,6 +37,8 @@ import WeeklySummarySection                       from '@/components/mypage/Week
 import FrequentIngredientsSection                  from '@/components/mypage/FrequentIngredientsSection';
 import SeasonalHistorySection                    from '@/components/mypage/SeasonalHistorySection';
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
+import PlanGate                                  from '@/components/PlanGate';
+import { usePlan, PLAN_LABEL }                   from '@/lib/usePlan';
 
 type MyTab = 'overview' | 'shopping' | 'closet' | 'cook';
 
@@ -51,6 +53,7 @@ const isMyTab = (v: unknown): v is MyTab =>
   v === 'overview' || v === 'shopping' || v === 'closet' || v === 'cook';
 
 export default function MyPage() {
+  const { tier } = usePlan();
   const { items, archived, discardCount, discardHistory, addItems, restoreFromArchive } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
@@ -193,7 +196,7 @@ export default function MyPage() {
             </div>
             <div>
               <p className="text-base font-bold text-gray-900">네모아 사용자</p>
-              <p className="text-xs text-gray-400 mt-0.5">Pro 플랜 · AI 비서 활성화</p>
+              <p className="text-xs text-gray-400 mt-0.5">{PLAN_LABEL[tier]} 플랜 · AI 비서 활성화</p>
             </div>
           </div>
           <p className="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 tracking-wide text-center">
@@ -269,11 +272,15 @@ export default function MyPage() {
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="이번 주 활동">
-              <WeeklySummarySection discardHistory={discardHistory} />
+              <PlanGate feature="이번 주 활동 리포트">
+                <WeeklySummarySection discardHistory={discardHistory} />
+              </PlanGate>
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="이번 달 활동">
-              <MonthlySummarySection discardHistory={discardHistory} />
+              <PlanGate feature="이번 달 활동 리포트">
+                <MonthlySummarySection discardHistory={discardHistory} />
+              </PlanGate>
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="자주 구매하는 재료">
@@ -284,7 +291,9 @@ export default function MyPage() {
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="올해 활동 요약">
-              <AnnualSummarySection discardHistory={discardHistory} />
+              <PlanGate feature="올해 활동 연간 요약">
+                <AnnualSummarySection discardHistory={discardHistory} />
+              </PlanGate>
             </SectionErrorBoundary>
 
             {/* 아카이브 — 요약 탭 끝 (소진/복원 = 데이터 관리) */}
@@ -396,7 +405,9 @@ export default function MyPage() {
         {activeTab === 'closet' && (
           <>
             <SectionErrorBoundary label="착용 로그 분석">
-              <WearStatsSection items={items} />
+              <PlanGate feature="착용 로그 분석">
+                <WearStatsSection items={items} />
+              </PlanGate>
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="계절 보관">
@@ -412,7 +423,9 @@ export default function MyPage() {
         {activeTab === 'cook' && (
           <>
             <SectionErrorBoundary label="조리 로그 분석">
-              <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+              <PlanGate feature="조리 로그 분석">
+                <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+              </PlanGate>
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="제철 식탁 히스토리">

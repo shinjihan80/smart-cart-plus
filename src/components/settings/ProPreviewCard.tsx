@@ -2,25 +2,89 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Cloud, Infinity as InfinityIcon, Gift, ChevronDown } from 'lucide-react';
+import { Check, X, ChevronDown } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
+import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
+import { TIER_LIMITS } from '@/lib/aiQuota';
+import type { PlanTier } from '@/types';
 
-/**
- * Pro 미리보기 카드 — Phase A 결제 인프라 도입 전 단계.
- *
- * 베이직 사용자에게 "Pro 가 무엇인지" 한 화면에 보여주고,
- * 출시 시점에 알림을 받을 수 있도록 의향(intent) 만 저장.
- *
- * 실제 결제 흐름은 Phase A 에서 Supabase + 토스페이먼츠 연동 예정.
- */
+const TIERS: { id: PlanTier; price: string; priceYear: string; color: string }[] = [
+  { id: 'free',     price: '무료',       priceYear: '',            color: 'border-gray-200 bg-gray-50' },
+  { id: 'pro_lite', price: '₩4,900/월',  priceYear: '₩49,000/년', color: 'border-brand-primary bg-brand-primary/5' },
+  { id: 'pro_max',  price: '₩9,900/월',  priceYear: '₩99,000/년', color: 'border-brand-primary bg-brand-primary/5' },
+];
+
+interface Row {
+  label:    string;
+  free:     React.ReactNode;
+  pro_lite: React.ReactNode;
+  pro_max:  React.ReactNode;
+}
+
+function Tick({ ok }: { ok: boolean }) {
+  return ok
+    ? <Check size={12} strokeWidth={3} className="text-brand-primary" />
+    : <X    size={12} strokeWidth={3} className="text-gray-300" />;
+}
+
+const ROWS: Row[] = [
+  {
+    label: 'AI 사진 분석',
+    free:     `${TIER_LIMITS.free.vision}회/일`,
+    pro_lite: `${TIER_LIMITS.pro_lite.vision}회/일`,
+    pro_max:  '무제한',
+  },
+  {
+    label: 'AI 텍스트 파싱',
+    free:     `${TIER_LIMITS.free.parser}회/일`,
+    pro_lite: `${TIER_LIMITS.pro_lite.parser}회/일`,
+    pro_max:  '무제한',
+  },
+  {
+    label: '영양·URL 분석',
+    free:     `${TIER_LIMITS.free.nutrition + TIER_LIMITS.free.url}회/일`,
+    pro_lite: `${TIER_LIMITS.pro_lite.nutrition + TIER_LIMITS.pro_lite.url}회/일`,
+    pro_max:  '무제한',
+  },
+  {
+    label:    '분석 리포트',
+    free:     <Tick ok={false} />,
+    pro_lite: <Tick ok={true}  />,
+    pro_max:  <Tick ok={true}  />,
+  },
+  {
+    label:    '클라우드 동기화',
+    free:     <Tick ok={false} />,
+    pro_lite: '수동',
+    pro_max:  '자동',
+  },
+  {
+    label: '레시피 컬렉션',
+    free:     '42종',
+    pro_lite: '142종+',
+    pro_max:  '142종+',
+  },
+  {
+    label:    '파트너 할인',
+    free:     <Tick ok={false} />,
+    pro_lite: <Tick ok={true}  />,
+    pro_max:  <Tick ok={true}  />,
+  },
+  {
+    label:    '우선 지원',
+    free:     <Tick ok={false} />,
+    pro_lite: '이메일',
+    pro_max:  '24시간 내',
+  },
+];
+
 export default function ProPreviewCard() {
-  const [expanded, setExpanded] = useState(false);
-  const [interested, setInterested] = useState(false);
+  const [expanded,    setExpanded]    = useState(false);
+  const [interested,  setInterested]  = useState(false);
+  const { tier: currentTier }         = usePlan();
 
   function handleNotifyMe() {
-    try {
-      localStorage.setItem('nemoa-pro-interest', String(Date.now()));
-    } catch { /* storage full — 조용히 실패 */ }
+    try { localStorage.setItem('nemoa-pro-interest', String(Date.now())); } catch { /* quota */ }
     setInterested(true);
   }
 
@@ -32,77 +96,89 @@ export default function ProPreviewCard() {
       className={`${CARD} relative overflow-hidden`}
       style={{
         ...CARD_SHADOW,
-        backgroundImage: 'linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(79, 70, 229, 0) 60%)',
+        backgroundImage: 'linear-gradient(135deg, rgba(79,70,229,0.04) 0%, rgba(79,70,229,0) 60%)',
       }}
     >
-      {/* 우상단 장식 */}
-      <div className="absolute -top-3 -right-3 w-20 h-20 rounded-full bg-brand-primary/5" />
+      {/* header */}
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h3 className="text-sm font-bold text-gray-900">
+            NEMOA <span className="text-brand-primary">요금제</span>
+          </h3>
+          <p className="text-xs text-gray-400">결제 연동 출시 예정</p>
+        </div>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          aria-label={expanded ? '접기' : '자세히'}
+          className="text-xs text-gray-500 font-medium flex items-center gap-0.5 hover:text-gray-700"
+        >
+          {expanded ? '접기' : '상세 비교'}
+          <ChevronDown
+            size={14}
+            strokeWidth={2}
+            className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+        </button>
+      </div>
 
-      <div className="relative">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-2xl bg-brand-primary text-white flex items-center justify-center">
-              <Sparkles size={18} strokeWidth={2.5} />
+      {/* tier cards */}
+      <div className="grid grid-cols-3 gap-1.5 mb-3">
+        {TIERS.map((t) => {
+          const isCurrent = t.id === currentTier;
+          return (
+            <div
+              key={t.id}
+              className={`rounded-2xl border px-2 py-2.5 text-center ${t.color} ${isCurrent ? 'ring-2 ring-brand-primary/40' : ''}`}
+            >
+              {isCurrent && (
+                <span className="text-[9px] font-bold text-brand-primary block mb-0.5">현재</span>
+              )}
+              <p className="text-xs font-bold text-gray-900 leading-tight">{PLAN_LABEL[t.id]}</p>
+              <p className="text-[10px] text-brand-primary font-semibold mt-0.5 leading-tight">{t.price}</p>
+              {t.priceYear && (
+                <p className="text-[9px] text-gray-400 leading-tight">{t.priceYear}</p>
+              )}
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-gray-900">
-                NEMOA <span className="text-brand-primary">Pro</span>
-              </h3>
-              <p className="text-xs text-gray-400">곧 출시 예정</p>
+          );
+        })}
+      </div>
+
+      {/* comparison table */}
+      {expanded && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden mb-3"
+        >
+          <div className="rounded-2xl bg-white border border-gray-100 overflow-hidden">
+            {/* column header */}
+            <div className="grid grid-cols-[1fr,auto,auto,auto] gap-x-2 px-3 py-2 border-b border-gray-50 bg-gray-50/60">
+              <span className="text-[10px] text-gray-400 font-medium">기능</span>
+              <span className="text-[10px] text-gray-400 font-medium min-w-[2.8rem] text-center">무료</span>
+              <span className="text-[10px] text-brand-primary font-medium min-w-[3.2rem] text-center">Lite</span>
+              <span className="text-[10px] text-brand-primary font-bold min-w-[3.2rem] text-center">Max</span>
             </div>
+            {ROWS.map((row, i) => (
+              <div
+                key={row.label}
+                className={`grid grid-cols-[1fr,auto,auto,auto] gap-x-2 items-center px-3 py-1.5 ${i < ROWS.length - 1 ? 'border-b border-gray-50' : ''}`}
+              >
+                <span className="text-xs text-gray-500">{row.label}</span>
+                <span className="text-[10px] text-gray-400 tabular-nums min-w-[2.8rem] text-center flex justify-center">{row.free}</span>
+                <span className="text-[10px] text-brand-primary tabular-nums min-w-[3.2rem] text-center flex justify-center">{row.pro_lite}</span>
+                <span className="text-[10px] text-brand-primary font-semibold tabular-nums min-w-[3.2rem] text-center flex justify-center">{row.pro_max}</span>
+              </div>
+            ))}
           </div>
-          <button
-            onClick={() => setExpanded(!expanded)}
-            aria-label={expanded ? '접기' : '자세히'}
-            className="text-xs text-gray-500 font-medium flex items-center gap-0.5 hover:text-gray-700"
-          >
-            {expanded ? '접기' : '자세히'}
-            <ChevronDown
-              size={14}
-              strokeWidth={2}
-              className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
-            />
-          </button>
-        </div>
+        </motion.div>
+      )}
 
-        <p className="text-xs text-gray-600 leading-relaxed mb-3">
-          무제한 AI · 여러 기기 자동 동기화 · 파트너 직접 연동까지.
-          <br />월 <span className="font-bold text-gray-900">₩4,900</span> · 연 <span className="font-bold text-gray-900">₩49,000</span> (2개월 무료)
-        </p>
-
-        {/* 핵심 4가지 — 항상 노출 */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <FeatureBadge icon={InfinityIcon} label="AI 무제한" sub="베이직 한도 해제" />
-          <FeatureBadge icon={Cloud}         label="자동 동기화" sub="여러 기기 즉시 반영" />
-          <FeatureBadge icon={Gift}          label="파트너 할인" sub="제휴 코드 자동 적용" />
-          <FeatureBadge icon={Sparkles}      label="레시피 142+" sub="계절·셰프 큐레이션" />
-        </div>
-
-        {/* 펼침 — 상세 비교 */}
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="rounded-2xl bg-white border border-gray-100 px-3 py-2.5 text-xs mb-3">
-              <ComparisonRow label="AI vision"      basic="10회/일"  pro="무제한" />
-              <ComparisonRow label="AI parser"      basic="20회/일"  pro="무제한" />
-              <ComparisonRow label="저장 코디"      basic="20개"     pro="무제한" />
-              <ComparisonRow label="프로필"         basic="2명"      pro="무제한" />
-              <ComparisonRow label="클라우드 동기화" basic="수동"     pro="자동" />
-              <ComparisonRow label="백업 이력"      basic="로컬만"   pro="30일 서버" />
-              <ComparisonRow label="레시피"         basic="42종"     pro="142종+" />
-              <ComparisonRow label="우선 지원"      basic="이메일"   pro="24시간 내" last />
-            </div>
-          </motion.div>
-        )}
-
-        {/* CTA */}
-        {interested ? (
+      {/* CTA */}
+      {currentTier === 'free' && (
+        interested ? (
           <div className="text-xs text-brand-success font-semibold text-center py-2 rounded-2xl bg-brand-success/5 border border-brand-success/15">
-            ✓ 출시 알림 신청 완료 — 정식 출시 시 이메일/푸시로 알려드릴게요
+            ✓ 출시 알림 신청 완료 — 정식 출시 시 알려드릴게요
           </div>
         ) : (
           <button
@@ -111,34 +187,13 @@ export default function ProPreviewCard() {
           >
             출시 알림 받기
           </button>
-        )}
-      </div>
+        )
+      )}
+      {currentTier !== 'free' && (
+        <div className="text-xs text-brand-primary font-semibold text-center py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15">
+          {PLAN_LABEL[currentTier]} 플랜 이용 중
+        </div>
+      )}
     </motion.div>
-  );
-}
-
-function FeatureBadge({
-  icon: Icon, label, sub,
-}: { icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>; label: string; sub: string }) {
-  return (
-    <div className="flex items-center gap-2 p-2 rounded-2xl bg-white border border-gray-100">
-      <Icon size={16} strokeWidth={2.25} className="text-brand-primary shrink-0" />
-      <div className="min-w-0">
-        <p className="text-xs font-bold text-gray-900 truncate">{label}</p>
-        <p className="text-[10px] text-gray-400 truncate">{sub}</p>
-      </div>
-    </div>
-  );
-}
-
-function ComparisonRow({
-  label, basic, pro, last,
-}: { label: string; basic: string; pro: string; last?: boolean }) {
-  return (
-    <div className={`grid grid-cols-[1fr,auto,auto] gap-2 items-center py-1 ${last ? '' : 'border-b border-gray-50'}`}>
-      <span className="text-xs text-gray-500">{label}</span>
-      <span className="text-[10px] text-gray-400 tabular-nums text-right min-w-[3.5rem]">{basic}</span>
-      <span className="text-[10px] font-bold text-brand-primary tabular-nums text-right min-w-[3.5rem]">{pro}</span>
-    </div>
   );
 }

@@ -2,33 +2,40 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { createSharedStore } from './sharedStore';
-
-/**
- * AI 호출 일일 한도 관리.
- *
- * 베이직(무료) 사용자당 기본 한도:
- *   - vision        (사진 분석):       10회/일
- *   - parser        (텍스트 파싱):     20회/일
- *   - nutrition     (영양 분석):        5회/일
- *   - url           (URL 분석):         5회/일
- *   - fridgeSection (AI 보관 위치):    10회/일 (Phase 8.0 Step 5)
- *
- * Pro 구독 연동 전에는 모든 사용자가 베이직 한도 적용.
- * Pro 활성화 시 quotaFor에서 Infinity 반환하도록 확장.
- */
+import { usePlan } from './usePlan';
+import type { PlanTier } from '@/types';
 
 export type AiAgent = 'vision' | 'parser' | 'nutrition' | 'url' | 'fridgeSection';
 
-export const DAILY_LIMITS: Record<AiAgent, number> = {
-  vision:        10,
-  parser:        20,
-  nutrition:      5,
-  url:            5,
-  fridgeSection: 10,
+export const TIER_LIMITS: Record<PlanTier, Record<AiAgent, number>> = {
+  free: {
+    vision:        5,
+    parser:        10,
+    nutrition:      2,
+    url:            2,
+    fridgeSection:  5,
+  },
+  pro_lite: {
+    vision:        30,
+    parser:        60,
+    nutrition:     15,
+    url:           15,
+    fridgeSection: 30,
+  },
+  pro_max: {
+    vision:        Infinity,
+    parser:        Infinity,
+    nutrition:     Infinity,
+    url:           Infinity,
+    fridgeSection: Infinity,
+  },
 };
 
+// backward-compat alias — consumers that haven't migrated still compile
+export const DAILY_LIMITS = TIER_LIMITS.free;
+
 interface QuotaState {
-  date:   string;              // YYYY-MM-DD — 날짜 바뀌면 카운트 리셋
+  date:   string;              // YYYY-MM-DD
   counts: Record<AiAgent, number>;
 }
 
@@ -57,31 +64,30 @@ const store = createSharedStore<QuotaState>({
 });
 
 export function useAiQuota() {
-  const state = store.useStore();
+  const { tier } = usePlan();
+  const limits   = TIER_LIMITS[tier];
+  const state    = store.useStore();
   const [tick, setTick] = useState(0);
 
-  // 자정 지나면 리셋 — 앱이 열려 있을 때 1분마다 날짜 체크
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 60_000);
     return () => clearInterval(id);
   }, []);
   useEffect(() => {
-    if (state.date !== todayStr()) {
-      store.setState(() => emptyState());
-    }
+    if (state.date !== todayStr()) store.setState(() => emptyState());
   }, [tick, state.date]);
 
   const remaining = useCallback((agent: AiAgent): number => {
-    const used = state.counts[agent] ?? 0;
-    return Math.max(0, DAILY_LIMITS[agent] - used);
-  }, [state]);
+    const limit = limits[agent];
+    if (!isFinite(limit)) return Infinity;
+    return Math.max(0, limit - (state.counts[agent] ?? 0));
+  }, [state, limits]);
 
-  const canUse = useCallback((agent: AiAgent): boolean => {
-    return remaining(agent) > 0;
-  }, [remaining]);
+  const canUse = useCallback((agent: AiAgent): boolean => remaining(agent) > 0, [remaining]);
 
   const consume = useCallback((agent: AiAgent): boolean => {
     if (!canUse(agent)) return false;
+    if (!isFinite(limits[agent])) return true; // unlimited — skip tracking
     store.setState((prev) => {
       const today = todayStr();
       if (prev.date !== today) {
@@ -90,7 +96,7 @@ export function useAiQuota() {
       return { ...prev, counts: { ...prev.counts, [agent]: (prev.counts[agent] ?? 0) + 1 } };
     });
     return true;
-  }, [canUse]);
+  }, [canUse, limits]);
 
-  return { state, remaining, canUse, consume, limits: DAILY_LIMITS };
+  return { state, remaining, canUse, consume, limits };
 }

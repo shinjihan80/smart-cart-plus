@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useAiQuota, DAILY_LIMITS, type AiAgent } from '@/lib/aiQuota';
+import { useAiQuota, TIER_LIMITS, type AiAgent } from '@/lib/aiQuota';
+import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
@@ -14,6 +15,8 @@ const AGENTS: Array<{ key: AiAgent; label: string; emoji: string }> = [
 
 export default function AiQuotaCard() {
   const { remaining } = useAiQuota();
+  const { tier }      = usePlan();
+  const limits        = TIER_LIMITS[tier];
 
   return (
     <motion.div
@@ -28,28 +31,37 @@ export default function AiQuotaCard() {
           <EmojiIcon emoji="🤖" size={16} className="text-brand-primary" />
           <span className="text-xs text-gray-400 font-medium">AI 오늘 남은 횟수</span>
         </div>
-        <span className="text-xs text-gray-400">무료 · 매일 00시 리셋</span>
+        <span className="text-xs text-gray-400">{PLAN_LABEL[tier]} · 매일 00시 리셋</span>
       </div>
+
       <div className="grid grid-cols-2 gap-2">
         {AGENTS.map((a) => {
           const left  = remaining(a.key);
-          const total = DAILY_LIMITS[a.key];
-          const pct   = Math.round((left / total) * 100);
-          const tone  = left === 0 ? 'text-brand-warning' : left < total * 0.3 ? 'text-amber-600' : 'text-brand-primary';
+          const total = limits[a.key];
+          const isUnlimited = !isFinite(total);
+          const pct   = isUnlimited ? 100 : total > 0 ? Math.round((left / total) * 100) : 0;
+          const isLow = !isUnlimited && left < total * 0.3;
+          const tone  = !isUnlimited && left === 0
+            ? 'text-brand-warning'
+            : isLow
+            ? 'text-amber-600'
+            : 'text-brand-primary';
           return (
             <div key={a.key} className="rounded-xl border border-gray-100 p-2.5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-600">
-                  {a.emoji} {a.label}
-                </span>
+                <span className="text-xs text-gray-600">{a.emoji} {a.label}</span>
                 <span className={`text-xs font-bold tabular-nums ${tone}`}>
-                  {left}/{total}
+                  {isUnlimited ? '∞' : `${left}/${total}`}
                 </span>
               </div>
               <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full ${
-                    left === 0 ? 'bg-brand-warning' : left < total * 0.3 ? 'bg-amber-400' : 'bg-brand-primary/60'
+                    !isUnlimited && left === 0
+                      ? 'bg-brand-warning'
+                      : isLow
+                      ? 'bg-amber-400'
+                      : 'bg-brand-primary/60'
                   }`}
                   style={{ width: `${pct}%` }}
                 />
@@ -58,9 +70,12 @@ export default function AiQuotaCard() {
           );
         })}
       </div>
-      <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-        Pro 구독 시 무제한. Phase 7에 결제 연동 예정.
-      </p>
+
+      {tier === 'free' && (
+        <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+          Pro Lite / Pro Max 구독 시 더 많은 AI 호출 사용 가능. 결제 연동 출시 예정.
+        </p>
+      )}
     </motion.div>
   );
 }
