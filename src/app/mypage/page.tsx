@@ -170,8 +170,8 @@ export default function MyPage() {
             </Link>
           </div>
         </div>
-        <div className="px-4 pb-3 overflow-x-auto scrollbar-hide">
-          <div role="tablist" aria-label="마이페이지 탭" className="flex bg-gray-100 rounded-full p-0.5 w-fit">
+        <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
+          <div role="tablist" aria-label="마이페이지 탭" className="flex px-4">
             {TABS.map((t) => {
               const isActive = activeTab === t.id;
               return (
@@ -182,13 +182,13 @@ export default function MyPage() {
                   aria-selected={isActive}
                   onClick={() => setActiveTab(t.id)}
                   className={[
-                    'shrink-0 text-sm font-semibold px-3 py-1.5 rounded-full transition-colors',
+                    'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700',
+                      ? 'font-semibold text-brand-primary border-brand-primary'
+                      : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
                   ].join(' ')}
                 >
-                  <span className="mr-1">{t.emoji}</span>{t.label}
+                  {t.emoji} {t.label}
                 </button>
               );
             })}
