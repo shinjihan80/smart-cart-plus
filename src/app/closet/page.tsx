@@ -278,7 +278,7 @@ export default function ClosetPage() {
             >
               <div className="flex items-center gap-2">
                 <EmojiIcon emoji="📊" size={16} className="text-gray-600" />
-                <span className="text-xs text-gray-400 font-medium">이번 주 착용 요약</span>
+                <span className="text-sm font-bold text-gray-700">이번 주 착용 요약</span>
               </div>
               <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
                 최근 7일 동안 <span className="font-bold text-brand-primary tabular-nums">{weekCount}회</span> 착용 · 옷 <span className="font-bold text-brand-primary tabular-nums">{uniqueItems.size}벌</span> 썼어요
@@ -309,7 +309,7 @@ export default function ClosetPage() {
           >
             <div className="flex items-center gap-2 mb-1.5">
               <EmojiIcon emoji="👗" size={16} className="text-brand-primary" />
-              <span className="text-xs text-gray-400 font-medium">코디 추천 시작 전</span>
+              <span className="text-sm font-bold text-gray-700">코디 추천 시작 전</span>
             </div>
             <p className="text-sm text-gray-700 leading-relaxed">
               현재 옷이 {activeClothing.length}벌이에요. 옷을 더 추가하면 날씨·계절에 맞는 코디 추천이 풍부해져요.
@@ -353,7 +353,7 @@ export default function ClosetPage() {
             >
               <div className="flex items-center gap-2 mb-2">
                 <EmojiIcon emoji="🆕" size={16} className="text-gray-600" />
-                <span className="text-xs text-gray-400 font-medium">아직 안 입어본 옷 {untried.length}벌</span>
+                <span className="text-sm font-bold text-gray-700">아직 안 입어본 옷 {untried.length}벌</span>
               </div>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                 {untried.map((c) => {
@@ -391,7 +391,7 @@ export default function ClosetPage() {
             >
               <div className="flex items-center gap-2 mb-2">
                 <EmojiIcon emoji="🔥" size={16} className="text-gray-600" />
-                <span className="text-xs text-gray-400 font-medium">자주 입는 옷 TOP 3</span>
+                <span className="text-sm font-bold text-gray-700">자주 입는 옷 TOP 3</span>
               </div>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide">
                 {worn.map((w) => {
@@ -451,6 +451,10 @@ export default function ClosetPage() {
         />
 
         {/* 빠른 추가 */}
+        <div className="flex items-center gap-2">
+          <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
+          <span className="text-sm font-bold text-gray-700">빠른 추가</span>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -458,19 +462,12 @@ export default function ClosetPage() {
           className={CARD}
           style={CARD_SHADOW}
         >
-          <div className="flex items-center gap-2 mb-2.5">
-            <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
-            <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
-          </div>
           {profiles.length >= 2 && (
-            <div className="flex gap-1 mb-2 flex-wrap items-center">
-              <span className="text-sm text-gray-400">누구 것:</span>
+            <div className="flex bg-gray-100 rounded-full p-0.5 mb-2 w-fit">
               <button
                 onClick={() => setQuickAddOwner(undefined)}
-                className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                  !quickAddOwner
-                    ? 'bg-gray-500 text-white'
-                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+                  !quickAddOwner ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                 }`}
               >
                 공용
@@ -479,10 +476,8 @@ export default function ClosetPage() {
                 <button
                   key={p.id}
                   onClick={() => setQuickAddOwner(p.id)}
-                  className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                    quickAddOwner === p.id
-                      ? 'bg-brand-primary text-white'
-                      : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                  className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+                    quickAddOwner === p.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                   }`}
                 >
                   {p.name}

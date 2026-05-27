@@ -517,14 +517,11 @@ export default function FridgePage() {
               style={CARD_SHADOW}
             >
               {profiles.length >= 2 && (
-                <div className="flex gap-1 mb-2 flex-wrap items-center">
-                  <span className="text-sm text-gray-400">누구 것:</span>
+                <div className="flex bg-gray-100 rounded-full p-0.5 mb-2 w-fit">
                   <button
                     onClick={() => setQuickAddOwner(undefined)}
-                    className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                      !quickAddOwner
-                        ? 'bg-gray-500 text-white'
-                        : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                    className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+                      !quickAddOwner ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                     }`}
                   >
                     공용
@@ -533,10 +530,8 @@ export default function FridgePage() {
                     <button
                       key={p.id}
                       onClick={() => setQuickAddOwner(p.id)}
-                      className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                        quickAddOwner === p.id
-                          ? 'bg-brand-primary text-white'
-                          : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                      className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+                        quickAddOwner === p.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                       }`}
                     >
                       {p.name}

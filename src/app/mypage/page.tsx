@@ -277,7 +277,7 @@ export default function MyPage() {
               className={CARD}
               style={CARD_SHADOW}
             >
-              <h3 className="text-xs text-gray-400 font-medium mb-3">내 활동 요약</h3>
+              <h3 className="text-sm font-bold text-gray-700 mb-3">내 활동 요약</h3>
               <div className="grid grid-cols-3 gap-2">
                 <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
                   <span className="text-base font-bold text-gray-900 tabular-nums">{items.length}</span>
@@ -333,7 +333,7 @@ export default function MyPage() {
                 className={CARD}
                 style={CARD_SHADOW}
               >
-                <h3 className="text-xs text-gray-400 font-medium mb-2">최근 소진 내역</h3>
+                <h3 className="text-sm font-bold text-gray-700 mb-2">최근 소진 내역</h3>
                 <div className="flex flex-col gap-2">
                   {discardHistory.slice(0, 5).map((record, i) => (
                     <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
@@ -387,7 +387,7 @@ export default function MyPage() {
                 style={CARD_SHADOW}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xs text-gray-400 font-medium">아카이브 ({archived.length}개)</h3>
+                  <h3 className="text-sm font-bold text-gray-700">아카이브 ({archived.length}개)</h3>
                   {archived.length > 5 && (
                     <button
                       onClick={() => setArchiveExpanded(!archiveExpanded)}
