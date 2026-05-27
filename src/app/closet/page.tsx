@@ -101,6 +101,7 @@ export default function ClosetPage() {
     'nemoa-closet-tab', 'closet',
     (raw) => (isClosetTab(raw) ? raw : null),
   );
+  useEffect(() => { setActiveTab('closet'); }, []);
   const { log: wearLog } = useWearLog();
   const searchInputRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchInputRef, () => setSearch(''));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isFoodItem, type StorageType, type FoodGroup, type FridgeSection, FOOD_GROUP } from '@/types';
 import { useCart } from '@/context/CartContext';
@@ -95,6 +95,7 @@ export default function FridgePage() {
     'nemoa-fridge-tab', 'fridge',
     (raw) => (isFridgeTab(raw) ? raw : null),
   );
+  useEffect(() => { setActiveTab('fridge'); }, []);
   const [fridgeModelId] = useFridgeModel();
   const [activeSection, setActiveSection] = useState<FridgeSection | null>(null);
   const [expandedFoodId, setExpandedFoodId] = useState<string | null>(null);

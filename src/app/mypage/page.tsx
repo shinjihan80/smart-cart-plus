@@ -97,6 +97,7 @@ export default function MyPage() {
     };
     const mapped = HASH_TO_TAB[hash];
     if (mapped && mapped !== activeTab) setActiveTab(mapped);
+    else setActiveTab('user');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
