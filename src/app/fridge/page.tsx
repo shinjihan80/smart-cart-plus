@@ -345,10 +345,10 @@ export default function FridgePage() {
               </div>
               {/* 그룹 칩(신선/가공/음료)은 리스트 모드에서 필터로 활용 — 시각화에선 노이즈라 제거 */}
               {viewMode === 'list' && foodGroupCounts.length > 0 && (
-                <div className="flex gap-1.5 flex-wrap mt-3 pt-3 border-t border-gray-50">
+                <div className="flex gap-3 mt-3 pt-3 border-t border-gray-50">
                   {foodGroupCounts.map(({ group, count }) => (
-                    <span key={group} className="text-xs px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 font-medium tabular-nums">
-                      {group} {count}
+                    <span key={group} className="text-xs text-gray-400">
+                      {group} <strong className="font-semibold text-gray-600 tabular-nums">{count}</strong>
                     </span>
                   ))}
                 </div>
@@ -356,17 +356,22 @@ export default function FridgePage() {
             </motion.div>
 
 
-        {/* 정렬 + 제철 토글 — 리스트 모드 전용
-            STORAGE/GROUP 필터는 카드 칩(❄️ 냉장 / 🥬 신선식품 등)으로
-            이미 표시돼 필터 의미 적음 → 제거. 정렬·제철만 유지 */}
+        {/* 정렬 탭 + 제철 토글 — 리스트 모드 전용 */}
         {viewMode === 'list' && (
           <div className="flex items-center justify-between gap-2">
-            <button
-              onClick={() => setSortBy(SORT_CYCLE[sortBy].next)}
-              className="text-sm text-gray-600 font-medium px-2.5 py-1 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
-            >
-              {SORT_CYCLE[sortBy].label}
-            </button>
+            <div className="flex bg-gray-100 rounded-full p-0.5">
+              {(['dDay', 'name', 'seasonal'] as SortKey[]).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setSortBy(key)}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    sortBy === key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                  }`}
+                >
+                  {SORT_CYCLE[key].label}
+                </button>
+              ))}
+            </div>
             {seasonalCount > 0 && (
               <button
                 onClick={() => setSeasonalOnly(!seasonalOnly)}
@@ -402,9 +407,8 @@ export default function FridgePage() {
                     return (
                       <div key={grp}>
                         <div className="flex items-center gap-2 mb-2 mt-1">
-                          <span className="text-sm px-2 py-0.5 rounded-full font-semibold bg-brand-primary/10 text-brand-primary">
-                            {grpEmoji} {grp} {group.length}
-                          </span>
+                          <span className="text-sm font-bold text-gray-700">{grpEmoji} {grp}</span>
+                          <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                           <div className="flex-1 h-px bg-gray-100" />
                         </div>
                         <AnimatePresence mode="popLayout">
