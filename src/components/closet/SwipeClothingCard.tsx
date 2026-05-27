@@ -25,9 +25,11 @@ interface SwipeClothingCardProps {
   /** 부모가 관리하는 펼침 상태 — 한 번에 하나만 펼치게 */
   expanded?: boolean;
   onToggle?: () => void;
+  /** 바텀시트 등 항상 펼친 컨텍스트에서 토글 버튼 숨김 */
+  hideToggle?: boolean;
 }
 
-export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge, expanded: expandedProp, onToggle }: SwipeClothingCardProps) {
+export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge, expanded: expandedProp, onToggle, hideToggle }: SwipeClothingCardProps) {
   const [expandedLocal, setExpandedLocal] = useState(false);
   const expanded = expandedProp ?? expandedLocal;
   const toggleExpanded = onToggle ?? (() => setExpandedLocal((v) => !v));
@@ -168,19 +170,21 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
           </div>
         </div>
 
-        {/* 상세 버튼 — 카드 하단, 펼침 토글 */}
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-          aria-expanded={expanded}
-          className="mt-3 -mb-1 w-full flex items-center justify-center gap-1 py-2 text-xs font-semibold text-gray-500 hover:text-brand-primary hover:bg-gray-50 rounded-xl transition-colors"
-        >
-          {expanded ? (
-            <>닫기 <ChevronUp size={14} strokeWidth={2.4} /></>
-          ) : (
-            <>상세 보기 <ChevronDown size={14} strokeWidth={2.4} /></>
-          )}
-        </button>
+        {/* 상세 버튼 — 바텀시트 컨텍스트에서는 숨김 */}
+        {!hideToggle && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+            aria-expanded={expanded}
+            className="mt-3 -mb-1 w-full flex items-center justify-center gap-1 py-2 text-xs font-semibold text-gray-500 hover:text-brand-primary hover:bg-gray-50 rounded-xl transition-colors"
+          >
+            {expanded ? (
+              <>닫기 <ChevronUp size={14} strokeWidth={2.4} /></>
+            ) : (
+              <>상세 보기 <ChevronDown size={14} strokeWidth={2.4} /></>
+            )}
+          </button>
+        )}
 
         <AnimatePresence>
           {expanded && (

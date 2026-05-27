@@ -784,10 +784,20 @@ export default function ClosetPage() {
               transition={{ type: 'spring', damping: 32, stiffness: 320 }}
               className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl overflow-y-auto max-h-[88vh] pb-10"
             >
-              <div className="sticky top-0 bg-white pt-3 pb-1 flex flex-col items-center">
-                <div className="w-8 h-1 bg-gray-200 rounded-full" />
+              <div className="sticky top-0 bg-white pt-3 pb-2 px-4 flex items-center justify-between">
+                <div className="w-8 h-1 bg-gray-200 rounded-full mx-auto" />
               </div>
-              <div className="px-4 pt-2">
+              <div className="flex items-center justify-between px-4 pb-1">
+                <span className="text-sm font-bold text-gray-900 truncate">{compactDetailItem.name}</span>
+                <button
+                  onClick={() => setCompactDetailId(null)}
+                  className="shrink-0 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"
+                  aria-label="닫기"
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                </button>
+              </div>
+              <div className="px-4 pt-1">
                 <SwipeClothingCard
                   item={compactDetailItem}
                   index={0}
@@ -798,6 +808,7 @@ export default function ClosetPage() {
                     : undefined}
                   expanded={true}
                   onToggle={() => setCompactDetailId(null)}
+                  hideToggle={true}
                 />
               </div>
             </motion.div>
