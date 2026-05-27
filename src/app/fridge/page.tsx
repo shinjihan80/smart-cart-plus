@@ -238,11 +238,11 @@ export default function FridgePage() {
         {/* ─── 냉장고 탭 ────────────────────────────── */}
         {activeTab === 'fridge' && (
           <>
-            {/* 보기 방식 토글 + 프로필 필터 (리스트 뷰 전용) */}
+            {/* 보기 방식 토글 + 프로필 필터 */}
             <div className="flex items-center justify-between gap-3">
-              {/* 프로필 필터 — underline 탭 스타일 (리스트 뷰에서만, 프로필 2인+) */}
-              {viewMode === 'list' && profiles.length >= 2 ? (
-                <div role="tablist" aria-label="구성원 필터" className="flex gap-4 overflow-x-auto scrollbar-hide">
+              {/* 구성원 필터 — filled chip (냉장고·리스트 뷰 공통, 프로필 2인+) */}
+              {profiles.length >= 2 ? (
+                <div role="tablist" aria-label="구성원 필터" className="flex gap-1.5 overflow-x-auto scrollbar-hide">
                   {[
                     { key: '전체', label: '전체' },
                     ...profiles.map(p => ({ key: p.id, label: p.name })),
@@ -256,10 +256,10 @@ export default function FridgePage() {
                         role="tab"
                         aria-selected={isActive}
                         onClick={() => setOwnerFilter(key)}
-                        className={`shrink-0 pb-1.5 text-sm font-medium transition-colors border-b-2 ${
+                        className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-all ${
                           isActive
-                            ? 'text-gray-900 border-gray-900'
-                            : 'text-gray-400 border-transparent hover:text-gray-600'
+                            ? 'bg-gray-900 text-white'
+                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                         }`}
                       >
                         {label}
