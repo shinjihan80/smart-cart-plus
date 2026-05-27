@@ -269,24 +269,26 @@ export default function ClosetPage() {
             }
           }
           return (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...springTransition, delay: 0.07 }}
-              className={`${CARD} !py-3 !px-4`}
-              style={CARD_SHADOW}
-            >
+            <>
               <div className="flex items-center gap-2">
                 <EmojiIcon emoji="📊" size={16} className="text-gray-600" />
                 <span className="text-sm font-bold text-gray-700">이번 주 착용 요약</span>
               </div>
-              <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
-                최근 7일 동안 <span className="font-bold text-brand-primary tabular-nums">{weekCount}회</span> 착용 · 옷 <span className="font-bold text-brand-primary tabular-nums">{uniqueItems.size}벌</span> 썼어요
-              </p>
-              <div className="mt-2">
-                <WeekdayPatternChart datesByKey={wearLog} label="요일별 착용" />
-              </div>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...springTransition, delay: 0.07 }}
+                className={CARD}
+                style={CARD_SHADOW}
+              >
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  최근 7일 동안 <span className="font-bold text-brand-primary tabular-nums">{weekCount}회</span> 착용 · 옷 <span className="font-bold text-brand-primary tabular-nums">{uniqueItems.size}벌</span> 썼어요
+                </p>
+                <div className="mt-2">
+                  <WeekdayPatternChart datesByKey={wearLog} label="요일별 착용" />
+                </div>
+              </motion.div>
+            </>
           );
         })()}
 
@@ -300,27 +302,29 @@ export default function ClosetPage() {
         {activeTab === 'outfit' && (<>
         {/* 옷이 너무 적으면 코디 추천이 거의 안 나오니 안내 */}
         {activeClothing.length < 3 && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={springTransition}
-            className={CARD}
-            style={CARD_SHADOW}
-          >
-            <div className="flex items-center gap-2 mb-1.5">
+          <>
+            <div className="flex items-center gap-2">
               <EmojiIcon emoji="👗" size={16} className="text-brand-primary" />
               <span className="text-sm font-bold text-gray-700">코디 추천 시작 전</span>
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              현재 옷이 {activeClothing.length}벌이에요. 옷을 더 추가하면 날씨·계절에 맞는 코디 추천이 풍부해져요.
-            </p>
-            <button
-              onClick={() => setActiveTab('shopping')}
-              className="mt-2 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-colors"
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={springTransition}
+              className={CARD}
+              style={CARD_SHADOW}
             >
-              🛍️ 쇼핑 탭으로 가기
-            </button>
-          </motion.div>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                현재 옷이 {activeClothing.length}벌이에요. 옷을 더 추가하면 날씨·계절에 맞는 코디 추천이 풍부해져요.
+              </p>
+              <button
+                onClick={() => setActiveTab('shopping')}
+                className="mt-2 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-colors"
+              >
+                🛍️ 쇼핑 탭으로 가기
+              </button>
+            </motion.div>
+          </>
         )}
 
         {/* 자동 생성 코디 그리드 — 메인 (이미지 위주) — 코디 탭 최상단 */}
@@ -344,32 +348,34 @@ export default function ClosetPage() {
             .slice(0, 5);
           if (untried.length === 0) return null;
           return (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...springTransition, delay: 0.075 }}
-              className={`${CARD} !py-3 !px-4`}
-              style={CARD_SHADOW}
-            >
-              <div className="flex items-center gap-2 mb-2">
+            <>
+              <div className="flex items-center gap-2">
                 <EmojiIcon emoji="🆕" size={16} className="text-gray-600" />
                 <span className="text-sm font-bold text-gray-700">아직 안 입어본 옷 {untried.length}벌</span>
               </div>
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {untried.map((c) => {
-                  const Icon = FASHION_ICON[c.category] ?? FASHION_ICON['기타 액세서리'];
-                  return (
-                    <div key={c.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-100">
-                      <Icon size={13} strokeWidth={2} className="text-amber-700" />
-                      <span className="text-xs font-medium text-amber-700 whitespace-nowrap">{c.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-sm text-gray-400 mt-1.5 leading-relaxed">
-                오늘 한 번 꺼내볼까요? 카드에서 &ldquo;👕 오늘 입었어요&rdquo;로 기록할 수 있어요.
-              </p>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...springTransition, delay: 0.075 }}
+                className={CARD}
+                style={CARD_SHADOW}
+              >
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                  {untried.map((c) => {
+                    const Icon = FASHION_ICON[c.category] ?? FASHION_ICON['기타 액세서리'];
+                    return (
+                      <div key={c.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-100">
+                        <Icon size={13} strokeWidth={2} className="text-amber-700" />
+                        <span className="text-xs font-medium text-amber-700 whitespace-nowrap">{c.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-sm text-gray-400 mt-1.5 leading-relaxed">
+                  오늘 한 번 꺼내볼까요? 카드에서 &ldquo;👕 오늘 입었어요&rdquo;로 기록할 수 있어요.
+                </p>
+              </motion.div>
+            </>
           );
         })()}
 
@@ -382,30 +388,32 @@ export default function ClosetPage() {
             .slice(0, 3);
           if (worn.length === 0) return null;
           return (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...springTransition, delay: 0.08 }}
-              className={`${CARD} !py-3 !px-4`}
-              style={CARD_SHADOW}
-            >
-              <div className="flex items-center gap-2 mb-2">
+            <>
+              <div className="flex items-center gap-2">
                 <EmojiIcon emoji="🔥" size={16} className="text-gray-600" />
                 <span className="text-sm font-bold text-gray-700">자주 입는 옷 TOP 3</span>
               </div>
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {worn.map((w) => {
-                  const Icon = FASHION_ICON[w.item.category] ?? FASHION_ICON['기타 액세서리'];
-                  return (
-                    <div key={w.item.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100 border border-gray-200">
-                      <Icon size={13} strokeWidth={2} className="text-gray-700" />
-                      <span className="text-xs font-medium text-gray-800 whitespace-nowrap">{w.item.name}</span>
-                      <span className="text-sm text-gray-500 tabular-nums">{w.count}회</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...springTransition, delay: 0.08 }}
+                className={CARD}
+                style={CARD_SHADOW}
+              >
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                  {worn.map((w) => {
+                    const Icon = FASHION_ICON[w.item.category] ?? FASHION_ICON['기타 액세서리'];
+                    return (
+                      <div key={w.item.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100 border border-gray-200">
+                        <Icon size={13} strokeWidth={2} className="text-gray-700" />
+                        <span className="text-xs font-medium text-gray-800 whitespace-nowrap">{w.item.name}</span>
+                        <span className="text-sm text-gray-500 tabular-nums">{w.count}회</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </>
           );
         })()}
 

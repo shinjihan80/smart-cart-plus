@@ -270,6 +270,10 @@ export default function MyPage() {
         {activeTab === 'user' && (
           <>
             {/* 사용자 요약 카드 */}
+            <div className="flex items-center gap-2">
+              <EmojiIcon emoji="📋" size={16} className="text-gray-600" />
+              <h3 className="text-sm font-bold text-gray-700">내 활동 요약</h3>
+            </div>
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
@@ -277,7 +281,6 @@ export default function MyPage() {
               className={CARD}
               style={CARD_SHADOW}
             >
-              <h3 className="text-sm font-bold text-gray-700 mb-3">내 활동 요약</h3>
               <div className="grid grid-cols-3 gap-2">
                 <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
                   <span className="text-base font-bold text-gray-900 tabular-nums">{items.length}</span>
@@ -326,26 +329,31 @@ export default function MyPage() {
 
             {/* 소진 히스토리 */}
             {discardHistory.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...springTransition, delay: 0.22 }}
-                className={CARD}
-                style={CARD_SHADOW}
-              >
-                <h3 className="text-sm font-bold text-gray-700 mb-2">최근 소진 내역</h3>
-                <div className="flex flex-col gap-2">
-                  {discardHistory.slice(0, 5).map((record, i) => (
-                    <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
-                      <div className="flex items-center gap-2">
-                        <EmojiIcon emoji={record.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-600" />
-                        <span className="text-sm text-gray-700 truncate">{record.name}</span>
-                      </div>
-                      <span className="text-sm text-gray-400 tabular-nums shrink-0">{record.date}</span>
-                    </div>
-                  ))}
+              <>
+                <div className="flex items-center gap-2">
+                  <EmojiIcon emoji="🗑️" size={16} className="text-gray-600" />
+                  <h3 className="text-sm font-bold text-gray-700">최근 소진 내역</h3>
                 </div>
-              </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...springTransition, delay: 0.22 }}
+                  className={CARD}
+                  style={CARD_SHADOW}
+                >
+                  <div className="flex flex-col gap-2">
+                    {discardHistory.slice(0, 5).map((record, i) => (
+                      <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
+                        <div className="flex items-center gap-2">
+                          <EmojiIcon emoji={record.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-600" />
+                          <span className="text-sm text-gray-700 truncate">{record.name}</span>
+                        </div>
+                        <span className="text-sm text-gray-400 tabular-nums shrink-0">{record.date}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </>
             )}
 
             <SectionErrorBoundary label="내 냉장고">
@@ -379,24 +387,26 @@ export default function MyPage() {
 
             {/* 아카이브 — 요약 탭 끝 (소진/복원 = 데이터 관리) */}
             {archived.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...springTransition, delay: 0.29 }}
-                className={CARD}
-                style={CARD_SHADOW}
-              >
-                <div className="flex items-center justify-between mb-2">
+              <>
+                <div className="flex items-center gap-2">
+                  <EmojiIcon emoji="📦" size={16} className="text-gray-600" />
                   <h3 className="text-sm font-bold text-gray-700">아카이브 ({archived.length}개)</h3>
                   {archived.length > 5 && (
                     <button
                       onClick={() => setArchiveExpanded(!archiveExpanded)}
-                      className="text-sm text-brand-primary font-semibold hover:underline"
+                      className="ml-auto text-sm text-brand-primary font-semibold hover:underline"
                     >
                       {archiveExpanded ? '접기' : `전체 보기 (${archived.length})`}
                     </button>
                   )}
                 </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...springTransition, delay: 0.29 }}
+                  className={CARD}
+                  style={CARD_SHADOW}
+                >
                 <div className="flex flex-col gap-1.5">
                   {(archiveExpanded ? archived : archived.slice(0, 5)).map((item, i) => (
                     <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1 gap-2">
@@ -421,7 +431,8 @@ export default function MyPage() {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+                </motion.div>
+              </>
             )}
           </>
         )}

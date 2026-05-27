@@ -30,42 +30,42 @@ export default function ShoppingMallCard({
   if (malls.length === 0) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-      className="bg-white rounded-[24px] p-5"
-      style={{ boxShadow: '0 6px 16px -8px rgba(31, 31, 46, 0.08)' }}
-    >
-      <div className="flex items-center gap-2 mb-1">
+    <>
+      <div className="flex items-center gap-2">
         <span className="text-base" aria-hidden>{emoji}</span>
-        <h3 className="text-sm font-bold text-gray-900">{title}</h3>
+        <h3 className="text-sm font-bold text-gray-700">{title}</h3>
+        {subtitle && <span className="text-xs text-gray-400">{subtitle}</span>}
       </div>
-      {subtitle && (
-        <p className="text-xs text-gray-500 mb-3">{subtitle}</p>
-      )}
-      <div className="grid grid-cols-3 gap-2">
-        {malls.map((p) => (
-          <a
-            key={p.id}
-            href={p.buildUrl!()}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => logPartnerClick({ partnerId: p.id, domain: p.domain })}
-            className="group relative flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-brand-primary/5 hover:border-brand-primary/20 active:scale-95 transition-all"
-          >
-            <span className="text-xl" aria-hidden>{p.emoji}</span>
-            <span className="text-xs font-medium text-gray-700 group-hover:text-brand-primary truncate w-full text-center">
-              {p.label}
-            </span>
-            <ExternalLink
-              size={10}
-              strokeWidth={2}
-              className="absolute top-1.5 right-1.5 text-gray-300 group-hover:text-brand-primary"
-            />
-          </a>
-        ))}
-      </div>
-    </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+        className="bg-white rounded-[24px] p-5"
+        style={{ boxShadow: '0 6px 16px -8px rgba(31, 31, 46, 0.08)' }}
+      >
+        <div className="grid grid-cols-3 gap-2">
+          {malls.map((p) => (
+            <a
+              key={p.id}
+              href={p.buildUrl!()}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => logPartnerClick({ partnerId: p.id, domain: p.domain })}
+              className="group relative flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-brand-primary/5 hover:border-brand-primary/20 active:scale-95 transition-all"
+            >
+              <span className="text-xl" aria-hidden>{p.emoji}</span>
+              <span className="text-xs font-medium text-gray-700 group-hover:text-brand-primary truncate w-full text-center">
+                {p.label}
+              </span>
+              <ExternalLink
+                size={10}
+                strokeWidth={2}
+                className="absolute top-1.5 right-1.5 text-gray-300 group-hover:text-brand-primary"
+              />
+            </a>
+          ))}
+        </div>
+      </motion.div>
+    </>
   );
 }
