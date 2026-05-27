@@ -567,57 +567,46 @@ export default function ClosetPage() {
           </div>
         )}
 
-        {/* 정렬 세그먼트 + 보기 방식 */}
-        <div className="flex flex-col gap-1.5">
-          {/* 1행: 필터 레이블 + 보기 방식 토글 */}
-          <div className="flex items-center justify-between px-0.5">
-            <div className="flex items-center gap-1.5">
-              <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
-              <span className="text-xs font-medium text-gray-600">{SORT_LABEL[sortBy]}</span>
-            </div>
-            <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={viewMode === 'list'}
-                onClick={() => setViewMode('list')}
-                title="리스트 보기"
-                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                }`}
-              >
-                <List size={13} strokeWidth={2.4} />
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={viewMode === 'compact'}
-                onClick={() => setViewMode('compact')}
-                title="간략 보기"
-                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                }`}
-              >
-                <LayoutGrid size={13} strokeWidth={2.4} />
-              </button>
-            </div>
-          </div>
-          {/* 2행: 정렬 pills */}
-          <div className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide">
-            {(weather
-              ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast']
-              : ['name', 'thickness', 'wornMost', 'wornLeast']
-            ).map((key) => (
-              <button
-                key={key}
-                onClick={() => setSortBy(key as ClosetSort)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  sortBy === key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                }`}
-              >
-                {SORT_LABEL[key as ClosetSort]}
-              </button>
-            ))}
+        {/* 정렬 + 보기 방식 — 한 줄 */}
+        <div className="flex items-center justify-between px-0.5">
+          <button
+            onClick={() => {
+              const keys = weather
+                ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast'] as ClosetSort[]
+                : ['name', 'thickness', 'wornMost', 'wornLeast'] as ClosetSort[];
+              const next = keys[(keys.indexOf(sortBy) + 1) % keys.length];
+              setSortBy(next);
+            }}
+            className="flex items-center gap-1.5 hover:opacity-70 transition-opacity active:scale-95"
+          >
+            <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
+            <span className="text-xs font-medium text-gray-600">{SORT_LABEL[sortBy]}</span>
+          </button>
+          <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'list'}
+              onClick={() => setViewMode('list')}
+              title="리스트 보기"
+              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              <List size={13} strokeWidth={2.4} />
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'compact'}
+              onClick={() => setViewMode('compact')}
+              title="간략 보기"
+              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              <LayoutGrid size={13} strokeWidth={2.4} />
+            </button>
           </div>
         </div>
 
