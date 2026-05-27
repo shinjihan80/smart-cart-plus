@@ -38,11 +38,11 @@ type GroupFilter = '전체' | FashionGroup;
 type ClosetSort  = 'name' | 'thickness' | 'match' | 'wornMost' | 'wornLeast';
 
 const SORT_LABEL: Record<ClosetSort, string> = {
-  name:      '🔤 이름순',
-  thickness: '🧥 두께순',
-  match:     '✨ 오늘 어울림순',
-  wornMost:  '🔥 자주 입는 순',
-  wornLeast: '🌙 오래 안 입은 순',
+  name:      '이름순',
+  thickness: '두께순',
+  match:     '오늘 어울림순',
+  wornMost:  '자주 입는 순',
+  wornLeast: '오래 안 입은 순',
 };
 
 const MATCH_RANK      = { perfect: 0, good: 1, mismatch: 2 } as const;
