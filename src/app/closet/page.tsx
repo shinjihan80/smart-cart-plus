@@ -159,6 +159,13 @@ export default function ClosetPage() {
     count: allClothing.filter((c) => (FASHION_GROUP[c.category] ?? '의류') === g).length,
   })).filter((g) => g.count > 0);
 
+  function cycleSortBy() {
+    const keys = (weather
+      ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast']
+      : ['name', 'thickness', 'wornMost', 'wornLeast']) as ClosetSort[];
+    setSortBy(keys[(keys.indexOf(sortBy) + 1) % keys.length]);
+  }
+
   function scrollToGroup(grp: FashionGroup) {
     const isAlreadyGrouped = filter === '전체' && !search;
     setFilter('전체');
@@ -567,48 +574,25 @@ export default function ClosetPage() {
           </div>
         )}
 
-        {/* 정렬 + 보기 방식 — 한 줄 */}
-        <div className="flex items-center justify-between px-0.5">
-          <button
-            onClick={() => {
-              const keys = weather
-                ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast'] as ClosetSort[]
-                : ['name', 'thickness', 'wornMost', 'wornLeast'] as ClosetSort[];
-              const next = keys[(keys.indexOf(sortBy) + 1) % keys.length];
-              setSortBy(next);
-            }}
-            className="flex items-center gap-1.5 hover:opacity-70 transition-opacity active:scale-95"
-          >
-            <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
-            <span className="text-xs font-medium text-gray-600">{SORT_LABEL[sortBy]}</span>
-          </button>
-          <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === 'list'}
-              onClick={() => setViewMode('list')}
-              title="리스트 보기"
-              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-              }`}
-            >
-              <List size={13} strokeWidth={2.4} />
+        {/* 필터/검색 중일 때만 컨트롤 행 표시 (그룹 헤더가 없는 경우) */}
+        {(filter !== '전체' || !!search) && (
+          <div className="flex items-center justify-between px-0.5">
+            <button onClick={cycleSortBy} className="flex items-center gap-1.5 hover:opacity-70 transition-opacity active:scale-95">
+              <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
+              <span className="text-xs font-medium text-gray-600">{SORT_LABEL[sortBy]}</span>
             </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === 'compact'}
-              onClick={() => setViewMode('compact')}
-              title="간략 보기"
-              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-              }`}
-            >
-              <LayoutGrid size={13} strokeWidth={2.4} />
-            </button>
+            <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+              <button type="button" role="tab" aria-selected={viewMode === 'list'} onClick={() => setViewMode('list')} title="리스트 보기"
+                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <List size={13} strokeWidth={2.4} />
+              </button>
+              <button type="button" role="tab" aria-selected={viewMode === 'compact'} onClick={() => setViewMode('compact')} title="간략 보기"
+                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <LayoutGrid size={13} strokeWidth={2.4} />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ─── 리스트 뷰 ─── */}
         {viewMode === 'list' && (filter === '전체' && !search ? (
@@ -622,6 +606,21 @@ export default function ClosetPage() {
                     <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                     <div className="flex-1 h-px bg-gray-100" />
+                    <button onClick={cycleSortBy} title={SORT_LABEL[sortBy]}
+                      className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
+                      <SlidersHorizontal size={12} strokeWidth={2.5} />
+                      <span className="text-xs font-medium">{SORT_LABEL[sortBy]}</span>
+                    </button>
+                    <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+                      <button type="button" onClick={() => setViewMode('list')}
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        <List size={12} strokeWidth={2.4} />
+                      </button>
+                      <button type="button" onClick={() => setViewMode('compact')}
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        <LayoutGrid size={12} strokeWidth={2.4} />
+                      </button>
+                    </div>
                   </div>
                   <AnimatePresence mode="popLayout">
                     <div className="flex flex-col gap-3">
@@ -672,6 +671,21 @@ export default function ClosetPage() {
                     <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                     <div className="flex-1 h-px bg-gray-100" />
+                    <button onClick={cycleSortBy} title={SORT_LABEL[sortBy]}
+                      className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
+                      <SlidersHorizontal size={12} strokeWidth={2.5} />
+                      <span className="text-xs font-medium">{SORT_LABEL[sortBy]}</span>
+                    </button>
+                    <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+                      <button type="button" onClick={() => setViewMode('list')}
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        <List size={12} strokeWidth={2.4} />
+                      </button>
+                      <button type="button" onClick={() => setViewMode('compact')}
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        <LayoutGrid size={12} strokeWidth={2.4} />
+                      </button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {group.map((item) => {
