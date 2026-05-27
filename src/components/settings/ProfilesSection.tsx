@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, ChevronDown } from 'lucide-react';
 import {
@@ -47,12 +47,17 @@ const COMMON_ALLERGENS = ['갑각류', '땅콩', '계란', '우유', '밀', '대
 
 const AVATAR_OPTIONS = ['🧑', '👩', '👨', '🧒', '👧', '👦', '🧓', '🐶', '🐱', '🦁', '🌸', '⭐', '🎨', '🎯'];
 
-function ProfileCard({ profile, onUpdate, onRemove }: {
+export interface ProfilesSectionHandle {
+  expandMain: () => void;
+}
+
+function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
   profile: Profile;
   onUpdate: (patch: Partial<Omit<Profile, 'id'>>) => void;
   onRemove: () => void;
+  initialExpanded?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(initialExpanded);
   const rec = recommendSizes(profile.body);
 
   return (
@@ -430,11 +435,16 @@ function ProfileCard({ profile, onUpdate, onRemove }: {
   );
 }
 
-export default function ProfilesSection() {
+const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSection(_, ref) {
   const { profiles, add, remove, update } = useProfiles();
   const { showToast } = useToast();
   const [newName, setNewName] = useState('');
   const [newRelation, setNewRelation] = useState<Relation>('자녀');
+  const [mainExpandKey, setMainExpandKey] = useState(0);
+
+  useImperativeHandle(ref, () => ({
+    expandMain: () => setMainExpandKey((k) => k + 1),
+  }));
 
   function handleAdd() {
     const name = newName.trim();
@@ -467,8 +477,9 @@ export default function ProfilesSection() {
       <div className="flex flex-col gap-2">
         {profiles.map((p) => (
           <ProfileCard
-            key={p.id}
+            key={p.isMain ? `main-${mainExpandKey}` : p.id}
             profile={p}
+            initialExpanded={p.isMain && mainExpandKey > 0}
             onUpdate={(patch) => update(p.id, patch)}
             onRemove={() => {
               if (confirm(`"${p.name}" 프로필을 삭제할까요? 연결된 아이템 정보는 유지돼요.`)) {
@@ -522,4 +533,6 @@ export default function ProfilesSection() {
       </div>
     </motion.div>
   );
-}
+});
+
+export default ProfilesSection;

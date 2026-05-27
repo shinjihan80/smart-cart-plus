@@ -40,7 +40,7 @@ import SectionErrorBoundary                      from '@/components/SectionError
 import PlanGate                                  from '@/components/PlanGate';
 import { usePlan, PLAN_LABEL }                   from '@/lib/usePlan';
 import { useProfiles }                           from '@/lib/profile';
-import ProfilesSection                           from '@/components/settings/ProfilesSection';
+import ProfilesSection, { type ProfilesSectionHandle } from '@/components/settings/ProfilesSection';
 import ProPreviewCard                            from '@/components/settings/ProPreviewCard';
 import AiQuotaCard                              from '@/components/settings/AiQuotaCard';
 
@@ -104,6 +104,16 @@ export default function MyPage() {
   // 해시(#weekly-stats 등) 자동 스크롤 — 탭 전환 후 DOM 업데이트 완료를 기다린 뒤 1회 실행
   // 탭 전환은 useEffect 비동기라 native hash scroll이 그 시점엔 element를 못 찾음.
   // 두 번의 rAF로 React commit 후를 잡고, motion 애니메이션 보정용 setTimeout 200ms 폴백.
+  const profilesSectionRef = useRef<ProfilesSectionHandle>(null);
+
+  function handleOpenMyInfo() {
+    if (activeTab !== 'user') setActiveTab('user');
+    setTimeout(() => {
+      profilesSectionRef.current?.expandMain();
+      document.getElementById('profiles')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, activeTab !== 'user' ? 150 : 50);
+  }
+
   const hashScrolledRef = useRef(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -225,7 +235,7 @@ export default function MyPage() {
               </div>
             </div>
             <button
-              onClick={() => setActiveTab('user')}
+              onClick={handleOpenMyInfo}
               className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
             >
               내 정보
@@ -292,7 +302,7 @@ export default function MyPage() {
             </motion.div>
 
             {/* 프로필 관리 */}
-            <ProfilesSection />
+            <ProfilesSection ref={profilesSectionRef} />
           </>
         )}
 
