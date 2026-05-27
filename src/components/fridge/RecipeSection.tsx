@@ -70,11 +70,10 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
         className={CARD}
         style={CARD_SHADOW}
       >
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 mb-3">
             <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
-            <span className="text-xs text-gray-400 font-medium">네모아가 추천하는 오늘의 메뉴</span>
-          </div>
+            <span className="text-sm font-bold text-gray-700">오늘의 메뉴 추천</span>
+            <div className="flex-1 h-px bg-gray-100" />
           <div className="flex items-center gap-1.5 shrink-0">
             {favoriteCount > 0 && (
               <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">

@@ -58,12 +58,11 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
       className={CARD}
       style={CARD_SHADOW}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mb-3">
           <EmojiIcon emoji="📊" size={16} className="text-gray-700" />
-          <span className="text-xs text-gray-400 font-medium">이번 주 영양 밸런스</span>
-        </div>
-        <div className="flex items-center gap-1.5 text-xs text-gray-400">
+          <span className="text-sm font-bold text-gray-700">이번 주 영양 밸런스</span>
+          <div className="flex-1 h-px bg-gray-100" />
+          <div className="flex items-center gap-1.5 text-xs text-gray-400 shrink-0">
           <span>🥬 {balance.vegFruitCount}</span>
           <span className="text-gray-200">·</span>
           <span>🥩 {balance.proteinCount}</span>

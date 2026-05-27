@@ -51,11 +51,10 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
         className={CARD}
         style={CARD_SHADOW}
       >
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-3">
             <EmojiIcon emoji="🎲" size={16} className="text-gray-700" />
-            <span className="text-xs text-gray-400 font-medium">오늘 뭐 먹지?</span>
-          </div>
+            <span className="text-sm font-bold text-gray-700">오늘 뭐 먹지?</span>
+            <div className="flex-1 h-px bg-gray-100" />
           <button
             onClick={handleShuffle}
             disabled={spinning || matched.length < 2}

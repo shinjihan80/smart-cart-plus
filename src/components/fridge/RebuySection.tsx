@@ -32,8 +32,9 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
     >
       <div className="flex items-center gap-2 mb-2.5">
         <EmojiIcon emoji="🔄" size={16} className="text-amber-600" />
-        <span className="text-xs text-gray-400 font-medium">재구매 추천</span>
-        <span className="text-xs text-gray-300">소진한 식품 기반</span>
+        <span className="text-sm font-bold text-gray-700">재구매 추천</span>
+        <span className="text-xs text-gray-400">소진한 식품 기반</span>
+        <div className="flex-1 h-px bg-gray-100" />
       </div>
       <div className="flex gap-1.5 flex-wrap">
         {suggestions.map((s) => (

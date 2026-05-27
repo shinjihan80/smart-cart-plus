@@ -39,8 +39,9 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
             const color = SEASON_COLOR[season];
             return <Icon size={16} strokeWidth={2} className={color.text} />;
           })()}
-          <span className="text-xs text-gray-400 font-medium">지금 {season}철 재료</span>
-          <span className="text-xs text-gray-300">· 가장 맛있을 때</span>
+          <span className="text-sm font-bold text-gray-700">지금 {season}철 재료</span>
+          <span className="text-xs text-gray-400">가장 맛있을 때</span>
+          <div className="flex-1 h-px bg-gray-100" />
         </div>
         <div className="flex gap-1.5 flex-wrap">
           {suggestions.map((p) => {

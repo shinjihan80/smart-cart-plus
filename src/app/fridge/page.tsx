@@ -514,7 +514,8 @@ export default function FridgePage() {
             >
               <div className="flex items-center gap-2 mb-2.5">
                 <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
-                <span className="text-xs text-gray-400 font-medium">빠른 추가</span>
+                <span className="text-sm font-bold text-gray-700">빠른 추가</span>
+                <div className="flex-1 h-px bg-gray-100" />
               </div>
               {profiles.length >= 2 && (
                 <div className="flex gap-1 mb-2 flex-wrap items-center">
