@@ -213,12 +213,17 @@ export default function MyPage() {
           style={CARD_SHADOW}
         >
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 text-2xl">
-              <EmojiIcon
-                emoji={mainProfile.avatar ?? RELATION_EMOJI[mainProfile.relation] ?? '👤'}
-                size={26}
-                className="text-brand-primary"
-              />
+            <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+              {mainProfile.avatar?.startsWith('data:') || mainProfile.avatar?.startsWith('http') ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={mainProfile.avatar} alt="아바타" className="w-full h-full object-cover" />
+              ) : (
+                <EmojiIcon
+                  emoji={mainProfile.avatar ?? RELATION_EMOJI[mainProfile.relation] ?? '👤'}
+                  size={26}
+                  className="text-brand-primary"
+                />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-bold text-gray-900 truncate">{mainProfile.name}</p>

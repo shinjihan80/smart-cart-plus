@@ -16,7 +16,6 @@ import {
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import NotificationSettings from '@/components/mypage/NotificationSettings';
 import AppInfo              from '@/components/mypage/AppInfo';
-import ProfilesSection      from '@/components/settings/ProfilesSection';
 import FeedbackToggles      from '@/components/settings/FeedbackToggles';
 import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
@@ -211,7 +210,27 @@ export default function SettingsPage() {
           </button>
         </motion.div>
 
-        <ProfilesSection />
+        {/* 프로필은 마이페이지 > 사용자 탭에서 관리 */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.06 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xs text-gray-400 font-medium">프로필 관리</h3>
+              <p className="text-xs text-gray-300 mt-0.5">이름·신체·식습관·아바타 수정</p>
+            </div>
+            <Link
+              href="/mypage"
+              className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex items-center gap-1"
+            >
+              마이페이지 →
+            </Link>
+          </div>
+        </motion.div>
 
         <NotificationSettings />
 

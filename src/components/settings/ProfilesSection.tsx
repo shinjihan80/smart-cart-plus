@@ -2,7 +2,7 @@
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, Camera } from 'lucide-react';
 import {
   useProfiles, calcTDEE, resolveDailyCalorieTarget,
   type Profile, type Relation, type Dietary, type Gender, type ActivityLevel,
@@ -45,7 +45,40 @@ const ACTIVITY_OPTIONS: { key: ActivityLevel; label: string; emoji: string; sub:
 
 const COMMON_ALLERGENS = ['갑각류', '땅콩', '계란', '우유', '밀', '대두', '복숭아', '토마토', '견과류', '메밀'];
 
-const AVATAR_OPTIONS = ['🧑', '👩', '👨', '🧒', '👧', '👦', '🧓', '🐶', '🐱', '🦁', '🌸', '⭐', '🎨', '🎯'];
+// 인물 이모지 제거 — 관계 기본 이모지와 중복. 개성 있는 캐릭터/자연/활동 위주로 정리.
+const AVATAR_EMOJIS = [
+  '😎', '🥰', '😊', '🤩',
+  '🐶', '🐱', '🐻', '🦊',
+  '🌸', '🍀', '⭐', '🌙',
+  '👑', '🎨', '🎯', '🎵',
+];
+
+function isPhotoAvatar(s: string): boolean {
+  return s.startsWith('data:') || s.startsWith('http');
+}
+
+async function compressPhoto(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const size = 96;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('canvas context')); return; }
+      const min = Math.min(img.width, img.height);
+      const sx = (img.width - min) / 2;
+      const sy = (img.height - min) / 2;
+      ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load')); };
+    img.src = url;
+  });
+}
 
 export interface ProfilesSectionHandle {
   expandMain: () => void;
@@ -235,35 +268,98 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
               </div>
 
               {/* 아바타 */}
-              <div>
-                <label className="text-sm text-gray-500">아바타</label>
-                <div className="flex gap-1 mt-1 flex-wrap">
-                  <button
-                    onClick={() => onUpdate({ avatar: undefined })}
-                    className={`text-base w-7 h-7 rounded-full transition-colors ${
-                      !profile.avatar
-                        ? 'bg-brand-primary text-white ring-2 ring-brand-primary/30'
-                        : 'bg-white border border-gray-200 hover:bg-gray-50'
-                    }`}
-                    title="관계 기본 이모지"
-                  >
-                    <EmojiIcon emoji={RELATION_EMOJI[profile.relation]} size={16} className={!profile.avatar ? 'text-white' : 'text-gray-700'} />
-                  </button>
-                  {AVATAR_OPTIONS.map((a) => (
-                    <button
-                      key={a}
-                      onClick={() => onUpdate({ avatar: a })}
-                      className={`text-base w-7 h-7 rounded-full transition-colors ${
-                        profile.avatar === a
-                          ? 'bg-brand-primary ring-2 ring-brand-primary/30'
-                          : 'bg-white border border-gray-200 hover:bg-gray-50'
-                      }`}
-                    >
-                      <EmojiIcon emoji={a} size={16} className={profile.avatar === a ? 'text-white' : 'text-gray-700'} />
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {(() => {
+                const photoInputId = `avatar-photo-${profile.id}`;
+                const isPhoto = !!profile.avatar && isPhotoAvatar(profile.avatar);
+                const isEmoji = !!profile.avatar && !isPhoto;
+                const noAvatar = !profile.avatar;
+
+                async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+                  const file = e.target.files?.[0];
+                  e.target.value = '';
+                  if (!file) return;
+                  try {
+                    const dataUrl = await compressPhoto(file);
+                    onUpdate({ avatar: dataUrl });
+                  } catch {
+                    /* 무시 — 파일 오류 시 변경 없음 */
+                  }
+                }
+
+                return (
+                  <div>
+                    <label className="text-sm text-gray-500">아바타</label>
+                    {/* 현재 아바타 프리뷰 + 사진 업로드 */}
+                    <div className="flex items-center gap-3 mt-1.5 mb-2">
+                      <div className="relative shrink-0">
+                        <div className="w-14 h-14 rounded-full bg-brand-primary/10 border-2 border-brand-primary/20 flex items-center justify-center overflow-hidden">
+                          {isPhoto ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={profile.avatar} alt="아바타" className="w-full h-full object-cover" />
+                          ) : (
+                            <EmojiIcon
+                              emoji={profile.avatar ?? RELATION_EMOJI[profile.relation]}
+                              size={28}
+                              className="text-brand-primary"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label
+                          htmlFor={photoInputId}
+                          className="cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 transition-colors"
+                        >
+                          <Camera size={12} /> 사진 등록
+                        </label>
+                        <input
+                          id={photoInputId}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handlePhotoChange}
+                        />
+                        {(isPhoto || isEmoji) && (
+                          <button
+                            onClick={() => onUpdate({ avatar: undefined })}
+                            className="text-xs text-gray-400 hover:text-brand-warning transition-colors text-left"
+                          >
+                            기본으로 돌리기
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {/* 이모지 선택 */}
+                    <div className="flex gap-1 flex-wrap">
+                      {/* 기본 이모지 (관계 기반) */}
+                      <button
+                        onClick={() => onUpdate({ avatar: undefined })}
+                        title="관계 기본"
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                          noAvatar
+                            ? 'ring-2 ring-brand-primary bg-brand-primary/10'
+                            : 'bg-white border border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        <EmojiIcon emoji={RELATION_EMOJI[profile.relation]} size={18} className="text-gray-700" />
+                      </button>
+                      {AVATAR_EMOJIS.map((a) => (
+                        <button
+                          key={a}
+                          onClick={() => onUpdate({ avatar: a })}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                            profile.avatar === a
+                              ? 'ring-2 ring-brand-primary bg-brand-primary/10'
+                              : 'bg-white border border-gray-200 hover:bg-gray-50'
+                          }`}
+                        >
+                          <EmojiIcon emoji={a} size={18} className="text-gray-700" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* 식습관 */}
               <div>
