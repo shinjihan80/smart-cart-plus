@@ -3,10 +3,9 @@
 import { useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
-import { mockCartItems } from '@/data/mockData';
 import { useToast } from '@/context/ToastContext';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import {
@@ -21,40 +20,10 @@ import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
 
 export default function SettingsPage() {
-  const { items, resetData, loadSampleData, archiveExpired, restoreAll } = useCart();
+  const { items, resetData, restoreAll } = useCart();
   const { showToast } = useToast();
   const backup = useBackupStatus();
   const fileRef = useRef<HTMLInputElement | null>(null);
-
-  function handleReset() {
-    if (confirm('모든 데이터를 초기화하시겠어요? 기본 샘플 데이터로 복원됩니다.')) {
-      resetData();
-      showToast('데이터가 초기화됐어요.');
-    }
-  }
-
-  /** 안전한 초기화 — 백업 다운로드 후 전체 초기화. 복원 가능한 지점 확보. */
-  function handleBackupAndReset() {
-    if (!confirm('전체 상태를 백업한 뒤 데이터를 초기화할까요?\n\n1) JSON 백업 파일이 다운로드됩니다.\n2) 확인되면 샘플 데이터로 복원됩니다.')) return;
-    try {
-      const filename = downloadBackup();
-      backup.refresh();
-      // 다운로드 시작은 즉시, 파일 저장은 브라우저가 비동기로 처리 — 짧은 지연 후 초기화
-      setTimeout(() => {
-        resetData();
-        showToast(`백업 저장(${filename}) + 초기화 완료`);
-      }, 300);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : '알 수 없는 오류';
-      showToast(`백업 실패 — 초기화 중단: ${msg}`);
-    }
-  }
-
-  function handleArchive() {
-    const count = archiveExpired();
-    if (count > 0) showToast(`${count}개 만료 식품이 아카이브됐어요.`);
-    else showToast('아카이브할 만료 식품이 없어요.');
-  }
 
   function handleExportJSON() {
     exportAsJSON(items);
@@ -114,48 +83,27 @@ export default function SettingsPage() {
     }
   }
 
-  function handleClearPreferences() {
-    // 아이템/로그/백업 관련 핵심 데이터 키 (nemoa- 프리픽스) — 보존
-    const PROTECTED_NEMOA = new Set([
-      'nemoa-wear-log',        // 착용 로그
-      'nemoa-cook-log',        // 조리 로그
-      'nemoa-profiles',        // 프로필
-      'nemoa-shopping-list',   // 쇼핑 리스트
-      'nemoa-recipe-favorites',// 즐겨찾기 레시피
-      'nemoa-saved-outfits',   // 저장된 코디
-      'nemoa-last-backup-at',  // 백업 타임스탬프
-      'nemoa-weather-cache',   // 날씨 캐시 (30분 만료 — 굳이 비울 필요 없음)
-    ]);
-    const toClear: string[] = [];
-    for (let i = 0; i < localStorage.length; i += 1) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('nemoa-') && !PROTECTED_NEMOA.has(key)) toClear.push(key);
+  /** 항상 백업을 먼저 받은 뒤 전체 초기화 — 복원 가능한 지점 확보 */
+  function handleReset() {
+    if (!confirm('모든 데이터를 초기화할까요?\n\n1) 현재 상태가 JSON으로 백업됩니다.\n2) 백업 완료 후 앱이 초기 상태로 돌아갑니다.')) return;
+    try {
+      const filename = downloadBackup();
+      backup.refresh();
+      setTimeout(() => {
+        resetData();
+        showToast(`백업(${filename}) 저장 후 초기화됐어요.`);
+      }, 300);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '알 수 없는 오류';
+      showToast(`백업 실패 — 초기화 중단: ${msg}`);
     }
-    if (toClear.length === 0) {
-      showToast('이미 초기화된 상태예요.');
-      return;
-    }
-    if (!confirm(`검색어·필터·접기 상태 ${toClear.length}개를 초기화할까요? (아이템·로그·프로필은 유지돼요)`)) return;
-    for (const k of toClear) localStorage.removeItem(k);
-    showToast(`${toClear.length}개 설정이 초기화됐어요. 페이지를 새로고침하세요.`);
   }
 
-  const menuItems = [
-    { label: '만료 식품 정리',  emoji: '📦', desc: '보관 기한 +7일 초과 항목 아카이브',  action: handleArchive },
-    { label: '지금 백업하기',   emoji: '💾', desc: '전체 상태를 JSON으로 다운로드',       action: handleBackupNow },
-    { label: '백업에서 복원',   emoji: '📥', desc: '이전 백업 JSON 파일 불러오기',       action: handlePickRestoreFile },
-    { label: 'JSON 내보내기',   emoji: '📄', desc: '현재 아이템만 JSON으로 내보내기',   action: handleExportJSON },
-    { label: 'CSV 내보내기',    emoji: '📊', desc: '현재 아이템만 CSV로 내보내기',      action: handleExportCSV },
-    { label: '검색어·필터 초기화', emoji: '🧹', desc: '최근 검색어·필터·정렬 설정 비우기',  action: handleClearPreferences },
-    { label: '백업 후 초기화',   emoji: '🛡️', desc: '자동 백업 → 샘플 데이터로 안전 초기화',  action: handleBackupAndReset },
-    { label: '전체 데이터 초기화', emoji: '🔄', desc: '샘플 데이터로 복원 (주의: 아이템 삭제)', action: handleReset },
-    { label: '온보딩 다시 보기', emoji: '🎓', desc: '네모아 소개 7단계 재생',
-      action: () => window.dispatchEvent(new CustomEvent('nemoa:replay-onboarding')) },
-    { label: '샘플 데이터 추가',  emoji: '📋', desc: `데모용 식품·의류 ${mockCartItems.length}개 추가 (기존 유지)`,
-      action: () => {
-        const n = loadSampleData();
-        showToast(`샘플 ${n}개를 추가했어요.`);
-      } },
+  const dataItems = [
+    { label: '지금 백업하기',  emoji: '💾', desc: '전체 상태를 JSON 파일로 저장',     action: handleBackupNow },
+    { label: '백업에서 복원',  emoji: '📥', desc: '이전 백업 파일로 데이터 복구',     action: handlePickRestoreFile },
+    { label: 'JSON 내보내기', emoji: '📄', desc: '현재 아이템 목록을 JSON으로 내보내기', action: handleExportJSON },
+    { label: 'CSV 내보내기',  emoji: '📊', desc: '현재 아이템 목록을 CSV로 내보내기',  action: handleExportCSV },
   ];
 
   return (
@@ -234,7 +182,7 @@ export default function SettingsPage() {
 
         <NotificationSettings />
 
-        {/* 설정 메뉴 */}
+        {/* 백업 & 내보내기 */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -242,9 +190,9 @@ export default function SettingsPage() {
           className={CARD}
           style={CARD_SHADOW}
         >
-          <h3 className="text-xs text-gray-400 font-medium mb-2">데이터 관리</h3>
+          <h3 className="text-xs text-gray-400 font-medium mb-2">백업 & 내보내기</h3>
           <div className="divide-y divide-gray-50">
-            {menuItems.map((m) => (
+            {dataItems.map((m) => (
               <button
                 key={m.label}
                 onClick={m.action}
@@ -261,7 +209,53 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
+        {/* 앱 */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.12 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <h3 className="text-xs text-gray-400 font-medium mb-2">앱</h3>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('nemoa:replay-onboarding'))}
+            className="flex items-center gap-3 w-full py-3 text-left hover:bg-gray-50/50 -mx-2 px-2 rounded-2xl transition-colors"
+          >
+            <EmojiIcon emoji="🎓" size={16} className="text-gray-600" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800">온보딩 다시 보기</p>
+              <p className="text-sm text-gray-400">네모아 소개 7단계 재생</p>
+            </div>
+            <ChevronRight size={14} className="text-gray-300 shrink-0" />
+          </button>
+        </motion.div>
+
         <FeedbackToggles />
+
+        {/* 위험 구역 */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.14 }}
+          className="rounded-[28px] border border-brand-warning/20 bg-brand-warning/3 px-4 py-4"
+        >
+          <div className="flex items-center gap-1.5 mb-1">
+            <AlertTriangle size={12} className="text-brand-warning" />
+            <h3 className="text-xs text-brand-warning font-semibold">위험 구역</h3>
+          </div>
+          <p className="text-xs text-gray-400 mb-3">아래 작업은 되돌리기 어려워요. 백업 후 진행을 권장합니다.</p>
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-3 w-full py-2.5 text-left hover:bg-brand-warning/5 -mx-2 px-2 rounded-2xl transition-colors"
+          >
+            <EmojiIcon emoji="🔄" size={16} className="text-brand-warning" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-brand-warning">전체 초기화</p>
+              <p className="text-sm text-gray-400">자동 백업 후 모든 데이터 삭제</p>
+            </div>
+          </button>
+        </motion.div>
 
         <AppInfo />
       </div>
