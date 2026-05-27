@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronDown,
   Smartphone, Refrigerator, Shirt, BarChart3,
-  Sparkles, Bell, HardDrive, HelpCircle, Mail, Store,
+  Sparkles, Bell, HardDrive, HelpCircle, Mail, Store, CreditCard,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -79,6 +79,8 @@ const FAQS: FaqItem[] = [
     a: '내 휴대폰에만 저장됩니다. 서버로 전송되지 않으며, 백업 파일로 다른 기기로 이전할 수 있어요.' },
   { q: 'AI 사용 한도는 하루에 얼마나 되나요?',
     a: '무료 기준 하루 한도 — 사진 분석 5회 / 텍스트 파싱 10회 / 영양 분석 2회 / URL 분석 2회 / 보관 위치 추천 5회. 자정에 자동 초기화됩니다.' },
+  { q: 'Pro로 업그레이드하면 뭐가 달라지나요?',
+    a: 'Pro Lite(₩4,900/월)는 AI 한도가 크게 늘고(사진 30·텍스트 60·기타 각 15회), 레시피 142종+ 이용, 파트너 할인 혜택이 생깁니다. Pro Max(₩9,900/월)는 AI 무제한에 클라우드 자동 동기화와 24시간 이내 우선 지원을 제공합니다. 현재는 베타 준비 중이며, 마이 → 요금제 카드에서 출시 알림을 신청할 수 있습니다.' },
   { q: '실수로 아이템을 삭제했어요',
     a: '카드를 펼쳐 삭제하면 하단에 "되돌리기" 버튼이 나타납니다. 다음 행동 전까지 눌러서 복구할 수 있어요.' },
   { q: '알림이 오지 않아요',
@@ -228,6 +230,32 @@ export default function HelpPage() {
           <Bullet><strong>연간 활동</strong> — 조리·착용·소진 12개월 히스토그램 + 연말 페이스 예측</Bullet>
           <Bullet>옷장 정리 추천 — 6개월 이상 미착용 아이템 하이라이트</Bullet>
           <Bullet>Pro 예고 카드 — 베이직 vs Pro 기능 비교 + 출시 알림 신청</Bullet>
+        </MenuRow>
+
+        <MenuRow
+          Icon={CreditCard}
+          title="요금제"
+          summary="베이직 무료 · Pro Lite ₩4,900 · Pro Max ₩9,900"
+          open={openId === 'pricing'}
+          onToggle={() => toggle('pricing')}
+        >
+          <div className="grid grid-cols-3 gap-1.5 mb-2">
+            {([
+              { label: '베이직', price: '무료',       sub: '현재 플랜' },
+              { label: 'Pro Lite', price: '₩4,900/월', sub: '₩49,000/년' },
+              { label: 'Pro Max',  price: '₩9,900/월', sub: '₩99,000/년' },
+            ] as const).map((t) => (
+              <div key={t.label} className="rounded-xl border border-gray-100 bg-gray-50 px-2 py-2 text-center">
+                <p className="text-xs font-bold text-gray-800 leading-tight">{t.label}</p>
+                <p className="text-[10px] text-indigo-600 font-semibold mt-0.5 leading-tight">{t.price}</p>
+                <p className="text-[9px] text-gray-400 leading-tight">{t.sub}</p>
+              </div>
+            ))}
+          </div>
+          <Bullet><strong>베이직(무료)</strong> — AI 사진 5회·텍스트 10회·URL+영양 각 2회·위치추천 5회/일</Bullet>
+          <Bullet><strong>Pro Lite</strong> — AI 사진 30회·텍스트 60회·URL+영양 각 15회/일, 레시피 142종+, 파트너 할인</Bullet>
+          <Bullet><strong>Pro Max</strong> — AI 무제한, 클라우드 자동 동기화, 24시간 이내 우선 지원</Bullet>
+          <Bullet>결제 연동 준비 중 — 마이 → 요금제 카드에서 출시 알림 신청 가능</Bullet>
         </MenuRow>
 
         <MenuRow

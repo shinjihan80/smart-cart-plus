@@ -15,6 +15,7 @@ const SECTIONS = [
   { id: 'notify',    label: '알림' },
   { id: 'mypage',    label: '마이페이지' },
   { id: 'settings',  label: '설정' },
+  { id: 'pricing',   label: '요금제' },
   { id: 'faq',       label: '자주 묻는 질문' },
 ];
 
@@ -84,6 +85,8 @@ const FAQS = [
     a: '모든 데이터는 내 휴대폰(브라우저 로컬 저장소)에만 저장됩니다. 서버로 전송되지 않으며, 관리자도 접근할 수 없습니다. 다른 기기로 이전하려면 설정 → 백업 파일을 내보낸 뒤, 새 기기에서 복원하세요.' },
   { q: 'AI 사용량 한도가 뭔가요?',
     a: '무료 플랜 기준 하루 사용 한도입니다. 사진 분석 5회, 텍스트 파싱 10회, 영양 분석 2회, URL 분석 2회, 냉장고 위치 추천 5회. 한도는 매일 자정에 자동으로 초기화됩니다.' },
+  { q: 'Pro 플랜은 얼마인가요?',
+    a: 'Pro Lite는 ₩4,900/월(연간 ₩49,000), Pro Max는 ₩9,900/월(연간 ₩99,000)입니다. 현재 결제 연동 준비 중이며, 마이페이지 요금제 카드에서 출시 알림을 신청할 수 있습니다.' },
   { q: '실수로 아이템을 삭제했어요.',
     a: '카드를 펼쳐 🗑 삭제를 누르면 화면 하단에 "되돌리기" 버튼이 잠시 표시됩니다. 다음 행동 전에 눌러서 복구할 수 있어요.' },
   { q: '오프라인에서도 사용할 수 있나요?',
@@ -528,6 +531,51 @@ export default function ManualPage() {
 
             <SubTitle>앱 초기화</SubTitle>
             <p className="text-gray-600 mb-2">설정 하단 위험 구역에서 모든 데이터를 초기화할 수 있습니다. 초기화는 되돌릴 수 없으므로, 실행 전 반드시 백업을 먼저 진행하세요. 초기화 버튼을 탭하면 자동으로 백업 저장 후 초기화가 진행됩니다.</p>
+          </section>
+
+          <Divider />
+
+          {/* ── 요금제 ────────────────────────────── */}
+          <section>
+            <SectionTitle id="pricing">요금제</SectionTitle>
+            <p className="text-gray-500 mb-6">NEMOA는 무료 베이직 플랜을 기본 제공하며, Pro 구독으로 AI 한도 확장과 추가 기능을 이용할 수 있습니다. 현재 결제 연동 준비 중이며, 마이 → 요금제 카드에서 출시 알림을 신청할 수 있습니다.</p>
+
+            <SubTitle>플랜 비교</SubTitle>
+            <div className="overflow-x-auto mb-6">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-gray-100">
+                    <th className="text-left py-3 pr-4 text-gray-500 font-medium w-36">기능</th>
+                    <th className="text-center py-3 px-3 text-gray-700 font-semibold w-28">베이직<br/><span className="text-xs font-normal text-gray-400">무료</span></th>
+                    <th className="text-center py-3 px-3 text-indigo-600 font-semibold w-28">Pro Lite<br/><span className="text-xs font-normal">₩4,900/월</span></th>
+                    <th className="text-center py-3 px-3 text-indigo-700 font-bold w-28">Pro Max<br/><span className="text-xs font-normal">₩9,900/월</span></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {[
+                    ['AI 사진 분석',      '5회/일',  '30회/일', '무제한'],
+                    ['AI 텍스트 파싱',    '10회/일', '60회/일', '무제한'],
+                    ['영양·URL 분석',     '각 2회/일','각 15회/일','무제한'],
+                    ['보관 위치 추천',    '5회/일',  '30회/일', '무제한'],
+                    ['레시피 컬렉션',     '42종',    '142종+',   '142종+'],
+                    ['분석 리포트',       '✕',       '✓',        '✓'],
+                    ['클라우드 동기화',   '✕',       '수동',     '자동'],
+                    ['파트너 할인',       '✕',       '✓',        '✓'],
+                    ['우선 지원',         '✕',       '이메일',   '24시간 내'],
+                  ].map(([label, free, lite, max]) => (
+                    <tr key={label}>
+                      <td className="py-2.5 pr-4 text-gray-600">{label}</td>
+                      <td className="py-2.5 px-3 text-center text-gray-500 tabular-nums">{free}</td>
+                      <td className="py-2.5 px-3 text-center text-indigo-600 tabular-nums font-medium">{lite}</td>
+                      <td className="py-2.5 px-3 text-center text-indigo-700 tabular-nums font-semibold">{max}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <Tip>연간 결제 시 2개월 무료 혜택이 적용됩니다. Pro Lite 연간 ₩49,000 / Pro Max 연간 ₩99,000.</Tip>
+            <Tip>마이페이지 하단 요금제 카드에서 출시 알림을 신청하면 결제 연동 완료 시 가장 먼저 안내 받을 수 있습니다.</Tip>
           </section>
 
           <Divider />
