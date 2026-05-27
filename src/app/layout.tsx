@@ -10,6 +10,7 @@ import SwRegister from "@/components/layout/SwRegister";
 import ErrorCapture from "@/components/layout/ErrorCapture";
 import CommandPalette from "@/components/CommandPalette";
 import GlobalRecipeModal from "@/components/GlobalRecipeModal";
+import AnalyticsGate from "@/components/layout/AnalyticsGate";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -110,6 +111,7 @@ export default function RootLayout({
             <GlobalRecipeModal />
             <SwRegister />
             <ErrorCapture />
+            <AnalyticsGate />
           </ConsentGate>
         </Providers>
       </body>

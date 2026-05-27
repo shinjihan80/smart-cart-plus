@@ -1,5 +1,12 @@
-@import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/webfonts/css/suit.css');
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('/fonts/SUIT-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   /* 부드러운 쿨 그레이 — MG/우리페이 스타일의 깨끗한 백그라운드 */

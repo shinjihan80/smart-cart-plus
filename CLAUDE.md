@@ -49,6 +49,12 @@
 | 2026-04-22 | 로컬 에러 로깅 — errorLog.ts 50건 localStorage · window.onerror + React 바운더리 · 설정 > 오류 기록 카드 | v1.5 |
 | 2026-04-22 | 단위 테스트 36개 (Node 25 네이티브 .mts + node:test) — season·purchaseCycle·seasonalProduce·aiQuota · npm test | v1.5 |
 | 2026-04-22 | 문서 정비 — CHANGELOG·BASIC_SPEC·PRO_SPEC 분리 + MONETIZATION.md 전환 타이밍 중심 슬림화 | v1.5 |
+| 2026-05-07 | Phase 8.0 냉장고 시각화 — FridgeModelPicker(양문형/4도어/1도어/김치) + FridgeView SVG 칸 + 룰 기반 recommendFridgeSection + 마이페이지 위계 재배치 | v1.6 |
+| 2026-05-07 | Phase 6.x UI 시스템 — Family.co 매트 클레이 카드 + MoaiOrb 4 persona + InquirySheet 바텀시트 + 5단계 알림 + 날씨 알림 + ScanningOrb yoyo glow | v1.6 |
+| 2026-05-12 | 관리자↔모바일 연결 — KV 기반 admin API 5종(recipes/seasonal/partners/views/catalog) + useMergedCatalog 5분 SWR 훅 + Pro 단계 자동 반영 인프라 | v1.7 |
+| 2026-05-12 | 냉장고·옷장 3탭 일관화 — 🧊냉장고/💡추천/🛒장보기 · 👔옷장/👗코디/🛍️쇼핑 + 마이페이지 4탭 URL 라우팅 + Phase 8.0 Step 5 AI 보관 위치 | v1.7 |
+| 2026-05-12 | 카드 UX 통일 — drag-to-delete 제거 → 펼침 하단 🗑️ + 아코디언(한 번에 하나) + 명시적 '상세 보기' 버튼 + 카드 편집 모드 보관 위치 select | v1.7 |
+| 2026-05-12 | Supabase Phase B-1 — 마이그레이션 5종(profiles/items/notifications/RLS) + 하이브리드 JSONB attributes + Database 타입 + Generic AttributesFor | v1.7 |
 | 2026-05-15 | 코디 UI 재설계 — outfitMatcher 자동 코디 생성 + OutfitCard 2x2 이미지 콜라주 + OutfitDetailModal 바텀시트 + 가로 스와이프 캐러셀(1.3장 노출, snap-mandatory) | v1.8 |
 | 2026-05-15 | 🔴 페이지 스크롤 영구 잠금 버그 픽스 — OutfitDetailModal 의 useModalA11y(onClose) 에 active 인자 누락으로 body.overflow=hidden 영구 적용 → useModalA11y(onClose, !!outfit) 로 수정 + JSDoc 에 ✅/❌ 패턴 명시 (회귀 방지) | v1.8 |
 | 2026-05-15 | Phase 7 파트너 18개 enabled — 중고 3(당근·번개장터·KREAM) · 기부 3(아름다운가게·굿윌·옷캔) · 보관 2(세탁특공대·다락) + ClosetCleanupSection 아이템별 처분 메뉴 (옷 이름 자동 검색) | v1.8 |

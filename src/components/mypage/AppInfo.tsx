@@ -17,11 +17,11 @@ export default function AppInfo() {
       <div className="flex flex-col gap-1.5 text-xs text-gray-400">
         <div className="flex justify-between">
           <span>버전</span>
-          <span className="text-gray-600 font-medium">NEMOA v1.5</span>
+          <span className="text-gray-600 font-medium">NEMOA v1.9</span>
         </div>
         <div className="flex justify-between">
           <span>AI 비서</span>
-          <span className="text-gray-600 font-medium">Claude Sonnet 4.6</span>
+          <span className="text-gray-600 font-medium">Gemini 2.5 Flash</span>
         </div>
         <div className="flex justify-between">
           <span>Vision 파서</span>
@@ -40,14 +40,22 @@ export default function AppInfo() {
           <span className="text-gray-600 font-medium tabular-nums">13종</span>
         </div>
       </div>
-      <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
-        <Link
-          href="/legal"
-          className="text-xs text-gray-500 hover:text-brand-primary hover:underline"
-        >
-          이용약관 · 개인정보 처리방침 →
-        </Link>
-        <span className="text-xs text-gray-300">© NEMOA</span>
+      <div className="mt-3 pt-3 border-t border-gray-50 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <Link
+            href="/help"
+            className="text-xs text-gray-500 hover:text-brand-primary hover:underline"
+          >
+            도움말 →
+          </Link>
+          <Link
+            href="/legal"
+            className="text-xs text-gray-500 hover:text-brand-primary hover:underline"
+          >
+            이용약관 →
+          </Link>
+          <span className="text-xs text-gray-300">© NEMOA</span>
+        </div>
       </div>
     </motion.div>
   );
