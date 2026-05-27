@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -103,8 +104,14 @@ const FAQS = [
 
 /* ── 메인 페이지 ───────────────────────────────────────────── */
 export default function ManualPage() {
+  const router = useRouter();
   const [activeId, setActiveId] = useState('overview');
+  const [canGoBack, setCanGoBack] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    setCanGoBack(window.history.length > 1);
+  }, []);
 
   useEffect(() => {
     const root = document.getElementById('manual-scroll') ?? null;
@@ -128,17 +135,28 @@ export default function ManualPage() {
 
       {/* 상단 헤더 */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-sm">N</span>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {canGoBack && (
+              <button
+                onClick={() => router.back()}
+                aria-label="뒤로"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors shrink-0"
+              >
+                ←
+              </button>
+            )}
+            <span className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-sm shrink-0">N</span>
             <span className="font-bold text-gray-900">NEMOA</span>
-            <span className="text-gray-300 mx-1">|</span>
-            <span className="text-sm text-gray-500">사용 가이드</span>
+            <span className="text-gray-300 mx-1 hidden sm:inline">|</span>
+            <span className="text-sm text-gray-500 hidden sm:inline">사용 가이드</span>
           </div>
-          <Link href="https://nemoa.vercel.app" target="_blank"
-            className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
-            앱 열기 →
-          </Link>
+          {!canGoBack && (
+            <Link href="https://nemoa.vercel.app" target="_blank"
+              className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+              앱 열기 →
+            </Link>
+          )}
         </div>
       </header>
 

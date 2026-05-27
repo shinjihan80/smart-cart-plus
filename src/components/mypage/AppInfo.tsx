@@ -17,7 +17,7 @@ export default function AppInfo() {
       <div className="flex flex-col gap-1.5 text-xs text-gray-400">
         <div className="flex justify-between">
           <span>버전</span>
-          <span className="text-gray-600 font-medium">NEMOA v1.9</span>
+          <span className="text-gray-600 font-medium">NEMOA v2.0</span>
         </div>
         <div className="flex justify-between">
           <span>AI 비서</span>
@@ -43,10 +43,10 @@ export default function AppInfo() {
       <div className="mt-3 pt-3 border-t border-gray-50 flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
           <Link
-            href="/help"
+            href="/manual"
             className="text-xs text-gray-500 hover:text-brand-primary hover:underline"
           >
-            도움말 →
+            사용 가이드 →
           </Link>
           <Link
             href="/legal"
