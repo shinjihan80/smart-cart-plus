@@ -200,27 +200,29 @@ export default function ClosetPage() {
             <PaletteButton />
           </div>
         </div>
-        <div role="tablist" aria-label="옷장 탭" className="px-4 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
-          {CLOSET_TABS.map((t) => {
-            const isActive = activeTab === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setActiveTab(t.id)}
-                className={[
-                  'shrink-0 text-sm font-semibold px-3 py-1.5 rounded-full transition-colors',
-                  isActive
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
-                ].join(' ')}
-              >
-                <span className="mr-1">{t.emoji}</span>{t.label}
-              </button>
-            );
-          })}
+        <div className="px-4 pb-3 overflow-x-auto scrollbar-hide">
+          <div role="tablist" aria-label="옷장 탭" className="flex bg-gray-100 rounded-full p-0.5 w-fit">
+            {CLOSET_TABS.map((t) => {
+              const isActive = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveTab(t.id)}
+                  className={[
+                    'shrink-0 text-sm font-semibold px-3 py-1.5 rounded-full transition-colors',
+                    isActive
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700',
+                  ].join(' ')}
+                >
+                  <span className="mr-1">{t.emoji}</span>{t.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </header>
 

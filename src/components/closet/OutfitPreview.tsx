@@ -82,13 +82,11 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
           <span className="text-xs text-gray-400 font-medium">코디 미리보기</span>
         </div>
         {profiles.length >= 2 && (
-          <div className="flex gap-1 shrink-0">
+          <div className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
             <button
               onClick={() => setOwnerFilter('all')}
-              className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                ownerFilter === 'all'
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+                ownerFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
               }`}
             >
               전체
@@ -97,10 +95,8 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
               <button
                 key={p.id}
                 onClick={() => setOwnerFilter(p.id)}
-                className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                  ownerFilter === p.id
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+                className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+                  ownerFilter === p.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                 }`}
               >
                 {p.name}
@@ -108,10 +104,8 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
             ))}
             <button
               onClick={() => setOwnerFilter('shared')}
-              className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                ownerFilter === 'shared'
-                  ? 'bg-gray-500 text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
+              className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+                ownerFilter === 'shared' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
               }`}
             >
               공용

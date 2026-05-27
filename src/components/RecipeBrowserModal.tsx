@@ -142,20 +142,22 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
           </div>
 
           {/* 필터 칩 */}
-          <div className="px-6 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
-            {FILTERS.map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setFilter(key)}
-                className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  filter === key
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-gray-50 border border-gray-100 text-gray-500 hover:bg-gray-100'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+          <div className="px-6 pb-3 overflow-x-auto scrollbar-hide">
+            <div className="flex bg-gray-100 rounded-full p-0.5 w-fit">
+              {FILTERS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setFilter(key)}
+                  className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    filter === key
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* 결과 리스트 */}
