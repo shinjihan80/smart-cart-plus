@@ -244,18 +244,14 @@ export default function FridgePage() {
           <>
             {/* 보기 방식 토글 + 프로필 필터 */}
             <div className="flex items-center justify-between gap-3">
-              {/* 구성원 필터 — avatar chip (냉장고·리스트 뷰 공통, 프로필 2인+) */}
+              {/* 구성원 필터 — 슬라이딩 세그먼트 (냉장고·리스트 뷰 공통, 프로필 2인+) */}
               {profiles.length >= 2 ? (
-                <div role="tablist" aria-label="구성원 필터" className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+                <div role="tablist" aria-label="구성원 필터" className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide">
                   {([
-                    { key: '전체', label: '전체', emoji: '👥' },
-                    ...profiles.map(p => ({
-                      key: p.id,
-                      label: p.name,
-                      emoji: p.avatar ?? RELATION_EMOJI[p.relation] ?? '👤',
-                    })),
-                    { key: '공용', label: '공용', emoji: '🏠' },
-                  ] as { key: string; label: string; emoji: string }[]).map(({ key, label, emoji }) => {
+                    { key: '전체', label: '전체' },
+                    ...profiles.map(p => ({ key: p.id, label: p.name })),
+                    { key: '공용', label: '공용' },
+                  ] as { key: string; label: string }[]).map(({ key, label }) => {
                     const isActive = ownerFilter === key;
                     return (
                       <button
@@ -264,14 +260,13 @@ export default function FridgePage() {
                         role="tab"
                         aria-selected={isActive}
                         onClick={() => setOwnerFilter(key)}
-                        className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs transition-all ${
+                        className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                           isActive
-                            ? 'ring-2 ring-gray-900 ring-offset-1 font-semibold text-gray-900'
-                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            ? 'bg-white text-gray-900 shadow-sm'
+                            : 'text-gray-500'
                         }`}
                       >
-                        <span className="text-sm leading-none">{emoji}</span>
-                        <span>{label}</span>
+                        {label}
                       </button>
                     );
                   })}
