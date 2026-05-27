@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { LayoutGrid, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
@@ -97,6 +98,10 @@ export default function ClosetPage() {
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [showHibernating, setShowHibernating] = useState(false);
   const [expandedClothingId, setExpandedClothingId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = usePersistedState<'list' | 'compact'>(
+    'nemoa-closet-view', 'list',
+    (raw) => (raw === 'list' || raw === 'compact') ? raw : null,
+  );
   const [activeTab, setActiveTab] = usePersistedState<ClosetTab>(
     'nemoa-closet-tab', 'closet',
     (raw) => (isClosetTab(raw) ? raw : null),
@@ -544,23 +549,54 @@ export default function ClosetPage() {
         )}
 
         {/* 정렬 버튼만 — 카테고리 FILTERS는 카드 칩에 이미 표시되어 제거 */}
-        <div className="flex items-center justify-end">
-          <button
-            onClick={() => {
-              const cycle: ClosetSort[] = weather
-                ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast']
-                : ['name', 'thickness', 'wornMost', 'wornLeast'];
-              const idx = cycle.indexOf(sortBy);
-              setSortBy(cycle[(idx + 1) % cycle.length]);
-            }}
-            className="text-xs text-gray-500 font-medium px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors whitespace-nowrap"
-          >
-            {SORT_LABEL[sortBy]}
-          </button>
+        {/* 정렬 세그먼트 + 보기 방식 */}
+        <div className="flex items-center gap-2">
+          <div className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide flex-1">
+            {(weather
+              ? ['name', 'thickness', 'match', 'wornMost', 'wornLeast']
+              : ['name', 'thickness', 'wornMost', 'wornLeast']
+            ).map((key) => (
+              <button
+                key={key}
+                onClick={() => setSortBy(key as ClosetSort)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  sortBy === key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+                }`}
+              >
+                {SORT_LABEL[key as ClosetSort]}
+              </button>
+            ))}
+          </div>
+          <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'list'}
+              onClick={() => setViewMode('list')}
+              title="리스트 보기"
+              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              <List size={13} strokeWidth={2.4} />
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewMode === 'compact'}
+              onClick={() => setViewMode('compact')}
+              title="간략 보기"
+              className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+            >
+              <LayoutGrid size={13} strokeWidth={2.4} />
+            </button>
+          </div>
         </div>
 
-        {/* 아이템 리스트 */}
-        {filter === '전체' && !search ? (
+        {/* ─── 리스트 뷰 ─── */}
+        {viewMode === 'list' && (filter === '전체' && !search ? (
           <>
             {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((grp) => {
               const group = items.filter((i) => (FASHION_GROUP[i.category] ?? '의류') === grp);
@@ -607,7 +643,63 @@ export default function ClosetPage() {
               />
             ))}
           </AnimatePresence>
-        )}
+        ))}
+
+        {/* ─── 간략 뷰 ─── */}
+        {viewMode === 'compact' && (filter === '전체' && !search ? (
+          <>
+            {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((grp) => {
+              const group = items.filter((i) => (FASHION_GROUP[i.category] ?? '의류') === grp);
+              if (group.length === 0) return null;
+              return (
+                <div key={grp}>
+                  <div className="flex items-center gap-2 mb-2 mt-1">
+                    <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
+                    <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {group.map((item) => {
+                      const tone = getFashionCategoryTone(item.category);
+                      return (
+                        <div key={item.id} className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+                          <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
+                            {item.imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={item.imageUrl} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-3xl" aria-hidden>{tone.emoji}</span>
+                            )}
+                          </div>
+                          <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        ) : (
+          <div className="grid grid-cols-3 gap-2">
+            {items.map((item) => {
+              const tone = getFashionCategoryTone(item.category);
+              return (
+                <div key={item.id} className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+                  <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
+                    {item.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.imageUrl} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl" aria-hidden>{tone.emoji}</span>
+                    )}
+                  </div>
+                  <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                </div>
+              );
+            })}
+          </div>
+        ))}
 
         {items.length === 0 && allClothing.length > 0 && (
           <div className="text-center py-12 text-gray-400">
