@@ -50,7 +50,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
         <button
           onClick={handleShuffle}
           disabled={spinning || matched.length < 2}
-          className="ml-auto text-sm text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors disabled:opacity-40"
+          className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 active:scale-95 transition-all disabled:opacity-40"
         >
           🔀 다시 고르기
         </button>

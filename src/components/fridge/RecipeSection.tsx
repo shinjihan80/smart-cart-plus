@@ -77,14 +77,9 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 🏆 단골 {loveCount}
               </span>
             )}
-            {urgentCount > 0 && (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
-                ⚠️ 소비 임박 {urgentCount}
-              </span>
-            )}
             <button
               onClick={() => setBrowserOpen(true)}
-              className="text-sm text-brand-primary font-semibold px-2 py-0.5 rounded-full hover:bg-brand-primary/10 transition-colors whitespace-nowrap"
+              className="text-xs font-semibold px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 active:scale-95 transition-all whitespace-nowrap"
             >
               전체 보기 →
             </button>
