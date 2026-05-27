@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
 import { useProfiles } from '@/lib/profile';
 import { useAiQuota } from '@/lib/aiQuota';
+import { usePlan } from '@/lib/usePlan';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
-import { Camera, X as XIcon } from 'lucide-react';
+import { Camera, Lock, X as XIcon } from 'lucide-react';
 import EmojiIcon from '@/components/EmojiIcon';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 
@@ -68,27 +70,61 @@ async function toThumbnailBase64(file: File, maxPx = 300): Promise<string> {
 }
 
 // ── 탭 헤더 ──────────────────────────────────────────────────────────────────
-function TabBar({ active, onChange }: { active: InputTab; onChange: (t: InputTab) => void }) {
-  const tabs: { key: InputTab; label: string; emoji: string }[] = [
-    { key: 'image', label: '사진 분석', emoji: '📷' },
-    { key: 'text',  label: '텍스트',   emoji: '📝' },
-    { key: 'url',   label: 'URL',     emoji: '🔗' },
+function TabBar({ active, onChange, isPro }: {
+  active:   InputTab;
+  onChange: (t: InputTab) => void;
+  isPro:    boolean;
+}) {
+  const tabs: { key: InputTab; label: string; emoji: string; proOnly: boolean }[] = [
+    { key: 'image', label: '사진',    emoji: '📷', proOnly: true  },
+    { key: 'text',  label: '텍스트', emoji: '📝', proOnly: false },
+    { key: 'url',   label: 'URL',    emoji: '🔗', proOnly: true  },
   ];
   return (
     <div className="flex gap-1 bg-gray-100 rounded-2xl p-1 mb-4">
-      {tabs.map(({ key, label, emoji }) => (
-        <button
-          key={key}
-          onClick={() => onChange(key)}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
-            active === key
-              ? 'bg-white text-brand-primary shadow-sm'
-              : 'text-gray-400 hover:text-gray-600'
-          }`}
-        >
-          <EmojiIcon emoji={emoji} size={12} className="text-current" />{label}
-        </button>
-      ))}
+      {tabs.map(({ key, label, emoji, proOnly }) => {
+        const locked = proOnly && !isPro;
+        return (
+          <button
+            key={key}
+            onClick={() => onChange(key)}
+            className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+              active === key
+                ? 'bg-white text-brand-primary shadow-sm'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <EmojiIcon emoji={emoji} size={12} className="text-current" />
+            {label}
+            {locked && (
+              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-brand-primary rounded-full flex items-center justify-center">
+                <Lock size={7} strokeWidth={3} className="text-white" />
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Pro 잠금 안내 (사진·URL 탭 — 무료 사용자) ────────────────────────────────
+function ProLockedTab({ feature }: { feature: string }) {
+  return (
+    <div className="flex flex-col items-center gap-3 py-10 text-center">
+      <div className="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center">
+        <Lock size={20} className="text-brand-primary" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-gray-900">{feature}</p>
+        <p className="text-xs text-gray-400 mt-1">Pro Lite 이상 플랜에서 이용할 수 있어요</p>
+      </div>
+      <Link
+        href="/settings"
+        className="text-xs font-semibold px-4 py-2 rounded-full bg-brand-primary text-white hover:opacity-90"
+      >
+        플랜 업그레이드 →
+      </Link>
     </div>
   );
 }
@@ -710,8 +746,9 @@ function LoadingSpinner({ label }: { label: string }) {
 // ── 메인 모달 ─────────────────────────────────────────────────────────────────
 export default function TextImportModal({ onClose, onImport }: TextImportModalProps) {
   const { canUse: canUseAi, consume: consumeAi } = useAiQuota();
+  const { isPro } = usePlan();
   const [step, setStep]               = useState<ModalStep>('input');
-  const [activeTab, setActiveTab]     = useState<InputTab>('image');
+  const [activeTab, setActiveTab]     = useState<InputTab>('text');
   const [parsedItems, setParsedItems] = useState<CartItem[]>([]);
   const [domainSummary, setDomainSummary] = useState<{ food: number; fashion: number } | undefined>();
   const [loading, setLoading]         = useState(false);
@@ -817,7 +854,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
         {step === 'input' ? (
           <>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-bold text-gray-900">사진/스크린샷으로 자동 분석</h2>
+              <h2 className="text-base font-bold text-gray-900">상품 정보 등록</h2>
               <button aria-label="닫기" onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -826,20 +863,24 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
             </div>
 
             <StepIndicator step="input" />
-            <TabBar active={activeTab} onChange={handleTabChange} />
+            <TabBar active={activeTab} onChange={handleTabChange} isPro={isPro} />
 
             {activeTab === 'image' && (
-              <ImageTab
-                file={imageFile} setFile={setImageFile}
-                preview={imagePreview} setPreview={setImagePreview}
-                loading={loading} onSubmit={handleAnalyze}
-              />
+              isPro
+                ? <ImageTab
+                    file={imageFile} setFile={setImageFile}
+                    preview={imagePreview} setPreview={setImagePreview}
+                    loading={loading} onSubmit={handleAnalyze}
+                  />
+                : <ProLockedTab feature="사진 분석 (AI Vision)" />
             )}
             {activeTab === 'text' && (
               <TextTab text={text} setText={setText} loading={loading} onSubmit={handleAnalyze} />
             )}
             {activeTab === 'url' && (
-              <UrlTab url={url} setUrl={setUrl} loading={loading} onSubmit={handleAnalyze} />
+              isPro
+                ? <UrlTab url={url} setUrl={setUrl} loading={loading} onSubmit={handleAnalyze} />
+                : <ProLockedTab feature="URL 분석 (AI)" />
             )}
 
             {error && <p className="mt-2 text-xs text-red-500 font-medium">{error}</p>}
