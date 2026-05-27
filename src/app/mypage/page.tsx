@@ -39,10 +39,16 @@ import SeasonalHistorySection                    from '@/components/mypage/Seaso
 import SectionErrorBoundary                      from '@/components/SectionErrorBoundary';
 import PlanGate                                  from '@/components/PlanGate';
 import { usePlan, PLAN_LABEL }                   from '@/lib/usePlan';
+import { useProfiles }                           from '@/lib/profile';
+import ProfilesSection                           from '@/components/settings/ProfilesSection';
+import ProPreviewCard                            from '@/components/settings/ProPreviewCard';
+import AiQuotaCard                              from '@/components/settings/AiQuotaCard';
+import AppInfo                                  from '@/components/mypage/AppInfo';
 
-type MyTab = 'overview' | 'shopping' | 'closet' | 'cook';
+type MyTab = 'user' | 'overview' | 'shopping' | 'closet' | 'cook';
 
 const TABS: { id: MyTab; emoji: string; label: string }[] = [
+  { id: 'user',     emoji: '👤', label: '사용자' },
   { id: 'overview', emoji: '📊', label: '요약' },
   { id: 'shopping', emoji: '🛒', label: '쇼핑' },
   { id: 'closet',   emoji: '👕', label: '옷장' },
@@ -50,10 +56,15 @@ const TABS: { id: MyTab; emoji: string; label: string }[] = [
 ];
 
 const isMyTab = (v: unknown): v is MyTab =>
-  v === 'overview' || v === 'shopping' || v === 'closet' || v === 'cook';
+  v === 'user' || v === 'overview' || v === 'shopping' || v === 'closet' || v === 'cook';
+
+const RELATION_EMOJI: Record<string, string> = {
+  본인: '👤', 배우자: '💞', 자녀: '🧒', 부모: '🧑‍🦳', 기타: '👥',
+};
 
 export default function MyPage() {
   const { tier } = usePlan();
+  const { main: mainProfile } = useProfiles();
   const { items, archived, discardCount, discardHistory, addItems, restoreFromArchive } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
@@ -62,7 +73,7 @@ export default function MyPage() {
   const [browserOpen, setBrowserOpen]       = useState(false);
   const [archiveExpanded, setArchiveExpanded] = useState(false);
   const [activeTab, setActiveTab] = usePersistedState<MyTab>(
-    'nemoa-mypage-tab', 'overview',
+    'nemoa-mypage-tab', 'user',
     (raw) => (isMyTab(raw) ? raw : null),
   );
 
@@ -182,7 +193,7 @@ export default function MyPage() {
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
-        {/* 프로필 카드 + 슬로건 */}
+        {/* 프로필 카드 */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,17 +202,34 @@ export default function MyPage() {
           style={CARD_SHADOW}
         >
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
-              <EmojiIcon emoji="👤" size={22} className="text-brand-primary" />
+            <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 text-2xl">
+              <EmojiIcon
+                emoji={mainProfile.avatar ?? RELATION_EMOJI[mainProfile.relation] ?? '👤'}
+                size={26}
+                className="text-brand-primary"
+              />
             </div>
-            <div>
-              <p className="text-base font-bold text-gray-900">네모아 사용자</p>
-              <p className="text-xs text-gray-400 mt-0.5">{PLAN_LABEL[tier]} 플랜 · AI 비서 활성화</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-bold text-gray-900 truncate">{mainProfile.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <span className="text-xs font-semibold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">
+                  {PLAN_LABEL[tier]}
+                </span>
+                {mainProfile.body.heightCm && (
+                  <span className="text-xs text-gray-400">{mainProfile.body.heightCm}cm</span>
+                )}
+                {mainProfile.body.weightKg && (
+                  <span className="text-xs text-gray-400">{mainProfile.body.weightKg}kg</span>
+                )}
+              </div>
             </div>
+            <button
+              onClick={() => setActiveTab('user')}
+              className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+            >
+              내 정보
+            </button>
           </div>
-          <p className="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 tracking-wide text-center">
-            <span className="font-semibold text-brand-primary">NEMOA</span> — 일상을 반듯하게 모으다
-          </p>
         </motion.div>
 
         {/* 백업 상태 배너 (간단 버전 — 상세는 /settings) */}
@@ -229,6 +257,52 @@ export default function MyPage() {
         )}
 
         {/* ─── 탭별 섹션 ──────────────────────────────────── */}
+
+        {activeTab === 'user' && (
+          <>
+            {/* 사용자 요약 카드 */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ ...springTransition, delay: 0.06 }}
+              className={CARD}
+              style={CARD_SHADOW}
+            >
+              <h3 className="text-xs text-gray-400 font-medium mb-3">내 활동 요약</h3>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
+                  <span className="text-base font-bold text-gray-900 tabular-nums">{items.length}</span>
+                  <span className="text-xs text-gray-400">전체 항목</span>
+                </div>
+                <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
+                  <span className="text-base font-bold text-brand-primary tabular-nums">{foodItemsList.length}</span>
+                  <span className="text-xs text-gray-400">식품</span>
+                </div>
+                <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
+                  <span className="text-base font-bold text-brand-primary tabular-nums">{clothingItemsList.length}</span>
+                  <span className="text-xs text-gray-400">의류</span>
+                </div>
+              </div>
+              {urgentCount > 0 && (
+                <p className="mt-2.5 text-xs text-brand-warning font-semibold text-center">
+                  ⚠️ 소비기한 임박 {urgentCount}개 확인이 필요해요
+                </p>
+              )}
+            </motion.div>
+
+            {/* 프로필 관리 */}
+            <ProfilesSection />
+
+            {/* 플랜 정보 */}
+            <ProPreviewCard />
+
+            {/* AI 사용량 */}
+            <AiQuotaCard />
+
+            {/* 앱 정보 */}
+            <AppInfo />
+          </>
+        )}
 
         {activeTab === 'overview' && (
           <>
