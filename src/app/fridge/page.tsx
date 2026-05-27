@@ -238,9 +238,41 @@ export default function FridgePage() {
         {/* ─── 냉장고 탭 ────────────────────────────── */}
         {activeTab === 'fridge' && (
           <>
-            {/* 시각화/리스트 토글 — 인라인 */}
-            <div className="flex items-center justify-end">
-              <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5">
+            {/* 보기 방식 토글 + 프로필 필터 (리스트 뷰 전용) */}
+            <div className="flex items-center justify-between gap-3">
+              {/* 프로필 필터 — underline 탭 스타일 (리스트 뷰에서만, 프로필 2인+) */}
+              {viewMode === 'list' && profiles.length >= 2 ? (
+                <div role="tablist" aria-label="구성원 필터" className="flex gap-4 overflow-x-auto scrollbar-hide">
+                  {[
+                    { key: '전체', label: '전체' },
+                    ...profiles.map(p => ({ key: p.id, label: p.name })),
+                    { key: '공용', label: '공용' },
+                  ].map(({ key, label }) => {
+                    const isActive = ownerFilter === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        onClick={() => setOwnerFilter(key)}
+                        className={`shrink-0 pb-1.5 text-sm font-medium transition-colors border-b-2 ${
+                          isActive
+                            ? 'text-gray-900 border-gray-900'
+                            : 'text-gray-400 border-transparent hover:text-gray-600'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div />
+              )}
+
+              {/* 보기 방식 세그먼트 */}
+              <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
                 <button
                   type="button"
                   role="tab"
@@ -317,44 +349,6 @@ export default function FridgePage() {
               )}
             </motion.div>
 
-            {/* 프로필 필터 */}
-            {profiles.length >= 2 && (
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
-            <button
-              onClick={() => setOwnerFilter('전체')}
-              className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                ownerFilter === '전체'
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              전체 보기
-            </button>
-            {profiles.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setOwnerFilter(p.id)}
-                className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  ownerFilter === p.id
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {p.name}
-              </button>
-            ))}
-            <button
-              onClick={() => setOwnerFilter('공용')}
-              className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                ownerFilter === '공용'
-                  ? 'bg-gray-500 text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-50'
-              }`}
-            >
-              공용
-            </button>
-          </div>
-        )}
 
         {/* 정렬 + 제철 토글 — 리스트 모드 전용
             STORAGE/GROUP 필터는 카드 칩(❄️ 냉장 / 🥬 신선식품 등)으로
