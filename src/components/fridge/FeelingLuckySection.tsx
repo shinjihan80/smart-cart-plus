@@ -51,7 +51,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
         <button
           onClick={handleShuffle}
           disabled={spinning || matched.length < 2}
-          className="ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all disabled:opacity-40"
+          className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-brand-primary underline underline-offset-2 decoration-brand-primary/40 hover:decoration-brand-primary active:scale-95 transition-all disabled:opacity-40"
         >
           <RefreshCw size={12} strokeWidth={2.5} className="shrink-0" />
           다시 고르기
