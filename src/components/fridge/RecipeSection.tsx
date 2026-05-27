@@ -79,7 +79,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
             )}
             <button
               onClick={() => setBrowserOpen(true)}
-              className="text-xs font-medium px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm hover:border-brand-primary/50 hover:text-brand-primary active:scale-95 transition-all whitespace-nowrap"
+              className="text-xs font-medium px-3 py-1.5 rounded-xl bg-gray-800 text-white hover:bg-gray-700 active:scale-95 transition-all whitespace-nowrap"
             >
               전체 보기 →
             </button>
