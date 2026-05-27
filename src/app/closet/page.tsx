@@ -159,6 +159,18 @@ export default function ClosetPage() {
     count: allClothing.filter((c) => (FASHION_GROUP[c.category] ?? '의류') === g).length,
   })).filter((g) => g.count > 0);
 
+  function scrollToGroup(grp: FashionGroup) {
+    const isAlreadyGrouped = filter === '전체' && !search;
+    setFilter('전체');
+    setSearch('');
+    const doScroll = () => {
+      const el = document.getElementById(`closet-group-${grp}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    if (isAlreadyGrouped) doScroll();
+    else setTimeout(doScroll, 100);
+  }
+
   function handleRemove(id: string) {
     const name = allClothing.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
@@ -244,15 +256,22 @@ export default function ClosetPage() {
           style={CARD_SHADOW}
         >
           <div className="flex justify-between text-center">
-            <div className="flex-1">
+            <button
+              className="flex-1 py-1 rounded-2xl hover:bg-gray-50 transition-colors active:scale-95"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
               <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{allClothing.length}</p>
               <p className="text-sm text-gray-400 mt-0.5">전체</p>
-            </div>
+            </button>
             {groupCounts.map(({ group, count }) => (
-              <div key={group} className="flex-1">
+              <button
+                key={group}
+                className="flex-1 py-1 rounded-2xl hover:bg-gray-50 transition-colors active:scale-95"
+                onClick={() => scrollToGroup(group as FashionGroup)}
+              >
                 <p className="text-2xl font-extrabold text-brand-primary tabular-nums">{count}</p>
                 <p className="text-sm text-gray-400 mt-0.5">{group}</p>
-              </div>
+              </button>
             ))}
           </div>
         </motion.div>
@@ -602,7 +621,7 @@ export default function ClosetPage() {
               const group = items.filter((i) => (FASHION_GROUP[i.category] ?? '의류') === grp);
               if (group.length === 0) return null;
               return (
-                <div key={grp}>
+                <div key={grp} id={`closet-group-${grp}`} className="scroll-mt-28">
                   <div className="flex items-center gap-2 mb-2 mt-1">
                     <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
@@ -652,7 +671,7 @@ export default function ClosetPage() {
               const group = items.filter((i) => (FASHION_GROUP[i.category] ?? '의류') === grp);
               if (group.length === 0) return null;
               return (
-                <div key={grp}>
+                <div key={grp} id={`closet-group-${grp}`} className="scroll-mt-28">
                   <div className="flex items-center gap-2 mb-2 mt-1">
                     <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
