@@ -9,10 +9,10 @@
 
 ---
 
-## 현 상태 (v1.9, 베이직 무료 + Pro 결제 예고)
+## 현 상태 (v2.0, 베이직 무료 + Pro 결제 예고)
 
 - 전체 기능 무료 개방, 로컬 저장, 광고 없음
-- AI 호출만 일일 한도 (vision 10 · parser 20 · nutrition 5 · url 5)
+- AI 호출만 일일 한도 (vision 5 · parser 10 · nutrition 2 · url 2 · fridgeSection 5)
 - **Phase 7 파트너 18개 모두 enabled + 실제 URL** (중고 3 · 기부 3 · 보관 2 신규 + 기존 식품 5 · 패션 5)
 - **Pro 출시 예고 카드** 노출 중 — `nemoa-pro-interest` localStorage 의향 수집
 - **익명 클릭 텔레메트리** 가동 — opt-in 일별 집계 `/api/admin/telemetry/clicks`
@@ -145,7 +145,7 @@ Pro 전환을 위한 **토대는 이미 마련됨** (v1.9 기준 ✅ 표시):
 
 ## 결론
 
-**현 v1.5 베이직은 "MAU 1,000명까지 운영 가능한 제품"**.
+**현 v2.0 베이직은 "MAU 1,000명까지 운영 가능한 제품"**.
 그 이상부터는 AI 비용이 빠르게 증가해 Pro 도입이 강제됩니다.
 
 **추천 릴리즈 순서**:

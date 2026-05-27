@@ -44,7 +44,7 @@
 | 2026-04-20 | 데이터 백업 자동화 — 7일 stale 배너 + JSON 다운로드/복원 + 스냅샷 v2 | v1.4 |
 | 2026-04-20 | 4페이지 전체 리팩터링 — 3179→1091줄 · 25+ 재사용 컴포넌트 분리 (홈 11 · 냉장고 5 · 옷장 3 · 마이 7) | v1.4 |
 | 2026-04-22 | 베이직 출시 준비 — /legal 약관·ConsentGate 동의·DEPLOY.md·빈 시드(mockCartItems→[])·설정 "샘플 데이터 추가" | v1.5 |
-| 2026-04-22 | AI 일일 한도 시스템 — aiQuota.ts(vision10/parser20/nutrition5/url5) + 설정 Quota 카드 + 모달 enforcement | v1.5 |
+| 2026-04-22 | AI 일일 한도 시스템 — aiQuota.ts(vision5/parser10/nutrition2/url2/fridgeSection5) + 설정 Quota 카드 + 모달 enforcement | v1.5 |
 | 2026-04-22 | Service Worker 오프라인 — public/sw.js(network-first HTML·SWR 자산·/api/* 우회) + /offline.html + next.config 헤더 | v1.5 |
 | 2026-04-22 | 로컬 에러 로깅 — errorLog.ts 50건 localStorage · window.onerror + React 바운더리 · 설정 > 오류 기록 카드 | v1.5 |
 | 2026-04-22 | 단위 테스트 36개 (Node 25 네이티브 .mts + node:test) — season·purchaseCycle·seasonalProduce·aiQuota · npm test | v1.5 |
@@ -66,3 +66,8 @@
 | 2026-05-15 | savedOutfits 기반 co-worn 추천 — 사용자 저장 코디 페어 +1.5 / +0.75 보너스 + 라벨 자동 `💞 자주 입는 조합` | v1.9 |
 | 2026-05-15 | 추천 reasons 배지 (옷장 + 레시피 통일) — Outfit/MatchedRecipe 에 reasons[] 추가 + OutfitCard/Modal/TodayDishCard/RecipeSection UI 배지 | v1.9 |
 | 2026-05-15 | Admin API 강화 — GET /api/admin/partners 에 currentUrl·supportsSearch·summary 추가 + CatalogResource 'telemetry' 확장 | v1.9 |
+| 2026-05-27 | AI 한도 상수 분리 — aiQuotaConstants.ts(서버/클라이언트 공유) + /api/admin/config 런타임 노출 + nemoa-admin quota 페이지 10분 ISR 자동 동기화 | v2.0 |
+| 2026-05-27 | nemoa-admin 비개발자 리팩터 — 7개 페이지(settings/storage/categories/users/usage/quota/partners)에서 env var·npm 명령어·파일 경로 제거 → 한국어 UX 언어로 전환 | v2.0 |
+| 2026-05-27 | /help 전면 업데이트 — v1.4~v1.9 기능 반영 (냉장고 3탭·옷장 파트너·마이 연간활동·알림 5종·AI 한도 정확화) + 요금제 섹션·FAQ Pro 항목 추가 | v2.0 |
+| 2026-05-27 | /manual 웹 가이드 신설 — 10섹션 사이드바 목차 + PhoneFrame 앱 스크린샷 5종 + IntersectionObserver scroll-aware 하이라이트 + fixed full-screen 레이아웃 오버레이 | v2.0 |
+| 2026-05-27 | 도움말·메뉴얼 요금제 섹션 추가 — 베이직(무료)/Pro Lite(₩4,900/월)/Pro Max(₩9,900/월) 플랜 비교표 + 연간 할인 안내 | v2.0 |
