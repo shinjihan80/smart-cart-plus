@@ -107,6 +107,8 @@ export default function ClosetPage() {
     (raw) => (isClosetTab(raw) ? raw : null),
   );
   useEffect(() => { setActiveTab('closet'); }, []);
+  const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
+  const compactDetailItem = compactDetailId ? (allItems.filter(isClothingItem).find(i => i.id === compactDetailId) ?? null) : null;
   const { log: wearLog } = useWearLog();
   const searchInputRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchInputRef, () => setSearch(''));
@@ -197,6 +199,9 @@ export default function ClosetPage() {
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
   }
+
+  // viewMode를 vm으로 별칭 — 조건부 블록 안에서 TS narrowing 방지
+  const vm = viewMode;
 
   return (
     <div>
@@ -613,11 +618,11 @@ export default function ClosetPage() {
                     </button>
                     <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
                       <button type="button" onClick={() => setViewMode('list')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
                         <List size={12} strokeWidth={2.4} />
                       </button>
                       <button type="button" onClick={() => setViewMode('compact')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
                         <LayoutGrid size={12} strokeWidth={2.4} />
                       </button>
                     </div>
@@ -678,11 +683,11 @@ export default function ClosetPage() {
                     </button>
                     <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
                       <button type="button" onClick={() => setViewMode('list')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
                         <List size={12} strokeWidth={2.4} />
                       </button>
                       <button type="button" onClick={() => setViewMode('compact')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
                         <LayoutGrid size={12} strokeWidth={2.4} />
                       </button>
                     </div>
@@ -691,7 +696,8 @@ export default function ClosetPage() {
                     {group.map((item) => {
                       const tone = getFashionCategoryTone(item.category);
                       return (
-                        <div key={item.id} className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+                        <button key={item.id} onClick={() => setCompactDetailId(item.id)}
+                          className="rounded-2xl overflow-hidden bg-white border border-gray-100 text-left active:scale-95 transition-transform">
                           <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
                             {item.imageUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -701,7 +707,7 @@ export default function ClosetPage() {
                             )}
                           </div>
                           <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
@@ -714,7 +720,8 @@ export default function ClosetPage() {
             {items.map((item) => {
               const tone = getFashionCategoryTone(item.category);
               return (
-                <div key={item.id} className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+                <button key={item.id} onClick={() => setCompactDetailId(item.id)}
+                  className="rounded-2xl overflow-hidden bg-white border border-gray-100 text-left active:scale-95 transition-transform">
                   <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
                     {item.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -724,7 +731,7 @@ export default function ClosetPage() {
                     )}
                   </div>
                   <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -758,6 +765,45 @@ export default function ClosetPage() {
         )}
         </>)}
       </div>
+
+      {/* ─── 간략 뷰 상세 바텀시트 ─── */}
+      <AnimatePresence>
+        {compactDetailItem && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/40"
+              onClick={() => setCompactDetailId(null)}
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 32, stiffness: 320 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl overflow-y-auto max-h-[88vh] pb-10"
+            >
+              <div className="sticky top-0 bg-white pt-3 pb-1 flex flex-col items-center">
+                <div className="w-8 h-1 bg-gray-200 rounded-full" />
+              </div>
+              <div className="px-4 pt-2">
+                <SwipeClothingCard
+                  item={compactDetailItem}
+                  index={0}
+                  onRemove={(id) => { handleRemove(id); setCompactDetailId(null); }}
+                  onUpdate={updateItem}
+                  matchBadge={weather && FASHION_GROUP[compactDetailItem.category] === '의류'
+                    ? clothingMatch(compactDetailItem.thickness, compactDetailItem.weatherTags, weather.tempC)
+                    : undefined}
+                  expanded={true}
+                  onToggle={() => setCompactDetailId(null)}
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
