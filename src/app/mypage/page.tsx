@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { Settings as SettingsIcon } from 'lucide-react';
+import { Settings as SettingsIcon, Check, Users } from 'lucide-react';
 import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
@@ -40,7 +40,7 @@ import SectionErrorBoundary                      from '@/components/SectionError
 import PlanGate                                  from '@/components/PlanGate';
 import { usePlan, PLAN_LABEL }                   from '@/lib/usePlan';
 import { useProfiles }                           from '@/lib/profile';
-import ProfilesSection, { type ProfilesSectionHandle } from '@/components/settings/ProfilesSection';
+import ProfilesSection from '@/components/settings/ProfilesSection';
 import ProPreviewCard                            from '@/components/settings/ProPreviewCard';
 import AiQuotaCard                              from '@/components/settings/AiQuotaCard';
 
@@ -64,7 +64,8 @@ const RELATION_EMOJI: Record<string, string> = {
 
 export default function MyPage() {
   const { tier } = usePlan();
-  const { main: mainProfile } = useProfiles();
+  const { main: mainProfile, profiles, setMain } = useProfiles();
+  const [showSwitcher, setShowSwitcher] = useState(false);
   const { items, archived, discardCount, discardHistory, addItems, restoreFromArchive } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
@@ -104,16 +105,6 @@ export default function MyPage() {
   // 해시(#weekly-stats 등) 자동 스크롤 — 탭 전환 후 DOM 업데이트 완료를 기다린 뒤 1회 실행
   // 탭 전환은 useEffect 비동기라 native hash scroll이 그 시점엔 element를 못 찾음.
   // 두 번의 rAF로 React commit 후를 잡고, motion 애니메이션 보정용 setTimeout 200ms 폴백.
-  const profilesSectionRef = useRef<ProfilesSectionHandle>(null);
-
-  function handleOpenMyInfo() {
-    if (activeTab !== 'user') setActiveTab('user');
-    setTimeout(() => {
-      profilesSectionRef.current?.expandMain();
-      document.getElementById('profiles')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, activeTab !== 'user' ? 150 : 50);
-  }
-
   const hashScrolledRef = useRef(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -240,10 +231,10 @@ export default function MyPage() {
               </div>
             </div>
             <button
-              onClick={handleOpenMyInfo}
-              className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+              onClick={() => setShowSwitcher(true)}
+              className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
             >
-              내 정보
+              <Users size={12} /> 교체
             </button>
           </div>
         </motion.div>
@@ -307,7 +298,7 @@ export default function MyPage() {
             </motion.div>
 
             {/* 프로필 관리 */}
-            <ProfilesSection ref={profilesSectionRef} />
+            <ProfilesSection />
           </>
         )}
 
@@ -560,6 +551,67 @@ export default function MyPage() {
           }}
           onClose={() => setBrowserOpen(false)}
         />
+      )}
+
+      {/* 사용자 교체 시트 */}
+      {showSwitcher && (
+        <div
+          className="fixed inset-0 z-50 flex items-end"
+          onClick={() => setShowSwitcher(false)}
+        >
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="relative w-full bg-white rounded-t-[28px] px-4 pt-5 pb-10 z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
+            <h2 className="text-base font-bold text-gray-900 mb-4">사용자 선택</h2>
+            <div className="flex flex-col gap-2">
+              {profiles.map((p) => {
+                const isSelected = p.isMain;
+                const isPhoto = p.avatar?.startsWith('data:') || p.avatar?.startsWith('http');
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => { setMain(p.id); setShowSwitcher(false); showToast(`"${p.name}"으로 전환됐어요.`); }}
+                    className={`flex items-center gap-3 w-full px-3 py-3 rounded-2xl transition-colors text-left ${
+                      isSelected
+                        ? 'bg-brand-primary/8 border border-brand-primary/20'
+                        : 'bg-gray-50 border border-transparent hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                      {isPhoto ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <EmojiIcon
+                          emoji={p.avatar ?? RELATION_EMOJI[p.relation] ?? '👤'}
+                          size={20}
+                          className="text-brand-primary"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-semibold truncate ${isSelected ? 'text-brand-primary' : 'text-gray-900'}`}>{p.name}</p>
+                      <p className="text-xs text-gray-400">{p.relation}</p>
+                    </div>
+                    {isSelected && <Check size={16} className="text-brand-primary shrink-0" />}
+                  </button>
+                );
+              })}
+            </div>
+            {profiles.length === 1 && (
+              <p className="text-xs text-gray-400 text-center mt-4">
+                프로필 관리에서 가족을 추가하면 교체할 수 있어요.
+              </p>
+            )}
+          </motion.div>
+        </div>
       )}
     </div>
   );

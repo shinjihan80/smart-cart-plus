@@ -142,5 +142,9 @@ export function useProfiles() {
     ));
   }, []);
 
-  return { profiles, main, add, remove, update };
+  const setMain = useCallback((id: string) => {
+    store.setState((prev) => prev.map((p) => ({ ...p, isMain: p.id === id })));
+  }, []);
+
+  return { profiles, main, add, remove, update, setMain };
 }
