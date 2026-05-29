@@ -470,9 +470,11 @@ export default function FridgePage() {
 
             {/* 타이틀 + 개수 + 정렬 + 뷰토글 — 한 줄 */}
             <div id="fridge-items-top" className="flex items-center gap-2 scroll-mt-28">
-              <span className="text-base font-bold text-gray-900 tracking-tight">
-                {storageFilter === '냉장' ? '❄️ 냉장' : storageFilter === '냉동' ? '🧊 냉동' : '전체'}
-              </span>
+              {(storageFilter === '냉장' || storageFilter === '냉동') && (
+                <span className="text-base font-bold text-gray-900 tracking-tight">
+                  {storageFilter === '냉장' ? '❄️ 냉장' : '🧊 냉동'}
+                </span>
+              )}
               <span className="text-xs text-gray-400 font-medium tabular-nums">{items.length}개</span>
               <div className="flex-1 h-px bg-gray-100" />
               {seasonalCount > 0 && (
@@ -488,14 +490,14 @@ export default function FridgePage() {
                 <SlidersHorizontal size={12} strokeWidth={2.5} />
                 <span className="text-xs font-medium">{SORT_PLAIN[sortBy]}</span>
               </button>
-              <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+              <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-1 shrink-0">
                 <button type="button" role="tab" aria-selected={vm !== 'compact'} onClick={() => setViewMode('list')}
-                  className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm !== 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                  <List size={12} strokeWidth={2.4} />
+                  className={`flex items-center px-2.5 py-1.5 rounded-full transition-colors ${vm !== 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                  <List size={16} strokeWidth={2.2} />
                 </button>
                 <button type="button" role="tab" aria-selected={vm === 'compact'} onClick={() => setViewMode('compact')}
-                  className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                  <LayoutGrid size={12} strokeWidth={2.4} />
+                  className={`flex items-center px-2.5 py-1.5 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                  <LayoutGrid size={16} strokeWidth={2.2} />
                 </button>
               </div>
             </div>
@@ -513,21 +515,6 @@ export default function FridgePage() {
                           <span className="text-base font-bold text-gray-900 tracking-tight">{FOOD_GROUP_EMOJI[grp]} {grp}</span>
                           <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                           <div className="flex-1 h-px bg-gray-100" />
-                          <button onClick={cycleFridgeSort} title={SORT_PLAIN[sortBy]}
-                            className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
-                            <SlidersHorizontal size={12} strokeWidth={2.5} />
-                            <span className="text-xs font-medium">{SORT_PLAIN[sortBy]}</span>
-                          </button>
-                          <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-                            <button type="button" onClick={() => setViewMode('list')}
-                              className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
-                              <List size={12} strokeWidth={2.4} />
-                            </button>
-                            <button type="button" onClick={() => setViewMode('compact')}
-                              className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
-                              <LayoutGrid size={12} strokeWidth={2.4} />
-                            </button>
-                          </div>
                         </div>
                         <AnimatePresence mode="popLayout">
                           <div className="flex flex-col gap-3">
@@ -570,21 +557,6 @@ export default function FridgePage() {
                           <span className="text-base font-bold text-gray-900 tracking-tight">{FOOD_GROUP_EMOJI[grp]} {grp}</span>
                           <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                           <div className="flex-1 h-px bg-gray-100" />
-                          <button onClick={cycleFridgeSort} title={SORT_PLAIN[sortBy]}
-                            className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
-                            <SlidersHorizontal size={12} strokeWidth={2.5} />
-                            <span className="text-xs font-medium">{SORT_PLAIN[sortBy]}</span>
-                          </button>
-                          <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-                            <button type="button" onClick={() => setViewMode('list')}
-                              className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
-                              <List size={12} strokeWidth={2.4} />
-                            </button>
-                            <button type="button" onClick={() => setViewMode('compact')}
-                              className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
-                              <LayoutGrid size={12} strokeWidth={2.4} />
-                            </button>
-                          </div>
                         </div>
                         <div className="grid grid-cols-3 gap-2">
                           {group.map((item) => {

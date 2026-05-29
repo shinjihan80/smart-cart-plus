@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { type FoodItem, type FridgeSection } from '@/types';
 import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
@@ -62,10 +62,10 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -200, transition: { duration: 0.2 } }}
-      transition={{ ...springTransition, delay: 0.1 + index * 0.04 }}
+      exit={{ opacity: 0, x: -200, transition: { duration: 0.18 } }}
+      transition={{ ...springTransition, delay: Math.min(index, 6) * 0.03 }}
       className="relative overflow-hidden rounded-[32px]"
     >
       <div
@@ -73,7 +73,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
         onClick={toggleExpanded}
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-4">
           {/* 좌측: 큰 사진 — 탭하면 변경/추가. 사진이 배경처럼 영역 꽉 채움. */}
           {(() => {
             const tone = getFoodCategoryTone(item.foodCategory);
@@ -115,29 +115,38 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
 
           {/* 본문: 제목 + 메타 + 진행바 */}
           <div className="flex-1 min-w-0">
-            {/* 제목 줄: 제품명 + D-Day 우측 작게 */}
-            <div className="flex items-baseline justify-between gap-2 mb-1">
-              <p className="text-sm font-bold text-brand-ink truncate">{item.name}</p>
-              <p className={`text-sm font-bold tabular-nums shrink-0 ${
-                isUrgent ? 'text-brand-warning' : 'text-gray-500'
-              }`}>
-                {dDay <= 0 ? '만료' : `D-${dDay}`}
-              </p>
+            {/* 제목 줄: 제품명 | D-Day | 펼침 화살표 */}
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-[15px] font-bold text-brand-ink truncate flex-1 leading-snug">{item.name}</p>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <p className={`text-sm font-bold tabular-nums ${
+                  isUrgent ? 'text-brand-warning' : 'text-gray-400'
+                }`}>
+                  {dDay <= 0 ? '만료' : `D-${dDay}`}
+                </p>
+                {!hideToggle && (
+                  <ChevronDown
+                    size={15}
+                    strokeWidth={2.4}
+                    className={`text-gray-300 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+                  />
+                )}
+              </div>
             </div>
 
-            {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
+            {item.memo && <p className="text-xs text-gray-400 truncate mb-2">{item.memo}</p>}
 
             {/* 핵심 정보: 구매일 + 만료일 — 한 줄 (펼치면 자세히) */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-1.5">
-              <span>📅 구매 {item.purchaseDate}</span>
-              <span className="text-gray-300">·</span>
-              <span>
-                ⏳ {dDay <= 0 ? '만료됨' : `${dDay}일 남음`}
+            <div className="flex items-center gap-2 text-xs text-gray-400 tabular-nums mb-3">
+              <span>📅 {item.purchaseDate.slice(5).replace('-', '/')}</span>
+              <span className="text-gray-200">·</span>
+              <span className={isUrgent ? 'text-brand-warning font-medium' : ''}>
+                {dDay <= 0 ? '만료됨' : `${dDay}일 남음`}
               </span>
             </div>
 
             {/* 진행바 */}
-            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
                   dDay <= 2 ? 'bg-brand-warning' : dDay <= 5 ? 'bg-amber-400' : 'bg-brand-success'
@@ -148,7 +157,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
 
             {/* 칼로리·영양소 — 한 줄 (펼치면 자세히) */}
             {item.nutritionFacts ? (
-              <p className="text-xs text-gray-600 tabular-nums mt-1.5">
+              <p className="text-xs text-gray-500 tabular-nums mt-2.5">
                 🔥 <span className="font-semibold">{item.nutritionFacts.calories}</span>kcal
                 <span className="text-gray-300"> · </span>
                 단 {item.nutritionFacts.protein}g
@@ -158,27 +167,12 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 탄 {item.nutritionFacts.carbs}g
               </p>
             ) : (
-              <p className="text-xs text-gray-300 mt-1.5">영양 정보 없음 · 자세히 보기에서 수정</p>
+              <p className="text-[11px] text-gray-300 mt-2.5">영양 정보 없음</p>
             )}
 
           </div>
         </div>
 
-        {/* 상세 버튼 — 바텀시트 컨텍스트에서는 숨김 */}
-        {!hideToggle && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-            aria-expanded={expanded}
-            className="mt-3 -mb-1 w-full flex items-center justify-center gap-1 py-2 text-xs font-semibold text-gray-500 hover:text-brand-primary hover:bg-gray-50 rounded-xl transition-colors"
-          >
-            {expanded ? (
-              <>닫기 <ChevronUp size={14} strokeWidth={2.4} /></>
-            ) : (
-              <>상세 보기 <ChevronDown size={14} strokeWidth={2.4} /></>
-            )}
-          </button>
-        )}
 
         <AnimatePresence>
           {expanded && (
@@ -189,288 +183,208 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-sm">
-                {/* 자세한 칩 — 펼침 시에만 노출 (collapsed에서 숨긴 정보) */}
+              <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-3">
+
+                {/* 태그 칩 */}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${style.bg} ${style.text}`}>
-                    <Icon size={10} />
-                    {style.label}
+                  <span className={`inline-flex items-center gap-0.5 text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${style.bg} ${style.text}`}>
+                    <Icon size={10} />{style.label}
                   </span>
                   {(() => {
                     const FoodIcon = FOOD_ICON[item.foodCategory] ?? FOOD_ICON['기타 식품'];
                     return (
-                      <span className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
-                        <FoodIcon size={11} strokeWidth={2} />
-                        <span>{item.foodCategory ?? '기타'}</span>
+                      <span className="inline-flex items-center gap-0.5 text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                        <FoodIcon size={11} strokeWidth={2} />{item.foodCategory ?? '기타'}
                       </span>
                     );
                   })()}
-                  {(() => {
+                  {inSeason && (() => {
                     const SeasonIcon = SEASON_ICON[season];
                     const seasonColor = SEASON_COLOR[season];
-                    if (inSeason) {
-                      return (
-                        <span
-                          className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${seasonColor.bg} ${seasonColor.text}`}
-                        >
-                          <SeasonIcon size={10} strokeWidth={2.4} />
-                          <span>제철</span>
-                        </span>
-                      );
-                    }
-                    return null;
+                    return (
+                      <span className={`inline-flex items-center gap-0.5 text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${seasonColor.bg} ${seasonColor.text}`}>
+                        <SeasonIcon size={10} strokeWidth={2.4} />제철
+                      </span>
+                    );
                   })()}
                   {owner && (
-                    <span className="inline-flex items-center text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                    <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
                       {owner.name}
                     </span>
                   )}
                 </div>
 
-                {/* 사진 — 편집 + imageUrl 있을 때만 '삭제' 옵션 (변경은 카드 상단 썸네일 탭) */}
-                {editing && item.imageUrl && (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
-                    className="self-start text-xs text-gray-500 hover:text-brand-warning"
-                  >
-                    🗑️ 사진 삭제
-                  </button>
-                )}
-
-                {/* 상품명 — 편집 모드에서만 노출 (비편집 시 카드 상단에 이미 표시되어 중복 제거) */}
-                {editing && (
-                  <div>
-                    <span className="text-gray-400">상품명</span>
-                    <input
-                      type="text"
-                      aria-label={`${item.name} 상품명 수정`}
-                      defaultValue={item.name}
-                      onBlur={(e) => {
-                        const v = e.target.value.trim();
-                        if (v && v !== item.name) onUpdate(item.id, { name: v });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-                    />
-                  </div>
-                )}
-
-                {/* 구매일 · 보관 만료 — date input이 좁은 컬럼에서 겹치므로 한 줄씩 배치 */}
-                <div>
-                  <span className="text-gray-400">구매일</span>
-                  {editing ? (
-                    <input
-                      type="date"
-                      aria-label={`${item.name} 구매일 수정`}
-                      defaultValue={item.purchaseDate}
-                      onBlur={(e) => {
-                        const v = e.target.value;
-                        if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="block w-full mt-0.5 text-xs text-gray-700 font-medium bg-white border border-brand-primary/30 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 tabular-nums"
-                    />
-                  ) : (
-                    <p className="text-gray-700 font-medium mt-0.5 tabular-nums">{item.purchaseDate}</p>
-                  )}
-                </div>
-                <div>
-                  <span className="text-gray-400">보관 만료</span>
-                  <p className={`font-medium tabular-nums mt-0.5 ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
-                    {(() => {
-                      const d = new Date(item.purchaseDate);
-                      d.setDate(d.getDate() + item.baseShelfLifeDays);
-                      return d.toISOString().split('T')[0];
-                    })()}
-                    <span className="text-gray-400 ml-1.5 text-xs">({dDay <= 0 ? '만료' : `${dDay}일 남음`})</span>
-                  </p>
-                </div>
-
-                {/* 영양소 */}
-                {item.nutritionFacts && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <span className="text-gray-400">칼로리</span>
-                      <p className="text-gray-700 font-medium tabular-nums mt-0.5">{item.nutritionFacts.calories} kcal</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">영양소</span>
-                      <p className="text-gray-700 font-medium tabular-nums mt-0.5">
-                        단{item.nutritionFacts.protein} · 지{item.nutritionFacts.fat} · 탄{item.nutritionFacts.carbs}g
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* 보관 가능 일수 */}
-                <div>
-                  <span className="text-gray-400">보관 가능 일수</span>
-                  {editing ? (
-                    <input
-                      type="number"
-                      aria-label={`${item.name} 보관 가능 일수 수정`}
-                      defaultValue={item.baseShelfLifeDays}
-                      min={1}
-                      onBlur={(e) => {
-                        const v = parseInt(e.target.value, 10);
-                        if (v > 0 && v !== item.baseShelfLifeDays) onUpdate(item.id, { baseShelfLifeDays: v });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-20 mt-0.5 text-xs text-gray-700 font-medium bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 tabular-nums"
-                    />
-                  ) : (
-                    <p className="text-gray-700 font-medium mt-0.5 tabular-nums">{item.baseShelfLifeDays}일</p>
-                  )}
-                </div>
-
-                {/* 재구매 주기 — 소진 이력 2회+ 있으면 */}
-                {cycle && !editing && (
-                  <div>
-                    <span className="text-gray-400">재구매 주기</span>
-                    <p className="text-gray-700 font-medium mt-0.5">
-                      🔁 보통 <span className="tabular-nums">{cycle.cycleDays}일</span> 주기
-                      <span className="text-sm text-gray-400 ml-1 tabular-nums">· {cycle.occurrences}회 기록</span>
-                    </p>
-                  </div>
-                )}
-
-                {/* 소유자 */}
-                <div>
-                  <span className="text-gray-400">소유자</span>
-                  {editing ? (
-                    <div className="flex gap-1 mt-0.5 flex-wrap">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: undefined }); }}
-                        className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                          !item.ownerId
-                            ? 'bg-gray-500 text-white'
-                            : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
-                        }`}
-                      >
-                        공용
-                      </button>
-                      {profiles.map((p) => (
-                        <button
-                          key={p.id}
-                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: p.id }); }}
-                          className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                            item.ownerId === p.id
-                              ? 'bg-brand-primary text-white'
-                              : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
-                          }`}
-                        >
-                          {p.name}
-                        </button>
-                      ))}
-                      <a
-                        href="/settings#profiles"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-sm px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
-                      >
-                        + 추가
-                      </a>
-                    </div>
-                  ) : (
-                    <p className="text-gray-700 font-medium mt-0.5">{owner ? owner.name : '공용'}</p>
-                  )}
-                </div>
-
-                {/* 메모 */}
-                <div>
-                  <span className="text-gray-400">메모</span>
-                  {editing ? (
-                    <input
-                      type="text"
-                      aria-label={`${item.name} 메모 수정`}
-                      defaultValue={item.memo ?? ''}
-                      placeholder="메모를 입력하세요"
-                      onBlur={(e) => {
-                        const v = e.target.value.trim();
-                        if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-                    />
-                  ) : (
-                    <p className="text-gray-700 mt-0.5">{item.memo || <span className="text-gray-300">—</span>}</p>
-                  )}
-                </div>
-
-                {/* 보관 위치 — 편집 모드에서 변경 가능 */}
-                <div>
-                  <span className="text-gray-400">보관 위치</span>
-                  {editing ? (
-                    <select
-                      aria-label={`${item.name} 보관 위치 수정`}
-                      value={currentSection}
-                      onChange={(e) => {
-                        const next = e.target.value as FridgeSection;
-                        if (next !== currentSection) onUpdate(item.id, { fridgeSection: next });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-                    >
-                      {modelCells.map((cell) => {
-                        const meta = FRIDGE_SECTION_META[cell.section];
-                        return (
-                          <option key={cell.section} value={cell.section}>
-                            {meta.emoji} {meta.label}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  ) : (
-                    <p className="text-gray-700 mt-0.5">
-                      {FRIDGE_SECTION_META[currentSection].emoji} {FRIDGE_SECTION_META[currentSection].label}
-                      {!item.fridgeSection && <span className="text-gray-300 ml-1">(자동 추천)</span>}
-                    </p>
-                  )}
-                </div>
-
-                {/* 액션 버튼 — 레시피 / 수정 / 소진 */}
-                <div className="flex gap-1.5">
-                  {recipeCount > 0 && !editing && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setRecipeBrowser(true); }}
-                      className="flex-1 py-2 rounded-xl text-xs font-semibold bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
-                    >
-                      📖 이 재료 레시피 {recipeCount}
-                    </button>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (editing) {
-                        showToast(`"${item.name}" 저장됐어요.`);
-                        setEditing(false);
-                      } else {
-                        setEditing(true);
-                      }
-                    }}
-                    className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                      editing
-                        ? 'bg-brand-primary text-white hover:opacity-90'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
-                  </button>
-                </div>
-
-                {/* 소진 (삭제) — 명확히 분리, 빨간 톤 */}
+                {/* ── 보기 모드: 정보 행 테이블 ── */}
                 {!editing && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      haptic('action');
-                      onDiscard(item.id);
-                    }}
-                    className="w-full py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors"
-                  >
-                    🗑️ 소진 처리
-                  </button>
+                  <div className="rounded-xl border border-gray-100 divide-y divide-gray-100 overflow-hidden text-sm">
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">구매일</span>
+                      <span className="font-medium text-gray-700 tabular-nums">{item.purchaseDate}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">보관 만료</span>
+                      <span className={`font-medium tabular-nums ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
+                        {(() => { const d = new Date(item.purchaseDate); d.setDate(d.getDate() + item.baseShelfLifeDays); return d.toISOString().split('T')[0]; })()}
+                        <span className="ml-1.5 text-xs text-gray-400">({dDay <= 0 ? '만료' : `${dDay}일`})</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">보관 일수</span>
+                      <span className="font-medium text-gray-700 tabular-nums">{item.baseShelfLifeDays}일</span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">보관 위치</span>
+                      <span className="font-medium text-gray-700">
+                        {FRIDGE_SECTION_META[currentSection].emoji} {FRIDGE_SECTION_META[currentSection].label}
+                        {!item.fridgeSection && <span className="text-gray-300 text-xs ml-1">(자동)</span>}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">소유자</span>
+                      <span className="font-medium text-gray-700">{owner ? owner.name : '공용'}</span>
+                    </div>
+                    {item.memo && (
+                      <div className="flex items-start justify-between px-4 py-3 bg-gray-50 gap-4">
+                        <span className="text-xs text-gray-400 shrink-0">메모</span>
+                        <span className="font-medium text-gray-700 text-right">{item.memo}</span>
+                      </div>
+                    )}
+                    {item.nutritionFacts && (
+                      <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                        <span className="text-xs text-gray-400">영양</span>
+                        <span className="font-medium text-gray-600 tabular-nums text-xs">
+                          🔥{item.nutritionFacts.calories}kcal · 단{item.nutritionFacts.protein} · 지{item.nutritionFacts.fat} · 탄{item.nutritionFacts.carbs}g
+                        </span>
+                      </div>
+                    )}
+                    {cycle && (
+                      <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                        <span className="text-xs text-gray-400">재구매 주기</span>
+                        <span className="font-medium text-gray-700">🔁 {cycle.cycleDays}일 <span className="text-xs text-gray-400">({cycle.occurrences}회)</span></span>
+                      </div>
+                    )}
+                  </div>
                 )}
+
+                {/* ── 수정 모드: 사각형 폼 필드 ── */}
+                {editing && (
+                  <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+                    {item.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => { onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
+                        className="self-start text-xs text-gray-400 hover:text-rose-500 transition-colors"
+                      >
+                        🗑️ 사진 삭제
+                      </button>
+                    )}
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">상품명</label>
+                      <input
+                        type="text"
+                        aria-label={`${item.name} 상품명 수정`}
+                        defaultValue={item.name}
+                        onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== item.name) onUpdate(item.id, { name: v }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">구매일</label>
+                      <input
+                        type="date"
+                        aria-label={`${item.name} 구매일 수정`}
+                        defaultValue={item.purchaseDate}
+                        onBlur={(e) => { const v = e.target.value; if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">보관 가능 일수</label>
+                      <input
+                        type="number"
+                        aria-label={`${item.name} 보관 가능 일수 수정`}
+                        defaultValue={item.baseShelfLifeDays}
+                        min={1}
+                        onBlur={(e) => { const v = parseInt(e.target.value, 10); if (v > 0 && v !== item.baseShelfLifeDays) onUpdate(item.id, { baseShelfLifeDays: v }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 tabular-nums transition"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">보관 위치</label>
+                      <select
+                        aria-label={`${item.name} 보관 위치 수정`}
+                        value={currentSection}
+                        onChange={(e) => { const next = e.target.value as FridgeSection; if (next !== currentSection) onUpdate(item.id, { fridgeSection: next }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition"
+                      >
+                        {modelCells.map((cell) => {
+                          const meta = FRIDGE_SECTION_META[cell.section];
+                          return <option key={cell.section} value={cell.section}>{meta.emoji} {meta.label}</option>;
+                        })}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">소유자</label>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <button onClick={() => onUpdate(item.id, { ownerId: undefined })}
+                          className={`text-sm px-3 py-1 rounded-lg border transition-colors ${!item.ownerId ? 'bg-gray-700 text-white border-gray-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                          공용
+                        </button>
+                        {profiles.map((p) => (
+                          <button key={p.id} onClick={() => onUpdate(item.id, { ownerId: p.id })}
+                            className={`text-sm px-3 py-1 rounded-lg border transition-colors ${item.ownerId === p.id ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+                            {p.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">메모</label>
+                      <input
+                        type="text"
+                        aria-label={`${item.name} 메모 수정`}
+                        defaultValue={item.memo ?? ''}
+                        placeholder="메모를 입력하세요"
+                        onBlur={(e) => { const v = e.target.value.trim(); if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 액션 버튼 ── */}
+                {editing ? (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); showToast(`"${item.name}" 저장됐어요.`); setEditing(false); }}
+                    className="w-full py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-colors mt-1"
+                  >
+                    ✓ 저장하고 완료
+                  </button>
+                ) : (
+                  <div className="flex gap-2 mt-1">
+                    {recipeCount > 0 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setRecipeBrowser(true); }}
+                        className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                      >
+                        📖 레시피 {recipeCount}개
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditing(true); }}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                    >
+                      ✏️ 정보 수정
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id); }}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100 hover:bg-rose-100 transition-colors"
+                    >
+                      🗑️ 소진 처리
+                    </button>
+                  </div>
+                )}
+
               </div>
             </motion.div>
           )}

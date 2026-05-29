@@ -67,6 +67,13 @@ export type FridgeSection =
   | 'kimchi_top' | 'kimchi_bottom'
   | 'pantry';
 
+export type WardrobeSection =
+  | 'hanging' | 'hanging_2'
+  | 'folded'
+  | 'drawer_2' | 'drawer_3' | 'drawer_4' | 'drawer_5'
+  | 'drawer_s1' | 'drawer_s2' | 'drawer_s3'
+  | 'shoes' | 'bags' | 'accessories';
+
 export interface FoodItem {
   id:                string;
   name:              string;
@@ -135,8 +142,9 @@ export interface ClothingItem {
   weatherTags?:        WeatherTag[];
   colorFamily?:        string;
   ownerId?:            string;   // 프로필 id — undefined면 공용
-  hibernating?:        boolean;  // 계절 보관 중 — 옷장 메인에서 숨김
-  wardrobeInstanceId?: string;   // 복수 옷장 중 어떤 옷장에 속하는지
+  hibernating?:        boolean;       // 계절 보관 중 — 옷장 메인에서 숨김
+  wardrobeSection?:    WardrobeSection; // 수동 지정 옷장 칸 — undefined면 카테고리 자동 배정
+  wardrobeInstanceId?: string;         // 복수 옷장 중 어떤 옷장에 속하는지
 }
 
 // ────────────────────────────────────────────────

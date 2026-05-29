@@ -16,9 +16,9 @@ import type { CartItem, ClothingItem } from '@/types';
 import type { FashionCategory } from '@/types';
 
 // 아우터·원피스 계열은 상단 걸이, 상의 계열은 하단 걸이(2단)로 분리
-const HANGING_2_CATEGORIES: ReadonlyArray<FashionCategory> = ['상의'];
+export const HANGING_2_CATEGORIES: ReadonlyArray<FashionCategory> = ['상의'];
 
-function getSectionForCategory(category: FashionCategory, hasDouble: boolean): WardrobeSection {
+export function getSectionForCategory(category: FashionCategory, hasDouble: boolean): WardrobeSection {
   const group = FASHION_GROUP[category] ?? '의류';
   if (group === '신발') return 'shoes';
   if (group === '가방') return 'bags';
@@ -46,8 +46,11 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
   // 섹션별 아이템 맵
   const itemsBySection = new Map<WardrobeSection, ClothingItem[]>();
   for (const item of clothing) {
-    const section = getSectionForCategory(item.category, hasDouble);
-    // 모델에 해당 섹션이 없으면 hanging 또는 folded 로 폴백
+    // 수동 지정 섹션이 현재 모델에 있으면 우선 사용, 없으면 카테고리 자동 배정
+    const autoSection = getSectionForCategory(item.category, hasDouble);
+    const manualValid = item.wardrobeSection && model.cells.some((c) => c.section === item.wardrobeSection);
+    const section = manualValid ? item.wardrobeSection! : autoSection;
+    // 모델에 해당 섹션이 없으면 hanging 또는 첫 셀로 폴백
     const targetSection = model.cells.some((c) => c.section === section)
       ? section
       : model.cells.some((c) => c.section === 'hanging')

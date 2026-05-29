@@ -1,23 +1,7 @@
-import type { FashionCategory, FashionGroup } from '@/types';
+import type { FashionCategory, FashionGroup, WardrobeSection } from '@/types';
 
-// ─────────────────────────────────────────────
-// 섹션 타입
-// ─────────────────────────────────────────────
-
-export type WardrobeSection =
-  | 'hanging'      // 걸이 (1단 or 2단 상단 — 아우터·원피스)
-  | 'hanging_2'    // 2단 걸이 하단 — 상의·셔츠
-  | 'folded'       // 1단 서랍
-  | 'drawer_2'     // 2단 서랍
-  | 'drawer_3'     // 3단 서랍
-  | 'drawer_4'     // 4단 서랍
-  | 'drawer_5'     // 5단 서랍
-  | 'drawer_s1'    // 작은 서랍 칸 1
-  | 'drawer_s2'    // 작은 서랍 칸 2
-  | 'drawer_s3'    // 작은 서랍 칸 3
-  | 'shoes'
-  | 'bags'
-  | 'accessories';
+// WardrobeSection 타입은 @/types/index.ts 에 정의 — 순환 의존 방지
+export type { WardrobeSection };
 
 export type WardrobeModelId = 'hanger' | 'wardrobe' | 'dresser' | 'system';
 

@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { isEnrichedClothingItem, isClothingItem, FASHION_EMOJI, type ClothingItem } from '@/types';
+import { ChevronDown } from 'lucide-react';
+import { isEnrichedClothingItem, isClothingItem, FASHION_EMOJI, type ClothingItem, type WardrobeSection } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
@@ -14,6 +14,8 @@ import { haptic } from '@/lib/haptics';
 import { useToast } from '@/context/ToastContext';
 import { useProfiles } from '@/lib/profile';
 import { compareSize } from '@/lib/sizeRecommend';
+import { WARDROBE_SECTION_META, type WardrobeCell } from '@/lib/wardrobeModel';
+import { getSectionForCategory } from '@/components/closet/WardrobeView';
 import { springTransition, CARD_SHADOW, THICKNESS_STYLE, SEASON_TAG_STYLE, MATCH_STYLE } from './shared';
 
 interface SwipeClothingCardProps {
@@ -22,6 +24,8 @@ interface SwipeClothingCardProps {
   onRemove:   (id: string) => void;
   onUpdate:   (id: string, updates: Partial<ClothingItem>) => void;
   matchBadge?: MatchBadge;
+  /** 현재 옷장 config의 셀 목록 — 보관 위치 선택에 사용 */
+  wardrobeCells?: WardrobeCell[];
   /** 부모가 관리하는 펼침 상태 — 한 번에 하나만 펼치게 */
   expanded?: boolean;
   onToggle?: () => void;
@@ -29,7 +33,7 @@ interface SwipeClothingCardProps {
   hideToggle?: boolean;
 }
 
-export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge, expanded: expandedProp, onToggle, hideToggle }: SwipeClothingCardProps) {
+export default function SwipeClothingCard({ item, index, onRemove, onUpdate, matchBadge, wardrobeCells, expanded: expandedProp, onToggle, hideToggle }: SwipeClothingCardProps) {
   const [expandedLocal, setExpandedLocal] = useState(false);
   const expanded = expandedProp ?? expandedLocal;
   const toggleExpanded = onToggle ?? (() => setExpandedLocal((v) => !v));
@@ -53,16 +57,26 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
     })
     .filter((x): x is { item: ClothingItem; count: number } => x !== null);
 
+  // 현재 보관 위치 — 수동 지정 우선, 없으면 카테고리 자동 배정
+  const hasDouble = !!(wardrobeCells && wardrobeCells.some((c) => c.section === 'hanging_2'));
+  const autoSection = getSectionForCategory(item.category, hasDouble);
+  const currentWardrobeSection: WardrobeSection = (() => {
+    if (!wardrobeCells) return autoSection;
+    const manualValid = item.wardrobeSection && wardrobeCells.some((c) => c.section === item.wardrobeSection);
+    const s = manualValid ? item.wardrobeSection! : autoSection;
+    return wardrobeCells.some((c) => c.section === s) ? s : (wardrobeCells[0]?.section ?? s);
+  })();
+
   const thick = THICKNESS_STYLE[item.thickness];
   const ThickIcon = thick.icon;
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -200, transition: { duration: 0.2 } }}
-      transition={{ ...springTransition, delay: 0.1 + index * 0.04 }}
+      exit={{ opacity: 0, x: -200, transition: { duration: 0.18 } }}
+      transition={{ ...springTransition, delay: Math.min(index, 6) * 0.03 }}
       className="relative overflow-hidden rounded-[32px]"
     >
       <div
@@ -70,7 +84,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
         onClick={toggleExpanded}
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-4">
           {/* 좌측: 큰 사진 — 탭하면 변경/추가. 사진이 배경처럼 영역 꽉 채움. */}
           {(() => {
             const tone = getFashionCategoryTone(item.category);
@@ -110,32 +124,40 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
           })()}
 
           <div className="flex-1 min-w-0">
-            {/* 제목 줄: 제품명 + 사이즈 우측 작게 (냉장고와 동일 패턴) */}
-            <div className="flex items-baseline justify-between gap-2 mb-1">
-              <p className="text-sm font-bold text-brand-ink truncate">{item.name}</p>
-              <p className={`text-sm font-bold tabular-nums shrink-0 ${daysAgo !== null && daysAgo > 30 ? 'text-brand-warning' : 'text-gray-500'}`}>
-                {item.size}
-              </p>
+            {/* 제목 줄: 제품명 | 사이즈 | 펼침 화살표 */}
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-[15px] font-bold text-brand-ink truncate flex-1 leading-snug">{item.name}</p>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <p className={`text-sm font-bold tabular-nums ${daysAgo !== null && daysAgo > 30 ? 'text-brand-warning' : 'text-gray-400'}`}>
+                  {item.size}
+                </p>
+                {!hideToggle && (
+                  <ChevronDown
+                    size={15}
+                    strokeWidth={2.4}
+                    className={`text-gray-300 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+                  />
+                )}
+              </div>
             </div>
 
-            {item.memo && <p className="text-xs text-gray-400 truncate mb-1.5">{item.memo}</p>}
+            {item.memo && <p className="text-xs text-gray-400 truncate mb-2">{item.memo}</p>}
 
-            {/* 핵심 정보: 카테고리 + 마지막 착용 — 한 줄 (냉장고의 구매일·만료일 패턴) */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-1.5">
-              <span>👔 {item.category}</span>
-              <span className="text-gray-300">·</span>
-              <span>
-                {daysAgo === null ? '🆕 아직 안 입음' :
-                 daysAgo === 0    ? '✓ 오늘 입음' :
-                 daysAgo <= 7     ? `👕 ${daysAgo}일 전 입음` :
-                 daysAgo <= 30    ? `🕒 ${daysAgo}일째 안 입음` :
-                                    `🌙 ${daysAgo}일째 안 입음`}
+            {/* 핵심 정보: 카테고리 + 마지막 착용 */}
+            <div className="flex items-center gap-2 text-xs text-gray-400 tabular-nums mb-3">
+              <span>{item.category}</span>
+              <span className="text-gray-200">·</span>
+              <span className={daysAgo !== null && daysAgo > 30 ? 'text-brand-warning font-medium' : ''}>
+                {daysAgo === null ? '아직 안 입음' :
+                 daysAgo === 0    ? '오늘 입음' :
+                 daysAgo <= 7     ? `${daysAgo}일 전 입음` :
+                                    `${daysAgo}일째 안 입음`}
               </span>
             </div>
 
-            {/* 진행바 — 마지막 착용 후 일수 (오래 될수록 채워짐, 30일 기준) */}
+            {/* 진행바 — 마지막 착용 후 일수 (오래 될수록 채워짐, 60일 기준) */}
             {daysAgo !== null && daysAgo > 0 && (
-              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     daysAgo > 60 ? 'bg-brand-warning' :
@@ -147,44 +169,31 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               </div>
             )}
 
-            {/* 시즌 + 매치 한 줄 (펼치면 자세한 칩) */}
-            <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-              {matchBadge && (
-                <span
-                  className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
-                  title={matchBadge.label}
-                >
-                  <span>{matchBadge.emoji}</span>
-                  <span>{matchBadge.label}</span>
-                </span>
-              )}
-              {item.weatherTags?.map((tag) => (
-                <span
-                  key={tag}
-                  className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-500'}`}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
+            {/* 시즌 + 매치 배지 */}
+            {(matchBadge || (item.weatherTags && item.weatherTags.length > 0)) && (
+              <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
+                {matchBadge && (
+                  <span
+                    className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
+                    title={matchBadge.label}
+                  >
+                    <span>{matchBadge.emoji}</span>
+                    <span>{matchBadge.label}</span>
+                  </span>
+                )}
+                {item.weatherTags?.map((tag) => (
+                  <span
+                    key={tag}
+                    className={`inline-flex text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${SEASON_TAG_STYLE[tag] ?? 'bg-gray-50 text-gray-500'}`}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 상세 버튼 — 바텀시트 컨텍스트에서는 숨김 */}
-        {!hideToggle && (
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-            aria-expanded={expanded}
-            className="mt-3 -mb-1 w-full flex items-center justify-center gap-1 py-2 text-xs font-semibold text-gray-500 hover:text-brand-primary hover:bg-gray-50 rounded-xl transition-colors"
-          >
-            {expanded ? (
-              <>닫기 <ChevronUp size={14} strokeWidth={2.4} /></>
-            ) : (
-              <>상세 보기 <ChevronDown size={14} strokeWidth={2.4} /></>
-            )}
-          </button>
-        )}
 
         <AnimatePresence>
           {expanded && (
@@ -195,24 +204,25 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-3 mt-3 border-t border-gray-100 flex flex-col gap-2.5 text-sm">
-                {/* 자세한 칩 — 펼침 시에만 노출 (collapsed의 매치/시즌은 제외) */}
+              <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-3">
+
+                {/* 태그 칩 */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {owner && (
-                    <span className="inline-flex text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                    <span className="inline-flex text-xs px-2.5 py-1 rounded-full font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
                       {owner.name}
                     </span>
                   )}
-                  <span className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${thick.bg} ${thick.text}`}>
+                  <span className={`inline-flex items-center gap-0.5 text-xs px-2.5 py-1 rounded-full font-medium whitespace-nowrap ${thick.bg} ${thick.text}`}>
                     <ThickIcon size={10} />
                     {item.thickness}
                   </span>
-                  <span className="inline-flex text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
+                  <span className="inline-flex text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium whitespace-nowrap">
                     {item.material}
                   </span>
                   {sizeMatch.status !== 'unknown' && sizeMatch.label && (
                     <span
-                      className={`inline-flex text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${
+                      className={`inline-flex text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap ${
                         sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
                         sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
                         'bg-brand-warning/10 text-brand-warning'
@@ -224,188 +234,194 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   )}
                 </div>
 
-                {/* 사진 — 편집 + imageUrl 있을 때만 '삭제' 옵션 (변경은 카드 상단 썸네일 탭) */}
-                {editing && item.imageUrl && (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
-                    className="self-start text-xs text-gray-500 hover:text-brand-warning"
-                  >
-                    🗑️ 사진 삭제
-                  </button>
+                {/* ── 보기 모드: 정보 행 테이블 ── */}
+                {!editing && (
+                  <div className="rounded-xl border border-gray-100 divide-y divide-gray-100 overflow-hidden text-sm">
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">카테고리</span>
+                      <span className="font-medium text-gray-700">{item.category}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">사이즈</span>
+                      <span className="font-medium text-gray-700">
+                        {item.size}
+                        {sizeMatch.detail && (
+                          <span className="ml-1 text-xs text-gray-400 font-normal">· {sizeReference?.name ?? '본인'} {sizeMatch.detail}</span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">소재</span>
+                      <span className="font-medium text-gray-700">{item.material}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">두께</span>
+                      <span className="font-medium text-gray-700">{item.thickness}</span>
+                    </div>
+                    {item.colorFamily && (
+                      <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                        <span className="text-xs text-gray-400">컬러 패밀리</span>
+                        <span className="font-medium text-gray-700">{item.colorFamily}</span>
+                      </div>
+                    )}
+                    {isEnrichedClothingItem(item) && item.washingTip && (
+                      <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                        <span className="text-xs text-gray-400">세탁 방법</span>
+                        <span className="font-medium text-gray-700">{item.washingTip}</span>
+                      </div>
+                    )}
+                    {item.weatherTags && item.weatherTags.length > 0 && (
+                      <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                        <span className="text-xs text-gray-400">추천 시즌</span>
+                        <span className="font-medium text-gray-700">{item.weatherTags.join(', ')}</span>
+                      </div>
+                    )}
+                    {wardrobeCells && wardrobeCells.length > 0 && (
+                      <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                        <span className="text-xs text-gray-400">보관 위치</span>
+                        <span className="font-medium text-gray-700">
+                          {WARDROBE_SECTION_META[currentWardrobeSection].emoji}{' '}
+                          {WARDROBE_SECTION_META[currentWardrobeSection].label}
+                          {!item.wardrobeSection && <span className="text-gray-300 text-xs ml-1">(자동)</span>}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+                      <span className="text-xs text-gray-400">소유자</span>
+                      <span className="font-medium text-gray-700">{owner ? owner.name : '공용'}</span>
+                    </div>
+                    {item.memo && (
+                      <div className="flex items-start justify-between px-4 py-3 bg-gray-50 gap-4">
+                        <span className="text-xs text-gray-400 shrink-0">메모</span>
+                        <span className="font-medium text-gray-700 text-right">{item.memo}</span>
+                      </div>
+                    )}
+                  </div>
                 )}
 
-                {/* 상품명 — 편집 모드에서만 노출 (비편집 시 카드 상단에 이미 표시되어 중복 제거) */}
+                {/* ── 수정 모드: 사각형 폼 필드 ── */}
                 {editing && (
-                  <div>
-                    <span className="text-gray-400">상품명</span>
-                    <input
-                      type="text"
-                      aria-label={`${item.name} 상품명 수정`}
-                      defaultValue={item.name}
-                      onBlur={(e) => {
-                        const v = e.target.value.trim();
-                        if (v && v !== item.name) onUpdate(item.id, { name: v });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full mt-0.5 text-xs text-gray-800 font-medium bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-                    />
-                  </div>
-                )}
-
-                {/* 사이즈 · 소재 · 두께 */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-gray-400">카테고리</span>
-                    <p className="text-gray-700 font-medium mt-0.5">{item.category}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">사이즈</span>
-                    {editing ? (
+                  <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+                    {item.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => { onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
+                        className="self-start text-xs text-gray-400 hover:text-rose-500 transition-colors"
+                      >
+                        🗑️ 사진 삭제
+                      </button>
+                    )}
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">상품명</label>
+                      <input
+                        type="text"
+                        aria-label={`${item.name} 상품명 수정`}
+                        defaultValue={item.name}
+                        onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== item.name) onUpdate(item.id, { name: v }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">사이즈</label>
                       <input
                         type="text"
                         aria-label={`${item.name} 사이즈 수정`}
                         defaultValue={item.size}
-                        onBlur={(e) => {
-                          const v = e.target.value.trim();
-                          if (v && v !== item.size) onUpdate(item.id, { size: v });
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                        onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== item.size) onUpdate(item.id, { size: v }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition"
                       />
-                    ) : (
-                      <p className="text-gray-700 font-medium mt-0.5">
-                        {item.size}
-                        {sizeMatch.detail && (
-                          <span className="ml-1 text-xs text-gray-400 font-normal">
-                            · {sizeReference?.name ?? '본인'} {sizeMatch.detail}
-                          </span>
-                        )}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-gray-400">소재</span>
-                    {editing ? (
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">소재</label>
                       <input
                         type="text"
                         aria-label={`${item.name} 소재 수정`}
                         defaultValue={item.material}
-                        onBlur={(e) => {
-                          const v = e.target.value.trim();
-                          if (v && v !== item.material) onUpdate(item.id, { material: v });
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                        onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== item.material) onUpdate(item.id, { material: v }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition"
                       />
-                    ) : (
-                      <p className="text-gray-700 font-medium mt-0.5">{item.material}</p>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-gray-400">두께</span>
-                    {editing ? (
-                      <div className="flex gap-1 mt-0.5">
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">두께</label>
+                      <div className="flex gap-1.5 flex-wrap">
                         {(['얇음', '보통', '두꺼움'] as const).map((t) => (
                           <button
                             key={t}
-                            onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { thickness: t }); }}
-                            className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+                            onClick={() => onUpdate(item.id, { thickness: t })}
+                            className={`text-sm px-3 py-1 rounded-lg border transition-colors ${
                               item.thickness === t
-                                ? 'bg-brand-primary text-white'
-                                : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                                ? 'bg-brand-primary text-white border-brand-primary'
+                                : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
                             }`}
                           >
                             {t}
                           </button>
                         ))}
                       </div>
-                    ) : (
-                      <p className="text-gray-700 font-medium mt-0.5">{item.thickness}</p>
+                    </div>
+                    {wardrobeCells && wardrobeCells.length > 0 && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-400 block mb-1.5">보관 위치</label>
+                        <select
+                          aria-label={`${item.name} 보관 위치 수정`}
+                          value={currentWardrobeSection}
+                          onChange={(e) => {
+                            const next = e.target.value as WardrobeSection;
+                            if (next !== currentWardrobeSection) onUpdate(item.id, { wardrobeSection: next });
+                          }}
+                          className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition"
+                        >
+                          {wardrobeCells.map((cell) => {
+                            const meta = WARDROBE_SECTION_META[cell.section];
+                            return <option key={cell.section} value={cell.section}>{meta.emoji} {meta.label}</option>;
+                          })}
+                        </select>
+                      </div>
                     )}
-                  </div>
-                  {item.colorFamily && (
                     <div>
-                      <span className="text-gray-400">컬러 패밀리</span>
-                      <p className="text-gray-700 font-medium mt-0.5">{item.colorFamily}</p>
-                    </div>
-                  )}
-                  {isEnrichedClothingItem(item) && item.washingTip && (
-                    <div className="col-span-2">
-                      <span className="text-gray-400">세탁 방법</span>
-                      <p className="text-gray-700 font-medium mt-0.5">{item.washingTip}</p>
-                    </div>
-                  )}
-                  {item.weatherTags && item.weatherTags.length > 0 && (
-                    <div className="col-span-2">
-                      <span className="text-gray-400">추천 시즌</span>
-                      <p className="text-gray-700 font-medium mt-0.5">{item.weatherTags.join(', ')}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* 소유자 */}
-                <div>
-                  <span className="text-gray-400">소유자</span>
-                  {editing ? (
-                    <div className="flex gap-1 mt-0.5 flex-wrap">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: undefined }); }}
-                        className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                          !item.ownerId
-                            ? 'bg-gray-500 text-white'
-                            : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
-                        }`}
-                      >
-                        공용
-                      </button>
-                      {profiles.map((p) => (
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">소유자</label>
+                      <div className="flex gap-1.5 flex-wrap">
                         <button
-                          key={p.id}
-                          onClick={(e) => { e.stopPropagation(); onUpdate(item.id, { ownerId: p.id }); }}
-                          className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                            item.ownerId === p.id
-                              ? 'bg-brand-primary text-white'
-                              : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                          onClick={() => onUpdate(item.id, { ownerId: undefined })}
+                          className={`text-sm px-3 py-1 rounded-lg border transition-colors ${
+                            !item.ownerId
+                              ? 'bg-gray-700 text-white border-gray-700'
+                              : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          {p.name}
+                          공용
                         </button>
-                      ))}
-                      <a
-                        href="/settings#profiles"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-sm px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
-                      >
-                        + 추가
-                      </a>
+                        {profiles.map((p) => (
+                          <button
+                            key={p.id}
+                            onClick={() => onUpdate(item.id, { ownerId: p.id })}
+                            className={`text-sm px-3 py-1 rounded-lg border transition-colors ${
+                              item.ownerId === p.id
+                                ? 'bg-brand-primary text-white border-brand-primary'
+                                : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                            }`}
+                          >
+                            {p.name}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  ) : (
-                    <p className="text-gray-700 font-medium mt-0.5">{owner ? owner.name : '공용'}</p>
-                  )}
-                </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">메모</label>
+                      <input
+                        type="text"
+                        aria-label={`${item.name} 메모 수정`}
+                        defaultValue={item.memo ?? ''}
+                        placeholder="메모를 입력하세요"
+                        onBlur={(e) => { const v = e.target.value.trim(); if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined }); }}
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition"
+                      />
+                    </div>
+                  </div>
+                )}
 
-                {/* 메모 */}
-                <div>
-                  <span className="text-gray-400">메모</span>
-                  {editing ? (
-                    <input
-                      type="text"
-                      aria-label={`${item.name} 메모 수정`}
-                      defaultValue={item.memo ?? ''}
-                      placeholder="메모를 입력하세요"
-                      onBlur={(e) => {
-                        const v = e.target.value.trim();
-                        if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined });
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full mt-0.5 text-xs text-gray-800 bg-white border border-brand-primary/30 rounded-xl px-2.5 py-1.5 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-                    />
-                  ) : (
-                    <p className="text-gray-700 mt-0.5">{item.memo || <span className="text-gray-300">—</span>}</p>
-                  )}
-                </div>
-                <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
+                {/* 착용 기록 박스 */}
+                <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3.5 py-3">
                   <div className="min-w-0">
                     <p className="text-sm text-gray-400">착용 기록</p>
                     <p className="text-xs font-medium text-gray-700 tabular-nums">
@@ -478,37 +494,29 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   </div>
                 )}
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (editing) {
-                      showToast(`"${item.name}" 저장됐어요.`);
-                      setEditing(false);
-                    } else {
-                      setEditing(true);
-                    }
-                  }}
-                  className={`w-full py-2 rounded-xl text-xs font-semibold transition-colors ${
-                    editing
-                      ? 'bg-brand-primary text-white hover:opacity-90'
-                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  {editing ? '✓ 저장하고 완료' : '✏️ 정보 수정'}
-                </button>
-
-                {/* 삭제 — 명확히 분리, 빨간 톤 */}
-                {!editing && (
+                {/* ── 액션 버튼 ── */}
+                {editing ? (
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      haptic('action');
-                      onRemove(item.id);
-                    }}
-                    className="w-full py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors"
+                    onClick={(e) => { e.stopPropagation(); showToast(`"${item.name}" 저장됐어요.`); setEditing(false); }}
+                    className="w-full py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-colors mt-1"
                   >
-                    🗑️ 삭제
+                    ✓ 저장하고 완료
                   </button>
+                ) : (
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditing(true); }}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                    >
+                      ✏️ 정보 수정
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); haptic('action'); onRemove(item.id); }}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors"
+                    >
+                      🗑️ 삭제
+                    </button>
+                  </div>
                 )}
               </div>
             </motion.div>

@@ -7,6 +7,7 @@ import {
   isClothingItem,
   FASHION_GROUP,
   type FashionGroup,
+  type ClothingItem,
 } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
@@ -27,12 +28,13 @@ import ShoppingMallCard from '@/components/ShoppingMallCard';
 import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
-import { WardrobeView }            from '@/components/closet/WardrobeView';
+import { WardrobeView, getSectionForCategory } from '@/components/closet/WardrobeView';
 import { WardrobeConfigPicker }    from '@/components/closet/WardrobeConfigPicker';
+import { WardrobeSectionSheet }    from '@/components/closet/WardrobeSectionSheet';
 import { InstanceMetaEditor }      from '@/components/InstanceMetaEditor';
 import {
-  WARDROBE_SECTION_GROUP,
   DEFAULT_WARDROBE_CONFIG,
+  buildWardrobeCells,
   type WardrobeSection,
 } from '@/lib/wardrobeModel';
 import { useWardrobeInstances, DEFAULT_WARDROBE_INSTANCE } from '@/lib/useWardrobeInstances';
@@ -138,6 +140,7 @@ export default function ClosetPage() {
   const wardrobeConfig = activeWardrobeInstance?.config ?? DEFAULT_WARDROBE_CONFIG;
   const [wardrobeHighlight, setWardrobeHighlight] = useState<WardrobeSection | undefined>(undefined);
   const [showWardrobePicker, setShowWardrobePicker] = useState(false);
+  const [activeWardrobeSection, setActiveWardrobeSection] = useState<WardrobeSection | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -231,13 +234,27 @@ export default function ClosetPage() {
     else showToast(`"${preset.name}" 이미 있어요.`);
   }
 
+  // 섹션 클릭 → 바텀시트로 해당 칸 아이템 표시 (의류 탭 이동 제거)
   function handleWardrobeSectionClick(section: WardrobeSection) {
     setWardrobeHighlight(section);
-    const group = WARDROBE_SECTION_GROUP[section];
-    setActiveTab('clothing');
-    setFilter(group as GroupFilter);
-    scrollToClothingItems();
+    setActiveWardrobeSection(section);
   }
+
+  // WardrobeView와 동일한 로직으로 섹션별 의류 필터
+  const hasDouble = wardrobeConfig.hangingType === 'double';
+  const wardrobeCells = buildWardrobeCells(wardrobeConfig).cells;
+  function resolveItemSection(item: ClothingItem) {
+    const manualValid = item.wardrobeSection && wardrobeCells.some((c) => c.section === item.wardrobeSection);
+    const section = manualValid ? item.wardrobeSection! : getSectionForCategory(item.category, hasDouble);
+    return wardrobeCells.some((c) => c.section === section)
+      ? section
+      : wardrobeCells.some((c) => c.section === 'hanging')
+        ? 'hanging'
+        : wardrobeCells[0]?.section;
+  }
+  const sectionItems = activeWardrobeSection
+    ? allClothing.filter((i) => resolveItemSection(i) === activeWardrobeSection)
+    : [];
 
   // viewMode를 vm으로 별칭 — 조건부 블록 안에서 TS narrowing 방지
   const vm = viewMode;
@@ -717,14 +734,14 @@ export default function ClosetPage() {
               <SlidersHorizontal size={12} strokeWidth={2.5} />
               <span className="text-xs font-medium">{SORT_LABEL[sortBy]}</span>
             </button>
-            <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+            <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-1 shrink-0">
               <button type="button" role="tab" aria-selected={vm !== 'compact'} onClick={() => setViewMode('list')}
-                className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm !== 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                <List size={12} strokeWidth={2.4} />
+                className={`flex items-center px-2.5 py-1.5 rounded-full transition-colors ${vm !== 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <List size={16} strokeWidth={2.2} />
               </button>
               <button type="button" role="tab" aria-selected={vm === 'compact'} onClick={() => setViewMode('compact')}
-                className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                <LayoutGrid size={12} strokeWidth={2.4} />
+                className={`flex items-center px-2.5 py-1.5 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <LayoutGrid size={16} strokeWidth={2.2} />
               </button>
             </div>
           </div>
@@ -742,21 +759,6 @@ export default function ClosetPage() {
                     <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                     <div className="flex-1 h-px bg-gray-100" />
-                    <button onClick={cycleSortBy} title={SORT_LABEL[sortBy]}
-                      className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
-                      <SlidersHorizontal size={12} strokeWidth={2.5} />
-                      <span className="text-xs font-medium">{SORT_LABEL[sortBy]}</span>
-                    </button>
-                    <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-                      <button type="button" onClick={() => setViewMode('list')}
-                        className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
-                        <List size={12} strokeWidth={2.4} />
-                      </button>
-                      <button type="button" onClick={() => setViewMode('compact')}
-                        className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
-                        <LayoutGrid size={12} strokeWidth={2.4} />
-                      </button>
-                    </div>
                   </div>
                   <AnimatePresence mode="popLayout">
                     <div className="flex flex-col gap-3">
@@ -768,6 +770,7 @@ export default function ClosetPage() {
                           onRemove={handleRemove}
                           onUpdate={updateItem}
                           matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined}
+                          wardrobeCells={wardrobeCells}
                           expanded={expandedClothingId === item.id}
                           onToggle={() => setExpandedClothingId(expandedClothingId === item.id ? null : item.id)}
                         />
@@ -788,6 +791,7 @@ export default function ClosetPage() {
                 onRemove={handleRemove}
                 onUpdate={updateItem}
                 matchBadge={weather && FASHION_GROUP[item.category] === '의류' ? clothingMatch(item.thickness, item.weatherTags, weather.tempC) : undefined}
+                wardrobeCells={wardrobeCells}
                 expanded={expandedClothingId === item.id}
                 onToggle={() => setExpandedClothingId(expandedClothingId === item.id ? null : item.id)}
               />
@@ -807,21 +811,6 @@ export default function ClosetPage() {
                     <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                     <div className="flex-1 h-px bg-gray-100" />
-                    <button onClick={cycleSortBy} title={SORT_LABEL[sortBy]}
-                      className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
-                      <SlidersHorizontal size={12} strokeWidth={2.5} />
-                      <span className="text-xs font-medium">{SORT_LABEL[sortBy]}</span>
-                    </button>
-                    <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-                      <button type="button" onClick={() => setViewMode('list')}
-                        className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
-                        <List size={12} strokeWidth={2.4} />
-                      </button>
-                      <button type="button" onClick={() => setViewMode('compact')}
-                        className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
-                        <LayoutGrid size={12} strokeWidth={2.4} />
-                      </button>
-                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {group.map((item) => {
@@ -897,6 +886,21 @@ export default function ClosetPage() {
         </>)}
       </div>
 
+      {/* ─── 옷장 칸 상세 시트 — 냉장고 SectionDetailSheet와 동일한 패턴 ─── */}
+      <WardrobeSectionSheet
+        section={activeWardrobeSection}
+        items={sectionItems}
+        getMatchBadge={(item) =>
+          weather && FASHION_GROUP[item.category] === '의류'
+            ? clothingMatch(item.thickness, item.weatherTags, weather.tempC)
+            : undefined
+        }
+        onClose={() => setActiveWardrobeSection(null)}
+        onRemove={handleRemove}
+        onUpdate={updateItem}
+        wardrobeCells={wardrobeCells}
+      />
+
       {/* ─── 간략 뷰 상세 바텀시트 ─── */}
       <AnimatePresence>
         {compactDetailItem && (
@@ -937,6 +941,7 @@ export default function ClosetPage() {
                   matchBadge={weather && FASHION_GROUP[compactDetailItem.category] === '의류'
                     ? clothingMatch(compactDetailItem.thickness, compactDetailItem.weatherTags, weather.tempC)
                     : undefined}
+                  wardrobeCells={wardrobeCells}
                   expanded={true}
                   onToggle={() => setCompactDetailId(null)}
                   hideToggle={true}
