@@ -76,12 +76,13 @@ export interface FoodItem {
   baseShelfLifeDays: number;
   purchaseDate:      string;
 
-  imageUrl?:       string;
-  memo?:           string;
-  nutritionFacts?: NutritionFacts;
-  openedDate?:     string;
-  ownerId?:        string;        // 프로필 id — undefined면 공용
-  fridgeSection?:  FridgeSection; // Phase 8.0 — 냉장고 시각화 보관 위치
+  imageUrl?:          string;
+  memo?:              string;
+  nutritionFacts?:    NutritionFacts;
+  openedDate?:        string;
+  ownerId?:           string;        // 프로필 id — undefined면 공용
+  fridgeSection?:     FridgeSection; // Phase 8.0 — 냉장고 시각화 보관 위치
+  fridgeInstanceId?:  string;        // 복수 냉장고 중 어떤 냉장고에 속하는지
 }
 
 // ────────────────────────────────────────────────
@@ -129,12 +130,13 @@ export interface ClothingItem {
   thickness:     Thickness;
   material:      string;
 
-  imageUrl?:     string;
-  memo?:         string;
-  weatherTags?:  WeatherTag[];
-  colorFamily?:  string;
-  ownerId?:      string;   // 프로필 id — undefined면 공용
-  hibernating?:  boolean;  // 계절 보관 중 — 옷장 메인에서 숨김
+  imageUrl?:           string;
+  memo?:               string;
+  weatherTags?:        WeatherTag[];
+  colorFamily?:        string;
+  ownerId?:            string;   // 프로필 id — undefined면 공용
+  hibernating?:        boolean;  // 계절 보관 중 — 옷장 메인에서 숨김
+  wardrobeInstanceId?: string;   // 복수 옷장 중 어떤 옷장에 속하는지
 }
 
 // ────────────────────────────────────────────────

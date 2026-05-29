@@ -6,11 +6,13 @@ import { X } from 'lucide-react';
 
 import SwipeFoodCard from '@/components/fridge/SwipeFoodCard';
 import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
+import { type FridgeModelId } from '@/lib/fridgeModel';
 import type { FoodItem, FridgeSection } from '@/types';
 
 interface SectionDetailSheetProps {
-  section:    FridgeSection | null;
-  items:      (FoodItem & { dDay: number })[];
+  section:       FridgeSection | null;
+  items:         (FoodItem & { dDay: number })[];
+  fridgeModelId: FridgeModelId;
   onClose:    () => void;
   onDiscard:  (id: string) => void;
   onUpdate:   (id: string, updates: Partial<FoodItem>) => void;
@@ -19,6 +21,7 @@ interface SectionDetailSheetProps {
 export function SectionDetailSheet({
   section,
   items,
+  fridgeModelId,
   onClose,
   onDiscard,
   onUpdate,
@@ -92,6 +95,7 @@ export function SectionDetailSheet({
                       item={item}
                       dDay={item.dDay}
                       index={index}
+                      fridgeModelId={fridgeModelId}
                       onDiscard={onDiscard}
                       onUpdate={onUpdate}
                       expanded={expandedId === item.id}

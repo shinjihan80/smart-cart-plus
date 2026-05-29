@@ -7,8 +7,7 @@ import { type FoodItem, type FridgeSection } from '@/types';
 import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { getFoodCategoryTone } from '@/lib/categoryImages';
-import { useFridgeModel } from '@/lib/useFridgeModel';
-import { FRIDGE_MODELS } from '@/lib/fridgeModel';
+import { FRIDGE_MODELS, type FridgeModelId } from '@/lib/fridgeModel';
 import { FRIDGE_SECTION_META, recommendFridgeSection } from '@/lib/fridgeSection';
 import { useProfiles } from '@/lib/profile';
 import { useToast } from '@/context/ToastContext';
@@ -24,9 +23,10 @@ import { useCart } from '@/context/CartContext';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
-  item:      FoodItem;
-  dDay:      number;
-  index:     number;
+  item:         FoodItem;
+  dDay:         number;
+  index:        number;
+  fridgeModelId: FridgeModelId;
   onDiscard: (id: string) => void;
   onUpdate:  (id: string, updates: Partial<FoodItem>) => void;
   /** 부모가 관리하는 펼침 상태 — 한 번에 하나만 펼치게 */
@@ -36,7 +36,7 @@ interface SwipeFoodCardProps {
   hideToggle?: boolean;
 }
 
-export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, expanded: expandedProp, onToggle, hideToggle }: SwipeFoodCardProps) {
+export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDiscard, onUpdate, expanded: expandedProp, onToggle, hideToggle }: SwipeFoodCardProps) {
   const [expandedLocal, setExpandedLocal] = useState(false);
   const expanded = expandedProp ?? expandedLocal;
   const toggleExpanded = onToggle ?? (() => setExpandedLocal((v) => !v));
@@ -48,7 +48,6 @@ export default function SwipeFoodCard({ item, dDay, index, onDiscard, onUpdate, 
   const { isFavorite, toggle } = useRecipeFavorites();
   const owner = item.ownerId ? profiles.find((p) => p.id === item.ownerId) : null;
   const recipeCount = countRecipesByIngredient(item.name);
-  const [fridgeModelId] = useFridgeModel();
   const modelCells = FRIDGE_MODELS[fridgeModelId].cells;
   const currentSection = item.fridgeSection ?? recommendFridgeSection(item);
   const { discardHistory } = useCart();

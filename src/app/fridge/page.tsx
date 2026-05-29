@@ -21,13 +21,15 @@ import RebuySection            from '@/components/fridge/RebuySection';
 import SeasonalProduceSection  from '@/components/fridge/SeasonalProduceSection';
 import SectionErrorBoundary    from '@/components/SectionErrorBoundary';
 import { FridgeView }          from '@/components/fridge/FridgeView';
+import { FridgeModelPicker }   from '@/components/fridge/FridgeModelPicker';
 import { SectionDetailSheet }  from '@/components/fridge/SectionDetailSheet';
 import { isSeasonalProduce, type SeasonalProduce } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { SEASON_ICON }          from '@/lib/iconMap';
 import { useProfiles }         from '@/lib/profile';
 import { usePersistedState }   from '@/lib/usePersistedState';
-import { useFridgeModel }      from '@/lib/useFridgeModel';
+import { useFridgeInstances, DEFAULT_FRIDGE_INSTANCE } from '@/lib/useFridgeInstances';
+import { InstanceMetaEditor } from '@/components/InstanceMetaEditor';
 import { recommendFridgeSection, FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import { FRIDGE_MODELS, resolveSectionForModel } from '@/lib/fridgeModel';
 import { getFoodCategoryTone } from '@/lib/categoryImages';
@@ -35,7 +37,7 @@ import { getFoodCategoryTone } from '@/lib/categoryImages';
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
 type SortKey       = 'dDay' | 'name' | 'seasonal';
-type FridgeTab     = 'fridge' | 'suggest' | 'shopping';
+type FridgeTab     = 'fridge' | 'food' | 'suggest' | 'shopping';
 
 const RELATION_EMOJI: Record<string, string> = {
   본인: '👤', 배우자: '💞', 자녀: '🧒', 부모: '🧑‍🦳', 기타: '👥',
@@ -43,12 +45,13 @@ const RELATION_EMOJI: Record<string, string> = {
 
 const FRIDGE_TABS: { id: FridgeTab; emoji: string; label: string }[] = [
   { id: 'fridge',   emoji: '🧊', label: '냉장고' },
+  { id: 'food',     emoji: '🍽️', label: '음식' },
   { id: 'suggest',  emoji: '💡', label: '추천' },
   { id: 'shopping', emoji: '🛒', label: '장보기' },
 ];
 
 const isFridgeTab = (v: unknown): v is FridgeTab =>
-  v === 'fridge' || v === 'suggest' || v === 'shopping';
+  v === 'fridge' || v === 'food' || v === 'suggest' || v === 'shopping';
 
 const SORT_CYCLE: Record<SortKey, { next: SortKey; label: string }> = {
   dDay:     { next: 'name',     label: '📅 임박순' },
@@ -109,7 +112,19 @@ export default function FridgePage() {
   const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
   const compactDetailItem = compactDetailId ? allItems.filter(isFoodItem).find(i => i.id === compactDetailId) ?? null : null;
   const compactDetailDDay = compactDetailItem ? calcRemainingDays(compactDetailItem.purchaseDate, compactDetailItem.baseShelfLifeDays) : 0;
-  const [fridgeModelId] = useFridgeModel();
+  const {
+    instances: fridgeInstances,
+    activeId: activeFridgeId,
+    activeInstance: activeFridgeInstance,
+    setActiveId: setActiveFridgeId,
+    addInstance: addFridgeInstance,
+    removeInstance: removeFridgeInstance,
+    updateModelId: updateFridgeModelId,
+    renameInstance: renameFridgeInstance,
+    updateEmoji:    updateFridgeEmoji,
+  } = useFridgeInstances();
+  const fridgeModelId = activeFridgeInstance?.modelId ?? DEFAULT_FRIDGE_INSTANCE.modelId;
+  const [showFridgePicker, setShowFridgePicker] = useState(false);
   const [activeSection, setActiveSection] = useState<FridgeSection | null>(null);
   const [expandedFoodId, setExpandedFoodId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -117,6 +132,7 @@ export default function FridgePage() {
   const season = currentSeasonByMonth();
 
   const allFood = allItems.filter(isFoodItem)
+    .filter((i) => (i.fridgeInstanceId ?? fridgeInstances[0]?.id ?? DEFAULT_FRIDGE_INSTANCE.id) === activeFridgeId)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }));
 
   const items = allFood
@@ -173,6 +189,7 @@ export default function FridgePage() {
       purchaseDate: new Date().toISOString().split('T')[0],
       ownerId: quickAddOwner,
       fridgeSection: pickSection(preset),
+      fridgeInstanceId: activeFridgeId,
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
@@ -181,6 +198,19 @@ export default function FridgePage() {
   function cycleFridgeSort() {
     const keys: SortKey[] = ['dDay', 'name', 'seasonal'];
     setSortBy(keys[(keys.indexOf(sortBy) + 1) % keys.length]);
+  }
+
+  function scrollToFridgeItems() {
+    setTimeout(() => {
+      document.getElementById('fridge-items-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function scrollToStorage(filter: StorageFilter) {
+    setActiveTab('food');
+    if (viewMode === 'visual') setViewMode('list');
+    setStorageFilter(filter);
+    scrollToFridgeItems();
   }
 
   function handleRebuy(name: string) {
@@ -194,6 +224,7 @@ export default function FridgePage() {
       baseShelfLifeDays: 7,
       purchaseDate: new Date().toISOString().split('T')[0],
       fridgeSection: pickSection(input),
+      fridgeInstanceId: activeFridgeId,
     }]);
     if (added > 0) showToast(`"${name}" 재구매 등록됐어요!`);
     else showToast(`"${name}" 이미 있어요.`);
@@ -210,6 +241,7 @@ export default function FridgePage() {
       purchaseDate: new Date().toISOString().split('T')[0],
       ownerId: quickAddOwner,
       fridgeSection: pickSection(p),
+      fridgeInstanceId: activeFridgeId,
     }]);
     if (added > 0) showToast(`"${p.name}" 담았어요! 제철이라 가장 맛있을 때예요.`);
     else showToast(`"${p.name}" 이미 있어요.`);
@@ -224,7 +256,7 @@ export default function FridgePage() {
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
             <p className="text-sm text-gray-400 mt-0.5">
-              {FRIDGE_MODELS[fridgeModelId].label} · 식품 {allFood.length}개
+              {fridgeInstances.length > 1 ? `${activeFridgeInstance?.name ?? '냉장고'} · ` : ''}{FRIDGE_MODELS[fridgeModelId].label} · 식품 {allFood.length}개
             </p>
           </div>
           <PaletteButton />
@@ -260,66 +292,68 @@ export default function FridgePage() {
         {/* ─── 냉장고 탭 ────────────────────────────── */}
         {activeTab === 'fridge' && (
           <>
-            {/* 보기 방식 토글 + 프로필 필터 */}
-            <div className="flex items-center justify-between gap-3">
-              {/* 구성원 필터 — 슬라이딩 세그먼트 (냉장고·리스트 뷰 공통, 프로필 2인+) */}
-              {profiles.length >= 2 ? (
-                <div role="tablist" aria-label="구성원 필터" className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide">
-                  {([
-                    { key: '전체', label: '전체' },
-                    ...profiles.map(p => ({ key: p.id, label: p.name })),
-                    { key: '공용', label: '공용' },
-                  ] as { key: string; label: string }[]).map(({ key, label }) => {
-                    const isActive = ownerFilter === key;
-                    return (
+            {/* 냉장고 인스턴스 탭 */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
+                {fridgeInstances.map((inst) => (
+                  <div key={inst.id} className="flex items-center shrink-0 gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setActiveFridgeId(inst.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 ${
+                        inst.id === activeFridgeId ? 'bg-brand-primary text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      <span className="text-sm leading-none">{inst.emoji ?? '🧊'}</span>
+                      {inst.name}
+                    </button>
+                    {fridgeInstances.length > 1 && inst.id !== fridgeInstances[0].id && (
                       <button
-                        key={key}
                         type="button"
-                        role="tab"
-                        aria-selected={isActive}
-                        onClick={() => setOwnerFilter(key)}
-                        className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          isActive
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-500'
-                        }`}
+                        onClick={() => removeFridgeInstance(inst.id)}
+                        className="w-4 h-4 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-[11px] leading-none hover:bg-red-100 hover:text-red-500 transition-colors"
+                        aria-label={`${inst.name} 삭제`}
                       >
-                        {label}
+                        ×
                       </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div />
-              )}
-
-              {/* 보기 방식 세그먼트 */}
-              <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-                <button type="button" role="tab" aria-selected={viewMode === 'visual'} onClick={() => setViewMode('visual')}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'visual' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                  <LayoutGrid size={12} strokeWidth={2.4} /><span>냉장고</span>
-                </button>
-                <button type="button" role="tab" aria-selected={viewMode === 'list'} onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                  <List size={12} strokeWidth={2.4} /><span>리스트</span>
-                </button>
-                <button type="button" role="tab" aria-selected={viewMode === 'compact'} onClick={() => setViewMode('compact')}
-                  className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                  <LayoutGrid size={12} strokeWidth={2.4} />
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addFridgeInstance}
+                  className="shrink-0 w-7 h-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-base font-bold hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
+                  aria-label="냉장고 추가"
+                >
+                  +
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={() => setShowFridgePicker(v => !v)}
+                className="shrink-0 text-[11px] font-semibold text-brand-primary bg-brand-primary/8 hover:bg-brand-primary/15 px-2.5 py-1 rounded-full transition-all whitespace-nowrap"
+              >
+                {activeFridgeInstance?.name ?? '냉장고'} 유형 변경
+              </button>
             </div>
-
-            {/* 시각화 — 위계상 1순위 */}
-            {viewMode === 'visual' && allFood.length > 0 && (
-              <FridgeView
-                modelId={fridgeModelId}
-                items={items}
-                onSectionClick={setActiveSection}
-              />
+            {showFridgePicker && (
+              <div className="flex flex-col gap-2.5">
+                <InstanceMetaEditor
+                  name={activeFridgeInstance?.name ?? ''}
+                  emoji={activeFridgeInstance?.emoji ?? '🧊'}
+                  emojis={['🧊','❄️','🍱','🥩','🥦','🫙','🍺','🥡','🏠','🌿','⭐','❤️']}
+                  onNameChange={(n) => renameFridgeInstance(activeFridgeId, n)}
+                  onEmojiChange={(e) => updateFridgeEmoji(activeFridgeId, e)}
+                />
+                <FridgeModelPicker
+                  selected={fridgeModelId}
+                  onSelect={(id) => { updateFridgeModelId(activeFridgeId, id); setShowFridgePicker(false); }}
+                  compact
+                />
+              </div>
             )}
 
-            {/* 요약 4수치 (시각화 아래 작게) */}
+            {/* 요약 4수치 */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -328,27 +362,26 @@ export default function FridgePage() {
               style={CARD_SHADOW}
             >
               <div className="flex justify-between text-center">
-                <div className="flex-1">
-                  <p className="text-xl font-extrabold text-gray-900 tabular-nums">{allFood.length}</p>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  <p className="text-base font-bold text-gray-900 tabular-nums">{allFood.length}</p>
                   <p className="text-xs text-gray-400 mt-0.5">전체</p>
-                </div>
-                <div className="flex-1">
-                  <p className="text-xl font-extrabold text-sky-600 tabular-nums">{coldCount}</p>
+                </button>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => scrollToStorage('냉장')}>
+                  <p className="text-base font-bold text-sky-600 tabular-nums">{coldCount}</p>
                   <p className="text-xs text-gray-400 mt-0.5">냉장</p>
-                </div>
-                <div className="flex-1">
-                  <p className="text-xl font-extrabold text-indigo-600 tabular-nums">{frozenCount}</p>
+                </button>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => scrollToStorage('냉동')}>
+                  <p className="text-base font-bold text-indigo-600 tabular-nums">{frozenCount}</p>
                   <p className="text-xs text-gray-400 mt-0.5">냉동</p>
-                </div>
-                <div className="flex-1">
-                  <p className={`text-xl font-extrabold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
+                </button>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setActiveTab('food'); setStorageFilter('전체'); setSortBy('dDay'); scrollToFridgeItems(); }}>
+                  <p className={`text-base font-bold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
                     {urgentCount}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">임박</p>
-                </div>
+                </button>
               </div>
-              {/* 그룹 칩(신선/가공/음료)은 리스트 모드에서 필터로 활용 — 시각화에선 노이즈라 제거 */}
-              {viewMode === 'list' && foodGroupCounts.length > 0 && (
+              {foodGroupCounts.length > 0 && (
                 <div className="flex gap-3 mt-3 pt-3 border-t border-gray-50">
                   {foodGroupCounts.map(({ group, count }) => (
                     <span key={group} className="text-xs text-gray-400">
@@ -359,28 +392,116 @@ export default function FridgePage() {
               )}
             </motion.div>
 
-
-        {/* 정렬·제철 행 — 필터/검색 모드(비그룹)일 때만 표시 */}
-        {(viewMode === 'list' || viewMode === 'compact') &&
-          (storageFilter !== '전체' || groupFilter !== '전체' || !!search || seasonalOnly) && (
-          <div className="flex items-center justify-between gap-2 px-0.5">
-            <button onClick={cycleFridgeSort} className="flex items-center gap-1.5 hover:opacity-70 transition-opacity active:scale-95">
-              <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
-              <span className="text-xs font-medium text-gray-600">{SORT_PLAIN[sortBy]}</span>
-            </button>
-            {seasonalCount > 0 && (
-              <button onClick={() => setSeasonalOnly(!seasonalOnly)}
-                className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
-                  seasonalOnly ? 'bg-brand-primary text-white' : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
-                }`}>
-                {(() => { const Icon = SEASON_ICON[season]; return <span className="inline-flex items-center gap-1"><Icon size={11} strokeWidth={2.4} /><span>제철 {seasonalCount}</span></span>; })()}
-              </button>
+            {/* 시각화 */}
+            {allFood.length > 0 && (
+              <FridgeView
+                modelId={fridgeModelId}
+                items={items}
+                onSectionClick={setActiveSection}
+              />
             )}
-          </div>
+
+
+            {allFood.length === 0 && (
+              <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
+                <EmojiIcon emoji="🧊" size={32} className="text-gray-400" />
+                <p className="text-sm font-medium">냉장고가 비어있어요</p>
+                <p className="text-xs">+ 버튼을 눌러 식품을 추가하거나 샘플로 체험해보세요</p>
+                <button
+                  onClick={() => {
+                    const n = loadSampleData();
+                    showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
+                  }}
+                  className="mt-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
+                >
+                  🎯 샘플 데이터로 채우기
+                </button>
+              </div>
+            )}
+          </>
         )}
 
+        {/* ─── 음식 탭 ────────────────────────────── */}
+        {activeTab === 'food' && (
+          <>
+            {/* 요약 4수치 */}
+            <div className={CARD} style={CARD_SHADOW}>
+              <div className="flex justify-between text-center">
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  <p className="text-base font-bold text-gray-900 tabular-nums">{allFood.length}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">전체</p>
+                </button>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉장'); scrollToFridgeItems(); }}>
+                  <p className="text-base font-bold text-sky-600 tabular-nums">{coldCount}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">냉장</p>
+                </button>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉동'); scrollToFridgeItems(); }}>
+                  <p className="text-base font-bold text-indigo-600 tabular-nums">{frozenCount}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">냉동</p>
+                </button>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setSortBy('dDay'); scrollToFridgeItems(); }}>
+                  <p className={`text-base font-bold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
+                    {urgentCount}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">임박</p>
+                </button>
+              </div>
+            </div>
+
+            {/* 프로필 필터 (2명 이상일 때만) */}
+            {profiles.length >= 2 && (
+              <div role="tablist" aria-label="구성원 필터" className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide w-fit">
+                {([
+                  { key: '전체', label: '전체' },
+                  ...profiles.map(p => ({ key: p.id, label: p.name })),
+                  { key: '공용', label: '공용' },
+                ] as { key: string; label: string }[]).map(({ key, label }) => {
+                  const isActive = ownerFilter === key;
+                  return (
+                    <button key={key} type="button" role="tab" aria-selected={isActive}
+                      onClick={() => setOwnerFilter(key)}
+                      className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* 타이틀 + 개수 + 정렬 + 뷰토글 — 한 줄 */}
+            <div id="fridge-items-top" className="flex items-center gap-2 scroll-mt-28">
+              <span className="text-base font-bold text-gray-900 tracking-tight">
+                {storageFilter === '냉장' ? '❄️ 냉장' : storageFilter === '냉동' ? '🧊 냉동' : '전체'}
+              </span>
+              <span className="text-xs text-gray-400 font-medium tabular-nums">{items.length}개</span>
+              <div className="flex-1 h-px bg-gray-100" />
+              {seasonalCount > 0 && (
+                <button onClick={() => setSeasonalOnly(!seasonalOnly)}
+                  className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${
+                    seasonalOnly ? 'bg-brand-primary text-white' : 'bg-white border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/5'
+                  }`}>
+                  {(() => { const Icon = SEASON_ICON[season]; return <span className="inline-flex items-center gap-1"><Icon size={11} strokeWidth={2.4} /><span>제철 {seasonalCount}</span></span>; })()}
+                </button>
+              )}
+              <button onClick={cycleFridgeSort}
+                className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
+                <SlidersHorizontal size={12} strokeWidth={2.5} />
+                <span className="text-xs font-medium">{SORT_PLAIN[sortBy]}</span>
+              </button>
+              <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
+                <button type="button" role="tab" aria-selected={vm !== 'compact'} onClick={() => setViewMode('list')}
+                  className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm !== 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                  <List size={12} strokeWidth={2.4} />
+                </button>
+                <button type="button" role="tab" aria-selected={vm === 'compact'} onClick={() => setViewMode('compact')}
+                  className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                  <LayoutGrid size={12} strokeWidth={2.4} />
+                </button>
+              </div>
+            </div>
+
             {/* ─── 리스트 뷰 ─── */}
-            {viewMode === 'list' && (
+            {(vm === 'list' || vm === 'visual') && (
               storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
                 <>
                   {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
@@ -399,11 +520,11 @@ export default function FridgePage() {
                           </button>
                           <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
                             <button type="button" onClick={() => setViewMode('list')}
-                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
                               <List size={12} strokeWidth={2.4} />
                             </button>
                             <button type="button" onClick={() => setViewMode('compact')}
-                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
                               <LayoutGrid size={12} strokeWidth={2.4} />
                             </button>
                           </div>
@@ -412,6 +533,7 @@ export default function FridgePage() {
                           <div className="flex flex-col gap-3">
                             {group.map((item, index) => (
                               <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index}
+                                fridgeModelId={fridgeModelId}
                                 onDiscard={handleDiscard} onUpdate={updateItem}
                                 expanded={expandedFoodId === item.id}
                                 onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)} />
@@ -426,6 +548,7 @@ export default function FridgePage() {
                 <AnimatePresence mode="popLayout">
                   {items.map((item, index) => (
                     <SwipeFoodCard key={item.id} item={item} dDay={item.dDay} index={index}
+                      fridgeModelId={fridgeModelId}
                       onDiscard={handleDiscard} onUpdate={updateItem}
                       expanded={expandedFoodId === item.id}
                       onToggle={() => setExpandedFoodId(expandedFoodId === item.id ? null : item.id)} />
@@ -435,7 +558,7 @@ export default function FridgePage() {
             )}
 
             {/* ─── 간략(그리드) 뷰 ─── */}
-            {viewMode === 'compact' && (
+            {vm === 'compact' && (
               storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
                 <>
                   {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
@@ -454,11 +577,11 @@ export default function FridgePage() {
                           </button>
                           <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
                             <button type="button" onClick={() => setViewMode('list')}
-                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
                               <List size={12} strokeWidth={2.4} />
                             </button>
                             <button type="button" onClick={() => setViewMode('compact')}
-                              className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                              className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
                               <LayoutGrid size={12} strokeWidth={2.4} />
                             </button>
                           </div>
@@ -657,6 +780,7 @@ export default function FridgePage() {
               </div>
               <div className="px-4 pt-1">
                 <SwipeFoodCard item={compactDetailItem} dDay={compactDetailDDay} index={0}
+                  fridgeModelId={fridgeModelId}
                   onDiscard={(id) => { handleDiscard(id); setCompactDetailId(null); }}
                   onUpdate={updateItem}
                   expanded={true}
@@ -672,6 +796,7 @@ export default function FridgePage() {
       {/* 칸 상세 바텀 시트 — 시각화에서 칸 탭 시 */}
       <SectionDetailSheet
         section={activeSection}
+        fridgeModelId={fridgeModelId}
         items={
           activeSection
             ? items.filter((i) => {

@@ -27,6 +27,15 @@ import ShoppingMallCard from '@/components/ShoppingMallCard';
 import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
+import { WardrobeView }            from '@/components/closet/WardrobeView';
+import { WardrobeConfigPicker }    from '@/components/closet/WardrobeConfigPicker';
+import { InstanceMetaEditor }      from '@/components/InstanceMetaEditor';
+import {
+  WARDROBE_SECTION_GROUP,
+  DEFAULT_WARDROBE_CONFIG,
+  type WardrobeSection,
+} from '@/lib/wardrobeModel';
+import { useWardrobeInstances, DEFAULT_WARDROBE_INSTANCE } from '@/lib/useWardrobeInstances';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
 import OutfitGrid         from '@/components/closet/OutfitGrid';
 import SwipeClothingCard  from '@/components/closet/SwipeClothingCard';
@@ -65,16 +74,17 @@ const FILTERS: { key: GroupFilter; label: string }[] = [
   { key: '액세서리', label: '✨ 액세서리' },
 ];
 
-type ClosetTab = 'closet' | 'outfit' | 'shopping';
+type ClosetTab = 'closet' | 'clothing' | 'outfit' | 'shopping';
 
 const CLOSET_TABS: { id: ClosetTab; emoji: string; label: string }[] = [
   { id: 'closet',   emoji: '👔', label: '옷장' },
+  { id: 'clothing', emoji: '🧥', label: '의류' },
   { id: 'outfit',   emoji: '👗', label: '코디' },
   { id: 'shopping', emoji: '🛍️', label: '쇼핑' },
 ];
 
 const isClosetTab = (v: unknown): v is ClosetTab =>
-  v === 'closet' || v === 'outfit' || v === 'shopping';
+  v === 'closet' || v === 'clothing' || v === 'outfit' || v === 'shopping';
 
 export default function ClosetPage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, loadSampleData } = useCart();
@@ -113,6 +123,22 @@ export default function ClosetPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   useSearchShortcut(searchInputRef, () => setSearch(''));
 
+  const {
+    instances: wardrobeInstances,
+    activeId: activeWardrobeId,
+    activeInstance: activeWardrobeInstance,
+    setActiveId: setActiveWardrobeId,
+    addInstance: addWardrobeInstance,
+    removeInstance: removeWardrobeInstance,
+    updateModelId: updateWardrobeModelId,
+    updateConfig: updateWardrobeConfig,
+    renameInstance: renameWardrobeInstance,
+    updateEmoji:    updateWardrobeEmoji,
+  } = useWardrobeInstances();
+  const wardrobeConfig = activeWardrobeInstance?.config ?? DEFAULT_WARDROBE_CONFIG;
+  const [wardrobeHighlight, setWardrobeHighlight] = useState<WardrobeSection | undefined>(undefined);
+  const [showWardrobePicker, setShowWardrobePicker] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     fetchWeather()
@@ -121,7 +147,8 @@ export default function ClosetPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const allClothing = allItems.filter(isClothingItem);
+  const allClothing = allItems.filter(isClothingItem)
+    .filter((i) => (i.wardrobeInstanceId ?? wardrobeInstances[0]?.id ?? DEFAULT_WARDROBE_INSTANCE.id) === activeWardrobeId);
   const hibernatingCount = allClothing.filter((i) => i.hibernating).length;
   const activeClothing = allClothing.filter((i) => !i.hibernating);  // 추천·미리보기 등에 사용
   const items = allClothing
@@ -168,16 +195,19 @@ export default function ClosetPage() {
     setSortBy(keys[(keys.indexOf(sortBy) + 1) % keys.length]);
   }
 
+  function scrollToClothingItems() {
+    setTimeout(() => {
+      document.getElementById('clothing-items-top')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
   function scrollToGroup(grp: FashionGroup) {
-    const isAlreadyGrouped = filter === '전체' && !search;
+    setActiveTab('clothing');
     setFilter('전체');
     setSearch('');
-    const doScroll = () => {
-      const el = document.getElementById(`closet-group-${grp}`);
-      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
-    if (isAlreadyGrouped) doScroll();
-    else setTimeout(doScroll, 100);
+    setTimeout(() => {
+      document.getElementById(`closet-group-${grp}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   }
 
   function handleRemove(id: string) {
@@ -195,9 +225,18 @@ export default function ClosetPage() {
       thickness: '보통' as const,
       material: preset.material,
       ownerId: quickAddOwner,
+      wardrobeInstanceId: activeWardrobeId,
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
+  }
+
+  function handleWardrobeSectionClick(section: WardrobeSection) {
+    setWardrobeHighlight(section);
+    const group = WARDROBE_SECTION_GROUP[section];
+    setActiveTab('clothing');
+    setFilter(group as GroupFilter);
+    scrollToClothingItems();
   }
 
   // viewMode를 vm으로 별칭 — 조건부 블록 안에서 TS narrowing 방지
@@ -210,11 +249,11 @@ export default function ClosetPage() {
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
             <p className="text-sm text-gray-400 mt-0.5">
-              패션 {activeClothing.length}개{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''}
+              {wardrobeInstances.length > 1 ? `${activeWardrobeInstance?.name ?? '옷장'} · ` : ''}패션 {activeClothing.length}개{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''}
             </p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            {hibernatingCount > 0 && activeTab === 'closet' && (
+            {hibernatingCount > 0 && (activeTab === 'closet' || activeTab === 'clothing') && (
               <button
                 onClick={() => setShowHibernating(!showHibernating)}
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${
@@ -257,8 +296,68 @@ export default function ClosetPage() {
 
       <div className="px-4 py-5 flex flex-col gap-4">
 
-        {/* ─── 옷장 탭 — 본인 옷장 콘텐츠 ─── */}
+        {/* ─── 옷장 탭 — 시각화 + 요약 ─── */}
         {activeTab === 'closet' && (<>
+        {/* 옷장 인스턴스 탭 */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
+            {wardrobeInstances.map((inst) => (
+              <div key={inst.id} className="flex items-center shrink-0 gap-0.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveWardrobeId(inst.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 ${
+                    inst.id === activeWardrobeId ? 'bg-brand-primary text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className="text-sm leading-none">{inst.emoji ?? '👔'}</span>
+                  {inst.name}
+                </button>
+                {wardrobeInstances.length > 1 && inst.id !== wardrobeInstances[0].id && (
+                  <button
+                    type="button"
+                    onClick={() => removeWardrobeInstance(inst.id)}
+                    className="w-4 h-4 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-[11px] leading-none hover:bg-red-100 hover:text-red-500 transition-colors"
+                    aria-label={`${inst.name} 삭제`}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addWardrobeInstance}
+              className="shrink-0 w-7 h-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-base font-bold hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
+              aria-label="옷장 추가"
+            >
+              +
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowWardrobePicker(v => !v)}
+            className="shrink-0 text-[11px] font-semibold text-brand-primary bg-brand-primary/8 hover:bg-brand-primary/15 px-2.5 py-1 rounded-full transition-all whitespace-nowrap"
+          >
+            {activeWardrobeInstance?.name ?? '옷장'} 구성 변경
+          </button>
+        </div>
+        {showWardrobePicker && (
+          <div className="flex flex-col gap-2.5">
+            <InstanceMetaEditor
+              name={activeWardrobeInstance?.name ?? ''}
+              emoji={activeWardrobeInstance?.emoji ?? '👔'}
+              emojis={['👔','👗','🧥','👚','🎽','👒','🎀','✨','🌸','🌟','⭐','❤️']}
+              onNameChange={(n) => renameWardrobeInstance(activeWardrobeId, n)}
+              onEmojiChange={(e) => updateWardrobeEmoji(activeWardrobeId, e)}
+            />
+            <WardrobeConfigPicker
+              config={wardrobeConfig}
+              onSelect={(cfg) => { updateWardrobeConfig(activeWardrobeId, cfg); setWardrobeHighlight(undefined); }}
+            />
+          </div>
+        )}
+
         {/* 요약 카드 */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -270,10 +369,10 @@ export default function ClosetPage() {
           <div className="flex justify-between text-center">
             <button
               className="flex-1 py-1 rounded-2xl hover:bg-gray-50 transition-colors active:scale-95"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              onClick={() => { setActiveTab('clothing'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             >
-              <p className="text-2xl font-extrabold text-gray-900 tabular-nums">{allClothing.length}</p>
-              <p className="text-sm text-gray-400 mt-0.5">전체</p>
+              <p className="text-base font-bold text-gray-900 tabular-nums">{allClothing.length}</p>
+              <p className="text-xs text-gray-400 mt-0.5">전체</p>
             </button>
             {groupCounts.map(({ group, count }) => (
               <button
@@ -281,12 +380,22 @@ export default function ClosetPage() {
                 className="flex-1 py-1 rounded-2xl hover:bg-gray-50 transition-colors active:scale-95"
                 onClick={() => scrollToGroup(group as FashionGroup)}
               >
-                <p className="text-2xl font-extrabold text-brand-primary tabular-nums">{count}</p>
-                <p className="text-sm text-gray-400 mt-0.5">{group}</p>
+                <p className="text-base font-bold text-brand-primary tabular-nums">{count}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{group}</p>
               </button>
             ))}
           </div>
         </motion.div>
+
+        {/* 옷장 시각화 */}
+        {allClothing.length > 0 && (
+          <WardrobeView
+            config={wardrobeConfig}
+            items={allItems}
+            onSectionClick={handleWardrobeSectionClick}
+            highlight={wardrobeHighlight}
+          />
+        )}
 
         {/* 이번 주 착용 요약 — 최근 7일 기록이 있으면 표시 */}
         {(() => {
@@ -550,9 +659,32 @@ export default function ClosetPage() {
 
         </>)}
 
-        {/* ─── 옷장 탭 (이어서) — 프로필 필터, 정렬, 카드 리스트 ─── */}
-        {activeTab === 'closet' && (<>
-        {/* 프로필 필터 (프로필 2명 이상일 때만) */}
+        {/* ─── 의류 탭 — 프로필 필터, 정렬, 카드 리스트 ─── */}
+        {activeTab === 'clothing' && (<>
+        {/* 요약 카드 */}
+        <div className={CARD} style={CARD_SHADOW}>
+          <div className="flex justify-between text-center">
+            <button
+              className="flex-1 py-1 rounded-2xl hover:bg-gray-50 transition-colors active:scale-95"
+              onClick={() => { setFilter('전체'); setSearch(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            >
+              <p className="text-base font-bold text-gray-900 tabular-nums">{allClothing.length}</p>
+              <p className="text-xs text-gray-400 mt-0.5">전체</p>
+            </button>
+            {groupCounts.map(({ group, count }) => (
+              <button
+                key={group}
+                className="flex-1 py-1 rounded-2xl hover:bg-gray-50 transition-colors active:scale-95"
+                onClick={() => { setFilter(group as GroupFilter); scrollToClothingItems(); }}
+              >
+                <p className="text-base font-bold text-brand-primary tabular-nums">{count}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{group}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 프로필 필터 (2명 이상일 때만) */}
         {profiles.length >= 2 && (
           <div role="tablist" aria-label="구성원 필터" className="flex bg-gray-100 rounded-full p-0.5 overflow-x-auto scrollbar-hide w-fit">
             {([
@@ -562,16 +694,9 @@ export default function ClosetPage() {
             ] as { key: string; label: string }[]).map(({ key, label }) => {
               const isActive = ownerFilter === key;
               return (
-                <button
-                  key={key}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
+                <button key={key} type="button" role="tab" aria-selected={isActive}
                   onClick={() => setOwnerFilter(key)}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                  }`}
-                >
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
                   {label}
                 </button>
               );
@@ -579,21 +704,27 @@ export default function ClosetPage() {
           </div>
         )}
 
-        {/* 필터/검색 중일 때만 컨트롤 행 표시 (그룹 헤더가 없는 경우) */}
+        {/* 타이틀 행 — 특정 그룹/검색 필터 시에만 표시 */}
         {(filter !== '전체' || !!search) && (
-          <div className="flex items-center justify-between px-0.5">
-            <button onClick={cycleSortBy} className="flex items-center gap-1.5 hover:opacity-70 transition-opacity active:scale-95">
-              <SlidersHorizontal size={12} strokeWidth={2.5} className="text-gray-400" />
-              <span className="text-xs font-medium text-gray-600">{SORT_LABEL[sortBy]}</span>
+          <div id="clothing-items-top" className="flex items-center gap-2 scroll-mt-28">
+            <span className="text-base font-bold text-gray-900 tracking-tight">
+              {FILTERS.find(f => f.key === filter)?.label ?? '전체'}
+            </span>
+            <span className="text-xs text-gray-400 font-medium tabular-nums">{items.length}개</span>
+            <div className="flex-1 h-px bg-gray-100" />
+            <button onClick={cycleSortBy}
+              className="flex items-center gap-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
+              <SlidersHorizontal size={12} strokeWidth={2.5} />
+              <span className="text-xs font-medium">{SORT_LABEL[sortBy]}</span>
             </button>
             <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
-              <button type="button" role="tab" aria-selected={viewMode === 'list'} onClick={() => setViewMode('list')} title="리스트 보기"
-                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                <List size={13} strokeWidth={2.4} />
+              <button type="button" role="tab" aria-selected={vm !== 'compact'} onClick={() => setViewMode('list')}
+                className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm !== 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <List size={12} strokeWidth={2.4} />
               </button>
-              <button type="button" role="tab" aria-selected={viewMode === 'compact'} onClick={() => setViewMode('compact')} title="간략 보기"
-                className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${viewMode === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
-                <LayoutGrid size={13} strokeWidth={2.4} />
+              <button type="button" role="tab" aria-selected={vm === 'compact'} onClick={() => setViewMode('compact')}
+                className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <LayoutGrid size={12} strokeWidth={2.4} />
               </button>
             </div>
           </div>
@@ -618,11 +749,11 @@ export default function ClosetPage() {
                     </button>
                     <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
                       <button type="button" onClick={() => setViewMode('list')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
                         <List size={12} strokeWidth={2.4} />
                       </button>
                       <button type="button" onClick={() => setViewMode('compact')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
                         <LayoutGrid size={12} strokeWidth={2.4} />
                       </button>
                     </div>
@@ -683,11 +814,11 @@ export default function ClosetPage() {
                     </button>
                     <div role="tablist" className="flex bg-gray-100 rounded-full p-0.5 shrink-0">
                       <button type="button" onClick={() => setViewMode('list')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className="flex items-center px-2 py-1 rounded-full transition-colors text-gray-500">
                         <List size={12} strokeWidth={2.4} />
                       </button>
                       <button type="button" onClick={() => setViewMode('compact')}
-                        className={`flex items-center px-2 py-1 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                        className="flex items-center px-2 py-1 rounded-full transition-colors bg-white text-gray-900 shadow-sm">
                         <LayoutGrid size={12} strokeWidth={2.4} />
                       </button>
                     </div>
