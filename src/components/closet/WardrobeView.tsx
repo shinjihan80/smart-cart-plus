@@ -66,14 +66,14 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
       className="grid gap-2 bg-gradient-to-br from-slate-50 to-gray-100 rounded-[28px] p-3"
       style={{
         gridTemplateColumns: `repeat(${model.cols}, minmax(0, 1fr))`,
-        gridTemplateRows:    `repeat(${model.rows}, 72px)`,
+        gridTemplateRows:    `repeat(${model.rows}, 90px)`,
       }}
     >
       {model.cells.map((cell, idx) => {
-        const meta     = WARDROBE_SECTION_META[cell.section];
+        const meta      = WARDROBE_SECTION_META[cell.section];
         const cellItems = itemsBySection.get(cell.section) ?? [];
-        const count    = cellItems.length;
-        const isActive = highlight === cell.section;
+        const count     = cellItems.length;
+        const isActive  = highlight === cell.section;
 
         return (
           <motion.button
@@ -86,7 +86,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             className={[
-              'relative flex flex-col justify-between text-left rounded-2xl p-2.5 overflow-hidden',
+              'relative flex flex-col justify-between text-left rounded-2xl p-3 overflow-hidden',
               'bg-white ring-1',
               isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
             ].join(' ')}
@@ -97,30 +97,42 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             }}
             aria-label={`${meta.label} — ${count}개`}
           >
-            {/* 헤더: 이모지 + 카운트 뱃지 */}
+            {/* 헤더: 섹션 이모지(배지) + 카운트 */}
             <div className="flex items-start justify-between gap-1">
-              <span className="text-base leading-none" aria-hidden>{meta.emoji}</span>
+              <span
+                className="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-50 text-lg leading-none shrink-0"
+                aria-hidden
+              >
+                {meta.emoji}
+              </span>
               {count > 0 && (
-                <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-gray-900 text-white">
+                <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
                   {count}
                 </span>
               )}
             </div>
 
             {/* 바디: 섹션명 + 의류 이모지 썸네일 */}
-            <div className="mt-auto">
-              <p className="text-[10px] font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-[11px] font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
               {count === 0 ? (
-                <p className="text-[9px] text-gray-400 mt-0.5 leading-tight truncate">{meta.hint}</p>
+                <p className="text-[9px] text-gray-400 leading-tight truncate">{meta.hint}</p>
               ) : (
-                <div className="flex flex-wrap gap-x-0.5 gap-y-0 mt-0.5 leading-none">
-                  {cellItems.slice(0, 6).map((item, i) => (
-                    <span key={i} className="text-sm leading-none" aria-hidden title={item.name}>
+                <div className="flex flex-wrap gap-1 leading-none">
+                  {cellItems.slice(0, 5).map((item, i) => (
+                    <span
+                      key={i}
+                      className="text-base leading-none"
+                      aria-hidden
+                      title={item.name}
+                    >
                       {FASHION_EMOJI[item.category] ?? '👕'}
                     </span>
                   ))}
-                  {count > 6 && (
-                    <span className="text-[9px] text-gray-400 font-medium self-end">+{count - 6}</span>
+                  {count > 5 && (
+                    <span className="text-[9px] text-gray-400 font-medium self-end leading-none">
+                      +{count - 5}
+                    </span>
                   )}
                 </div>
               )}

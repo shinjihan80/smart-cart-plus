@@ -79,7 +79,9 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
       .filter((r) => {
         if (!q) return true;
         if (r.name.toLowerCase().includes(q)) return true;
-        return r.keywords.some((kw) => kw.toLowerCase().includes(q));
+        // countRecipesByIngredient와 동일하게 양방향 부분 일치
+        // ex) 아이템명 "달걀 6개" → keyword "달걀" 포함 → 매칭
+        return r.keywords.some((kw) => kw.toLowerCase().includes(q) || q.includes(kw.toLowerCase()));
       })
       .sort((a, b) => {
         const aFav = isFavorite(a.id) ? 0 : 1;
