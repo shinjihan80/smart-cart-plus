@@ -48,7 +48,10 @@ export default function BottomNav() {
       <nav
         aria-label="메인 메뉴"
         className="fixed bottom-0 left-0 right-0 z-20 bg-white"
-        style={{ boxShadow: '0 -4px 16px -8px rgba(31,31,46,0.08)' }}
+        style={{
+          boxShadow: '0 -4px 16px -8px rgba(31,31,46,0.08)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
       >
         <div className="max-w-md sm:max-w-lg mx-auto flex">
           {NAV_ITEMS.map((entry) => {

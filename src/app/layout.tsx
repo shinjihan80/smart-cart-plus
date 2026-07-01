@@ -22,6 +22,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   // 사용자 핀치 줌·시스템 글자 크기 설정 허용 (WCAG 1.4.4)
   // maximumScale·userScalable 명시 안 함 → 브라우저 기본값 (사용자 zoom 가능)
+  viewportFit: "cover",
   themeColor: "#4F46E5",
 };
 
@@ -40,8 +41,27 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "NEMOA",
+    startupImage: [
+      // iPhone 16 Pro Max (1320×2868)
+      { url: "/splashes/splash-1320x2868.png", media: "(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3)" },
+      // iPhone 16 / 15 Pro (1179×2556)
+      { url: "/splashes/splash-1179x2556.png", media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" },
+      // iPhone SE (750×1334)
+      { url: "/splashes/splash-750x1334.png",  media: "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" },
+    ],
+  },
+  icons: {
+    apple: [
+      { url: "/icon-180.png", sizes: "180x180" },
+      { url: "/icon-167.png", sizes: "167x167" },
+      { url: "/icon-152.png", sizes: "152x152" },
+    ],
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
   },
   openGraph: {
     type:        "website",
@@ -101,7 +121,7 @@ export default function RootLayout({
         </a>
         <Providers>
           <ConsentGate>
-            <main id="main-content" className="flex-1 pb-20 max-w-md sm:max-w-lg mx-auto w-full">
+            <main id="main-content" className="flex-1 max-w-md sm:max-w-lg mx-auto w-full" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
               {children}
             </main>
             <ScrollToTop />
