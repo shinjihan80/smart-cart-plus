@@ -11,6 +11,8 @@ import ErrorCapture from "@/components/layout/ErrorCapture";
 import CommandPalette from "@/components/CommandPalette";
 import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 import AnalyticsGate from "@/components/layout/AnalyticsGate";
+import InstallBanner from "@/components/layout/InstallBanner";
+import OfflineBanner from "@/components/layout/OfflineBanner";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -132,6 +134,8 @@ export default function RootLayout({
             <SwRegister />
             <ErrorCapture />
             <AnalyticsGate />
+            <InstallBanner />
+            <OfflineBanner />
           </ConsentGate>
         </Providers>
       </body>

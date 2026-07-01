@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test --test-reporter=spec 'tests/*.test.mts'"
+    "test": "node --test --test-reporter=spec 'tests/*.test.mts'",
+    "cap:sync": "npx cap sync",
+    "cap:ios": "npx cap run ios",
+    "cap:android": "npx cap run android",
+    "cap:build": "npm run build && npx cap sync",
+    "cap:icons": "npx capacitor-assets generate --ios --android"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
@@ -32,6 +37,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
