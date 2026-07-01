@@ -1,12 +1,14 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertTriangle, Cloud } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
+import { isSupabaseEnabled } from '@/lib/supabase';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import {
   useBackupStatus, downloadBackup, readBackupFile, applyNonCartFromSnapshot,
@@ -18,8 +20,11 @@ import AppInfo              from '@/components/mypage/AppInfo';
 import FeedbackToggles      from '@/components/settings/FeedbackToggles';
 import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
+import LoginSheet           from '@/components/auth/LoginSheet';
 
 export default function SettingsPage() {
+  const [loginOpen, setLoginOpen] = useState(false);
+  const { user } = useAuth();
   const { items, resetData, restoreAll } = useCart();
   const { showToast } = useToast();
   const backup = useBackupStatus();
@@ -181,6 +186,37 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
+        {/* 클라우드 동기화 */}
+        <div className="flex items-center gap-2">
+          <Cloud size={16} className="text-gray-600" />
+          <span className="text-base font-bold text-gray-900 tracking-tight">클라우드 동기화</span>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...springTransition, delay: 0.07 }}
+          className={CARD}
+          style={CARD_SHADOW}
+        >
+          <button
+            onClick={() => setLoginOpen(true)}
+            className="flex items-center gap-3 w-full py-1 text-left"
+          >
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${user ? 'bg-brand-success/10' : 'bg-gray-100'}`}>
+              <Cloud size={18} className={user ? 'text-brand-success' : 'text-gray-400'} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800">
+                {user ? '동기화 켜짐' : (isSupabaseEnabled ? '로그인하여 동기화 시작' : '동기화 준비 중')}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5 truncate">
+                {user ? user.email ?? '로그인됨' : '모든 기기에서 같은 데이터를 사용할 수 있어요'}
+              </p>
+            </div>
+            <ChevronRight size={14} className="text-gray-300 shrink-0" />
+          </button>
+        </motion.div>
+
         <NotificationSettings />
 
         {/* 백업 & 내보내기 */}
@@ -274,6 +310,8 @@ export default function SettingsPage() {
         onChange={handleRestoreFile}
         className="hidden"
       />
+
+      <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }
