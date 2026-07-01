@@ -13,7 +13,8 @@ import { useCookLog } from '@/lib/recipeCookLog';
 import { useProfiles } from '@/lib/profile';
 import { analyzeBalance } from '@/lib/nutritionAnalysis';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import RecipeBrowserModal from '@/components/RecipeBrowserModal';
+import dynamic from 'next/dynamic';
+const RecipeBrowserModal = dynamic(() => import('@/components/RecipeBrowserModal'), { ssr: false });
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 

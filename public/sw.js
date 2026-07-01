@@ -93,9 +93,39 @@ async function staleWhileRevalidate(req) {
   return cached || (await netPromise) || new Response('', { status: 504 });
 }
 
-// 수동 업데이트 트리거 (설정 UI에서 호출 예정)
+// 수동 업데이트 트리거
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+// 서버 Push 수신 → 알림 표시
+self.addEventListener('push', (event) => {
+  const data = event.data?.json?.() ?? {};
+  const title = data.title ?? 'NEMOA';
+  const body  = data.body  ?? '';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon:    '/icon-192.png',
+      badge:   '/icon-192.png',
+      tag:     data.tag ?? 'nemoa-push',
+      vibrate: [100, 50, 100],
+      data:    { url: data.url ?? '/' },
+    }),
+  );
+});
+
+// 알림 클릭 → 앱 포커스 또는 새 탭
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url ?? '/';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const found = clients.find((c) => c.url.includes(self.location.origin));
+      if (found) return found.focus();
+      return self.clients.openWindow(url);
+    }),
+  );
 });

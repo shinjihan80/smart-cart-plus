@@ -7,6 +7,8 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared'
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import { TIER_LIMITS } from '@/lib/aiQuota';
 import type { PlanTier } from '@/types';
+import dynamic from 'next/dynamic';
+const UpgradeSheet = dynamic(() => import('./UpgradeSheet'), { ssr: false });
 
 const TIERS: { id: PlanTier; price: string; priceYear: string; color: string }[] = [
   { id: 'free',     price: '무료',       priceYear: '',            color: 'border-gray-200 bg-gray-50' },
@@ -79,14 +81,9 @@ const ROWS: Row[] = [
 ];
 
 export default function ProPreviewCard() {
-  const [expanded,    setExpanded]    = useState(false);
-  const [interested,  setInterested]  = useState(false);
-  const { tier: currentTier }         = usePlan();
-
-  function handleNotifyMe() {
-    try { localStorage.setItem('nemoa-pro-interest', String(Date.now())); } catch { /* quota */ }
-    setInterested(true);
-  }
+  const [expanded,      setExpanded]      = useState(false);
+  const [upgradeOpen,   setUpgradeOpen]   = useState(false);
+  const { tier: currentTier } = usePlan();
 
   return (
     <motion.div
@@ -175,25 +172,20 @@ export default function ProPreviewCard() {
       )}
 
       {/* CTA */}
-      {currentTier === 'free' && (
-        interested ? (
-          <div className="text-xs text-brand-success font-semibold text-center py-2 rounded-2xl bg-brand-success/5 border border-brand-success/15">
-            ✓ 출시 알림 신청 완료 — 정식 출시 시 알려드릴게요
-          </div>
-        ) : (
-          <button
-            onClick={handleNotifyMe}
-            className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-95 transition-all"
-          >
-            출시 알림 받기
-          </button>
-        )
-      )}
-      {currentTier !== 'free' && (
+      {currentTier === 'free' ? (
+        <button
+          onClick={() => setUpgradeOpen(true)}
+          className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all"
+        >
+          Pro 업그레이드
+        </button>
+      ) : (
         <div className="text-xs text-brand-primary font-semibold text-center py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15">
           {PLAN_LABEL[currentTier]} 플랜 이용 중
         </div>
       )}
+
+      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </motion.div>
   );
 }

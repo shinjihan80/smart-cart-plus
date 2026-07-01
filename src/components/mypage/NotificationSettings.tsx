@@ -6,6 +6,7 @@ import { useToast } from '@/context/ToastContext';
 import EmojiIcon from '@/components/EmojiIcon';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
+import { requestPermission } from '@/lib/notificationScheduler';
 
 const ALERT_LABEL: Record<string, string> = {
   urgent:        '⏰ 임박 식품',
@@ -24,8 +25,14 @@ interface NotiState { expiry: boolean; codi: boolean; deal: boolean }
 export default function NotificationSettings() {
   const { showToast } = useToast();
   const { dismissedToday, restore, restoreAll } = useDismissedAlerts();
-  const [state, setState] = useState<NotiState>({ expiry: true, codi: true, deal: false });
+  const [state, setState]   = useState<NotiState>({ expiry: true, codi: true, deal: false });
+  const [permState, setPermState] = useState<NotificationPermission | 'unsupported'>('default');
   const dismissed = dismissedToday();
+
+  useEffect(() => {
+    if (typeof Notification === 'undefined') { setPermState('unsupported'); return; }
+    setPermState(Notification.permission);
+  }, []);
 
   useEffect(() => {
     try {
@@ -40,6 +47,12 @@ export default function NotificationSettings() {
       }
     } catch { /* ignore */ }
   }, []);
+
+  async function handlePermRequest() {
+    const granted = await requestPermission();
+    setPermState(granted ? 'granted' : 'denied');
+    showToast(granted ? '알림 권한이 허용됐어요.' : '알림 권한이 거부됐어요. 브라우저 설정에서 변경해주세요.');
+  }
 
   function toggle(key: NotiKey) {
     const next = { ...state, [key]: !state[key] };
@@ -67,6 +80,23 @@ export default function NotificationSettings() {
         className={CARD}
         style={CARD_SHADOW}
       >
+
+      {/* 권한 상태 배너 */}
+      {permState === 'default' && (
+        <button
+          onClick={handlePermRequest}
+          className="mb-3 w-full flex items-center gap-2.5 p-2.5 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 text-left"
+        >
+          <EmojiIcon emoji="🔔" size={14} className="text-brand-primary shrink-0" />
+          <p className="text-xs text-brand-primary font-semibold flex-1">알림 권한 허용 — 탭해서 활성화</p>
+        </button>
+      )}
+      {permState === 'denied' && (
+        <div className="mb-3 p-2.5 rounded-2xl bg-brand-warning/5 border border-brand-warning/15">
+          <p className="text-xs text-brand-warning font-semibold">알림이 차단됐어요</p>
+          <p className="text-xs text-gray-400 mt-0.5">브라우저 주소창 왼쪽 🔒 → 알림 허용으로 변경해주세요.</p>
+        </div>
+      )}
 
       {/* 오늘 닫은 알림 — dismiss 항목이 1건 이상이면 표시 */}
       {dismissed.length > 0 && (

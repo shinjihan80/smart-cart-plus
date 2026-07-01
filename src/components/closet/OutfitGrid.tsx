@@ -7,7 +7,8 @@ import { generateOutfits, type Outfit } from '@/lib/outfitMatcher';
 import { useWearLog, daysSince } from '@/lib/wearLog';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import OutfitCard from './OutfitCard';
-import OutfitDetailModal from './OutfitDetailModal';
+import dynamic from 'next/dynamic';
+const OutfitDetailModal = dynamic(() => import('./OutfitDetailModal'), { ssr: false });
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 import type { Season } from '@/lib/season';
 

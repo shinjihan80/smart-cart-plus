@@ -8,7 +8,8 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { isFoodItem, isClothingItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
-import TextImportModal from '@/components/TextImportModal';
+import dynamic from 'next/dynamic';
+const TextImportModal = dynamic(() => import('@/components/TextImportModal'), { ssr: false });
 
 type NavItem =
   | { kind: 'link';   href: string; label: string; icon: typeof Home; badge: number; badgeNoun?: string }
