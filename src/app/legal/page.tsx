@@ -9,7 +9,7 @@ import { ChevronLeft } from 'lucide-react';
  * 앱 스토어·PWA 등록 시 링크 필수 — 별도 경로 유지.
  */
 export default function LegalPage() {
-  const updatedAt = '2026-04-22';
+  const updatedAt = '2026-07-24';
   const router = useRouter();
 
   // 이전 경로로 복귀 — 설정·AppInfo·ConsentGate 등 어디서 왔든 자연스럽게.
@@ -100,9 +100,11 @@ export default function LegalPage() {
               사용자가 직접 파트너 웹사이트로 이동하는 방식만 제공됩니다.
             </p>
             <p>
-              <strong>5. 쿠키·추적</strong><br />
-              NEMOA는 추적 쿠키, 광고 SDK, 행동 분석 도구를 사용하지 않습니다.
-              localStorage만 기능적 목적으로 사용합니다.
+              <strong>5. 광고·쿠키</strong><br />
+              무료(베이직) 화면 하단에는 카카오 애드핏(Kakao AdFit) 배너 광고가 표시됩니다.
+              애드핏은 광고 제공을 위해 자체 쿠키·기기 식별자를 사용할 수 있으며, 이는 카카오의
+              개인정보처리방침에 따라 별도로 처리됩니다. 그 외 NEMOA 자체적으로는 행동 분석 도구를
+              사용하지 않으며, localStorage는 기능적 목적으로만 사용합니다.
             </p>
             <p>
               <strong>6. 데이터 삭제</strong><br />

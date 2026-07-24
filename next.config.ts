@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
+  // 홈 폴더(/Users/sinji)에 남아있는 별도 package-lock.json 때문에 Next.js가
+  // 워크스페이스 루트를 잘못 추론해 홈 폴더 전체를 감시하는 것을 방지.
+  turbopack: {
+    root: path.join(__dirname),
+  },
   images: {
     remotePatterns: [
       {

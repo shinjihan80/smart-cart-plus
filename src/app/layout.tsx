@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
+import AdBanner from "@/components/layout/AdBanner";
 import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
@@ -123,10 +124,11 @@ export default function RootLayout({
         </a>
         <Providers>
           <ConsentGate>
-            <main id="main-content" className="flex-1 max-w-md sm:max-w-lg mx-auto w-full" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
+            <main id="main-content" className="flex-1 max-w-md sm:max-w-lg mx-auto w-full" style={{ paddingBottom: 'calc(5rem + 58px + env(safe-area-inset-bottom))' }}>
               {children}
             </main>
             <ScrollToTop />
+            <AdBanner />
             <BottomNav />
             <OnboardingModal />
             <CommandPalette />
