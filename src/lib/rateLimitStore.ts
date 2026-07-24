@@ -1,77 +1,57 @@
 /**
  * Rate limit 카운터 저장소 추상화.
  *
- * 인메모리(기본) ↔ Vercel KV / Upstash Redis(Pro) 등을 같은 인터페이스로 교체 가능.
+ * 고정 윈도우(fixed window) + 원자적 증가(atomic incr) 방식.
+ * 윈도우 ID(분/시 단위 타임스탬프)를 키에 포함시켜, "읽고 → 더하고 → 쓰기" 3단계 대신
+ * 단일 원자 연산(Redis INCR)으로 처리한다 — 동시에 요청이 몰려도 카운트 누락이 없다.
  *
- * 현재 베이직: 인메모리 — 인스턴스 재시작 시 카운트 리셋 (단점)
- * Pro 단계 옵션:
- *   - Vercel Marketplace에서 Upstash Redis 또는 Neon Postgres 연결
- *   - 환경변수 RATE_LIMIT_STORE='kv' 설정 + KV_REST_API_URL/KV_REST_API_TOKEN
- *   - 그러면 createKvStore()가 활성화되어 영속 카운트 보장
- *
- * 인터페이스만 추가했으므로 베이직 사용자는 변경 없음. KV 의존 패키지 미설치.
+ * 현재 베이직: 인메모리 — 인스턴스 재시작 시 카운트 리셋, 다중 인스턴스 간 미공유 (단점)
+ * Upstash Redis 연결 시(KV_REST_API_URL/TOKEN) 자동으로 영속 store로 전환된다.
  */
 
-export interface RateLimitBucket {
-  minuteWindowStart: number;
-  minuteCount:       number;
-  hourWindowStart:   number;
-  hourCount:         number;
-}
-
 export interface RateLimitStore {
-  /** 키의 버킷을 가져온다. 없으면 새 버킷 반환. */
-  get(key: string, now: number): Promise<RateLimitBucket> | RateLimitBucket;
-  /** 키의 버킷을 갱신한다. */
-  set(key: string, bucket: RateLimitBucket): Promise<void> | void;
+  /**
+   * key를 원자적으로 1 증가시키고 새 값을 반환한다.
+   * 이 윈도우에서 처음 생성된 키라면 ttlSeconds 후 자동 만료되도록 설정한다.
+   */
+  incr(key: string, ttlSeconds: number): Promise<number> | number;
   /** 메타데이터 — 영속/인메모리 여부 */
   readonly persistent: boolean;
 }
 
-/** 인메모리 어댑터 — 베이직 단계 기본 */
+/** 인메모리 어댑터 — 베이직 단계 기본. 단일 인스턴스 내에서는 JS가 단일 스레드라 완전히 원자적. */
 export class InMemoryRateLimitStore implements RateLimitStore {
   readonly persistent = false;
-  private readonly buckets = new Map<string, RateLimitBucket>();
+  private readonly counters = new Map<string, { count: number; expiresAt: number }>();
   private readonly maxSize: number;
 
   constructor(maxSize = 10_000) {
     this.maxSize = maxSize;
   }
 
-  get(key: string, now: number): RateLimitBucket {
-    let b = this.buckets.get(key);
-    if (!b) {
-      b = { minuteWindowStart: now, minuteCount: 0, hourWindowStart: now, hourCount: 0 };
-      this.buckets.set(key, b);
+  incr(key: string, ttlSeconds: number): number {
+    const now = Date.now();
+    const existing = this.counters.get(key);
+    if (existing && existing.expiresAt > now) {
+      existing.count += 1;
+      return existing.count;
     }
-    return b;
-  }
-
-  set(key: string, bucket: RateLimitBucket): void {
-    this.buckets.set(key, bucket);
-    // 메모리 누수 방지 — LRU-like cap
-    if (this.buckets.size > this.maxSize) {
-      const oldestKey = this.buckets.keys().next().value;
-      if (oldestKey) this.buckets.delete(oldestKey);
+    this.counters.set(key, { count: 1, expiresAt: now + ttlSeconds * 1000 });
+    // 메모리 누수 방지 — 크기 초과 시 가장 오래된 항목 제거
+    if (this.counters.size > this.maxSize) {
+      const oldestKey = this.counters.keys().next().value;
+      if (oldestKey) this.counters.delete(oldestKey);
     }
+    return 1;
   }
 }
 
 /**
- * Upstash Redis 어댑터 — Vercel Marketplace에서 발급한 REST 토큰으로 영속 카운터 사용.
- *
- * 환경변수 (Vercel Marketplace 통합 시 자동 주입):
- *   - UPSTASH_REDIS_REST_URL
- *   - UPSTASH_REDIS_REST_TOKEN
- *
- * Redis hash 구조로 4 필드 (minuteWindowStart, minuteCount, hourWindowStart, hourCount) 저장.
- * 각 키엔 1시간 TTL을 두어 garbage collection 자동.
- *
- * 클라이언트 패키지(@upstash/redis)는 서버 라우트에서만 import되므로 클라이언트 번들엔 미포함.
+ * Upstash Redis 어댑터 — INCR은 Redis가 단일 원자 명령으로 보장하므로
+ * 동시에 수백 개 요청이 들어와도 서로 덮어쓰지 않고 정확히 누적된다.
  */
 class UpstashRateLimitStore implements RateLimitStore {
   readonly persistent = true;
-  // Upstash Redis 클라이언트 — dynamic import로 cold start 비용 분산
   private clientPromise: Promise<unknown> | null = null;
 
   private getClient(): Promise<unknown> {
@@ -83,53 +63,31 @@ class UpstashRateLimitStore implements RateLimitStore {
     return this.clientPromise;
   }
 
-  async get(key: string, now: number): Promise<RateLimitBucket> {
-    try {
-      const client = await this.getClient() as { hgetall: (k: string) => Promise<Record<string, string> | null> };
-      const raw = await client.hgetall(key);
-      if (!raw) {
-        return { minuteWindowStart: now, minuteCount: 0, hourWindowStart: now, hourCount: 0 };
-      }
-      return {
-        minuteWindowStart: Number(raw.mws) || now,
-        minuteCount:       Number(raw.mc)  || 0,
-        hourWindowStart:   Number(raw.hws) || now,
-        hourCount:         Number(raw.hc)  || 0,
-      };
-    } catch {
-      // Redis 장애 시 인메모리 fallback과 유사하게 새 버킷 반환 (fail-open)
-      return { minuteWindowStart: now, minuteCount: 0, hourWindowStart: now, hourCount: 0 };
-    }
-  }
-
-  async set(key: string, bucket: RateLimitBucket): Promise<void> {
+  async incr(key: string, ttlSeconds: number): Promise<number> {
     try {
       const client = await this.getClient() as {
-        hset: (k: string, v: Record<string, string | number>) => Promise<unknown>;
+        incr:   (k: string) => Promise<number>;
         expire: (k: string, sec: number) => Promise<unknown>;
       };
-      await client.hset(key, {
-        mws: bucket.minuteWindowStart,
-        mc:  bucket.minuteCount,
-        hws: bucket.hourWindowStart,
-        hc:  bucket.hourCount,
-      });
-      await client.expire(key, 3600 + 60); // 1h + 60s 여유
+      const count = await client.incr(key);
+      if (count === 1) {
+        // 이 윈도우에서 처음 만들어진 키에만 TTL 설정 — 매 요청마다 갱신하면 윈도우가 계속 밀림
+        await client.expire(key, ttlSeconds);
+      }
+      return count;
     } catch {
-      // 영속 실패 시 무시 — 다음 요청에 다시 시도
+      // Redis 장애 시 fail-open — 한도 없이 통과시킨다 (가용성 우선)
+      return 1;
     }
   }
 }
 
 /**
  * 어댑터 선택 — 환경변수에 따라 결정.
- * RATE_LIMIT_STORE='upstash' + UPSTASH_REDIS_REST_URL/TOKEN 모두 있으면 Upstash 활성.
+ * Vercel Marketplace의 Upstash KV가 자동 활성(KV_REST_API_*) 또는 UPSTASH_* 직접 설정 시 Upstash 사용.
  * 그 외엔 인메모리.
- *
- * @upstash/redis 패키지는 dependencies에 있으나 어댑터 활성화 안 되면 import도 실행되지 않음.
  */
 export function createRateLimitStore(): RateLimitStore {
-  // Vercel Marketplace의 Upstash KV가 자동 활성 (KV_REST_API_*) 또는 UPSTASH_* 직접 설정 시
   const hasCreds =
     (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
     || (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
