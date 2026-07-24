@@ -4,8 +4,9 @@
 
 관련 문서: [BASIC_SPEC.md](./BASIC_SPEC.md) · [MONETIZATION.md](./MONETIZATION.md) · [CHANGELOG.md](./CHANGELOG.md)
 
-> **출시 예정** — 베이직 MAU 1,000 도달 시 Phase A(결제 인프라) 시작, MAU 3,000 시 Pro 정식 출시.
-> 현재 단계에서는 기획 문서로만 존재하며, 구현은 Phase A/B에서 진행.
+> **출시 예정** — 결제 인프라(Phase A 상당)는 이미 구현·테스트 완료했으나,
+> 사업자등록 전이라 `featureFlags.ts`의 `PAYMENTS_ENABLED = false`로 꺼둔 상태 (v2.2).
+> 사업자등록 완료 후 플래그만 켜면 재오픈 가능. MAU 3,000 도달 시 Pro 정식 출시(광고 노출·마케팅) 예정.
 
 ---
 
@@ -149,12 +150,16 @@
 
 ## 개발 체크리스트 (Phase A · B)
 
-### Phase A — 결제 인프라 (MAU 1,000)
-- [ ] Supabase 프로젝트 셋업 (인증만)
-- [ ] Next.js API 라우트 인증 미들웨어
-- [ ] 토스페이먼츠 빌링 연동
-- [ ] 월 정기결제 훅 + 실패 재시도 로직
-- [ ] Pro 판별 헬퍼 (`useProStatus()`)
+### Phase A — 결제 인프라 (구현 완료, v2.2 · killswitch로 비활성)
+- [ ] Supabase 프로젝트 셋업 (인증) — **미착수**. 로그인 없이 `deviceId`(로컬 익명 ID)를
+      Toss customerKey 겸용으로 사용하는 더 단순한 방식으로 대체 구현. 캐시 삭제·기기 변경 시
+      복구가 안 되는 한계가 있어, 진짜 크로스 디바이스 복구가 필요해지면 그때 Supabase 로그인 추가.
+- [ ] Next.js API 라우트 인증 미들웨어 — 로그인이 없어 범용 미들웨어 대신 라우트별
+      rate limit(`rateLimit.ts`) + 크론 전용 `CRON_SECRET` 헤더 검증으로 대체
+- [x] 토스페이먼츠 빌링 연동 — `tossBilling.ts` (빌링키 발급 + 청구), 테스트 키로 카드 등록까지 검증 완료
+- [x] 월 정기결제 훅 + 실패 재시도 로직 — `/api/cron/renew-subscriptions` (Vercel Cron, 매일),
+      3회 연속 실패 시 자동 무료 강등
+- [x] Pro 판별 헬퍼 — `usePlan()`의 `isPro`/`isProMax`, 서버는 `subscriptionStore.ts`가 진실 소스
 
 ### Phase B — 기능 차등화 (MAU 3,000)
 - [ ] `aiQuota.ts`에 Pro 분기 (`Infinity`)
