@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import AdBanner from "@/components/layout/AdBanner";
+import InterstitialAd from "@/components/layout/InterstitialAd";
 import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
@@ -131,6 +132,7 @@ export default function RootLayout({
             <AdBanner />
             <BottomNav />
             <OnboardingModal />
+            <InterstitialAd />
             <CommandPalette />
             <GlobalRecipeModal />
             <SwRegister />
