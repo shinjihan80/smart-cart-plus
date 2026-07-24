@@ -13,26 +13,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimitStore } from './rateLimitStore';
 
-export type RateLimitKey = 'vision' | 'parser' | 'nutrition' | 'url' | 'image' | 'style';
+export type RateLimitKey = 'vision' | 'parser' | 'nutrition' | 'url' | 'image' | 'style' | 'fridgeSection';
 
 /** 분당 최대 요청 수 (per IP) — UI 정상 사용보다 넉넉, 폭주만 방어 */
 const PER_MINUTE_LIMIT: Record<RateLimitKey, number> = {
-  vision:    20,
-  parser:    30,
-  nutrition: 15,
-  url:       20,
-  image:     20,
-  style:     30,
+  vision:        20,
+  parser:        30,
+  nutrition:     15,
+  url:           20,
+  image:         20,
+  style:         30,
+  fridgeSection: 30,
 };
 
 /** 시간당 최대 (per IP) — 일일 한도 우회 봇 방어 */
 const PER_HOUR_LIMIT: Record<RateLimitKey, number> = {
-  vision:    60,
-  parser:    100,
-  nutrition: 40,
-  url:       50,
-  image:     60,
-  style:     100,
+  vision:        60,
+  parser:        100,
+  nutrition:     40,
+  url:           50,
+  image:         60,
+  style:         100,
+  fridgeSection: 120,
 };
 
 const MINUTE_MS = 60_000;

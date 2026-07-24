@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
 import { runWithDualReview, type UserContentBlock } from '@/lib/agentPipeline';
+import { applyRateLimit } from '@/lib/rateLimit';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **이미지 분석 에이전트(image-agent)**다.
@@ -50,6 +51,9 @@ const ALLOWED_TYPES: AllowedMediaType[] = ['image/jpeg', 'image/png', 'image/gif
 const MAX_SIZE_MB = 5;
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, 'image');
+  if (limited) return limited;
+
   try {
     const formData = await req.formData();
     const file = formData.get('image');

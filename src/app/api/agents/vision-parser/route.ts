@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
 import { runWithDualReview } from '@/lib/agentPipeline';
+import { applyRateLimit } from '@/lib/rateLimit';
 import {
   StorageType,
   Thickness,
@@ -239,6 +240,9 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
 // ─── POST 핸들러 ──────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, 'vision');
+  if (limited) return limited;
+
   try {
     const formData = await req.formData();
     const file = formData.get('image');

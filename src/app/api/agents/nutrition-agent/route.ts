@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateInput, validateOutput } from '@/lib/harness';
 import { routeData, runWithDualReview } from '@/lib/agentPipeline';
+import { applyRateLimit } from '@/lib/rateLimit';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **영양사 에이전트(nutrition-agent)**다.
@@ -50,6 +51,9 @@ const AGENT_INSTRUCTION = `
 `.trim();
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, 'nutrition');
+  if (limited) return limited;
+
   try {
     const body = await req.json().catch(() => ({})) as Record<string, unknown>;
 

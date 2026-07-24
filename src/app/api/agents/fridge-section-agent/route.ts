@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGeminiClient, AGENT_MODEL } from '@/lib/agentPipeline';
 import { extractJSON } from '@/lib/harness';
+import { applyRateLimit } from '@/lib/rateLimit';
 import { FRIDGE_SECTION_META, recommendFridgeSection } from '@/lib/fridgeSection';
 import type { FoodCategory, FridgeSection, StorageType } from '@/types';
 
@@ -111,6 +112,9 @@ function fallback(input: AgentInput): AgentResult {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await applyRateLimit(req, 'fridgeSection');
+  if (limited) return limited;
+
   try {
     const body = (await req.json().catch(() => ({}))) as RequestBody;
     const parsed = parseBody(body);

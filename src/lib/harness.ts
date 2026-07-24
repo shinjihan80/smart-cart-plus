@@ -55,6 +55,9 @@ export function validateInput(
       if ((payload.rawText as string).trim().length === 0) {
         return { valid: false, error: 'parser-agent: rawText가 비어 있습니다.' };
       }
+      if ((payload.rawText as string).length > 8000) {
+        return { valid: false, error: 'parser-agent: rawText는 8000자를 넘을 수 없습니다.' };
+      }
       break;
 
     case 'nutrition':
