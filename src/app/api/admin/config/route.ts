@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { TIER_LIMITS, RATE_LIMITS } from '@/lib/aiQuotaConstants';
+import { FREE_VISION_MONTHLY_LIMIT } from '@/lib/monthlyVisionQuota';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 
 export const runtime = 'nodejs';
 
@@ -37,7 +39,13 @@ export async function GET(req: NextRequest) {
   );
 
   return NextResponse.json(
-    { tierLimits: tierLimitsJson, rateLimits: RATE_LIMITS },
+    {
+      tierLimits: tierLimitsJson,
+      rateLimits: RATE_LIMITS,
+      // 무료 사진 분석(vision)은 tierLimits.free.vision(일일)이 아니라 이 값(월간)을 실제로 씀
+      freeVisionMonthlyLimit: FREE_VISION_MONTHLY_LIMIT,
+      paymentsEnabled: PAYMENTS_ENABLED,
+    },
     { headers: { ...CORS, 'Cache-Control': 'public, max-age=3600' } },
   );
 }
