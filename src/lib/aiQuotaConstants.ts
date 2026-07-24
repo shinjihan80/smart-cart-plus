@@ -2,16 +2,18 @@ import type { PlanTier } from '@/types';
 
 export type AiAgent = 'vision' | 'parser' | 'nutrition' | 'url' | 'fridgeSection';
 
+// vision 값들은 전부 미사용 — 사진 분석은 모든 등급 공통으로 monthlyVisionQuota.ts의
+// VISION_MONTHLY_LIMITS(월간)를 쓰고, 여기 일일 값은 타입 완전성을 위해서만 남겨둠.
 export const TIER_LIMITS: Record<PlanTier, Record<AiAgent, number>> = {
   free: {
-    vision:        5,  // 무료는 이 값 대신 월 단위 monthlyVisionQuota.ts를 씀 (일일 한도 미적용)
+    vision:        5,  // 미사용 (위 주석 참고)
     parser:        5,
     nutrition:      2,
     url:            2,
     fridgeSection:  5,
   },
   pro_lite: {
-    vision:        30,
+    vision:        30, // 미사용 (위 주석 참고)
     parser:        60,
     nutrition:     15,
     url:           15,
@@ -20,7 +22,7 @@ export const TIER_LIMITS: Record<PlanTier, Record<AiAgent, number>> = {
   // 마케팅상 "무제한"이지만, 봇 등 비정상 반복 호출로 인한 API 원가 폭주를 막기 위해
   // 정상 사용자는 절대 도달하지 않을 높은 소프트캡을 둔다 (실질 체감은 무제한).
   pro_max: {
-    vision:        200,
+    vision:        200, // 미사용 (위 주석 참고)
     parser:        200,
     nutrition:     200,
     url:           200,

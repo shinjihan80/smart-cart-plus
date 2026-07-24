@@ -42,20 +42,29 @@ export interface TossBillingKeyResult {
   [key: string]: unknown;
 }
 
-/** authKey(카드 등록 성공 후 발급) → billingKey(정기 청구용 키) 교환 */
+/**
+ * authKey(카드 등록 성공 후 발급) → billingKey(정기 청구용 키) 교환.
+ * 네트워크 장애·Toss가 비-JSON을 반환하는 경우까지 전부 흡수해 절대 throw하지 않는다
+ * (호출부 라우트가 try/catch 없이도 안전하게 error 필드만 확인하면 되도록).
+ */
 export async function issueBillingKey(authKey: string, customerKey: string): Promise<
   { ok: true; data: TossBillingKeyResult } | { ok: false; status: number; error: string }
 > {
-  const res = await fetch(`${TOSS_API}/billing/authorizations/issue`, {
-    method:  'POST',
-    headers: { Authorization: authHeader(), 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ authKey, customerKey }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    return { ok: false, status: res.status, error: data.message ?? data.code ?? '빌링키 발급 실패' };
+  try {
+    const res = await fetch(`${TOSS_API}/billing/authorizations/issue`, {
+      method:  'POST',
+      headers: { Authorization: authHeader(), 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ authKey, customerKey }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: data.message ?? data.code ?? '빌링키 발급 실패' };
+    }
+    return { ok: true, data };
+  } catch (err) {
+    console.error('[tossBilling] issueBillingKey 실패:', err);
+    return { ok: false, status: 502, error: '결제사와 통신 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.' };
   }
-  return { ok: true, data };
 }
 
 export interface TossChargeResult {
@@ -65,7 +74,11 @@ export interface TossChargeResult {
   [key: string]: unknown;
 }
 
-/** billingKey로 실제 금액을 청구(최초 결제·정기 갱신 공용) */
+/**
+ * billingKey로 실제 금액을 청구(최초 결제·정기 갱신 공용).
+ * issueBillingKey와 동일하게 절대 throw하지 않고 항상 { ok } 결과로 반환한다 —
+ * 크론이 이 함수를 순회 호출할 때 하나가 throw하면 나머지 사용자 갱신까지 멈춰버리는 걸 방지.
+ */
 export async function chargeBilling(params: {
   billingKey: string;
   customerKey: string;
@@ -73,21 +86,26 @@ export async function chargeBilling(params: {
   orderId: string;
   orderName: string;
 }): Promise<{ ok: true; data: TossChargeResult } | { ok: false; status: number; error: string }> {
-  const res = await fetch(`${TOSS_API}/billing/${params.billingKey}`, {
-    method:  'POST',
-    headers: { Authorization: authHeader(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      customerKey: params.customerKey,
-      amount:      params.amount,
-      orderId:     params.orderId,
-      orderName:   params.orderName,
-    }),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    return { ok: false, status: res.status, error: data.message ?? data.code ?? '결제 청구 실패' };
+  try {
+    const res = await fetch(`${TOSS_API}/billing/${params.billingKey}`, {
+      method:  'POST',
+      headers: { Authorization: authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerKey: params.customerKey,
+        amount:      params.amount,
+        orderId:     params.orderId,
+        orderName:   params.orderName,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return { ok: false, status: res.status, error: data.message ?? data.code ?? '결제 청구 실패' };
+    }
+    return { ok: true, data };
+  } catch (err) {
+    console.error('[tossBilling] chargeBilling 실패:', err);
+    return { ok: false, status: 502, error: '결제사와 통신 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.' };
   }
-  return { ok: true, data };
 }
 
 /** 다음 결제 주기 종료 시각 계산 (달력 기준 — 매달 같은 날짜, 말일 보정) */

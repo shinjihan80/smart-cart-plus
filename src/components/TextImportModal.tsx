@@ -9,15 +9,15 @@ import { useAiQuota, type AiAgent } from '@/lib/aiQuota';
 import { useMonthlyVisionQuota } from '@/lib/monthlyVisionQuota';
 import { usePlan } from '@/lib/usePlan';
 import RewardedAdModal from '@/components/RewardedAdModal';
-
-const AGENT_LABEL: Record<AiAgent, string> = {
-  vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
-};
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
 import { Camera, Lock, X as XIcon } from 'lucide-react';
 import EmojiIcon from '@/components/EmojiIcon';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
+
+const AGENT_LABEL: Record<AiAgent, string> = {
+  vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
+};
 
 interface TextImportModalProps {
   onClose:  () => void;
