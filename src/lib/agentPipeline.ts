@@ -146,3 +146,25 @@ export async function runWithDualReview(params: {
 
   return extractJSON(finalText);
 }
+
+// ─── 4. 에러 분류 — 내부 예외 메시지를 그대로 노출하지 않고 상황별 안내로 변환 ───────
+/**
+ * Gemini 호출 실패를 사용자 친화적 메시지로 변환한다.
+ * (Google SDK 원문 예외 메시지는 로그에만 남기고, 응답엔 절대 그대로 노출하지 않음)
+ */
+export function classifyAgentError(agentLabel: string, err: unknown): { status: number; message: string } {
+  const raw = err instanceof Error ? err.message : String(err);
+  console.error(`[agent-error] ${agentLabel}:`, raw);
+
+  const lower = raw.toLowerCase();
+  if (lower.includes('429') || lower.includes('resource_exhausted') || lower.includes('rate limit') || lower.includes('quota')) {
+    return { status: 503, message: '지금 AI 요청이 많아 잠시 지연되고 있어요. 잠시 후 다시 시도해주세요.' };
+  }
+  if (lower.includes('safety') || lower.includes('blocked')) {
+    return { status: 400, message: '입력하신 내용을 처리할 수 없어요. 다른 내용으로 다시 시도해주세요.' };
+  }
+  if (lower.includes('gemini_api_key')) {
+    return { status: 500, message: 'AI 서비스 설정에 문제가 있어요. 잠시 후 다시 시도해주세요.' };
+  }
+  return { status: 500, message: '일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요.' };
+}

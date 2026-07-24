@@ -13,7 +13,7 @@
  * 모델: gemini-2.5-flash-lite — 단일 식품 분류, 저비용·빠른 응답
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getGeminiClient, AGENT_MODEL } from '@/lib/agentPipeline';
+import { getGeminiClient, AGENT_MODEL, classifyAgentError } from '@/lib/agentPipeline';
 import { extractJSON } from '@/lib/harness';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { FRIDGE_SECTION_META, recommendFridgeSection } from '@/lib/fridgeSection';
@@ -155,10 +155,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ section, reason } satisfies AgentResult);
   } catch (err) {
-    const message = err instanceof Error ? err.message : '알 수 없는 오류';
-    return NextResponse.json(
-      { error: `fridge-section-agent 처리 실패: ${message}` },
-      { status: 500 },
-    );
+    const { status, message } = classifyAgentError('fridge-section-agent', err);
+    return NextResponse.json({ error: message }, { status });
   }
 }

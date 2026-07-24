@@ -10,7 +10,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
-import { runWithDualReview } from '@/lib/agentPipeline';
+import { runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
 import {
   StorageType,
@@ -294,7 +294,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (err) {
-    const message = err instanceof Error ? err.message : '알 수 없는 오류';
-    return NextResponse.json({ error: `vision-parser 처리 실패: ${message}` }, { status: 500 });
+    const { status, message } = classifyAgentError('vision-parser', err);
+    return NextResponse.json({ error: message }, { status });
   }
 }

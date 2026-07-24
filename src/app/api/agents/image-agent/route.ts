@@ -9,7 +9,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
-import { runWithDualReview, type UserContentBlock } from '@/lib/agentPipeline';
+import { runWithDualReview, classifyAgentError, type UserContentBlock } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
 
 const AGENT_INSTRUCTION = `
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : '알 수 없는 오류';
-    return NextResponse.json({ error: `image-agent 처리 실패: ${message}` }, { status: 500 });
+    const { status, message } = classifyAgentError('image-agent', err);
+    return NextResponse.json({ error: message }, { status });
   }
 }
