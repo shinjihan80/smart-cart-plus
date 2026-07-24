@@ -57,9 +57,15 @@ const ROWS: Row[] = [
     pro_max:  '무제한',
   },
   {
-    label: '영양·URL 분석',
-    free:     `${TIER_LIMITS.free.nutrition + TIER_LIMITS.free.url}회/일`,
-    pro_lite: `${TIER_LIMITS.pro_lite.nutrition + TIER_LIMITS.pro_lite.url}회/일`,
+    label: '영양 분석',
+    free:     `${TIER_LIMITS.free.nutrition}회/일`,
+    pro_lite: `${TIER_LIMITS.pro_lite.nutrition}회/일`,
+    pro_max:  '무제한',
+  },
+  {
+    label: 'URL 분석',
+    free:     'Pro 전용',
+    pro_lite: `${TIER_LIMITS.pro_lite.url}회/일`,
     pro_max:  '무제한',
   },
   {
