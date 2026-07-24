@@ -1,16 +1,23 @@
 'use client';
 
 /**
- * 무료 사용자의 AI 사진 분석(vision) 월간 한도.
+ * AI 사진 분석(vision) 월간 한도 — 모든 등급 공통(일일 아님).
  *
  * 원래 사진 분석은 Pro 전용으로 완전히 잠겨 있었는데, 무료 사용자가 핵심 기능을
- * 한 번도 못 써보면 Pro 전환 유인이 약하다는 판단으로 "맛보기"를 열어주되
- * 일일이 아니라 월 10회로 넉넉하지 않게 제한한다 (Pro는 기존처럼 일일 한도 유지).
+ * 한 번도 못 써보면 Pro 전환 유인이 약하다는 판단으로 "맛보기"를 열어줬다.
+ * 이후 다른 AI 기능(텍스트 파싱 등)과의 일관성을 위해 Pro Lite/Max도 일일이 아니라
+ * 월간 한도로 통일했다 — Pro Max는 소프트캡이지만 UI에는 계속 "무제한"으로 표시.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { createSharedStore } from './sharedStore';
+import { usePlan } from './usePlan';
+import type { PlanTier } from '@/types';
 
-export const FREE_VISION_MONTHLY_LIMIT = 10;
+export const VISION_MONTHLY_LIMITS: Record<PlanTier, number> = {
+  free:     10,
+  pro_lite: 300,
+  pro_max:  3000, // 소프트캡 — 정상 사용자는 도달 못 함, UI엔 "무제한"으로 표시
+};
 
 interface MonthlyState {
   month: string; // YYYY-MM
@@ -39,6 +46,8 @@ const store = createSharedStore<MonthlyState>({
 });
 
 export function useMonthlyVisionQuota() {
+  const { tier } = usePlan();
+  const limit = VISION_MONTHLY_LIMITS[tier];
   const state = store.useStore();
   const [tick, setTick] = useState(0);
 
@@ -52,7 +61,7 @@ export function useMonthlyVisionQuota() {
     if (state.month !== currentMonth()) store.setState(() => emptyState());
   }, [tick, state.month]);
 
-  const remaining = Math.max(0, FREE_VISION_MONTHLY_LIMIT - state.count);
+  const remaining = Math.max(0, limit - state.count);
   const canUse    = remaining > 0;
 
   const consume = useCallback((): boolean => {
@@ -60,12 +69,12 @@ export function useMonthlyVisionQuota() {
     let ok = false;
     store.setState((prev) => {
       const base = prev.month === thisMonth ? prev : emptyState();
-      if (base.count >= FREE_VISION_MONTHLY_LIMIT) { ok = false; return base; }
+      if (base.count >= limit) { ok = false; return base; }
       ok = true;
       return { ...base, count: base.count + 1 };
     });
     return ok;
-  }, []);
+  }, [limit]);
 
-  return { remaining, canUse, consume, limit: FREE_VISION_MONTHLY_LIMIT };
+  return { remaining, canUse, consume, limit };
 }

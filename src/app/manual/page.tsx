@@ -396,12 +396,12 @@ export default function ManualPage() {
                 },
                 {
                   icon: '📝', title: '텍스트 파싱',
-                  limit: '하루 5회(+광고 시청 시 최대 3회)',
+                  limit: '하루 5회 + 광고 최대 3회',
                   steps: ['영수증·이메일·쇼핑 내역 텍스트 붙여넣기', '"닭가슴살 300g 2개, 우유 1L" 같은 자유 형식 OK', 'AI가 품목·수량·가격 자동 분리', '여러 항목을 한 번에 등록 가능'],
                 },
                 {
                   icon: '🔗', title: 'URL 분석',
-                  limit: '하루 2회',
+                  limit: 'Pro 전용',
                   steps: ['쇼핑몰 상품 페이지 주소 복사', 'URL 입력란에 붙여넣기', 'AI가 상품명·가격·사이즈 자동 추출', '결과 확인 후 등록'],
                 },
               ].map((m) => (
@@ -426,7 +426,7 @@ export default function ManualPage() {
             <div className="grid md:grid-cols-2 gap-3">
               {[
                 { icon: '🥗', title: '영양 분석', limit: '하루 2회', desc: '식품 등록 시 칼로리·단백질·탄수화물 자동 추출. 마이 → 요약 탭에서 영양 현황 확인.' },
-                { icon: '📦', title: '보관 위치 추천', limit: '하루 5회', desc: '냉장고 어느 칸에 보관할지 AI가 자동 추천. 냉장고 모델 설정 시 더 정확해집니다.' },
+                { icon: '📦', title: '보관 위치 추천', limit: '하루 5회 + 광고 최대 3회', desc: '냉장고 어느 칸에 보관할지 AI가 자동 추천. 냉장고 모델 설정 시 더 정확해집니다.' },
               ].map((f) => (
                 <div key={f.title} className="border border-gray-100 rounded-2xl p-4">
                   <div className="flex items-center justify-between mb-1">
@@ -573,16 +573,16 @@ export default function ManualPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {[
-                    ['AI 사진 분석',      '월 10회', '30회/일', '무제한'],
-                    ['AI 텍스트 파싱',    '5회/일(+광고 최대 3회)', '60회/일', '무제한'],
-                    ['영양·URL 분석',     '각 2회/일','각 15회/일','무제한'],
-                    ['보관 위치 추천',    '5회/일',  '30회/일', '무제한'],
+                    ['AI 사진 분석',      '월 10회', '300회/월', '무제한'],
+                    ['AI 텍스트 파싱',    '5회/일 + 광고 최대 3회', '60회/일', '무제한'],
+                    ['영양 분석',         '2회/일',  '15회/일',  '무제한'],
+                    ['URL 분석',          'Pro 전용', '15회/일', '무제한'],
+                    ['보관 위치 추천',    '5회/일 + 광고 최대 3회', '30회/일', '무제한'],
                     ['광고',              '배너 + 3회마다 전면', '없음', '없음'],
                     ['레시피 컬렉션',     '42종',    '142종+',   '142종+'],
                     ['분석 리포트',       '✕',       '✓',        '✓'],
                     ['클라우드 동기화',   '✕',       '수동',     '자동'],
                     ['파트너 할인',       '✕',       '✓',        '✓'],
-                    ['우선 지원',         '✕',       '이메일',   '24시간 내'],
                   ].map(([label, free, lite, max]) => (
                     <tr key={label}>
                       <td className="py-2.5 pr-4 text-gray-600">{label}</td>

@@ -7,6 +7,7 @@ import { useModalA11y } from '@/lib/useModalA11y';
 import { usePlan } from '@/lib/usePlan';
 import { ensureDeviceId } from '@/lib/deviceId';
 import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
+import { VISION_MONTHLY_LIMITS } from '@/lib/monthlyVisionQuota';
 import type { PlanTier } from '@/types';
 
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
@@ -18,7 +19,7 @@ const PLANS = [
     monthly:   4900,
     yearly:    49000,
     perMonth:  Math.round(49000 / 12),
-    features:  ['AI 사진 분석 30회/일', 'AI 텍스트 60회/일', '레시피 142종+', '파트너 할인', '이메일 지원'],
+    features:  [`AI 사진 분석 ${VISION_MONTHLY_LIMITS.pro_lite}회/월`, 'AI 텍스트 60회/일', '레시피 142종+', '파트너 할인'],
   },
   {
     id:        'pro_max' as PlanTier,
@@ -26,7 +27,7 @@ const PLANS = [
     monthly:   9900,
     yearly:    99000,
     perMonth:  Math.round(99000 / 12),
-    features:  ['AI 전 기능 무제한', '자동 클라우드 동기화', '레시피 142종+', '파트너 VIP 할인', '24시간 우선 지원'],
+    features:  ['AI 전 기능 무제한', '자동 클라우드 동기화', '레시피 142종+', '파트너 VIP 할인'],
   },
 ];
 

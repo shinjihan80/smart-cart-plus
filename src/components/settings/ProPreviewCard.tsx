@@ -6,7 +6,7 @@ import { Check, X, ChevronDown } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import { TIER_LIMITS } from '@/lib/aiQuota';
-import { FREE_VISION_MONTHLY_LIMIT } from '@/lib/monthlyVisionQuota';
+import { VISION_MONTHLY_LIMITS } from '@/lib/monthlyVisionQuota';
 import { getDeviceId } from '@/lib/deviceId';
 import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 import type { PlanTier } from '@/types';
@@ -46,8 +46,8 @@ function Tick({ ok }: { ok: boolean }) {
 const ROWS: Row[] = [
   {
     label: 'AI 사진 분석',
-    free:     `${FREE_VISION_MONTHLY_LIMIT}회/월`,
-    pro_lite: `${TIER_LIMITS.pro_lite.vision}회/일`,
+    free:     `${VISION_MONTHLY_LIMITS.free}회/월`,
+    pro_lite: `${VISION_MONTHLY_LIMITS.pro_lite}회/월`,
     pro_max:  '무제한',
   },
   {
@@ -85,12 +85,6 @@ const ROWS: Row[] = [
     free:     <Tick ok={false} />,
     pro_lite: <Tick ok={true}  />,
     pro_max:  <Tick ok={true}  />,
-  },
-  {
-    label:    '우선 지원',
-    free:     <Tick ok={false} />,
-    pro_lite: '이메일',
-    pro_max:  '24시간 내',
   },
 ];
 

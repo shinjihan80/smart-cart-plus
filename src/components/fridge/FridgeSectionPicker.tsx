@@ -17,6 +17,7 @@ import { useFridgeModel } from '@/lib/useFridgeModel';
 import { useAiQuota } from '@/lib/aiQuota';
 import { isMarketedUnlimited } from '@/lib/aiQuotaConstants';
 import { usePlan } from '@/lib/usePlan';
+import RewardedAdModal from '@/components/RewardedAdModal';
 import type { FoodCategory, FridgeSection, StorageType } from '@/types';
 
 interface Props {
@@ -31,8 +32,9 @@ export default function FridgeSectionPicker({
   itemName, foodCategory, storageType, value, onChange,
 }: Props) {
   const [modelId] = useFridgeModel();
-  const { canUse, consume, remaining } = useAiQuota();
-  const { tier } = usePlan();
+  const { canUse, consume, remaining, canGrantBonus, grantBonus } = useAiQuota();
+  const { tier, isPro } = usePlan();
+  const [rewardOpen, setRewardOpen] = useState(false);
 
   const cells = FRIDGE_MODELS[modelId].cells;
   const options = useMemo(() => cells.map((c) => c.section), [cells]);
@@ -50,7 +52,11 @@ export default function FridgeSectionPicker({
 
   async function handleAiRecommend() {
     if (!canUse('fridgeSection')) {
-      setError('오늘 AI 보관 위치 추천 무료 사용량을 모두 썼어요. 자정 이후 다시 이용 가능해요.');
+      if (!isPro && canGrantBonus('fridgeSection')) {
+        setRewardOpen(true);
+      } else {
+        setError('오늘 AI 보관 위치 추천 무료 사용량을 모두 썼어요. 자정 이후 다시 이용 가능해요.');
+      }
       return;
     }
     setLoading(true);
@@ -118,6 +124,17 @@ export default function FridgeSectionPicker({
       )}
       {error && (
         <p className="text-[10px] text-red-500 leading-snug mt-0.5">{error}</p>
+      )}
+      {rewardOpen && (
+        <RewardedAdModal
+          agentLabel="보관 위치 추천"
+          onClose={() => setRewardOpen(false)}
+          onGranted={() => {
+            grantBonus('fridgeSection');
+            setRewardOpen(false);
+            setError(null);
+          }}
+        />
       )}
     </div>
   );
