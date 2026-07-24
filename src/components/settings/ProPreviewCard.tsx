@@ -1,14 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, ChevronDown } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import { TIER_LIMITS } from '@/lib/aiQuota';
+import { getDeviceId } from '@/lib/deviceId';
 import type { PlanTier } from '@/types';
 import dynamic from 'next/dynamic';
 const UpgradeSheet = dynamic(() => import('./UpgradeSheet'), { ssr: false });
+
+interface SubStatus {
+  status?:           'active' | 'canceled' | 'past_due';
+  currentPeriodEnd?: string;
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+}
 
 const TIERS: { id: PlanTier; price: string; priceYear: string; color: string }[] = [
   { id: 'free',     price: '무료',       priceYear: '',            color: 'border-gray-200 bg-gray-50' },
@@ -84,6 +94,45 @@ export default function ProPreviewCard() {
   const [expanded,      setExpanded]      = useState(false);
   const [upgradeOpen,   setUpgradeOpen]   = useState(false);
   const { tier: currentTier } = usePlan();
+  const [subStatus, setSubStatus] = useState<SubStatus | null>(null);
+  const [canceling, setCanceling] = useState(false);
+  const [cancelMsg, setCancelMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentTier === 'free') { setSubStatus(null); return; }
+    const deviceId = getDeviceId();
+    if (!deviceId) return;
+    fetch(`/api/subscription/status?deviceId=${encodeURIComponent(deviceId)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: SubStatus | null) => setSubStatus(data))
+      .catch(() => {});
+  }, [currentTier]);
+
+  const handleCancel = useCallback(async () => {
+    const deviceId = getDeviceId();
+    if (!deviceId) return;
+    if (!window.confirm('구독을 해지할까요? 다음 결제부터 청구되지 않고, 남은 기간까지는 계속 이용할 수 있어요.')) return;
+
+    setCanceling(true);
+    try {
+      const res  = await fetch('/api/subscription/cancel', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ deviceId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setCancelMsg(`해지 완료 — ${formatDate(data.activeUntil)}까지 계속 이용할 수 있어요.`);
+        setSubStatus((s) => (s ? { ...s, status: 'canceled' } : s));
+      } else {
+        alert(data.error ?? '해지 중 문제가 발생했어요.');
+      }
+    } catch {
+      alert('네트워크 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setCanceling(false);
+    }
+  }, []);
 
   return (
     <motion.div
@@ -102,7 +151,7 @@ export default function ProPreviewCard() {
           <h3 className="text-sm font-bold text-gray-900">
             NEMOA <span className="text-brand-primary">요금제</span>
           </h3>
-          <p className="text-xs text-gray-400">결제 연동 출시 예정</p>
+          <p className="text-xs text-gray-400">결제는 토스페이먼츠가 처리해요</p>
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
@@ -180,8 +229,29 @@ export default function ProPreviewCard() {
           Pro 업그레이드
         </button>
       ) : (
-        <div className="text-xs text-brand-primary font-semibold text-center py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15">
-          {PLAN_LABEL[currentTier]} 플랜 이용 중
+        <div className="flex flex-col gap-1.5">
+          <div className="text-xs text-brand-primary font-semibold text-center py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15">
+            {PLAN_LABEL[currentTier]} 플랜 이용 중
+            {subStatus?.status === 'canceled' && subStatus.currentPeriodEnd && (
+              <span className="block text-[10px] text-gray-400 font-normal mt-0.5">
+                {formatDate(subStatus.currentPeriodEnd)}까지 이용 후 자동 해지돼요
+              </span>
+            )}
+          </div>
+
+          {cancelMsg && (
+            <p className="text-[10px] text-gray-400 text-center">{cancelMsg}</p>
+          )}
+
+          {subStatus?.status !== 'canceled' && (
+            <button
+              onClick={handleCancel}
+              disabled={canceling}
+              className="text-[11px] text-gray-400 hover:text-gray-600 underline text-center py-1 disabled:opacity-50 transition-colors"
+            >
+              {canceling ? '처리 중...' : '구독 해지'}
+            </button>
+          )}
         </div>
       )}
 
