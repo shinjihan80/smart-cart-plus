@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { createSharedStore } from './sharedStore';
 import { getDeviceId } from './deviceId';
+import { PAYMENTS_ENABLED } from './featureFlags';
 import type { PlanTier } from '@/types';
 
 const store = createSharedStore<PlanTier>({
@@ -28,6 +29,7 @@ export function usePlan() {
   // 이미 무료로 강등했는데 로컬만 Pro로 남아있는 상황을 방지.
   const synced = useRef(false);
   useEffect(() => {
+    if (!PAYMENTS_ENABLED) return;
     if (synced.current) return;
     synced.current = true;
     const deviceId = getDeviceId();

@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { subscriptionStore } from '@/lib/subscriptionStore';
 import { chargeBilling, planAmount, planOrderName, nextPeriodEnd } from '@/lib/tossBilling';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 
 const TOSS_SECRET   = process.env.TOSS_SECRET_KEY ?? '';
 const CRON_SECRET   = process.env.CRON_SECRET ?? '';
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  if (!TOSS_SECRET) {
+  if (!PAYMENTS_ENABLED || !TOSS_SECRET) {
     return NextResponse.json({ ok: true, skipped: 'payments_not_configured', processed: 0 });
   }
 

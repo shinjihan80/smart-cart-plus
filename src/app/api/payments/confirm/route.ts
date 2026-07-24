@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 
 const TOSS_SECRET = process.env.TOSS_SECRET_KEY ?? '';
 const TOSS_API    = 'https://api.tosspayments.com/v1';
 
 export async function POST(req: NextRequest) {
-  if (!TOSS_SECRET) {
+  if (!PAYMENTS_ENABLED || !TOSS_SECRET) {
     return NextResponse.json({ error: 'payments_not_configured' }, { status: 503 });
   }
 

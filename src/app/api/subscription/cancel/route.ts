@@ -5,12 +5,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { subscriptionStore } from '@/lib/subscriptionStore';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 
 interface RequestBody {
   deviceId?: unknown;
 }
 
 export async function POST(req: NextRequest) {
+  if (!PAYMENTS_ENABLED) {
+    return NextResponse.json({ error: 'payments_not_configured' }, { status: 503 });
+  }
+
   const limited = await applyRateLimit(req, 'billing');
   if (limited) return limited;
 

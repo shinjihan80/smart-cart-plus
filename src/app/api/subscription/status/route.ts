@@ -5,8 +5,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { subscriptionStore } from '@/lib/subscriptionStore';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 
 export async function GET(req: NextRequest) {
+  if (!PAYMENTS_ENABLED) {
+    return NextResponse.json({ tier: 'free' as const });
+  }
+
   const limited = await applyRateLimit(req, 'billing');
   if (limited) return limited;
 

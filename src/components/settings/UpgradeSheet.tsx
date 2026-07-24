@@ -6,6 +6,7 @@ import { X, Check, Loader2 } from 'lucide-react';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { usePlan } from '@/lib/usePlan';
 import { ensureDeviceId } from '@/lib/deviceId';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 import type { PlanTier } from '@/types';
 
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
@@ -41,7 +42,7 @@ export default function UpgradeSheet({ open, onClose }: UpgradeSheetProps) {
   const [loading, setLoading] = useState<PlanTier | null>(null);
 
   const handleUpgrade = useCallback(async (plan: typeof PLANS[0]) => {
-    if (!TOSS_CLIENT_KEY) {
+    if (!PAYMENTS_ENABLED || !TOSS_CLIENT_KEY) {
       alert('결제 시스템 준비 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }

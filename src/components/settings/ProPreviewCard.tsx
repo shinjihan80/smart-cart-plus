@@ -7,9 +7,12 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared'
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import { TIER_LIMITS } from '@/lib/aiQuota';
 import { getDeviceId } from '@/lib/deviceId';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 import type { PlanTier } from '@/types';
 import dynamic from 'next/dynamic';
 const UpgradeSheet = dynamic(() => import('./UpgradeSheet'), { ssr: false });
+
+const INTEREST_KEY = 'nemoa-pro-interest';
 
 interface SubStatus {
   status?:           'active' | 'canceled' | 'past_due';
@@ -97,8 +100,13 @@ export default function ProPreviewCard() {
   const [subStatus, setSubStatus] = useState<SubStatus | null>(null);
   const [canceling, setCanceling] = useState(false);
   const [cancelMsg, setCancelMsg] = useState<string | null>(null);
+  const [interestSaved, setInterestSaved] = useState(false);
 
   useEffect(() => {
+    if (!PAYMENTS_ENABLED) {
+      try { setInterestSaved(localStorage.getItem(INTEREST_KEY) === '1'); } catch {}
+      return;
+    }
     if (currentTier === 'free') { setSubStatus(null); return; }
     const deviceId = getDeviceId();
     if (!deviceId) return;
@@ -107,6 +115,11 @@ export default function ProPreviewCard() {
       .then((data: SubStatus | null) => setSubStatus(data))
       .catch(() => {});
   }, [currentTier]);
+
+  const handleInterest = useCallback(() => {
+    try { localStorage.setItem(INTEREST_KEY, '1'); } catch {}
+    setInterestSaved(true);
+  }, []);
 
   const handleCancel = useCallback(async () => {
     const deviceId = getDeviceId();
@@ -151,7 +164,7 @@ export default function ProPreviewCard() {
           <h3 className="text-sm font-bold text-gray-900">
             NEMOA <span className="text-brand-primary">요금제</span>
           </h3>
-          <p className="text-xs text-gray-400">결제는 토스페이먼츠가 처리해요</p>
+          <p className="text-xs text-gray-400">{PAYMENTS_ENABLED ? '결제는 토스페이먼츠가 처리해요' : '결제 연동 출시 예정'}</p>
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
@@ -221,7 +234,15 @@ export default function ProPreviewCard() {
       )}
 
       {/* CTA */}
-      {currentTier === 'free' ? (
+      {!PAYMENTS_ENABLED ? (
+        <button
+          onClick={handleInterest}
+          disabled={interestSaved}
+          className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all disabled:opacity-60"
+        >
+          {interestSaved ? '알림 신청 완료 ✓' : '출시 알림 받기'}
+        </button>
+      ) : currentTier === 'free' ? (
         <button
           onClick={() => setUpgradeOpen(true)}
           className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all"
@@ -255,7 +276,7 @@ export default function ProPreviewCard() {
         </div>
       )}
 
-      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+      {PAYMENTS_ENABLED && <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />}
     </motion.div>
   );
 }

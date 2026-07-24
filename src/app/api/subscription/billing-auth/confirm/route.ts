@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { issueBillingKey, chargeBilling, planAmount, planOrderName, nextPeriodEnd, type BillingCycle } from '@/lib/tossBilling';
 import { subscriptionStore, type SubscriptionRecord } from '@/lib/subscriptionStore';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 import type { PlanTier } from '@/types';
 
 const TOSS_SECRET = process.env.TOSS_SECRET_KEY ?? '';
@@ -25,7 +26,7 @@ interface RequestBody {
 }
 
 export async function POST(req: NextRequest) {
-  if (!TOSS_SECRET) {
+  if (!PAYMENTS_ENABLED || !TOSS_SECRET) {
     return NextResponse.json({ error: 'payments_not_configured' }, { status: 503 });
   }
 
