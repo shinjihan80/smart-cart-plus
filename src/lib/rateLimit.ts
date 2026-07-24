@@ -13,7 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimitStore } from './rateLimitStore';
 
-export type RateLimitKey = 'vision' | 'parser' | 'nutrition' | 'url' | 'image' | 'style' | 'fridgeSection';
+export type RateLimitKey = 'vision' | 'parser' | 'nutrition' | 'url' | 'image' | 'style' | 'fridgeSection' | 'billing';
 
 /** 분당 최대 요청 수 (per IP·디바이스) — UI 정상 사용보다 넉넉, 폭주만 방어 */
 const PER_MINUTE_LIMIT: Record<RateLimitKey, number> = {
@@ -24,6 +24,7 @@ const PER_MINUTE_LIMIT: Record<RateLimitKey, number> = {
   image:         20,
   style:         30,
   fridgeSection: 30,
+  billing:       5,
 };
 
 /** 시간당 최대 (per IP·디바이스) — 일일 한도 우회 봇 방어 */
@@ -35,6 +36,7 @@ const PER_HOUR_LIMIT: Record<RateLimitKey, number> = {
   image:         60,
   style:         100,
   fridgeSection: 120,
+  billing:       20,
 };
 
 const MINUTE_SEC = 60;

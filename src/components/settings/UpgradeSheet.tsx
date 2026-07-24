@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Loader2 } from 'lucide-react';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { usePlan } from '@/lib/usePlan';
+import { ensureDeviceId } from '@/lib/deviceId';
 import type { PlanTier } from '@/types';
 
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
@@ -47,22 +48,19 @@ export default function UpgradeSheet({ open, onClose }: UpgradeSheetProps) {
 
     setLoading(plan.id);
     try {
-      const { loadTossPayments, ANONYMOUS } = await import('@tosspayments/tosspayments-sdk');
+      // 정기결제(빌링) 흐름 — 카드 등록만 여기서 하고, 실제 청구는 서버가
+      // /api/subscription/billing-auth/confirm에서 처리한다 (금액은 서버가 재계산).
+      const { loadTossPayments } = await import('@tosspayments/tosspayments-sdk');
+      const customerKey = ensureDeviceId();
       const toss    = await loadTossPayments(TOSS_CLIENT_KEY);
-      const payment = toss.payment({ customerKey: ANONYMOUS });
+      const payment = toss.payment({ customerKey });
 
-      const amount  = billing === 'yearly' ? plan.yearly  : plan.monthly;
-      const orderId = `nemoa-user-${plan.id}-${Date.now()}`;
-
-      await payment.requestPayment({
+      await payment.requestBillingAuth({
         method:      'CARD',
-        amount:      { currency: 'KRW', value: amount },
-        orderId,
-        orderName:   `NEMOA ${plan.name} (${billing === 'yearly' ? '연간' : '월간'})`,
-        successUrl:  `${window.location.origin}/payment/success?plan=${plan.id}`,
+        successUrl:  `${window.location.origin}/payment/billing-success?plan=${plan.id}&cycle=${billing}`,
         failUrl:     `${window.location.origin}/payment/fail`,
       });
-      // requestPayment는 리다이렉트 방식 — 이후 코드는 실행 안 됨
+      // requestBillingAuth는 리다이렉트 방식 — 이후 코드는 실행 안 됨
     } catch (e: unknown) {
       const err = e as { code?: string };
       if (err?.code !== 'USER_CANCEL') {
