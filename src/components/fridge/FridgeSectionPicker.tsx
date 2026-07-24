@@ -15,6 +15,8 @@ import { FRIDGE_SECTION_META, recommendFridgeSection } from '@/lib/fridgeSection
 import { FRIDGE_MODELS } from '@/lib/fridgeModel';
 import { useFridgeModel } from '@/lib/useFridgeModel';
 import { useAiQuota } from '@/lib/aiQuota';
+import { isMarketedUnlimited } from '@/lib/aiQuotaConstants';
+import { usePlan } from '@/lib/usePlan';
 import type { FoodCategory, FridgeSection, StorageType } from '@/types';
 
 interface Props {
@@ -30,6 +32,7 @@ export default function FridgeSectionPicker({
 }: Props) {
   const [modelId] = useFridgeModel();
   const { canUse, consume, remaining } = useAiQuota();
+  const { tier } = usePlan();
 
   const cells = FRIDGE_MODELS[modelId].cells;
   const options = useMemo(() => cells.map((c) => c.section), [cells]);
@@ -93,7 +96,7 @@ export default function FridgeSectionPicker({
           className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary disabled:opacity-40 hover:bg-brand-primary/20 transition-colors"
           aria-label="AI로 보관 위치 추천 받기"
         >
-          {loading ? '추천 중…' : `✨ AI 추천 (${isFinite(remainingCount) ? remainingCount : '∞'})`}
+          {loading ? '추천 중…' : `✨ AI 추천 (${!isFinite(remainingCount) || (isMarketedUnlimited(tier) && remainingCount > 0) ? '∞' : remainingCount})`}
         </button>
       </div>
       <select

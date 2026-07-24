@@ -5,8 +5,13 @@ import Link from 'next/link';
 import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
 import { useProfiles } from '@/lib/profile';
-import { useAiQuota } from '@/lib/aiQuota';
+import { useAiQuota, type AiAgent } from '@/lib/aiQuota';
 import { usePlan } from '@/lib/usePlan';
+import RewardedAdModal from '@/components/RewardedAdModal';
+
+const AGENT_LABEL: Record<AiAgent, string> = {
+  vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
+};
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
 import { Camera, Lock, X as XIcon } from 'lucide-react';
@@ -745,7 +750,7 @@ function LoadingSpinner({ label }: { label: string }) {
 
 // ── 메인 모달 ─────────────────────────────────────────────────────────────────
 export default function TextImportModal({ onClose, onImport }: TextImportModalProps) {
-  const { canUse: canUseAi, consume: consumeAi } = useAiQuota();
+  const { canUse: canUseAi, consume: consumeAi, canGrantBonus, grantBonus } = useAiQuota();
   const { isPro } = usePlan();
   const [step, setStep]               = useState<ModalStep>('input');
   const [activeTab, setActiveTab]     = useState<InputTab>('text');
@@ -753,6 +758,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
   const [domainSummary, setDomainSummary] = useState<{ food: number; fashion: number } | undefined>();
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState<string | null>(null);
+  const [rewardAgent, setRewardAgent] = useState<AiAgent | null>(null); // 광고 보기 모달 대상 agent
 
   const [text, setText]               = useState('');
   const [imageFile, setImageFile]     = useState<File | null>(null);
@@ -776,7 +782,11 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     // AI 쿼터 체크 — 탭에 따라 agent 결정
     const agent = activeTab === 'text' ? 'parser' : activeTab === 'image' ? 'vision' : activeTab === 'url' ? 'url' : null;
     if (agent && !canUseAi(agent)) {
-      setError(`오늘 ${agent === 'parser' ? '텍스트 파싱' : agent === 'vision' ? '사진 분석' : 'URL 분석'} 무료 사용량을 모두 썼어요. 자정 이후 다시 이용 가능해요.`);
+      if (!isPro && canGrantBonus(agent)) {
+        setRewardAgent(agent);
+      } else {
+        setError(`오늘 ${AGENT_LABEL[agent]} 무료 사용량을 모두 썼어요. 자정 이후 다시 이용 가능해요.`);
+      }
       return;
     }
     setLoading(true);
@@ -884,6 +894,18 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
             )}
 
             {error && <p className="mt-2 text-xs text-red-500 font-medium">{error}</p>}
+
+            {rewardAgent && (
+              <RewardedAdModal
+                agentLabel={AGENT_LABEL[rewardAgent]}
+                onClose={() => setRewardAgent(null)}
+                onGranted={() => {
+                  grantBonus(rewardAgent);
+                  setRewardAgent(null);
+                  setError(null);
+                }}
+              />
+            )}
           </>
         ) : (
           <StepConfirm

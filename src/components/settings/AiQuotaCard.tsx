@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useAiQuota, TIER_LIMITS, type AiAgent } from '@/lib/aiQuota';
+import { isMarketedUnlimited } from '@/lib/aiQuotaConstants';
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -38,7 +39,7 @@ export default function AiQuotaCard() {
         {AGENTS.map((a) => {
           const left  = remaining(a.key);
           const total = limits[a.key];
-          const isUnlimited = !isFinite(total);
+          const isUnlimited = !isFinite(total) || (isMarketedUnlimited(tier) && left > 0);
           const pct   = isUnlimited ? 100 : total > 0 ? Math.round((left / total) * 100) : 0;
           const isLow = !isUnlimited && left < total * 0.3;
           const tone  = !isUnlimited && left === 0

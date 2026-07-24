@@ -11,7 +11,10 @@
 
 ## 현 상태 (v2.0, 베이직 무료 + Pro 결제 예고)
 
-- 전체 기능 무료 개방, 로컬 저장, 광고 없음
+- 전체 기능 무료 개방, 로컬 저장
+- **베이직 광고 도입 (v2.1)** — 하단 배너(카카오 애드핏, `nemoa.vercel.app` 전 페이지) + AI 한도 소진 시
+  "광고 보고 1회 더" 보상형 광고(agent당 하루 최대 3회). Pro(Lite/Max) 둘 다 광고 완전 제거.
+- **Pro Max 소프트캡 도입 (v2.1)** — `Infinity` 대신 에이전트당 하루 200회, UI는 계속 "무제한" 표시
 - AI 호출만 일일 한도 (vision 5 · parser 10 · nutrition 2 · url 2 · fridgeSection 5)
 - **Phase 7 파트너 18개 모두 enabled + 실제 URL** (중고 3 · 기부 3 · 보관 2 신규 + 기존 식품 5 · 패션 5)
 - **Pro 출시 예고 카드** 노출 중 — `nemoa-pro-interest` localStorage 의향 수집
