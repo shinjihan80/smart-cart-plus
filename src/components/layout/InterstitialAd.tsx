@@ -1,38 +1,45 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import { X as XIcon } from 'lucide-react';
 
-const AD_UNIT_ID = 'DAN-aoUckWDgvl2T8LDk';
-const SHOWN_KEY   = 'nemoa-interstitial-shown'; // sessionStorage — 탭 닫으면 초기화, 세션당 1회
-const CONSENT_KEY = 'nemoa-consent-v1';
-const ONBOARDING_KEY = 'smart-cart-onboarded-v3';
-const SHOW_DELAY_MS = 600;
+const AD_UNIT_ID        = 'DAN-aoUckWDgvl2T8LDk';
+const LAUNCH_COUNT_KEY  = 'nemoa-launch-count'; // 누적 실행 횟수(날짜 무관, 계속 증가)
+const SHOW_EVERY_N      = 3;                    // 3, 6, 9... 매 N번째 실행마다 노출
+const CONSENT_KEY       = 'nemoa-consent-v1';
+const ONBOARDING_KEY    = 'smart-cart-onboarded-v3';
+const SHOW_DELAY_MS     = 600;
 
 /**
- * 앱 실행(세션) 당 1회, 홈 화면 진입 직후 잠깐 띄우는 320x480 전면 광고.
- * 약관 동의·온보딩 튜토리얼이 아직 안 끝난 신규 사용자에게는 겹쳐 뜨지 않게 건너뛴다.
+ * 앱을 자주 쓰는 사람일수록 더 자주 보이는 전면 광고 — 매 3번째 "실행"(= 새 페이지 로드)마다 1회.
+ * 세션 안에서 페이지 이동으로는 재마운트되지 않으므로 이중 카운트는 안 됨.
+ * 약관 동의·온보딩 튜토리얼이 아직 안 끝난 신규 사용자는 카운트에서도 제외(온보딩 중 노출 방지).
  */
 export default function InterstitialAd() {
   const [visible, setVisible] = useState(false);
+  const ran = useRef(false);
 
   useEffect(() => {
+    if (ran.current) return; // StrictMode 등으로 effect가 두 번 도는 것 방지
+    ran.current = true;
     if (typeof window === 'undefined') return;
 
     try {
-      if (sessionStorage.getItem(SHOWN_KEY)) return; // 이번 세션에 이미 봄
-      const consented  = !!localStorage.getItem(CONSENT_KEY);
-      const onboarded   = !!localStorage.getItem(ONBOARDING_KEY);
-      if (!consented || !onboarded) return; // 신규 사용자 온보딩 중엔 겹치지 않게 스킵
+      const consented = !!localStorage.getItem(CONSENT_KEY);
+      const onboarded = !!localStorage.getItem(ONBOARDING_KEY);
+      if (!consented || !onboarded) return; // 온보딩 중인 신규 사용자는 카운트도 안 올림
+
+      const prev  = parseInt(localStorage.getItem(LAUNCH_COUNT_KEY) ?? '0', 10) || 0;
+      const count = prev + 1;
+      localStorage.setItem(LAUNCH_COUNT_KEY, String(count));
+
+      if (count % SHOW_EVERY_N !== 0) return; // 3의 배수 실행일 때만 노출
     } catch {
       return;
     }
 
-    const id = setTimeout(() => {
-      setVisible(true);
-      try { sessionStorage.setItem(SHOWN_KEY, '1'); } catch { /* ignore */ }
-    }, SHOW_DELAY_MS);
+    const id = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
     return () => clearTimeout(id);
   }, []);
 
