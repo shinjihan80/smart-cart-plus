@@ -6,6 +6,7 @@ import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingI
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
 import { useProfiles } from '@/lib/profile';
 import { useAiQuota, type AiAgent } from '@/lib/aiQuota';
+import { useMonthlyVisionQuota } from '@/lib/monthlyVisionQuota';
 import { usePlan } from '@/lib/usePlan';
 import RewardedAdModal from '@/components/RewardedAdModal';
 
@@ -81,7 +82,7 @@ function TabBar({ active, onChange, isPro }: {
   isPro:    boolean;
 }) {
   const tabs: { key: InputTab; label: string; emoji: string; proOnly: boolean }[] = [
-    { key: 'image', label: '사진',    emoji: '📷', proOnly: true  },
+    { key: 'image', label: '사진',    emoji: '📷', proOnly: false },
     { key: 'text',  label: '텍스트', emoji: '📝', proOnly: false },
     { key: 'url',   label: 'URL',    emoji: '🔗', proOnly: true  },
   ];
@@ -751,6 +752,7 @@ function LoadingSpinner({ label }: { label: string }) {
 // ── 메인 모달 ─────────────────────────────────────────────────────────────────
 export default function TextImportModal({ onClose, onImport }: TextImportModalProps) {
   const { canUse: canUseAi, consume: consumeAi, canGrantBonus, grantBonus } = useAiQuota();
+  const monthlyVision = useMonthlyVisionQuota();
   const { isPro } = usePlan();
   const [step, setStep]               = useState<ModalStep>('input');
   const [activeTab, setActiveTab]     = useState<InputTab>('text');
@@ -781,7 +783,14 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
   async function handleAnalyze() {
     // AI 쿼터 체크 — 탭에 따라 agent 결정
     const agent = activeTab === 'text' ? 'parser' : activeTab === 'image' ? 'vision' : activeTab === 'url' ? 'url' : null;
-    if (agent && !canUseAi(agent)) {
+
+    if (agent === 'vision' && !isPro) {
+      // 무료 사진 분석은 일일이 아니라 월간 한도로 관리 (Pro는 아래 분기의 일일 한도 그대로)
+      if (!monthlyVision.canUse) {
+        setError(`이번 달 사진 분석 무료 사용량(${monthlyVision.limit}회)을 모두 썼어요. 다음 달에 다시 이용할 수 있어요.`);
+        return;
+      }
+    } else if (agent && !canUseAi(agent)) {
       if (!isPro && canGrantBonus(agent)) {
         setRewardAgent(agent);
       } else {
@@ -819,7 +828,10 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
       }
 
       // 쿼터 소진은 성공 반환 후
-      if (agent && !data.error) consumeAi(agent);
+      if (agent && !data.error) {
+        if (agent === 'vision' && !isPro) monthlyVision.consume();
+        else consumeAi(agent);
+      }
 
       if (data.error) { setError(data.error); return; }
       if (!data.items || data.items.length === 0) {
@@ -876,13 +888,18 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
             <TabBar active={activeTab} onChange={handleTabChange} isPro={isPro} />
 
             {activeTab === 'image' && (
-              isPro
-                ? <ImageTab
-                    file={imageFile} setFile={setImageFile}
-                    preview={imagePreview} setPreview={setImagePreview}
-                    loading={loading} onSubmit={handleAnalyze}
-                  />
-                : <ProLockedTab feature="사진 분석 (AI Vision)" />
+              <>
+                {!isPro && (
+                  <p className="text-[11px] text-gray-400 mb-2">
+                    이번 달 사진 분석 남은 횟수 {monthlyVision.remaining}/{monthlyVision.limit}
+                  </p>
+                )}
+                <ImageTab
+                  file={imageFile} setFile={setImageFile}
+                  preview={imagePreview} setPreview={setImagePreview}
+                  loading={loading} onSubmit={handleAnalyze}
+                />
+              </>
             )}
             {activeTab === 'text' && (
               <TextTab text={text} setText={setText} loading={loading} onSubmit={handleAnalyze} />

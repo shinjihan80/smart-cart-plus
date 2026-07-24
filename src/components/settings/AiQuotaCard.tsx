@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useAiQuota, TIER_LIMITS, type AiAgent } from '@/lib/aiQuota';
 import { isMarketedUnlimited } from '@/lib/aiQuotaConstants';
+import { useMonthlyVisionQuota } from '@/lib/monthlyVisionQuota';
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -18,6 +19,8 @@ export default function AiQuotaCard() {
   const { remaining } = useAiQuota();
   const { tier }      = usePlan();
   const limits        = TIER_LIMITS[tier];
+  const monthlyVision  = useMonthlyVisionQuota();
+  const visionIsMonthly = tier === 'free'; // 무료는 사진 분석만 월 단위로 별도 관리
 
   return (
     <motion.div
@@ -37,9 +40,10 @@ export default function AiQuotaCard() {
 
       <div className="grid grid-cols-2 gap-2">
         {AGENTS.map((a) => {
-          const left  = remaining(a.key);
-          const total = limits[a.key];
-          const isUnlimited = !isFinite(total) || (isMarketedUnlimited(tier) && left > 0);
+          const isVisionMonthly = a.key === 'vision' && visionIsMonthly;
+          const left  = isVisionMonthly ? monthlyVision.remaining : remaining(a.key);
+          const total = isVisionMonthly ? monthlyVision.limit     : limits[a.key];
+          const isUnlimited = !isVisionMonthly && (!isFinite(total) || (isMarketedUnlimited(tier) && left > 0));
           const pct   = isUnlimited ? 100 : total > 0 ? Math.round((left / total) * 100) : 0;
           const isLow = !isUnlimited && left < total * 0.3;
           const tone  = !isUnlimited && left === 0
@@ -50,7 +54,9 @@ export default function AiQuotaCard() {
           return (
             <div key={a.key} className="rounded-xl border border-gray-100 p-2.5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-600">{a.emoji} {a.label}</span>
+                <span className="text-xs text-gray-600">
+                  {a.emoji} {a.label}{isVisionMonthly && <span className="text-gray-400"> (월간)</span>}
+                </span>
                 <span className={`text-xs font-bold tabular-nums ${tone}`}>
                   {isUnlimited ? '∞' : `${left}/${total}`}
                 </span>

@@ -4,8 +4,8 @@ export type AiAgent = 'vision' | 'parser' | 'nutrition' | 'url' | 'fridgeSection
 
 export const TIER_LIMITS: Record<PlanTier, Record<AiAgent, number>> = {
   free: {
-    vision:        5,
-    parser:        10,
+    vision:        5,  // 무료는 이 값 대신 월 단위 monthlyVisionQuota.ts를 씀 (일일 한도 미적용)
+    parser:        5,
     nutrition:      2,
     url:            2,
     fridgeSection:  5,
