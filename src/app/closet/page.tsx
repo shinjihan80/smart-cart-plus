@@ -38,6 +38,7 @@ import {
   type WardrobeSection,
 } from '@/lib/wardrobeModel';
 import { useWardrobeInstances, DEFAULT_WARDROBE_INSTANCE } from '@/lib/useWardrobeInstances';
+import { maybeShowInstanceCreateAd } from '@/lib/instanceMilestone';
 import OutfitPreview      from '@/components/closet/OutfitPreview';
 import OutfitGrid         from '@/components/closet/OutfitGrid';
 import SwipeClothingCard  from '@/components/closet/SwipeClothingCard';
@@ -344,7 +345,7 @@ export default function ClosetPage() {
             ))}
             <button
               type="button"
-              onClick={addWardrobeInstance}
+              onClick={() => { maybeShowInstanceCreateAd(wardrobeInstances.length); addWardrobeInstance(); }}
               className="shrink-0 w-7 h-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-base font-bold hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
               aria-label="옷장 추가"
             >

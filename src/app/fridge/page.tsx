@@ -29,6 +29,7 @@ import { SEASON_ICON }          from '@/lib/iconMap';
 import { useProfiles }         from '@/lib/profile';
 import { usePersistedState }   from '@/lib/usePersistedState';
 import { useFridgeInstances, DEFAULT_FRIDGE_INSTANCE } from '@/lib/useFridgeInstances';
+import { maybeShowInstanceCreateAd } from '@/lib/instanceMilestone';
 import { InstanceMetaEditor } from '@/components/InstanceMetaEditor';
 import { recommendFridgeSection, FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import { FRIDGE_MODELS, resolveSectionForModel } from '@/lib/fridgeModel';
@@ -321,7 +322,7 @@ export default function FridgePage() {
                 ))}
                 <button
                   type="button"
-                  onClick={addFridgeInstance}
+                  onClick={() => { maybeShowInstanceCreateAd(fridgeInstances.length); addFridgeInstance(); }}
                   className="shrink-0 w-7 h-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-base font-bold hover:bg-brand-primary/10 hover:text-brand-primary transition-colors"
                   aria-label="냉장고 추가"
                 >
