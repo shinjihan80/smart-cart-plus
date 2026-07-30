@@ -352,11 +352,8 @@ function SeasonalPageInner() {
               const added = has(p.name);
               const tried = triedNames.has(p.name);
               return (
-                <motion.div
+                <div
                   key={p.name}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 24 }}
                   className={`rounded-2xl border p-3 ${
                     p.peak === selected
                       ? 'bg-brand-primary/5 border-brand-primary/15'
@@ -409,7 +406,7 @@ function SeasonalPageInner() {
                       </button>
                     )}
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>

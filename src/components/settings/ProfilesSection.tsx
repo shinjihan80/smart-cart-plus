@@ -4,13 +4,15 @@ import { useState, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, ChevronDown, Camera } from 'lucide-react';
 import {
-  useProfiles, calcTDEE, resolveDailyCalorieTarget,
+  useProfiles, calcTDEE, resolveDailyCalorieTarget, FREE_PROFILE_LIMIT,
   type Profile, type Relation, type Dietary, type Gender, type ActivityLevel,
 } from '@/lib/profile';
 import { recommendSizes } from '@/lib/sizeRecommend';
 import { useToast } from '@/context/ToastContext';
+import { usePlan } from '@/lib/usePlan';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
+import UpgradeSheet from '@/components/settings/UpgradeSheet';
 
 const RELATIONS: Relation[] = ['본인', '배우자', '자녀', '부모', '기타'];
 
@@ -125,9 +127,6 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">
             {profile.name}
-            {profile.isMain && (
-              <span className="ml-1.5 text-xs text-brand-primary font-semibold align-middle">나</span>
-            )}
           </p>
           <p className="text-sm text-gray-400 mt-0.5">
             {profile.relation}
@@ -532,15 +531,23 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
 const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSection(_, ref) {
   const { profiles, add, remove, update } = useProfiles();
   const { showToast } = useToast();
+  const { isFree } = usePlan();
   const [newName, setNewName] = useState('');
   const [newRelation, setNewRelation] = useState<Relation>('자녀');
   const [mainExpandKey, setMainExpandKey] = useState(0);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  const atFreeLimit = isFree && profiles.length >= FREE_PROFILE_LIMIT;
 
   useImperativeHandle(ref, () => ({
     expandMain: () => setMainExpandKey((k) => k + 1),
   }));
 
   function handleAdd() {
+    if (atFreeLimit) {
+      setUpgradeOpen(true);
+      return;
+    }
     const name = newName.trim();
     if (!name) {
       showToast('이름을 입력해주세요.');
@@ -585,46 +592,61 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
         ))}
       </div>
 
-      {/* 가족 추가 폼 */}
-      <div className="mt-4 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 p-3">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Plus size={12} className="text-brand-primary" />
-          <p className="text-xs font-semibold text-brand-primary">가족 · 다른 구성원 추가</p>
-        </div>
-        <p className="text-sm text-gray-500 mb-2">관계를 고르고 이름을 입력하세요.</p>
-        <div className="flex gap-1.5 mb-2 flex-wrap">
-          {RELATIONS.filter((r) => r !== '본인').map((r) => (
-            <button
-              key={r}
-              onClick={() => setNewRelation(r)}
-              className={`text-sm px-2.5 py-1 rounded-full transition-colors ${
-                newRelation === r
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {RELATION_EMOJI[r]} {r}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
-            placeholder={`${newRelation} 이름 (예: 엄마, 큰아이)`}
-            aria-label="새 프로필 이름"
-            className="flex-1 text-xs text-gray-800 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-          />
+      {/* 가족 추가 폼 — 무료 등급은 3명까지만, 초과 시 업그레이드 유도 */}
+      {atFreeLimit ? (
+        <div className="mt-4 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 p-3">
+          <p className="text-xs font-semibold text-brand-primary mb-1">무료 등급은 프로필 {FREE_PROFILE_LIMIT}명까지예요</p>
+          <p className="text-sm text-gray-500 mb-2">Pro로 업그레이드하면 가족 구성원을 제한 없이 추가할 수 있어요.</p>
           <button
-            onClick={handleAdd}
-            className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-xl bg-brand-primary text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+            onClick={() => setUpgradeOpen(true)}
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-brand-primary text-white hover:opacity-90 transition-opacity"
           >
-            <Plus size={12} /> 추가
+            Pro 알아보기
           </button>
         </div>
-      </div>
+      ) : (
+        <div className="mt-4 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 p-3">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Plus size={12} className="text-brand-primary" />
+            <p className="text-xs font-semibold text-brand-primary">가족 · 다른 구성원 추가</p>
+          </div>
+          <p className="text-sm text-gray-500 mb-2">관계를 고르고 이름을 입력하세요.</p>
+          <div className="flex gap-1.5 mb-2 flex-wrap">
+            {RELATIONS.filter((r) => r !== '본인').map((r) => (
+              <button
+                key={r}
+                onClick={() => setNewRelation(r)}
+                className={`text-sm px-2.5 py-1 rounded-full transition-colors ${
+                  newRelation === r
+                    ? 'bg-brand-primary text-white'
+                    : 'bg-white border border-gray-100 text-gray-500 hover:bg-gray-100'
+                }`}
+              >
+                {RELATION_EMOJI[r]} {r}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
+              placeholder={`${newRelation} 이름 (예: 엄마, 큰아이)`}
+              aria-label="새 프로필 이름"
+              className="flex-1 text-xs text-gray-800 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+            />
+            <button
+              onClick={handleAdd}
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-xl bg-brand-primary text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+            >
+              <Plus size={12} /> 추가
+            </button>
+          </div>
+        </div>
+      )}
+
+      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </motion.div>
   );
 });

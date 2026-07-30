@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import { CartItem, isFoodItem } from '@/types';
 import { mockCartItems } from '@/data/mockData';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { recordAddsAndMaybeShowAd } from '@/lib/addMilestone';
 
 const STORAGE_KEY  = 'smart-cart-items';
 const DISCARD_KEY  = 'smart-cart-discard-count';
@@ -144,6 +145,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
       return [...prev, ...unique];
     });
+    recordAddsAndMaybeShowAd(added);
     return { added, skipped };
   }, []);
 

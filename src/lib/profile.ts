@@ -5,6 +5,9 @@ import { createSharedStore } from './sharedStore';
 
 const STORAGE_KEY = 'nemoa-profiles';
 
+/** 무료 등급 프로필(가족 구성원) 등록 상한 — Pro는 무제한. */
+export const FREE_PROFILE_LIMIT = 3;
+
 export type Relation = '본인' | '배우자' | '자녀' | '부모' | '기타';
 
 /** 식습관 선호 — 레시피 추천 필터 */

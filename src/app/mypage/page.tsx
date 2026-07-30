@@ -27,7 +27,6 @@ import WearStatsSection                          from '@/components/mypage/WearS
 import CookStatsSection                          from '@/components/mypage/CookStatsSection';
 import ClosetCleanupSection                      from '@/components/mypage/ClosetCleanupSection';
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
-import PartnerRoadmapSection                     from '@/components/mypage/PartnerRoadmapSection';
 import WaitlistBanner                            from '@/components/mypage/WaitlistBanner';
 import ShoppingMallCard                           from '@/components/ShoppingMallCard';
 import PaletteButton                              from '@/components/PaletteButton';
@@ -487,10 +486,6 @@ export default function MyPage() {
 
             <SectionErrorBoundary label="쇼핑 리스트">
               <ShoppingListSection addItems={addItems} showToast={showToast} />
-            </SectionErrorBoundary>
-
-            <SectionErrorBoundary label="파트너 로드맵">
-              <PartnerRoadmapSection />
             </SectionErrorBoundary>
           </>
         )}

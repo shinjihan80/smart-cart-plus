@@ -74,21 +74,21 @@ export const PARTNERS: Readonly<Record<string, Partner>> = {
 
   // 기부 (Phase 7 — 실제 연결)
   beautiful:   { id: 'beautiful',   label: '아름다운가게',  emoji: '🏪', domain: 'donation',   enabled: true,
-                 buildUrl: ()  => 'https://www.beautifulstore.org/giving',
+                 buildUrl: ()  => 'https://www.beautifulstore.org/donation',
                  comingSoon: '' },
   goodwill:    { id: 'goodwill',    label: '굿윌스토어',    emoji: '🤝', domain: 'donation',   enabled: true,
                  buildUrl: ()  => 'https://www.goodwillstore.org',
                  comingSoon: '' },
   otcan:       { id: 'otcan',       label: '옷캔',          emoji: '👕', domain: 'donation',   enabled: true,
-                 buildUrl: ()  => 'http://otcan.org',
+                 buildUrl: ()  => 'https://otcan.org',
                  comingSoon: '' },
 
   // 짐 보관·세탁 (Phase 7 — 실제 연결)
   thelaundry:  { id: 'thelaundry',  label: '세탁특공대',    emoji: '🧺', domain: 'storage',    enabled: true,
-                 buildUrl: ()  => 'https://www.thelaundrygo.com/box-storage',
+                 buildUrl: ()  => 'https://www.getwashswat.com',
                  comingSoon: '' },
   darak:       { id: 'darak',       label: '다락',          emoji: '📦', domain: 'storage',    enabled: true,
-                 buildUrl: ()  => 'https://www.darakhouse.com',
+                 buildUrl: ()  => 'https://www.dalock.kr/service/main',
                  comingSoon: '' },
 
 };

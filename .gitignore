@@ -40,3 +40,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# capacitor android/ios build artifacts and signing keys
+android/app/build/
+android/build/
+android/.gradle/
+android/keystore/
+android/local.properties
+ios/App/build/
+ios/App/Pods/
+*.jks
+*.keystore

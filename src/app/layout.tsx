@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
-import AdBanner from "@/components/layout/AdBanner";
-import InterstitialAd from "@/components/layout/InterstitialAd";
 import Providers from "@/components/layout/Providers";
 import OnboardingModal from "@/components/layout/OnboardingModal";
 import ScrollToTop from "@/components/layout/ScrollToTop";
@@ -15,6 +13,7 @@ import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 import AnalyticsGate from "@/components/layout/AnalyticsGate";
 import InstallBanner from "@/components/layout/InstallBanner";
 import OfflineBanner from "@/components/layout/OfflineBanner";
+import LaunchRewardAdTrigger from "@/components/layout/LaunchRewardAdTrigger";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -125,14 +124,12 @@ export default function RootLayout({
         </a>
         <Providers>
           <ConsentGate>
-            <main id="main-content" className="flex-1 max-w-md sm:max-w-lg mx-auto w-full" style={{ paddingBottom: 'calc(5rem + 58px + env(safe-area-inset-bottom))' }}>
+            <main id="main-content" className="flex-1 max-w-md sm:max-w-lg mx-auto w-full" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
               {children}
             </main>
             <ScrollToTop />
-            <AdBanner />
             <BottomNav />
             <OnboardingModal />
-            <InterstitialAd />
             <CommandPalette />
             <GlobalRecipeModal />
             <SwRegister />
@@ -140,6 +137,7 @@ export default function RootLayout({
             <AnalyticsGate />
             <InstallBanner />
             <OfflineBanner />
+            <LaunchRewardAdTrigger />
           </ConsentGate>
         </Providers>
       </body>

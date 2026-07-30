@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
 import { X as XIcon } from 'lucide-react';
+import { isRewardedAdSupported, showRewardedAd } from '@/lib/admob';
 
 const AD_UNIT_ID = 'DAN-OIIEQHddZ182Dyby';
 const VIEW_SECONDS = 8;
@@ -15,16 +16,46 @@ interface RewardedAdModalProps {
 
 /**
  * 무료 한도 소진 시 "광고 보고 1회 더" 흐름.
- * 진짜 SDK 기반 리워드 영상은 아니고, 배너를 일정 시간 노출 후 보상을 지급하는 간이 방식.
+ * 네이티브 앱(iOS/Android)에서는 AdMob 리워드 영상 광고를 실제로 보여준다.
+ * 웹(브라우저)이거나 AdMob 로드 실패 시, 카카오 애드핏 배너를 일정 시간
+ * 노출 후 보상을 지급하는 간이 방식으로 폴백한다.
  */
 export default function RewardedAdModal({ agentLabel, onClose, onGranted }: RewardedAdModalProps) {
   const [secondsLeft, setSecondsLeft] = useState(VIEW_SECONDS);
+  const [nativeAttempted, setNativeAttempted] = useState(false);
+  const [nativeLoading, setNativeLoading] = useState(isRewardedAdSupported());
+
+  // 네이티브 앱이면 AdMob 리워드 영상을 우선 시도 — 성공하면 바로 보상, 실패하면 폴백 배너로 전환
+  useEffect(() => {
+    if (!isRewardedAdSupported()) return;
+    let cancelled = false;
+    (async () => {
+      const rewarded = await showRewardedAd();
+      if (cancelled) return;
+      setNativeAttempted(true);
+      setNativeLoading(false);
+      if (rewarded) onGranted();
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
+    if (isRewardedAdSupported() && !nativeAttempted) return; // 네이티브 광고 결과 기다리는 중
     if (secondsLeft <= 0) return;
     const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(id);
-  }, [secondsLeft]);
+  }, [secondsLeft, nativeAttempted]);
+
+  if (nativeLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div className="w-full max-w-xs rounded-2xl bg-white p-5 shadow-xl text-center">
+          <p className="text-sm text-gray-500">광고를 불러오는 중이에요…</p>
+        </div>
+      </div>
+    );
+  }
 
   const ready = secondsLeft <= 0;
 

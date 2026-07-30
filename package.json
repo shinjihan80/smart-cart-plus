@@ -15,6 +15,7 @@
     "cap:icons": "npx capacitor-assets generate --ios --android"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^8.0.0",
     "@capacitor/android": "^8.4.1",
     "@capacitor/camera": "^8.2.0",
     "@capacitor/cli": "^8.4.1",

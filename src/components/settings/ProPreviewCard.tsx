@@ -7,6 +7,7 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared'
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import { TIER_LIMITS } from '@/lib/aiQuota';
 import { VISION_MONTHLY_LIMITS } from '@/lib/monthlyVisionQuota';
+import { FREE_PROFILE_LIMIT } from '@/lib/profile';
 import { getDeviceId } from '@/lib/deviceId';
 import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 import type { PlanTier } from '@/types';
@@ -87,10 +88,10 @@ const ROWS: Row[] = [
     pro_max:  '142종+',
   },
   {
-    label:    '파트너 할인',
-    free:     <Tick ok={false} />,
-    pro_lite: <Tick ok={true}  />,
-    pro_max:  <Tick ok={true}  />,
+    label: '프로필(가족 구성원)',
+    free:     `${FREE_PROFILE_LIMIT}명`,
+    pro_lite: '무제한',
+    pro_max:  '무제한',
   },
 ];
 
@@ -211,25 +212,27 @@ export default function ProPreviewCard() {
           transition={{ duration: 0.2 }}
           className="overflow-hidden mb-3"
         >
-          <div className="rounded-2xl bg-white border border-gray-100 overflow-hidden">
-            {/* column header */}
-            <div className="grid grid-cols-[1fr,auto,auto,auto] gap-x-2 px-3 py-2 border-b border-gray-50 bg-gray-50/60">
-              <span className="text-[10px] text-gray-400 font-medium">기능</span>
-              <span className="text-[10px] text-gray-400 font-medium min-w-[2.8rem] text-center">무료</span>
-              <span className="text-[10px] text-brand-primary font-medium min-w-[3.2rem] text-center">Lite</span>
-              <span className="text-[10px] text-brand-primary font-bold min-w-[3.2rem] text-center">Max</span>
-            </div>
-            {ROWS.map((row, i) => (
-              <div
-                key={row.label}
-                className={`grid grid-cols-[1fr,auto,auto,auto] gap-x-2 items-center px-3 py-1.5 ${i < ROWS.length - 1 ? 'border-b border-gray-50' : ''}`}
-              >
-                <span className="text-xs text-gray-500">{row.label}</span>
-                <span className="text-[10px] text-gray-400 tabular-nums min-w-[2.8rem] text-center flex justify-center">{row.free}</span>
-                <span className="text-[10px] text-brand-primary tabular-nums min-w-[3.2rem] text-center flex justify-center">{row.pro_lite}</span>
-                <span className="text-[10px] text-brand-primary font-semibold tabular-nums min-w-[3.2rem] text-center flex justify-center">{row.pro_max}</span>
+          <div className="rounded-2xl bg-white border border-gray-100 overflow-x-auto">
+            <div className="min-w-[280px]">
+              {/* column header */}
+              <div className="grid grid-cols-[1fr_2.8rem_3.2rem_3.2rem] gap-x-2 px-3 py-2 border-b border-gray-50 bg-gray-50/60">
+                <span className="text-[10px] text-gray-400 font-medium">기능</span>
+                <span className="text-[10px] text-gray-400 font-medium text-center">무료</span>
+                <span className="text-[10px] text-brand-primary font-medium text-center">Lite</span>
+                <span className="text-[10px] text-brand-primary font-bold text-center">Max</span>
               </div>
-            ))}
+              {ROWS.map((row, i) => (
+                <div
+                  key={row.label}
+                  className={`grid grid-cols-[1fr_2.8rem_3.2rem_3.2rem] gap-x-2 items-center px-3 py-1.5 ${i < ROWS.length - 1 ? 'border-b border-gray-50' : ''}`}
+                >
+                  <span className="text-xs text-gray-500 truncate min-w-0">{row.label}</span>
+                  <span className="text-[10px] text-gray-400 tabular-nums text-center flex justify-center min-w-0">{row.free}</span>
+                  <span className="text-[10px] text-brand-primary tabular-nums text-center flex justify-center min-w-0">{row.pro_lite}</span>
+                  <span className="text-[10px] text-brand-primary font-semibold tabular-nums text-center flex justify-center min-w-0">{row.pro_max}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       )}
