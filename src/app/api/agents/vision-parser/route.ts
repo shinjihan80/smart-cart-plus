@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
 import { runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { recordAgentUsage } from '@/lib/usageTelemetry';
 import {
   StorageType,
   Thickness,
@@ -242,6 +243,7 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, 'vision');
   if (limited) return limited;
+  await recordAgentUsage('vision', req);
 
   try {
     const formData = await req.formData();

@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
 import { runWithDualReview, classifyAgentError, type UserContentBlock } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { recordAgentUsage } from '@/lib/usageTelemetry';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **이미지 분석 에이전트(image-agent)**다.
@@ -53,6 +54,7 @@ const MAX_SIZE_MB = 5;
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, 'image');
   if (limited) return limited;
+  await recordAgentUsage('image', req);
 
   try {
     const formData = await req.formData();

@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateInput, validateOutput } from '@/lib/harness';
 import { runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { recordAgentUsage } from '@/lib/usageTelemetry';
 import { inferWeatherTagsFallback, sanitizeWeatherTags } from '@/lib/clothingInference';
 import { FASHION_GROUP, type FashionCategory, type Thickness, type WeatherTag } from '@/types';
 
@@ -73,6 +74,7 @@ const AGENT_INSTRUCTION = `
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, 'parser');
   if (limited) return limited;
+  await recordAgentUsage('parser', req);
 
   try {
     const body = await req.json() as Record<string, unknown>;

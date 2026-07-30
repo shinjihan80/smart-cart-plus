@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateInput, validateOutput } from '@/lib/harness';
 import { routeData, runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { recordAgentUsage } from '@/lib/usageTelemetry';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **스타일리스트 에이전트(style-agent)**다.
@@ -52,6 +53,7 @@ const AGENT_INSTRUCTION = `
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, 'style');
   if (limited) return limited;
+  await recordAgentUsage('style', req);
 
   try {
     const body = await req.json().catch(() => ({})) as Record<string, unknown>;

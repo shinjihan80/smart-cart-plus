@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateOutput } from '@/lib/harness';
 import { runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { recordAgentUsage } from '@/lib/usageTelemetry';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **URL 분석 에이전트(url-agent)**다.
@@ -83,6 +84,7 @@ function extractImageFromHtml(html: string): string | null {
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, 'url');
   if (limited) return limited;
+  await recordAgentUsage('url', req);
 
   try {
     const body = await req.json().catch(() => ({})) as Record<string, unknown>;
