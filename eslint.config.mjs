@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // 테스트 파일 — Node 네이티브 .mts (ESLint 파서가 .mts 부분 지원 안 됨)
     "tests/**",
+    // Capacitor 네이티브 프로젝트 — 앱 소스가 아니라 빌드 산출물·서드파티 브릿지 코드 포함
+    "android/**",
+    "ios/**",
   ]),
   {
     rules: {
