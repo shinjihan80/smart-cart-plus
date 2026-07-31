@@ -40,10 +40,6 @@ type GroupFilter   = '전체' | FoodGroup;
 type SortKey       = 'dDay' | 'name' | 'seasonal';
 type FridgeTab     = 'fridge' | 'food' | 'suggest' | 'shopping';
 
-const RELATION_EMOJI: Record<string, string> = {
-  본인: '👤', 배우자: '💞', 자녀: '🧒', 부모: '🧑‍🦳', 기타: '👥',
-};
-
 const FRIDGE_TABS: { id: FridgeTab; emoji: string; label: string }[] = [
   { id: 'fridge',   emoji: '🧊', label: '냉장고' },
   { id: 'food',     emoji: '🍽️', label: '음식' },
@@ -54,11 +50,6 @@ const FRIDGE_TABS: { id: FridgeTab; emoji: string; label: string }[] = [
 const isFridgeTab = (v: unknown): v is FridgeTab =>
   v === 'fridge' || v === 'food' || v === 'suggest' || v === 'shopping';
 
-const SORT_CYCLE: Record<SortKey, { next: SortKey; label: string }> = {
-  dDay:     { next: 'name',     label: '📅 임박순' },
-  name:     { next: 'seasonal', label: '🔤 이름순' },
-  seasonal: { next: 'dDay',     label: '🌸 제철 먼저' },
-};
 const SORT_PLAIN: Record<SortKey, string> = {
   dDay: '임박순', name: '이름순', seasonal: '제철 먼저',
 };

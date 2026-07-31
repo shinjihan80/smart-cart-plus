@@ -1,6 +1,6 @@
 import {
   // 일반·UI
-  ShoppingCart, Flower2, Brush, ChefHat, Rocket, Package, Save, Download, Upload,
+  ShoppingCart, Flower2, Brush, Rocket, Package, Save, Download, Upload,
   FileText, BarChart3, Shield, RotateCw, GraduationCap, ClipboardList, Smartphone,
   Sparkles, Flame, Moon, Wand2, Stethoscope, Brain, Coffee, CloudSun, Sun, Sunrise,
   Snowflake, Leaf, Cloud, CloudRain, CloudFog, Lightbulb, Bell, Zap,

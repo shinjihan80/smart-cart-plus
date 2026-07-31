@@ -250,11 +250,11 @@ export default function ManualPage() {
 
             <SubTitle>첫 실행 — 약관 동의</SubTitle>
             <Step n={1}>앱 실행 시 약관·개인정보 처리방침 안내 화면이 나타납니다.</Step>
-            <Step n={2}><strong>"동의하고 빈 상태로 시작"</strong>을 탭하면 바로 앱이 열립니다.</Step>
-            <Step n={3}>체험 먼저 해보고 싶다면 <strong>"샘플 데이터로 체험해보기"</strong>를 선택하세요.</Step>
+            <Step n={2}><strong>&quot;동의하고 빈 상태로 시작&quot;</strong>을 탭하면 바로 앱이 열립니다.</Step>
+            <Step n={3}>체험 먼저 해보고 싶다면 <strong>&quot;샘플 데이터로 체험해보기&quot;</strong>를 선택하세요.</Step>
 
             <SubTitle>온보딩 둘러보기</SubTitle>
-            <p className="text-gray-600 mb-4">약관 동의 후 앱의 주요 기능을 설명하는 9단계 온보딩이 시작됩니다. <strong>"다음"</strong>을 눌러 순서대로 보거나, <strong>"건너뛰기"</strong>를 탭해 바로 앱을 시작할 수 있습니다.</p>
+            <p className="text-gray-600 mb-4">약관 동의 후 앱의 주요 기능을 설명하는 9단계 온보딩이 시작됩니다. <strong>&quot;다음&quot;</strong>을 눌러 순서대로 보거나, <strong>&quot;건너뛰기&quot;</strong>를 탭해 바로 앱을 시작할 수 있습니다.</p>
           </section>
 
           <Divider />
@@ -318,13 +318,13 @@ export default function ManualPage() {
               <SubTitle>식품 카드 사용법</SubTitle>
               <Step n={1}>카드를 탭하면 펼쳐집니다. (한 번에 하나만 열림)</Step>
               <Step n={2}>펼쳐진 카드 하단의 <strong>🗑 삭제</strong> 버튼으로 제거합니다.</Step>
-              <Step n={3}>삭제 직후 하단에 <strong>"되돌리기"</strong> 버튼이 표시됩니다. 실수로 삭제했다면 바로 탭하세요.</Step>
-              <Step n={4}>"소진"으로 제거하면 마이 → 소진 이력에 기록됩니다.</Step>
+              <Step n={3}>삭제 직후 하단에 <strong>&quot;되돌리기&quot;</strong> 버튼이 표시됩니다. 실수로 삭제했다면 바로 탭하세요.</Step>
+              <Step n={4}>&quot;소진&quot;으로 제거하면 마이 → 소진 이력에 기록됩니다.</Step>
 
               <SubTitle>AI 냉장고 위치 추천</SubTitle>
               <p className="text-gray-600 mb-2">식품 등록 시 AI가 냉장고 어느 칸에 넣을지 자동으로 추천합니다. 마이 → 사용자 탭에서 보유한 냉장고 모델(양문형·4도어·1도어·김치냉장고)을 먼저 선택하면 더 정확한 추천을 받을 수 있습니다.</p>
 
-              <Tip>"오늘 뭐 먹지?" 버튼을 탭하면 보관 중인 식품으로 만들 수 있는 레시피를 랜덤으로 추천합니다.</Tip>
+              <Tip>&quot;오늘 뭐 먹지?&quot; 버튼을 탭하면 보관 중인 식품으로 만들 수 있는 레시피를 랜덤으로 추천합니다.</Tip>
             </Row>
 
             <SubTitle>보관 위치별 필터</SubTitle>
@@ -359,7 +359,7 @@ export default function ManualPage() {
               <Step n={1}>코디 탭으로 이동하면 오늘 날씨에 맞는 코디가 자동 생성됩니다.</Step>
               <Step n={2}>코디 카드를 탭하면 구성 아이템 상세 모달이 열립니다.</Step>
               <Step n={3}><strong>♡ 저장</strong>을 탭하면 이 조합이 다음번 추천에 더 자주 등장합니다.</Step>
-              <Step n={4}><strong>"오늘 입기"</strong>를 탭하면 코디를 구성하는 아이템들이 모두 착용 기록됩니다.</Step>
+              <Step n={4}><strong>&quot;오늘 입기&quot;</strong>를 탭하면 코디를 구성하는 아이템들이 모두 착용 기록됩니다.</Step>
 
               <SubTitle>처분 도우미</SubTitle>
               <p className="text-gray-600 mb-2">6개월 이상 착용 기록이 없는 옷에 처분 메뉴가 표시됩니다.</p>
@@ -504,12 +504,12 @@ export default function ManualPage() {
               </div>
 
               <SubTitle>사용자(프로필) 전환</SubTitle>
-              <Step n={1}>사용자 탭 상단 프로필 카드의 <strong>"교체"</strong> 버튼을 탭합니다.</Step>
+              <Step n={1}>사용자 탭 상단 프로필 카드의 <strong>&quot;교체&quot;</strong> 버튼을 탭합니다.</Step>
               <Step n={2}>바텀시트에 등록된 프로필 목록이 표시됩니다.</Step>
               <Step n={3}>원하는 프로필을 탭하면 현재 사용자가 전환됩니다.</Step>
 
               <SubTitle>프로필 추가</SubTitle>
-              <Step n={1}>사용자 탭 하단의 <strong>"+ 가족·다른 구성원 추가"</strong>를 탭합니다.</Step>
+              <Step n={1}>사용자 탭 하단의 <strong>&quot;+ 가족·다른 구성원 추가&quot;</strong>를 탭합니다.</Step>
               <Step n={2}>이름·관계·아바타(이모지 또는 사진)를 설정합니다.</Step>
               <Step n={3}>저장 후 교체 버튼으로 해당 프로필로 전환합니다.</Step>
             </Row>

@@ -137,7 +137,7 @@ export default function HelpPage() {
           <Bullet><strong>iOS Safari</strong> · 공유 버튼 → 홈 화면에 추가</Bullet>
           <Bullet><strong>Android Chrome</strong> · 메뉴 → 앱 설치</Bullet>
           <Bullet>설치 후 홈 화면 아이콘으로 풀스크린 · 오프라인 실행</Bullet>
-          <Bullet>홈 상단 배너 "네모아의 오늘 한 마디" — 날씨·계절·임박 상황에 맞는 큐레이션 메시지</Bullet>
+          <Bullet>홈 상단 배너 &quot;네모아의 오늘 한 마디&quot; — 날씨·계절·임박 상황에 맞는 큐레이션 메시지</Bullet>
         </MenuRow>
 
         <MenuRow
@@ -153,7 +153,7 @@ export default function HelpPage() {
           <Bullet>카드 탭 → 펼침 → 🗑 삭제 (한 번에 하나씩 열림)</Bullet>
           <Bullet>AI 보관 위치 추천 — 등록 시 냉장고 어느 칸에 넣을지 자동 제안</Bullet>
           <Bullet>레시피 탭 — 보관 식품 기반 24종 추천 · 상세 모달 · 타이머</Bullet>
-          <Bullet>즐겨찾기 레시피 · "오늘 뭐 먹지?" 랜덤 추천</Bullet>
+          <Bullet>즐겨찾기 레시피 · &quot;오늘 뭐 먹지?&quot; 랜덤 추천</Bullet>
           <Bullet>쇼핑 탭 — 소진된 재료 재구매 링크 자동 생성</Bullet>
         </MenuRow>
 
@@ -226,7 +226,7 @@ export default function HelpPage() {
           open={openId === 'mypage'}
           onToggle={() => toggle('mypage')}
         >
-          <Bullet><strong>사용자 교체</strong> — 상단 "교체" 버튼으로 가족 프로필 간 전환</Bullet>
+          <Bullet><strong>사용자 교체</strong> — 상단 &quot;교체&quot; 버튼으로 가족 프로필 간 전환</Bullet>
           <Bullet>영양 위젯 — 보관 식품의 칼로리·영양소 vs 일일 목표</Bullet>
           <Bullet>월별 지출 추이 · 자주 구매하는 재료 + 재구매 주기</Bullet>
           <Bullet><strong>연간 활동</strong> — 조리·착용·소진 12개월 히스토그램 + 연말 페이스 예측</Bullet>

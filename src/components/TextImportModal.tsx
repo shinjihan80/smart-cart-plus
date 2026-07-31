@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { CartItem, isFoodItem, isClothingItem, isEnrichedClothingItem, ClothingItem } from '@/types';
+import { CartItem, isFoodItem, isClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
 import { useProfiles } from '@/lib/profile';
 import { useAiQuota, type AiAgent } from '@/lib/aiQuota';

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { isEnrichedClothingItem, isClothingItem, FASHION_EMOJI, type ClothingItem, type WardrobeSection } from '@/types';
+import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type WardrobeSection } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { getFashionCategoryTone } from '@/lib/categoryImages';

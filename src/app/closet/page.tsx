@@ -133,7 +133,6 @@ export default function ClosetPage() {
     setActiveId: setActiveWardrobeId,
     addInstance: addWardrobeInstance,
     removeInstance: removeWardrobeInstance,
-    updateModelId: updateWardrobeModelId,
     updateConfig: updateWardrobeConfig,
     renameInstance: renameWardrobeInstance,
     updateEmoji:    updateWardrobeEmoji,

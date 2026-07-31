@@ -59,7 +59,6 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
 
   if (matched.length === 0) return null;
 
-  const urgentCount = matched.filter((m) => m.urgentBoosted).length;
   const favoriteCount = matched.filter((m) => isFavorite(m.recipe.id)).length;
   const loveCount = matched.filter((m) => m.loveBoosted).length;
 
