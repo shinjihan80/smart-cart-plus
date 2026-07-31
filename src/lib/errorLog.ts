@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { createSharedStore } from './sharedStore';
+import { isAnalyticsEnabled } from './analytics';
 
 /**
  * 가벼운 클라이언트 에러 로깅 — Sentry 없이 로컬 스토리지에 최근 50건 저장.
@@ -69,6 +70,28 @@ export function logError(
     const next = [entry, ...prev];
     return next.length > MAX_ENTRIES ? next.slice(0, MAX_ENTRIES) : next;
   });
+  reportErrorToServer(entry);
+}
+
+/** opt-in 사용자에 한해 서버로도 전송 — 관리자 콘솔 오류 현황용. 실패해도 무시. */
+function reportErrorToServer(entry: ErrorEntry): void {
+  if (!isAnalyticsEnabled()) return;
+  try {
+    fetch('/api/admin/telemetry/errors', {
+      method:    'POST',
+      keepalive: true,
+      headers:   { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message:   entry.message,
+        stack:     entry.stack,
+        source:    entry.source,
+        url:       entry.url,
+        userAgent: entry.userAgent,
+      }),
+    }).catch(() => {});
+  } catch {
+    // ignore
+  }
 }
 
 export function clearErrorLog(): void {
