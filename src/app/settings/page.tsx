@@ -18,6 +18,8 @@ import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared'
 import NotificationSettings from '@/components/mypage/NotificationSettings';
 import AppInfo              from '@/components/mypage/AppInfo';
 import FeedbackToggles      from '@/components/settings/FeedbackToggles';
+import StorageUsage         from '@/components/settings/StorageUsage';
+import ErrorLogCard         from '@/components/settings/ErrorLogCard';
 import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
 import LoginSheet           from '@/components/auth/LoginSheet';
@@ -249,6 +251,8 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
+        <StorageUsage />
+
         {/* 앱 */}
         <div className="flex items-center gap-2">
           <EmojiIcon emoji="📱" size={16} className="text-gray-600" />
@@ -275,6 +279,8 @@ export default function SettingsPage() {
         </motion.div>
 
         <FeedbackToggles />
+
+        <ErrorLogCard />
 
         {/* 위험 구역 */}
         <motion.div
