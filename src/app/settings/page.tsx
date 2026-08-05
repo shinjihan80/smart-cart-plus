@@ -43,9 +43,19 @@ export default function SettingsPage() {
   }
 
   function handleBackupNow() {
+    // 클라우드 동기화가 켜져있는데 로그인 전이면, 파일 백업 대신 로그인부터 유도한다.
+    // 로그인하면 SyncBridge가 자동으로 서버(Supabase)와 동기화를 시작한다.
+    if (isSupabaseEnabled && !user) {
+      setLoginOpen(true);
+      return;
+    }
     const filename = downloadBackup();
     backup.refresh();
-    showToast(`백업 완료 — ${filename}`);
+    showToast(
+      user
+        ? `백업 완료 — ${filename} (클라우드에도 자동으로 동기화되고 있어요)`
+        : `백업 완료 — ${filename}`,
+    );
   }
 
   function handlePickRestoreFile() {
@@ -107,7 +117,14 @@ export default function SettingsPage() {
   }
 
   const dataItems = [
-    { label: '지금 백업하기',  emoji: '💾', desc: '전체 상태를 JSON 파일로 저장',     action: handleBackupNow },
+    {
+      label: '지금 백업하기',
+      emoji: '💾',
+      desc: isSupabaseEnabled
+        ? (user ? '클라우드에 자동 동기화 중 · JSON 파일로도 저장' : '로그인하면 클라우드에 자동으로 백업돼요')
+        : '전체 상태를 JSON 파일로 저장',
+      action: handleBackupNow,
+    },
     { label: '백업에서 복원',  emoji: '📥', desc: '이전 백업 파일로 데이터 복구',     action: handlePickRestoreFile },
     { label: 'JSON 내보내기', emoji: '📄', desc: '현재 아이템 목록을 JSON으로 내보내기', action: handleExportJSON },
     { label: 'CSV 내보내기',  emoji: '📊', desc: '현재 아이템 목록을 CSV로 내보내기',  action: handleExportCSV },
