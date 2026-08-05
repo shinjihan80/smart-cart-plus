@@ -31,8 +31,8 @@ import { usePersistedState }   from '@/lib/usePersistedState';
 import { useFridgeInstances, DEFAULT_FRIDGE_INSTANCE } from '@/lib/useFridgeInstances';
 import { maybeShowInstanceCreateAd } from '@/lib/instanceMilestone';
 import { InstanceMetaEditor } from '@/components/InstanceMetaEditor';
-import { recommendFridgeSection, FRIDGE_SECTION_META } from '@/lib/fridgeSection';
-import { FRIDGE_MODELS, resolveSectionForModel } from '@/lib/fridgeModel';
+import { effectiveFridgeSection } from '@/lib/fridgeSection';
+import { FRIDGE_MODELS } from '@/lib/fridgeModel';
 import { getFoodCategoryTone } from '@/lib/categoryImages';
 
 type StorageFilter = '전체' | StorageType;
@@ -165,9 +165,7 @@ export default function FridgePage() {
   }
 
   function pickSection(input: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType }) {
-    const recommended = recommendFridgeSection(input);
-    const zone = FRIDGE_SECTION_META[recommended].zone;
-    return resolveSectionForModel(fridgeModelId, recommended, zone);
+    return effectiveFridgeSection({ ...input, fridgeSection: undefined }, fridgeModelId);
   }
 
   function handleQuickAdd(preset: typeof QUICK_ADD_FOODS[number]) {
@@ -763,10 +761,7 @@ export default function FridgePage() {
         fridgeModelId={fridgeModelId}
         items={
           activeSection
-            ? items.filter((i) => {
-                const sec = i.fridgeSection ?? recommendFridgeSection(i);
-                return sec === activeSection;
-              })
+            ? items.filter((i) => effectiveFridgeSection(i, fridgeModelId) === activeSection)
             : []
         }
         onClose={() => setActiveSection(null)}

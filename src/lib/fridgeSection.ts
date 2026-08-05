@@ -6,6 +6,7 @@
  */
 
 import type { FoodCategory, FoodItem, FridgeSection, StorageType } from '@/types';
+import { resolveSectionForModel, type FridgeModelId } from './fridgeModel';
 
 // ─────────────────────────────────────────────
 // 칸 메타데이터 (라벨·이모지·짧은 설명)
@@ -133,6 +134,38 @@ export function groupBySection<T extends FoodItem>(
       section = recommendFridgeSection(item);
       // 호출자(예: FridgeView)가 valid 안의 첫 셀로 추가 폴백 처리
     }
+    const list = map.get(section) ?? [];
+    list.push(item);
+    map.set(section, list);
+  }
+  return map;
+}
+
+/**
+ * 아이템이 실제로 표시돼야 할 칸 — 저장된 fridgeSection(또는 추천값)이 현재
+ * 모델에 없는 칸이면 zone 기반으로 폴백한다(resolveSectionForModel).
+ *
+ * 그리드 타일(배지·미리보기)과 칸 상세 시트가 반드시 이 함수 하나로만
+ * 섹션을 계산해야 한다 — 따로 계산하면 "타일엔 1개인데 열면 비어있음" 같은
+ * 불일치가 생긴다(실제로 겪은 버그).
+ */
+export function effectiveFridgeSection(
+  item: Pick<FoodItem, 'name' | 'foodCategory' | 'storageType' | 'fridgeSection'>,
+  modelId: FridgeModelId,
+): FridgeSection {
+  const preferred = item.fridgeSection ?? recommendFridgeSection(item);
+  const zone = FRIDGE_SECTION_META[preferred].zone;
+  return resolveSectionForModel(modelId, preferred, zone);
+}
+
+/** items를 effectiveFridgeSection 기준으로 그룹화 — 그리드 타일 렌더링용. */
+export function groupByEffectiveSection<T extends FoodItem>(
+  items: T[],
+  modelId: FridgeModelId,
+): Map<FridgeSection, T[]> {
+  const map = new Map<FridgeSection, T[]>();
+  for (const item of items) {
+    const section = effectiveFridgeSection(item, modelId);
     const list = map.get(section) ?? [];
     list.push(item);
     map.set(section, list);

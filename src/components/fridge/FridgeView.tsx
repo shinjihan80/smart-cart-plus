@@ -8,7 +8,7 @@ import {
 } from '@/lib/fridgeModel';
 import {
   FRIDGE_SECTION_META,
-  groupBySection,
+  groupByEffectiveSection,
 } from '@/lib/fridgeSection';
 import type { FoodItem, FridgeSection } from '@/types';
 
@@ -28,16 +28,8 @@ interface FridgeViewProps {
 export function FridgeView({ modelId, items, onSectionClick, highlight }: FridgeViewProps) {
   const model = FRIDGE_MODELS[modelId];
 
-  // 칸별로 아이템 그룹화 — 모델이 노출하는 칸만
-  const validSections = new Set(model.cells.map((c) => c.section));
-  const initial = groupBySection(items, validSections);
-  // 추천 결과도 모델에 없을 수 있어 첫 셀로 추가 폴백
-  const bySection = new Map<FridgeSection, (FoodItem & { dDay: number })[]>();
-  initial.forEach((list, section) => {
-    const target = validSections.has(section) ? section : model.cells[0].section;
-    const existing = bySection.get(target) ?? [];
-    bySection.set(target, [...existing, ...list]);
-  });
+  // 칸별로 아이템 그룹화 — 상세 시트(page.tsx)와 동일한 effectiveFridgeSection 기준
+  const bySection = groupByEffectiveSection(items, modelId);
 
   return (
     <div
