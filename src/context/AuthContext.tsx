@@ -51,7 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) return;
     await supabase.auth.signInWithOAuth({
       provider: 'kakao',
-      options: { redirectTo: `${location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+        // 이메일(account_email)은 사업자 인증 전이라 카카오 콘솔에서 활성화 불가 —
+        // 닉네임·프로필 사진만 요청. profiles.email은 nullable이라 문제없음.
+        scopes: 'profile_nickname profile_image',
+      },
     });
   }, []);
 
