@@ -13,7 +13,7 @@ interface LoginSheetProps {
 
 export default function LoginSheet({ open, onClose }: LoginSheetProps) {
   useModalA11y(onClose, open);
-  const { user, signInGoogle, signInKakao, signOut } = useAuth();
+  const { user, signInGoogle, signOut } = useAuth();
 
   if (!open) return null;
 
@@ -82,15 +82,8 @@ export default function LoginSheet({ open, onClose }: LoginSheetProps) {
               </div>
 
               <div className="flex flex-col gap-3">
-                {/* 카카오 */}
-                <button
-                  onClick={signInKakao}
-                  className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl font-semibold text-sm text-[#191919] transition-colors active:scale-[.98]"
-                  style={{ backgroundColor: '#FEE500' }}
-                >
-                  <span className="text-lg">💬</span>
-                  카카오로 계속하기
-                </button>
+                {/* 카카오 — 사업자 인증 전이라 이메일 스코프 승인 불가, 임시로 숨김.
+                    AuthContext.signInKakao는 그대로 남겨둠, 인증 후 버튼만 복원하면 됨. */}
 
                 {/* 구글 */}
                 <button
