@@ -51,7 +51,9 @@ export default function BottomNav() {
         className="fixed bottom-0 left-0 right-0 z-20 bg-white"
         style={{
           boxShadow: '0 -4px 16px -8px rgba(31,31,46,0.08)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
+          // 일부 안드로이드 TWA/Chrome 에서 env() 가 0 으로 오는 경우가 있어
+          // 최소 6px 은 확보 — 제스처 핸들바와 겹침 방지 (P0-9)
+          paddingBottom: 'max(env(safe-area-inset-bottom), 6px)',
         }}
       >
         <div className="max-w-md sm:max-w-lg mx-auto flex">

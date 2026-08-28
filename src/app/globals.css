@@ -27,6 +27,14 @@
   --color-brand-success: #10B981;
   --color-brand-warning: #EF4444;   /* 경고는 별도 빨강 (로고에는 안 씀) */
 
+  /* 상태 색 3단 — 위험도별 분리 (P2-4)
+     danger : 되돌릴 수 없는 것만 (소비기한 초과, 삭제, 초기화)
+     caution: 지금 챙기면 되는 것 (오늘까지 소비, 임박, 미백업)
+     info   : 제안·인사이트 (레시피 활용, 주간 요약, 코디 추천) */
+  --color-danger:  #DC2626;
+  --color-caution: #B45309;
+  --color-info:    #4F46E5;
+
   /* Mall Colors */
   --color-mall-kurly: #5F0080;
   --color-mall-naver: #03C75A;
@@ -55,6 +63,32 @@ body {
   line-height: 1.55;           /* 본문 줄간격 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* 한국어 조판 — 어절 보존. 좁은 폭(폴더블 344px)에서 "데이/터가" 같은
+     단어 중간 개행 방지. 초장문 단어(URL·긴 상품명)만 예외적으로 끊김. (P2-6) */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 상태바(노치·펀치홀·다이나믹아일랜드) 아래로 sticky 헤더 밀어내기.
+   viewport-fit=cover 로 레이아웃이 상태바 밑까지 확장돼 있어, 인셋만큼
+   헤더 상단에 여백을 준다. 비노치 기기에선 env() = 0 이라 무영향. (P0-9) */
+@supports (padding-top: env(safe-area-inset-top)) {
+  header.sticky.top-0 {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* 모션 최소화 설정 존중 — 진입 애니메이션·트랜지션 무력화 (P1-16) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* 스크롤바 숨김 (카루셀용) */
