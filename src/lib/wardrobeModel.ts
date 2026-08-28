@@ -68,7 +68,7 @@ export const WARDROBE_SECTION_META: Record<WardrobeSection, { emoji: string; lab
   drawer_s3:   { emoji: '🗂️', label: '작은 서랍 ③',    hint: '기타 소품' },
   shoes:       { emoji: '👟', label: '신발',            hint: '신발·슬리퍼·부츠' },
   bags:        { emoji: '👜', label: '가방',            hint: '가방·백팩·클러치' },
-  accessories: { emoji: '✨', label: '악세서리',         hint: '모자·주얼리·스카프' },
+  accessories: { emoji: '✨', label: '액세서리',         hint: '모자·주얼리·스카프' },
 };
 
 // ─────────────────────────────────────────────
@@ -87,7 +87,7 @@ const HANGER: WardrobeModel = {
   ],
 };
 
-/** 일반 옷장 — 걸이 + 1단 서랍 + 신발/가방/악세서리 */
+/** 일반 옷장 — 걸이 + 1단 서랍 + 신발/가방/액세서리 */
 const WARDROBE_MODEL: WardrobeModel = {
   id: 'wardrobe', label: '일반 옷장', emoji: '🚪',
   description: '걸이·서랍·하단 표준 구성',
@@ -101,7 +101,7 @@ const WARDROBE_MODEL: WardrobeModel = {
   ],
 };
 
-/** 서랍장 — 3단 서랍 중심, 상단 걸이 공간 + 하단 신발·악세서리·가방 */
+/** 서랍장 — 3단 서랍 중심, 상단 걸이 공간 + 하단 신발·액세서리·가방 */
 const DRESSER: WardrobeModel = {
   id: 'dresser', label: '서랍장', emoji: '🗂️',
   description: '3단 서랍 + 걸이·하단 수납',
@@ -299,7 +299,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     group: '옷장',
     label: '걸이형 (1단)',
     emoji: '🚪',
-    description: '걸이만 · 신발·가방·악세서리 하단',
+    description: '걸이만 · 신발·가방·액세서리 하단',
     config: { hangingType: 'single', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
   {
@@ -307,7 +307,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     group: '옷장',
     label: '걸이형 (2단)',
     emoji: '🚪',
-    description: '2단 걸이만 · 신발·가방·악세서리 하단',
+    description: '2단 걸이만 · 신발·가방·액세서리 하단',
     config: { hangingType: 'double', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
   {
@@ -356,7 +356,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     group: '서랍장',
     label: '서랍형 옷장',
     emoji: '🗂️',
-    description: '걸이 + 작은서랍 3칸 + 3단 + 신발·악세서리',
+    description: '걸이 + 작은서랍 3칸 + 3단 + 신발·액세서리',
     config: { hangingType: 'single', drawers: 3, splitDrawer: 3, hasShoes: true,  hasBags: false, hasAccessories: true  },
   },
   // ── 시스템 옷장 ──────────────────────────────

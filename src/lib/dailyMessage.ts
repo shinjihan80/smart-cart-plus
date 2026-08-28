@@ -8,6 +8,8 @@ import { analyzeBalance } from '@/lib/nutritionAnalysis';
 import { RECIPES, SEASON_EMOJI } from '@/lib/recipes';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { SEASONAL_PRODUCE, isSeasonalProduce } from '@/lib/seasonalProduce';
+import { josa } from '@/lib/korean';
+import { getDaypart, greetingText } from '@/lib/daypart';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
 
@@ -49,7 +51,7 @@ export function pickDailyMessage(
     const f = seasonalExpiring[0];
     return {
       emoji:    SEASON_EMOJI[season],
-      text:     `${season}철 "${f.name}"이(가) 곧 만료예요. 지금 아니면 내년까지 기다려야 해요!`,
+      text:     `${josa(`${season}철 "${f.name}"`, '이/가')} 곧 만료예요. 지금 아니면 내년까지 기다려야 해요!`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge' },
       paletteQuery: f.name,
@@ -60,7 +62,7 @@ export function pickDailyMessage(
     const extra = expiringToday.length > 1 ? ` 외 ${expiringToday.length - 1}개` : '';
     return {
       emoji:    '⚠️',
-      text:     `${firstName}${extra}이(가) 오늘 내로 소비가 필요해요. 레시피로 활용해볼까요?`,
+      text:     `${josa(`${firstName}${extra}`, '이/가')} 오늘 내로 소비가 필요해요. 레시피로 활용해볼까요?`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge' },
       paletteQuery: firstName,
@@ -129,7 +131,7 @@ export function pickDailyMessage(
       if (recipe) {
         return {
           emoji:    recipe.emoji,
-          text:     `이번 주 ${recipe.name}을(를) ${recentFrequent[0].recentCount}번 만드셨네요! 또 어떠세요?`,
+          text:     `이번 주 ${josa(recipe.name, '을/를')} ${recentFrequent[0].recentCount}번 만드셨네요! 또 어떠세요?`,
           priority: 'insight',
           cta:      { label: '냉장고 열기', href: '/fridge' },
         };
@@ -168,7 +170,7 @@ export function pickDailyMessage(
       if (a && b) {
         return {
           emoji:    '🍳',
-          text:     `최근 "${a.name}"과 "${b.name}"을(를) ${count}번 같이 만드셨네요. 오늘도 어떠세요?`,
+          text:     `최근 ${josa(`"${a.name}"`, '과/와')} ${josa(`"${b.name}"`, '을/를')} ${count}번 같이 만드셨네요. 오늘도 어떠세요?`,
           priority: 'insight',
           cta:      { label: '레시피 열기', href: '/fridge' },
           paletteQuery: a.name,
@@ -187,7 +189,7 @@ export function pickDailyMessage(
     if (recipe) {
       return {
         emoji:    recipe.emoji,
-        text:     `즐겨찾기해둔 "${recipe.name}"을(를) 아직 안 만들어봤어요. 오늘 도전해볼까요?`,
+        text:     `즐겨찾기해둔 ${josa(`"${recipe.name}"`, '을/를')} 아직 안 만들어봤어요. 오늘 도전해볼까요?`,
         priority: 'insight',
         cta:      { label: '냉장고 열기', href: '/fridge' },
       };
@@ -215,7 +217,7 @@ export function pickDailyMessage(
     const f = inSeasonOwned[0];
     return {
       emoji:    SEASON_EMOJI[season],
-      text:     `"${f.name}"이(가) 지금 제철이에요. 가장 맛있을 때 드셔보세요.`,
+      text:     `${josa(`"${f.name}"`, '이/가')} 지금 제철이에요. 가장 맛있을 때 드셔보세요.`,
       priority: 'insight',
       cta:      { label: '레시피 찾기', href: '/fridge' },
     };
@@ -274,7 +276,7 @@ export function pickDailyMessage(
     const { item, idle } = longIdle[0];
     return {
       emoji:    '🌙',
-      text:     `"${item.name}"을(를) ${idle}일째 안 입었어요. 오늘 한번 꺼내볼까요?`,
+      text:     `${josa(`"${item.name}"`, '을/를')} ${idle}일째 안 입었어요. 오늘 한번 꺼내볼까요?`,
       priority: 'insight',
       cta:      { label: '옷장 열기', href: '/closet' },
     };
@@ -290,15 +292,14 @@ export function pickDailyMessage(
     }
   }
 
-  // ── 3. Gentle — 시간대 일상 인사 ─────────────────────────────────────────
-  if (hour < 10) {
-    return { emoji: '☕', text: '좋은 아침이에요. 오늘도 잘 챙겨드세요.',        priority: 'gentle' };
-  }
-  if (hour < 14) {
-    return { emoji: '🍱', text: '점심 시간이에요. 냉장고에 맛있는 거 있나요?',    priority: 'gentle', cta: { label: '냉장고 확인', href: '/fridge' } };
-  }
-  if (hour < 19) {
-    return { emoji: '🌤️', text: '오후 햇살이 좋네요. 잠깐 산책은 어떠세요?',     priority: 'gentle' };
-  }
-  return   { emoji: '🌙', text: '하루 수고하셨어요. 내일을 위해 푹 쉬세요.',      priority: 'gentle' };
+  // ── 3. Gentle — 시간대 일상 인사 (구간은 lib/daypart 단일 소스) ──────────
+  const gentle: Record<ReturnType<typeof getDaypart>, DailyMessage> = {
+    dawn:      { emoji: '🌙', text: '새벽이에요. 아직 깨어 있다면 따뜻한 물 한 잔 어때요?', priority: 'gentle' },
+    morning:   { emoji: '☕', text: `${greetingText('morning')}. 오늘도 잘 챙겨드세요.`,     priority: 'gentle' },
+    noon:      { emoji: '🍱', text: '점심 시간이에요. 냉장고에 맛있는 거 있나요?',          priority: 'gentle', cta: { label: '냉장고 확인', href: '/fridge' } },
+    afternoon: { emoji: '🌤️', text: '나른한 오후예요. 잠깐 산책은 어떠세요?',              priority: 'gentle' },
+    evening:   { emoji: '🌆', text: '저녁이에요. 오늘 뭘 드실지 정하셨나요?',               priority: 'gentle', cta: { label: '냉장고 확인', href: '/fridge' } },
+    night:     { emoji: '🌙', text: '하루 수고하셨어요. 내일을 위해 푹 쉬세요.',            priority: 'gentle' },
+  };
+  return gentle[getDaypart()];
 }

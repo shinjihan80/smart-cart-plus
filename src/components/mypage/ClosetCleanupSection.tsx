@@ -8,6 +8,7 @@ import { FASHION_ICON } from '@/lib/iconMap';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
 import { useWearLog } from '@/lib/wearLog';
 import { findCleanupCandidates } from '@/lib/closetCleanup';
+import { josa } from '@/lib/korean';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import PartnerChip from '@/components/PartnerChip';
@@ -59,7 +60,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
   })();
 
   function handleRemove(id: string, name: string) {
-    if (!confirm(`"${name}"을(를) 옷장에서 정리할까요?`)) return;
+    if (!confirm(`${josa(`"${name}"`, '을/를')} 옷장에서 정리할까요?`)) return;
     removeItem(id);
     showToast(`"${name}" 정리됐어요.`, undoRemove);
   }

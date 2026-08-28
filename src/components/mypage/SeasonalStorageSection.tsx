@@ -8,6 +8,7 @@ import { FASHION_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
+import { josa } from '@/lib/korean';
 import { PARTNERS } from '@/lib/partnerLinks';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -91,7 +92,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                   const color = SEASON_COLOR[season];
                   return <Icon size={12} strokeWidth={2} className={color.text} />;
                 })()}
-                {season}이(가) 왔어요!
+                {josa(season, '이/가')} 왔어요!
               </p>
               <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
                 보관해뒀던 {season}철 옷 {unstowCandidates.length}벌을 꺼낼 때예요.
