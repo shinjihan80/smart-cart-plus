@@ -6,8 +6,9 @@ import { usePathname } from 'next/navigation';
 import { Home, Refrigerator, Shirt, User, Plus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { isFoodItem, isClothingItem } from '@/types';
+import { isFoodItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { EXPIRY_SOON_DAYS } from '@/lib/expiryThresholds';
 import dynamic from 'next/dynamic';
 const TextImportModal = dynamic(() => import('@/components/TextImportModal'), { ssr: false });
 
@@ -31,16 +32,16 @@ export default function BottomNav() {
     return () => window.removeEventListener('nemoa:open-register', onOpen);
   }, []);
 
-  const urgentCount   = mounted ? items.filter(isFoodItem).filter(
-    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
+  // 배지 = "행동이 필요한 수" 하나로 통일. 옷장 보유 개수는 배지로 안 씀 (P0-10)
+  const soonCount = mounted ? items.filter(isFoodItem).filter(
+    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= EXPIRY_SOON_DAYS,
   ).length : 0;
-  const clothingCount = mounted ? items.filter(isClothingItem).length : 0;
 
   const NAV_ITEMS: NavItem[] = [
     { kind: 'link',   href: '/',       label: '홈',     icon: Home,         badge: 0 },
-    { kind: 'link',   href: '/fridge', label: '냉장고', icon: Refrigerator, badge: urgentCount,   badgeNoun: '임박 식품' },
+    { kind: 'link',   href: '/fridge', label: '냉장고', icon: Refrigerator, badge: soonCount, badgeNoun: '임박 식품' },
     { kind: 'action', key:  'add',     label: '등록',   icon: Plus },
-    { kind: 'link',   href: '/closet', label: '옷장',   icon: Shirt,        badge: clothingCount, badgeNoun: '의류' },
+    { kind: 'link',   href: '/closet', label: '옷장',   icon: Shirt,        badge: 0 },
     { kind: 'link',   href: '/mypage', label: '마이',   icon: User,         badge: 0 },
   ];
 
