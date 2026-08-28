@@ -13,7 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimitStore } from './rateLimitStore';
 
-export type RateLimitKey = 'vision' | 'parser' | 'nutrition' | 'url' | 'image' | 'style' | 'fridgeSection' | 'billing';
+export type RateLimitKey = 'vision' | 'parser' | 'nutrition' | 'url' | 'image' | 'style' | 'fridgeSection' | 'billing' | 'catalog';
 
 /** 분당 최대 요청 수 (per IP·디바이스) — UI 정상 사용보다 넉넉, 폭주만 방어 */
 const PER_MINUTE_LIMIT: Record<RateLimitKey, number> = {
@@ -25,6 +25,9 @@ const PER_MINUTE_LIMIT: Record<RateLimitKey, number> = {
   style:         30,
   fridgeSection: 30,
   billing:       5,
+  // 공개 카탈로그 오버레이 GET — AI 호출과 분리. 홈 1회 로드에 3건 +
+  // 클라이언트 5분 캐시라 넉넉해도 됨. 공유 IP(CGNAT) 환경 429 방지 (P0-11)
+  catalog:       120,
 };
 
 /** 시간당 최대 (per IP·디바이스) — 일일 한도 우회 봇 방어 */
@@ -37,6 +40,7 @@ const PER_HOUR_LIMIT: Record<RateLimitKey, number> = {
   style:         100,
   fridgeSection: 120,
   billing:       20,
+  catalog:       600,
 };
 
 const MINUTE_SEC = 60;
