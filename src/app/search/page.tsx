@@ -76,7 +76,10 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* 헤더 — 뒤로 + 검색 input */}
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-50 px-3 py-3 flex items-center gap-1">
+      <header
+        className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-50 px-3 pb-3 flex items-center gap-1"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+      >
         <button
           onClick={() => router.back()}
           aria-label="뒤로"
