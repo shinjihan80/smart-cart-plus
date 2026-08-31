@@ -91,6 +91,21 @@ body {
   }
 }
 
+/* framer-motion 진입 리빌 정적 폴백 (N-1 / P1-16)
+   <motion.div initial={{opacity:0, y:N}}> 는 SSR HTML 에 style="opacity:0;transform:…"
+   로 박히고 JS(rAF) 가 1 로 올린다. 백그라운드 탭·저사양·청크 로드 실패로 rAF 가
+   멈추면 콘텐츠가 "정상처럼 보이는 빈 화면" 으로 고착된다.
+   2초 뒤 CSS 가 표시 상태로 강제한다. 정상 진입 시엔 framer-motion 이 인라인
+   style 을 먼저 갱신 → 선택자 불일치 → 이 애니메이션은 시작조차 안 함.
+   의도적으로 숨길 요소는 인라인 style 이 아니라 `opacity-0` 클래스나 hidden 을 쓸 것. */
+@keyframes nemoa-reveal-safety {
+  to { opacity: 1; transform: none; }
+}
+[style*="opacity:0;transform:"],
+[style="opacity:0"] {
+  animation: nemoa-reveal-safety 0.01s linear 2s forwards;
+}
+
 /* 스크롤바 숨김 (카루셀용) */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
