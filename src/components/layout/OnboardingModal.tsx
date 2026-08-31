@@ -148,16 +148,25 @@ export default function OnboardingModal() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!localStorage.getItem(ONBOARDING_KEY)) {
-      setShow(true);
-    }
+    const seen = () => !!localStorage.getItem(ONBOARDING_KEY);
+    const consented = () => !!localStorage.getItem('nemoa-consent-v1');
+
+    // 약관 동의를 이미 마친 재방문자에게만 즉시 표시. 신규 사용자는
+    // ConsentGate가 먼저 뜨고, 동의 시 아래 이벤트로 이어서 표시. (P1-12)
+    if (!seen() && consented()) setShow(true);
+
+    function onConsentGiven() { if (!seen()) setShow(true); }
     // 설정에서 '온보딩 다시 보기' 눌렀을 때 이벤트로 재오픈
     function onReplay() {
       setStep(0);
       setShow(true);
     }
+    window.addEventListener('nemoa:consent-given', onConsentGiven);
     window.addEventListener('nemoa:replay-onboarding', onReplay);
-    return () => window.removeEventListener('nemoa:replay-onboarding', onReplay);
+    return () => {
+      window.removeEventListener('nemoa:consent-given', onConsentGiven);
+      window.removeEventListener('nemoa:replay-onboarding', onReplay);
+    };
   }, []);
 
   function handleClose() {

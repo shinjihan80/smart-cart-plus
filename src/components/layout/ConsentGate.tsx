@@ -37,6 +37,8 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
   function accept() {
     try { localStorage.setItem(CONSENT_KEY, new Date().toISOString()); } catch { /* quota */ }
     setShow(false);
+    // 온보딩 모달은 동의 이후에만 뜨도록 — 두 모달 동시 표시 방지 (P1-12)
+    window.dispatchEvent(new Event('nemoa:consent-given'));
   }
 
   function acceptWithSample() {
