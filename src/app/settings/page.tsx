@@ -23,10 +23,14 @@ import ErrorLogCard         from '@/components/settings/ErrorLogCard';
 import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
 import LoginSheet           from '@/components/auth/LoginSheet';
+import UpgradeSheet         from '@/components/settings/UpgradeSheet';
+import { usePlan }          from '@/lib/usePlan';
 
 export default function SettingsPage() {
   const [loginOpen, setLoginOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { user } = useAuth();
+  const { isPro } = usePlan();
   const { items, resetData, restoreAll } = useCart();
   const { showToast } = useToast();
   const backup = useBackupStatus();
@@ -43,9 +47,9 @@ export default function SettingsPage() {
   }
 
   function handleBackupNow() {
-    // 클라우드 동기화가 켜져있는데 로그인 전이면, 파일 백업 대신 로그인부터 유도한다.
-    // 로그인하면 SyncBridge가 자동으로 서버(Supabase)와 동기화를 시작한다.
-    if (isSupabaseEnabled && !user) {
+    // Pro인데 아직 로그인 전이면 파일 백업 대신 로그인부터 유도 (로그인하면
+    // SyncBridge가 자동으로 서버와 동기화). 무료 사용자는 그냥 파일 백업.
+    if (isPro && isSupabaseEnabled && !user) {
       setLoginOpen(true);
       return;
     }
@@ -120,9 +124,11 @@ export default function SettingsPage() {
     {
       label: '지금 백업하기',
       emoji: '💾',
-      desc: isSupabaseEnabled
-        ? (user ? '클라우드에 자동 동기화 중 · JSON 파일로도 저장' : '로그인하면 클라우드에 자동으로 백업돼요')
-        : '전체 상태를 JSON 파일로 저장',
+      desc: user
+        ? '클라우드에 자동 동기화 중 · JSON 파일로도 저장'
+        : isPro
+          ? '로그인하면 클라우드에 자동으로 백업돼요'
+          : '전체 상태를 JSON 파일로 저장',
       action: handleBackupNow,
     },
     { label: '백업에서 복원',  emoji: '📥', desc: '이전 백업 파일로 데이터 복구',     action: handlePickRestoreFile },
@@ -218,7 +224,11 @@ export default function SettingsPage() {
           style={CARD_SHADOW}
         >
           <button
-            onClick={() => setLoginOpen(true)}
+            onClick={() => {
+              // 무료 = 이 기기에만. 클라우드 동기화는 Pro 기능 → 업그레이드 시트
+              if (isPro || user) setLoginOpen(true);
+              else setUpgradeOpen(true);
+            }}
             className="flex items-center gap-3 w-full py-1 text-left"
           >
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${user ? 'bg-brand-success/10' : 'bg-gray-100'}`}>
@@ -226,10 +236,21 @@ export default function SettingsPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">
-                {user ? '동기화 켜짐' : (isSupabaseEnabled ? '로그인하여 동기화 시작' : '동기화 준비 중')}
+                {user
+                  ? '동기화 켜짐'
+                  : isPro
+                    ? (isSupabaseEnabled ? '로그인하여 동기화 시작' : '동기화 준비 중')
+                    : '클라우드 백업'}
+                {!user && !isPro && (
+                  <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary align-middle">Pro</span>
+                )}
               </p>
               <p className="text-xs text-gray-400 mt-0.5 truncate">
-                {user ? user.email ?? '로그인됨' : '모든 기기에서 같은 데이터를 사용할 수 있어요'}
+                {user
+                  ? user.email ?? '로그인됨'
+                  : isPro
+                    ? '모든 기기에서 같은 데이터를 사용할 수 있어요'
+                    : '무료 요금제는 이 기기에만 저장돼요. 파일 백업은 아래에서'}
               </p>
             </div>
             <ChevronRight size={14} className="text-gray-300 shrink-0" />
@@ -335,6 +356,7 @@ export default function SettingsPage() {
       />
 
       <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </div>
   );
 }

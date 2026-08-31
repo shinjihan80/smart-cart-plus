@@ -77,7 +77,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
 
               <div className="rounded-2xl bg-gray-50 border border-gray-100 p-4 mb-4 text-[12px] text-gray-700 leading-relaxed">
                 <p className="mb-2">
-                  ✓ 모든 데이터는 <strong>이 기기에만 저장</strong>되며 서버로 전송되지 않습니다.
+                  ✓ 데이터는 기본적으로 <strong>이 기기에만 저장</strong>됩니다. (Pro로 로그인하면 클라우드에 백업)
                 </p>
                 <p className="mb-2">
                   ✓ AI 분석(사진·텍스트)은 사용자가 실행할 때만 Google Gemini로 전송됩니다.
