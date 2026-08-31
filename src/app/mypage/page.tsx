@@ -240,20 +240,20 @@ export default function MyPage() {
           </div>
         </motion.div>
 
-        {/* 백업 상태 배너 (간단 버전 — 상세는 /settings) */}
-        {backup.isStale && (
+        {/* 백업 안내 배너 — 지킬 데이터가 어느 정도 쌓였을 때만. 경고(빨강) 아닌 caution(황토) 톤 (P1-4) */}
+        {backup.isStale && items.length >= 5 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springTransition, delay: 0.05 }}
-            className="rounded-[28px] border px-4 py-3 flex items-center gap-3 bg-brand-warning/5 border-brand-warning/15"
+            className="rounded-[28px] border px-4 py-3 flex items-center gap-3 bg-caution/5 border-caution/20"
           >
-            <EmojiIcon emoji="💾" size={20} className="text-brand-warning shrink-0" />
+            <EmojiIcon emoji="💾" size={20} className="text-caution shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-800">
-                {backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${backup.daysSince}일 전`}
+                {backup.lastBackupAt === null ? `등록한 ${items.length}개, 파일로 저장해두면 안전해요` : `마지막 백업 ${backup.daysSince}일 전`}
               </p>
-              <p className="text-sm text-gray-500 mt-0.5">브라우저 캐시가 비면 데이터가 사라질 수 있어요.</p>
+              <p className="text-sm text-gray-500 mt-0.5">백업 파일 하나면 기기를 바꿔도 그대로 옮길 수 있어요.</p>
             </div>
             <button
               onClick={handleBackupNow}

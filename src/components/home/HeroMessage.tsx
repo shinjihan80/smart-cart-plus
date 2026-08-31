@@ -126,11 +126,7 @@ export default function HeroMessage({ items }: { items: CartItem[] }) {
               {greetingLabel}
             </span>
           )}
-          {msg.priority === 'urgent' && (
-            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${tone.chip}`}>
-              주의
-            </span>
-          )}
+          {/* '주의' 배지 제거 — 인사말 옆 위협 배지는 노이즈. 급함은 본문·색으로 전달 (P2-4) */}
         </div>
         <p className="text-base font-bold text-brand-ink leading-snug pr-12 mb-5">
           {msg.text}
