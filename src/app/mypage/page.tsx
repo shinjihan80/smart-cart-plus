@@ -155,7 +155,7 @@ export default function MyPage() {
       <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
         <div className="px-4 py-3.5 flex items-center justify-between">
           <div>
-            <h1 className="text-base font-bold text-gray-900 tracking-tight">마이페이지</h1>
+            <h1 className="text-base font-bold text-gray-900 tracking-tight">내 정보</h1>
             <p className="text-sm text-gray-400 mt-0.5">통계 · 기록 · 리스트</p>
           </div>
           <div className="flex items-center gap-0.5 shrink-0">
@@ -170,7 +170,7 @@ export default function MyPage() {
           </div>
         </div>
         <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
-          <div role="tablist" aria-label="마이페이지 탭" className="flex px-4">
+          <div role="tablist" aria-label="내 정보 탭" className="flex px-4">
             {TABS.map((t) => {
               const isActive = activeTab === t.id;
               return (
@@ -235,7 +235,7 @@ export default function MyPage() {
               onClick={() => setShowSwitcher(true)}
               className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
             >
-              <Users size={12} /> 교체
+              <Users size={12} /> 프로필 전환
             </button>
           </div>
         </motion.div>

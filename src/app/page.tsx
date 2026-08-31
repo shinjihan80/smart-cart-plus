@@ -73,16 +73,23 @@ export default function HomePage() {
             <EmojiIcon emoji="👋" size={28} className="text-brand-primary" />
             <p className="text-sm font-bold text-gray-900">처음이신가요?</p>
             <p className="text-xs text-gray-500 leading-relaxed">
-              샘플 데이터로 둘러보고, 마음에 들면 직접 등록해보세요.
+              냉장고에 있는 것 하나만 등록해보면 감이 와요.
             </p>
+            {/* 1순위 CTA는 '첫 등록' — 샘플은 아래 텍스트 링크로 강등 (P1-13) */}
+            <button
+              onClick={() => window.dispatchEvent(new Event('nemoa:open-register'))}
+              className="mt-1 text-sm font-semibold px-4 py-2 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
+            >
+              첫 항목 등록하기
+            </button>
             <button
               onClick={() => {
                 const n = loadSampleData();
                 showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
               }}
-              className="mt-1 text-sm font-semibold px-4 py-2 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
+              className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
             >
-              🎯 샘플 데이터로 시작
+              샘플 데이터로 먼저 둘러보기
             </button>
           </div>
         </div>

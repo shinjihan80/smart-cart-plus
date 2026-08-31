@@ -42,7 +42,7 @@ export default function BottomNav() {
     { kind: 'link',   href: '/fridge', label: '냉장고', icon: Refrigerator, badge: soonCount, badgeNoun: '임박 식품' },
     { kind: 'action', key:  'add',     label: '등록',   icon: Plus },
     { kind: 'link',   href: '/closet', label: '옷장',   icon: Shirt,        badge: 0 },
-    { kind: 'link',   href: '/mypage', label: '마이',   icon: User,         badge: 0 },
+    { kind: 'link',   href: '/mypage', label: '내 정보', icon: User,         badge: 0 },
   ];
 
   return (
