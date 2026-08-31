@@ -44,7 +44,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  const limited = await applyRateLimit(req, 'parser');
+  const limited = await applyRateLimit(req, 'catalog');
   if (limited) return limited;
   // GET은 공개 — useMergedCatalog가 정적 카탈로그와 merge.
 

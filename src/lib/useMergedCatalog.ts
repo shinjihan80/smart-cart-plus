@@ -16,11 +16,47 @@ import type { RecipeOverlay, SeasonalOverlay, PartnerOverlay } from './catalogTy
  * 베이직 단계: 정적 카탈로그만 (모든 사용자에게 동일).
  */
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5분
+const CACHE_TTL_MS   = 5 * 60 * 1000;  // 5분 — 성공 응답 재사용
+const RETRY_AFTER_MS = 60 * 1000;      // 실패(네트워크·429) 후 최소 재시도 간격
 
 interface CatalogResponse<T> {
   overlay:    T;
   persistent: boolean;
+}
+
+/**
+ * 진행 중 요청 dedup + 네거티브 캐싱.
+ * - 같은 path 요청이 여러 컴포넌트에서 동시에 나가도 fetch 는 1번 (2× 중복 호출 제거)
+ * - 실패하면 실패 시각을 기록해 RETRY_AFTER_MS 동안 재시도 안 함
+ *   (이전엔 실패를 캐시 안 해서 마운트마다 재폭주 → /api/admin/* 429 유발)
+ */
+const inflight = new Map<string, Promise<unknown>>();
+const failedAt = new Map<string, number>();
+
+async function fetchOverlayDeduped<T>(path: string): Promise<T | null> {
+  const lastFail = failedAt.get(path);
+  if (lastFail && Date.now() - lastFail < RETRY_AFTER_MS) return null;
+
+  const existing = inflight.get(path);
+  if (existing) return existing as Promise<T | null>;
+
+  const p = (async (): Promise<T | null> => {
+    try {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) { failedAt.set(path, Date.now()); return null; }
+      failedAt.delete(path);
+      const data = await res.json() as CatalogResponse<T>;
+      return data.overlay ?? null;
+    } catch {
+      failedAt.set(path, Date.now());
+      return null;
+    } finally {
+      inflight.delete(path);
+    }
+  })();
+
+  inflight.set(path, p);
+  return p;
 }
 
 let cachedRecipes:  { merged: Recipe[];          fetchedAt: number } | null = null;
@@ -86,44 +122,36 @@ export function useMergedCatalog() {
 
   useEffect(() => {
     let cancelled = false;
-    const now = Date.now();
 
-    async function fetchOverlay<T>(path: string): Promise<T | null> {
-      try {
-        const res = await fetch(path, { cache: 'no-store' });
-        if (!res.ok) return null;
-        const data = await res.json() as CatalogResponse<T>;
-        return data.overlay ?? null;
-      } catch {
-        return null;
-      }
-    }
+    const isStale = (c: { fetchedAt: number } | null) =>
+      !c || Date.now() - c.fetchedAt > CACHE_TTL_MS;
 
     async function refresh() {
+      const stamp = Date.now();
       // recipes
-      if (!cachedRecipes || now - cachedRecipes.fetchedAt > CACHE_TTL_MS) {
-        const overlay = await fetchOverlay<RecipeOverlay>('/api/admin/recipes');
+      if (isStale(cachedRecipes)) {
+        const overlay = await fetchOverlayDeduped<RecipeOverlay>('/api/admin/recipes');
         if (overlay) {
           const merged = mergeRecipes(overlay);
-          cachedRecipes = { merged, fetchedAt: now };
+          cachedRecipes = { merged, fetchedAt: stamp };
           if (!cancelled) setRecipes(merged);
         }
       }
       // seasonal
-      if (!cachedSeasonal || now - cachedSeasonal.fetchedAt > CACHE_TTL_MS) {
-        const overlay = await fetchOverlay<SeasonalOverlay>('/api/admin/seasonal');
+      if (isStale(cachedSeasonal)) {
+        const overlay = await fetchOverlayDeduped<SeasonalOverlay>('/api/admin/seasonal');
         if (overlay) {
           const merged = mergeSeasonal(overlay);
-          cachedSeasonal = { merged, fetchedAt: now };
+          cachedSeasonal = { merged, fetchedAt: stamp };
           if (!cancelled) setSeasonal(merged);
         }
       }
       // partners
-      if (!cachedPartners || now - cachedPartners.fetchedAt > CACHE_TTL_MS) {
-        const overlay = await fetchOverlay<PartnerOverlay>('/api/admin/partners');
+      if (isStale(cachedPartners)) {
+        const overlay = await fetchOverlayDeduped<PartnerOverlay>('/api/admin/partners');
         if (overlay) {
           const merged = mergePartners(overlay);
-          cachedPartners = { merged, fetchedAt: now };
+          cachedPartners = { merged, fetchedAt: stamp };
           if (!cancelled) setPartners(merged);
         }
       }

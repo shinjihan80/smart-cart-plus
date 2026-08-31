@@ -124,7 +124,7 @@ export default function RootLayout({
         </a>
         <Providers>
           <ConsentGate>
-            <main id="main-content" className="flex-1 max-w-md sm:max-w-lg mx-auto w-full" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}>
+            <main id="main-content" className="flex-1 max-w-md sm:max-w-lg mx-auto w-full" style={{ paddingBottom: 'calc(5rem + max(env(safe-area-inset-bottom), 6px))' }}>
               {children}
             </main>
             <ScrollToTop />

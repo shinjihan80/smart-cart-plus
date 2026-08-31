@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { EXPIRY_SOON_DAYS } from '@/lib/expiryThresholds';
 import { currentSeasonByMonth, seasonStart } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
@@ -42,9 +43,8 @@ export default function QuickLinks({
   const { list: shopping } = useShoppingList();
 
   const foods = items.filter(isFoodItem);
-  const urgentCount = foods.filter((f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 1).length;
-  const foodCount = foods.length;
-  const clothesCount = items.filter((i) => i.category !== '식품').length;
+  // 배지·표시는 "임박(≤3일)" 하나로 통일 — 보유 총 개수는 배지로 쓰지 않음 (P0-10)
+  const soonCount = foods.filter((f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= EXPIRY_SOON_DAYS).length;
 
   // 제철 놓친 개수
   const missedCount = (() => {
@@ -66,10 +66,10 @@ export default function QuickLinks({
   })();
 
   const categories: CategoryItem[] = [
-    { href: '/fridge',             Icon: Refrigerator, label: '냉장고', bgClass: 'bg-blue-50',    iconClass: 'text-blue-500',    badge: foodCount > 0 ? String(foodCount) : undefined },
-    { href: '/closet',             Icon: Shirt,        label: '옷장',   bgClass: 'bg-rose-50',    iconClass: 'text-rose-500',    badge: clothesCount > 0 ? String(clothesCount) : undefined },
-    { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', badge: missedCount > 0 ? String(missedCount) : undefined },
-    { href: '/fridge',             Icon: ChefHat,      label: '레시피', bgClass: 'bg-amber-50',   iconClass: 'text-amber-500',   dot: urgentCount > 0 },
+    { href: '/fridge',             Icon: Refrigerator, label: '냉장고', bgClass: 'bg-blue-50',    iconClass: 'text-blue-500',    badge: soonCount > 0 ? String(soonCount) : undefined },
+    { href: '/closet',             Icon: Shirt,        label: '옷장',   bgClass: 'bg-rose-50',    iconClass: 'text-rose-500'    },
+    { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', dot: missedCount > 0 },
+    { href: '/fridge',             Icon: ChefHat,      label: '레시피', bgClass: 'bg-amber-50',   iconClass: 'text-amber-500'   },
     { href: '/mypage?tab=shopping',Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     badge: shopping.length > 0 ? String(shopping.length) : undefined },
     { href: '/mypage',             Icon: BarChart3,    label: '활동',   bgClass: 'bg-violet-50',  iconClass: 'text-violet-500'   },
     { href: '/settings#profiles',  Icon: Users,        label: '프로필', bgClass: 'bg-orange-50',  iconClass: 'text-orange-500'   },

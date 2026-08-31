@@ -10,7 +10,8 @@ import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useShoppingList } from '@/lib/shoppingList';
-import { pickDailyMessage } from '@/lib/dailyMessage';
+import { pickDailyMessage, type DailyMessage } from '@/lib/dailyMessage';
+import { getDaypart, greetingText, type Daypart } from '@/lib/daypart';
 
 /**
  * 홈 최상단 Hero 영역.
@@ -47,22 +48,25 @@ const TONE = {
   },
 } as const;
 
-/** 시간대별 아이콘 — gentle 메시지에 사용 */
-function getGreetingMeta(): { Icon: LucideIcon; text: string } {
-  const h = new Date().getHours();
-  if (h < 6)  return { Icon: Moon,    text: '새벽이에요' };
-  if (h < 12) return { Icon: Sunrise, text: '좋은 아침이에요' };
-  if (h < 14) return { Icon: Utensils, text: '점심 시간이에요' };
-  if (h < 18) return { Icon: Sun,     text: '오후도 힘내세요' };
-  return { Icon: Moon, text: '오늘 하루 수고했어요' };
-}
+/** 시간대별 아이콘 — 구간은 lib/daypart 단일 소스 */
+const DAYPART_ICON: Record<Daypart, LucideIcon> = {
+  dawn:      Moon,
+  morning:   Sunrise,
+  noon:      Utensils,
+  afternoon: Sun,
+  evening:   Sun,
+  night:     Moon,
+};
 
 export default function HeroMessage({ items }: { items: CartItem[] }) {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
+  const [mounted, setMounted] = useState(false);
   const { log: wearLog } = useWearLog();
   const { log: cookLog } = useCookLog();
   const { favorites }    = useRecipeFavorites();
   const { list: shopping } = useShoppingList();
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,15 +76,20 @@ export default function HeroMessage({ items }: { items: CartItem[] }) {
     return () => { cancelled = true; };
   }, []);
 
-  const msg  = pickDailyMessage(items, weather, wearLog, cookLog, favorites, shopping.length);
+  // 시간·localStorage 의존 값은 마운트 후에만 — SSR/CSR 텍스트 불일치(React #418) 방지 (P0-6)
+  const PLACEHOLDER: DailyMessage = { emoji: '', text: '네모아가 오늘 하루를 살펴보고 있어요', priority: 'gentle' };
+  const msg  = mounted
+    ? pickDailyMessage(items, weather, wearLog, cookLog, favorites, shopping.length)
+    : PLACEHOLDER;
   const tone = TONE[msg.priority];
-  const greeting = getGreetingMeta();
+  const greetingLabel = mounted ? greetingText(getDaypart()) : '';
 
   // priority별 대표 아이콘 (이모지 대체)
   const HeroIcon: LucideIcon =
     msg.priority === 'urgent'  ? AlertTriangle :
     msg.priority === 'insight' ? Sparkles :
-                                 greeting.Icon;
+    mounted                    ? DAYPART_ICON[getDaypart()] :
+                                 Sparkles;
 
   function handleCtaClick() {
     if (msg.paletteQuery) {
@@ -112,9 +121,11 @@ export default function HeroMessage({ items }: { items: CartItem[] }) {
           >
             <HeroIcon size={18} strokeWidth={2.2} aria-hidden />
           </motion.span>
-          <span className={`text-xs font-bold ${tone.accent} tracking-wide`}>
-            {greeting.text}
-          </span>
+          {greetingLabel && (
+            <span className={`text-xs font-bold ${tone.accent} tracking-wide`}>
+              {greetingLabel}
+            </span>
+          )}
           {msg.priority === 'urgent' && (
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${tone.chip}`}>
               주의

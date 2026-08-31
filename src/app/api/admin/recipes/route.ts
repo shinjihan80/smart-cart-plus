@@ -43,7 +43,7 @@ async function loadOverlay(): Promise<RecipeOverlay> {
 }
 
 export async function GET(req: NextRequest) {
-  const limited = await applyRateLimit(req, 'parser');
+  const limited = await applyRateLimit(req, 'catalog');
   if (limited) return limited;
   // GET은 공개 — 모바일 앱(useMergedCatalog)이 오버레이를 읽어 정적 카탈로그와 merge하기 때문.
   // 정적 RECIPES는 어차피 클라이언트 번들에 포함되며, 오버레이만 추가 노출됨.
