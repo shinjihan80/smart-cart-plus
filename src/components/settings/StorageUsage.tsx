@@ -12,9 +12,9 @@ interface UsageRow {
 }
 
 const KEY_LABELS: Record<string, string> = {
-  'smart-cart-items':       '식품·의류 아이템',
-  'smart-cart-archive':     '아카이브',
-  'smart-cart-history':     '소진 이력',
+  'nemoa-items':       '식품·의류 아이템',
+  'nemoa-archive':     '아카이브',
+  'nemoa-history':     '소진 이력',
   'nemoa-wear-log':         '착용 로그',
   'nemoa-cook-log':         '조리 로그',
   'nemoa-profiles':         '프로필',
@@ -31,7 +31,7 @@ function formatBytes(n: number): string {
 }
 
 /**
- * localStorage의 nemoa/smart-cart 관련 키 용량을 측정해 표시.
+ * localStorage의 nemoa- 키 용량을 측정해 표시.
  * 사용자가 어느 데이터가 차지하는 지 한눈에 보게.
  */
 export default function StorageUsage() {
@@ -45,7 +45,7 @@ export default function StorageUsage() {
     for (let i = 0; i < localStorage.length; i += 1) {
       const key = localStorage.key(i);
       if (!key) continue;
-      if (!key.startsWith('nemoa-') && !key.startsWith('smart-cart-')) continue;
+      if (!key.startsWith('nemoa-')) continue;
       const val = localStorage.getItem(key) ?? '';
       // 대략적인 UTF-16 바이트 추정 (1 char ≈ 2 bytes)
       const bytes = new Blob([val]).size;

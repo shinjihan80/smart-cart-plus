@@ -2,7 +2,7 @@ import { CartItem, isFoodItem, isClothingItem } from '@/types';
 
 export function exportAsJSON(items: CartItem[]): void {
   const data = JSON.stringify(items, null, 2);
-  download(data, 'smart-cart-data.json', 'application/json');
+  download(data, 'nemoa-data.json', 'application/json');
 }
 
 export function exportAsCSV(items: CartItem[]): void {
@@ -23,7 +23,7 @@ export function exportAsCSV(items: CartItem[]): void {
     ...clothingRows,
   ].join('\n');
 
-  download(csv, 'smart-cart-data.csv', 'text/csv');
+  download(csv, 'nemoa-data.csv', 'text/csv');
 }
 
 function download(content: string, filename: string, type: string): void {

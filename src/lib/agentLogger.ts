@@ -1,6 +1,6 @@
 // 브라우저 전용 — 실제 에이전트 호출 로그를 localStorage에 누적
 
-const LOG_KEY = 'smart-cart-agent-log';
+const LOG_KEY = 'nemoa-agent-log';
 const MAX_ENTRIES = 200; // 7일치 여유
 
 export interface AgentCallLog {

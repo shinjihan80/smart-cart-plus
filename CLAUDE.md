@@ -10,6 +10,7 @@
 |-------------|---------|
 | 텍스트 파싱, 쇼핑 정보 추가, 영수증 분석, 구매 내역 입력 | `/parse-orchestrator` |
 | 하네스 구성, 에이전트 추가, 스킬 추가 | `/harness` |
+| 네모아 검토, 페르소나 리뷰, 검토단/전문단, 화면 고객 관점 리뷰, 수정 목록 업데이트 | `/nemoa-review` |
 
 ## 에이전트 팀 구성
 
@@ -17,6 +18,8 @@
 |---------|------|------|
 | receipt-parser | `.claude/agents/receipt-parser.md` | 텍스트 → FoodItem/ClothingItem 추출 |
 | schema-validator | `.claude/agents/schema-validator.md` | 스키마 검증 + 듀얼 리뷰 |
+| nemoa-customer-reviewer | `.claude/agents/nemoa-customer-reviewer.md` | 고객 페르소나 1인(C1~C10) 시선 리뷰 |
+| nemoa-expert-reviewer | `.claude/agents/nemoa-expert-reviewer.md` | 전문 분야 1개(E1 기획/E2 개발/E3 디자인) 진단 |
 
 ## 스킬 목록
 
@@ -25,6 +28,10 @@
 | parse-orchestrator | `.claude/skills/parse-orchestrator/` | 파서 팀 파이프라인 조율 |
 | food-knowledge | `.claude/skills/food-knowledge/` | 식품 보관 기간 도메인 지식 |
 | clothing-knowledge | `.claude/skills/clothing-knowledge/` | 의류 소재·사이즈 도메인 지식 |
+| nemoa-review | `.claude/skills/nemoa-review/` | 검토단(고객 10)+전문단(3) 팬아웃 → P0/P1/P2 수정 목록 병합 오케스트레이터 |
+| nemoa-persona-review | `.claude/skills/nemoa-persona-review/` | 페르소나 로스터 + finding·우선순위 스키마 (리뷰 에이전트가 로드) |
+
+산출물: `docs/nemoa-review/수정목록.md` (Part 1 검토단 · Part 2 전문단 · Part 4 P0/P1/P2 목록 · Part 5 검토 리포트)
 
 ## 변경 이력
 
@@ -71,3 +78,4 @@
 | 2026-05-27 | /help 전면 업데이트 — v1.4~v1.9 기능 반영 (냉장고 3탭·옷장 파트너·마이 연간활동·알림 5종·AI 한도 정확화) + 요금제 섹션·FAQ Pro 항목 추가 | v2.0 |
 | 2026-05-27 | /manual 웹 가이드 신설 — 10섹션 사이드바 목차 + PhoneFrame 앱 스크린샷 5종 + IntersectionObserver scroll-aware 하이라이트 + fixed full-screen 레이아웃 오버레이 | v2.0 |
 | 2026-05-27 | 도움말·메뉴얼 요금제 섹션 추가 — 베이직(무료)/Pro Lite(₩4,900/월)/Pro Max(₩9,900/월) 플랜 비교표 + 연간 할인 안내 | v2.0 |
+| 2026-08-27 | 검토 페르소나 하네스 — nemoa-review(오케스트레이터) + 검토단/전문단 에이전트 2종 + 페르소나 로스터 스킬. 산출물 `docs/nemoa-review/수정목록.md` | v2.0 |

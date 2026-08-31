@@ -6,11 +6,11 @@ import { mockCartItems } from '@/data/mockData';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { recordAddsAndMaybeShowAd } from '@/lib/addMilestone';
 
-const STORAGE_KEY  = 'smart-cart-items';
-const DISCARD_KEY  = 'smart-cart-discard-count';
-const ARCHIVE_KEY  = 'smart-cart-archive';
-const HISTORY_KEY  = 'smart-cart-history';
-const SCHEMA_VERSION_KEY = 'smart-cart-schema-version';
+const STORAGE_KEY  = 'nemoa-items';
+const DISCARD_KEY  = 'nemoa-discard-count';
+const ARCHIVE_KEY  = 'nemoa-archive';
+const HISTORY_KEY  = 'nemoa-history';
+const SCHEMA_VERSION_KEY = 'nemoa-schema-version';
 const CURRENT_SCHEMA_VERSION = '2'; // 카테고리 세분화 (v1→v2)
 
 interface DiscardRecord {
@@ -57,6 +57,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
   useEffect(() => {
     try {
+      // 리브랜딩 전 'smart-cart-*' 키 잔여물 정리 (1회성 — 2릴리스 후 이 블록 삭제 가능)
+      for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('smart-cart-')) localStorage.removeItem(k);
+      }
+
       // 스키마 버전 불일치 시 자동 초기화
       const storedVersion = localStorage.getItem(SCHEMA_VERSION_KEY);
       if (storedVersion !== CURRENT_SCHEMA_VERSION) {

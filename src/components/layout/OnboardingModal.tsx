@@ -8,7 +8,7 @@ import { FridgeModelPicker } from '@/components/fridge/FridgeModelPicker';
 import { useFridgeModel } from '@/lib/useFridgeModel';
 
 // v3: 냉장고 모델 선택 step 추가 (기존 v2 사용자도 재온보딩 1회)
-const ONBOARDING_KEY = 'smart-cart-onboarded-v3';
+const ONBOARDING_KEY = 'nemoa-onboarded-v3';
 
 interface Step {
   emoji:    string;

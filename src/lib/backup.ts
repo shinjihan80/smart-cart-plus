@@ -49,21 +49,21 @@ export function buildSnapshot(): BackupSnapshot {
       return JSON.parse(raw) as T;
     } catch { return fallback; }
   };
-  const discardCountRaw = typeof window !== 'undefined' ? localStorage.getItem('smart-cart-discard-count') : null;
+  const discardCountRaw = typeof window !== 'undefined' ? localStorage.getItem('nemoa-discard-count') : null;
 
   return {
     version:   BACKUP_VERSION,
     createdAt: new Date().toISOString(),
     app:       'NEMOA',
-    items:     safe('smart-cart-items', []),
-    archived:  safe('smart-cart-archive', []),
+    items:     safe('nemoa-items', []),
+    archived:  safe('nemoa-archive', []),
     discard: {
       count:   discardCountRaw ? parseInt(discardCountRaw, 10) || 0 : 0,
-      history: safe('smart-cart-history', []),
+      history: safe('nemoa-history', []),
     },
     favorites: safe('nemoa-recipe-favorites', []),
     shopping:  safe('nemoa-shopping-list',    []),
-    noti:      safe('smart-cart-noti',        null),
+    noti:      safe('nemoa-noti',        null),
     wearLog:   safe('nemoa-wear-log',         {}),
     cookLog:   safe('nemoa-cook-log',         {}),
     profiles:  safe('nemoa-profiles',         []),
@@ -114,7 +114,7 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
     if (Array.isArray(snap.shopping))
       localStorage.setItem('nemoa-shopping-list',    JSON.stringify(snap.shopping));
     if (snap.noti && typeof snap.noti === 'object')
-      localStorage.setItem('smart-cart-noti',        JSON.stringify(snap.noti));
+      localStorage.setItem('nemoa-noti',        JSON.stringify(snap.noti));
     if (snap.wearLog && typeof snap.wearLog === 'object' && !Array.isArray(snap.wearLog))
       localStorage.setItem('nemoa-wear-log',         JSON.stringify(snap.wearLog));
     if (snap.cookLog && typeof snap.cookLog === 'object' && !Array.isArray(snap.cookLog))

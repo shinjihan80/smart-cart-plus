@@ -18,7 +18,7 @@ const ALERT_LABEL: Record<string, string> = {
 };
 
 type NotiKey = 'expiry' | 'codi' | 'deal';
-const STORAGE_KEY = 'smart-cart-noti';
+const STORAGE_KEY = 'nemoa-noti';
 
 interface NotiState { expiry: boolean; codi: boolean; deal: boolean }
 

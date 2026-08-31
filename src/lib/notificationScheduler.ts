@@ -5,7 +5,7 @@ import type { FoodItem } from '@/types';
 
 export interface NotiState { expiry: boolean; codi: boolean; deal: boolean }
 
-const NOTI_KEY      = 'smart-cart-noti';
+const NOTI_KEY      = 'nemoa-noti';
 const CHECKED_KEY   = 'nemoa-noti-checked-date'; // 하루 1회 체크
 const PERM_KEY      = 'nemoa-noti-permission';
 
