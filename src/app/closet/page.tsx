@@ -86,8 +86,6 @@ const CLOSET_TABS: { id: ClosetTab; emoji: string; label: string }[] = [
   { id: 'shopping', emoji: '🛍️', label: '쇼핑' },
 ];
 
-const isClosetTab = (v: unknown): v is ClosetTab =>
-  v === 'closet' || v === 'clothing' || v === 'outfit' || v === 'shopping';
 
 export default function ClosetPage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, loadSampleData } = useCart();
@@ -115,11 +113,9 @@ export default function ClosetPage() {
     'nemoa-closet-view', 'list',
     (raw) => (raw === 'list' || raw === 'compact') ? raw : null,
   );
-  const [activeTab, setActiveTab] = usePersistedState<ClosetTab>(
-    'nemoa-closet-tab', 'closet',
-    (raw) => (isClosetTab(raw) ? raw : null),
-  );
-  useEffect(() => { setActiveTab('closet'); }, []);
+  // 탭은 세션 내 이동용만 — /closet 진입 시 항상 '옷장'부터. (persist 하면
+  // SSR(옷장)↔CSR(저장값) 하이드레이션 미스매치 + 매 마운트 리셋 충돌. N-2)
+  const [activeTab, setActiveTab] = useState<ClosetTab>('closet');
   const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
   const compactDetailItem = compactDetailId ? (allItems.filter(isClothingItem).find(i => i.id === compactDetailId) ?? null) : null;
   const { log: wearLog } = useWearLog();

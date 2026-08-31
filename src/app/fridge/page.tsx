@@ -47,8 +47,6 @@ const FRIDGE_TABS: { id: FridgeTab; emoji: string; label: string }[] = [
   { id: 'shopping', emoji: '🛒', label: '장보기' },
 ];
 
-const isFridgeTab = (v: unknown): v is FridgeTab =>
-  v === 'fridge' || v === 'food' || v === 'suggest' || v === 'shopping';
 
 const SORT_PLAIN: Record<SortKey, string> = {
   dDay: '임박순', name: '이름순', seasonal: '제철 먼저',
@@ -96,11 +94,8 @@ export default function FridgePage() {
     'nemoa-fridge-view', 'visual',
     (raw) => (raw === 'visual' || raw === 'list' || raw === 'compact') ? raw : null,
   );
-  const [activeTab, setActiveTab] = usePersistedState<FridgeTab>(
-    'nemoa-fridge-tab', 'fridge',
-    (raw) => (isFridgeTab(raw) ? raw : null),
-  );
-  useEffect(() => { setActiveTab('fridge'); }, []);
+  // 탭은 세션 내 이동용만 — /fridge 진입 시 항상 '냉장고'부터. (N-2)
+  const [activeTab, setActiveTab] = useState<FridgeTab>('fridge');
   const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
   const compactDetailItem = compactDetailId ? allItems.filter(isFoodItem).find(i => i.id === compactDetailId) ?? null : null;
   const compactDetailDDay = compactDetailItem ? calcRemainingDays(compactDetailItem.purchaseDate, compactDetailItem.baseShelfLifeDays) : 0;
