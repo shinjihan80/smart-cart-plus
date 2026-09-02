@@ -31,10 +31,10 @@ export default function ShoppingMallCard({
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        <span className="text-base" aria-hidden>{emoji}</span>
-        <h3 className="text-base font-bold text-gray-900 tracking-tight">{title}</h3>
-        {subtitle && <span className="text-xs text-gray-400">{subtitle}</span>}
+      <div className="flex items-baseline gap-2 min-w-0">
+        <span className="text-base shrink-0" aria-hidden>{emoji}</span>
+        <h3 className="text-base font-bold text-gray-900 tracking-tight shrink-0 whitespace-nowrap">{title}</h3>
+        {subtitle && <span className="text-xs text-gray-400 truncate min-w-0">{subtitle}</span>}
       </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
