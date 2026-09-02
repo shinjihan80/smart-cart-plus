@@ -1,0 +1,344 @@
+<title>네모아 배포 검증</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root{
+    --ground:#FBFAFC; --surface:#FFFFFF; --sunk:#F3F2F7;
+    --ink:#211F2A; --ink-soft:#585463; --ink-faint:#8B8794;
+    --line:#E7E4EE; --line-strong:#D6D2E0;
+    --brand:#4F46E5; --brand-soft:#ECEBFB;
+    --pass:#0E7C5A; --pass-soft:#E1F1EA;
+    --check:#B45309; --check-soft:#FAF0E0;
+    --shadow:0 1px 2px rgba(40,30,80,.05), 0 12px 28px -16px rgba(40,30,80,.18);
+    --font-sans:"IBM Plex Sans KR",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#141319; --surface:#1D1B24; --sunk:#26232F;
+      --ink:#ECE9F2; --ink-soft:#AEA9BB; --ink-faint:#817C8E;
+      --line:#302D3A; --line-strong:#3C3947;
+      --brand:#8E88F2; --brand-soft:#262239;
+      --pass:#34C596; --pass-soft:#16281F;
+      --check:#E3A24E; --check-soft:#2B2413;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 34px -18px rgba(0,0,0,.62);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#141319; --surface:#1D1B24; --sunk:#26232F;
+    --ink:#ECE9F2; --ink-soft:#AEA9BB; --ink-faint:#817C8E;
+    --line:#302D3A; --line-strong:#3C3947;
+    --brand:#8E88F2; --brand-soft:#262239;
+    --pass:#34C596; --pass-soft:#16281F;
+    --check:#E3A24E; --check-soft:#2B2413;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 34px -18px rgba(0,0,0,.62);
+  }
+
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--font-sans); background:var(--ground); color:var(--ink);
+    line-height:1.6; word-break:keep-all; overflow-wrap:break-word;
+    -webkit-font-smoothing:antialiased; font-weight:400;
+  }
+  .wrap{max-width:900px; margin:0 auto; padding:56px 24px 96px}
+
+  header.top{border-bottom:1px solid var(--line); padding-bottom:26px; margin-bottom:8px}
+  .eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--brand); display:flex; align-items:center; gap:9px}
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--brand)}
+  h1{font-size:clamp(1.9rem,4.4vw,2.7rem); font-weight:700; line-height:1.12; letter-spacing:-.02em;
+    text-wrap:balance; margin:16px 0 12px}
+  .lede{max-width:62ch; color:var(--ink-soft); font-size:1.03rem}
+  .meta{margin-top:20px; display:flex; flex-wrap:wrap; gap:8px}
+  .meta code{font-family:var(--font-mono); font-size:12px; background:var(--sunk); border:1px solid var(--line);
+    border-radius:999px; padding:5px 11px; color:var(--ink-soft)}
+
+  h2.sec{font-size:1.15rem; font-weight:700; margin:52px 0 4px; display:flex; align-items:center; gap:10px}
+  h2.sec .tag{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+    padding:3px 8px; border-radius:6px}
+  h2.sec .tag.auto{background:var(--pass-soft); color:var(--pass)}
+  h2.sec .tag.hand{background:var(--check-soft); color:var(--check)}
+  .sec-note{color:var(--ink-faint); font-size:.9rem; margin:2px 0 20px}
+
+  .item{border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow);
+    padding:16px 18px; margin-bottom:12px}
+  .item-head{display:flex; align-items:flex-start; gap:11px}
+  .chip{flex-shrink:0; width:22px; height:22px; border-radius:7px; display:grid; place-items:center;
+    font-size:12px; font-weight:700; margin-top:1px}
+  .chip.pass{background:var(--pass-soft); color:var(--pass)}
+  .chip.hand{background:var(--check-soft); color:var(--check); font-family:var(--font-mono)}
+  .item-title{font-weight:600; font-size:1rem; flex:1}
+  .item-title .id{font-family:var(--font-mono); font-size:11.5px; color:var(--brand); background:var(--brand-soft);
+    padding:2px 6px; border-radius:5px; margin-right:7px; white-space:nowrap; font-weight:500}
+  .evidence{margin-top:9px; padding-left:33px; font-size:.9rem; color:var(--ink-soft)}
+  .evidence .val{font-family:var(--font-mono); font-size:.82rem; background:var(--sunk); border:1px solid var(--line);
+    border-radius:5px; padding:1px 5px; color:var(--ink)}
+  .evidence .was{color:var(--ink-faint); text-decoration:line-through; text-decoration-thickness:1px}
+  ol.steps{margin:9px 0 0 33px; padding:0; list-style:none; counter-reset:s}
+  ol.steps li{counter-increment:s; position:relative; padding-left:26px; margin:7px 0; font-size:.92rem}
+  ol.steps li::before{content:counter(s); position:absolute; left:0; top:0; font-family:var(--font-mono);
+    font-size:11px; font-weight:500; width:17px; height:17px; border-radius:5px; background:var(--sunk);
+    border:1px solid var(--line); color:var(--ink-soft); display:grid; place-items:center}
+  ol.steps li b{color:var(--ink)}
+  .expect{display:block; margin-top:2px; color:var(--pass); font-size:.86rem}
+  .expect::before{content:"→ 기대: "; color:var(--ink-faint)}
+
+  .callout{margin:20px 0 0; border-left:3px solid var(--check); background:var(--check-soft);
+    padding:12px 16px; border-radius:0 10px 10px 0; font-size:.9rem; color:var(--ink-soft)}
+  .callout b{color:var(--ink)}
+
+  footer{margin-top:56px; padding-top:22px; border-top:1px solid var(--line); color:var(--ink-faint); font-size:.85rem}
+  a{color:var(--brand)}
+
+  .wrap-scroll{overflow-x:auto; margin-top:16px}
+  table.summary{width:100%; border-collapse:collapse; font-size:.9rem}
+  table.summary th,table.summary td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line)}
+  table.summary th{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)}
+  table.summary td.n{font-variant-numeric:tabular-nums; font-family:var(--font-mono); color:var(--ink)}
+  table.summary tr:last-child td{border-bottom:0}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">nemoa · 배포 검증 · 2026-08-27</div>
+    <h1>배포한 22커밋, 뭘 어떻게 확인하나</h1>
+    <p class="lede">
+      <code style="font-family:var(--font-mono)">357fe2c</code> → <code style="font-family:var(--font-mono)">d1d5728</code> 를
+      <code style="font-family:var(--font-mono)">vercel --prod</code> 로 배포. 아래 A는 라이브 <b>nemoa.vercel.app</b> 에서
+      브라우저로 실측한 결과(스크립트 hit-test·computed 값), B는 dev 프리뷰가 재현 못 해 <b>실기기에서 직접</b> 봐야 하는 것.
+    </p>
+    <div class="meta">
+      <code>커밋 22</code><code>P0 ×7</code><code>P1 ×6</code><code>P2 ×3</code><code>신규버그 N-1~4</code><code>회귀 1건 수정</code>
+    </div>
+  </header>
+
+  <h2 class="sec"><span class="tag auto">A · 자동 검증</span> 라이브에서 이미 확인함</h2>
+  <p class="sec-note">브라우저 콘솔에서 실제 DOM·계산값을 읽어 확인. 재확인하려면 nemoa.vercel.app 열고 개발자도구에서 같은 걸 보면 됨.</p>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">N-4</span>마이페이지 "프로필 전환" 닫아도 하단 내비가 안 눌리던 문제</span>
+    </div>
+    <div class="evidence">
+      프로필 전환 <b>열기 → 닫기 → 5회 연타</b> 후 하단 내비 hit-test:
+      <span class="val">NAV CLICKABLE</span>, 잔여 오버레이 <span class="val">0</span>.
+      수정 전엔 닫은 뒤에도 <span class="was">BLOCKED by DIV.bg-black/30</span> (backdrop 이 DOM 에 남음).
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">P0-10</span>배지 숫자 불일치 (그리드 20 · 하단탭 6 · 카드 1)</span>
+    </div>
+    <div class="evidence">
+      홈 그리드 냉장고 배지 <span class="val">"2"</span> = 하단탭 aria <span class="val">"냉장고 · 임박 식품 2개"</span>.
+      임박(≤3일) 기준 하나로 통일. 옷장은 배지 없음(급할 게 없으므로).
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">P1-11</span>"마이" → "내 정보" · "교체" → "프로필 전환"</span>
+    </div>
+    <div class="evidence">
+      하단탭 라벨 <span class="val">내 정보</span>, 페이지 제목 <span class="val">내 정보</span>,
+      프로필 카드 버튼 <span class="val">프로필 전환</span>.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">P2-6</span>배포 후 회귀 — 쇼핑탭 제목이 "기부하/기"로 쪼개짐</span>
+    </div>
+    <div class="evidence">
+      옷장 &gt; 쇼핑 탭 4개 제목 (<span class="val">패션 쇼핑몰 · 중고 판매 · 기부하기 · 짐 보관 서비스</span>)
+      전부 <span class="val">1줄 (27px)</span>. <code style="font-family:var(--font-mono);font-size:.8rem">overflow-wrap: anywhere → break-word</code> +
+      헤더 <code style="font-family:var(--font-mono);font-size:.8rem">whitespace-nowrap</code>.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">P1-14</span>코디 카드 — 반지가 티셔츠와 같은 비중</span>
+    </div>
+    <div class="evidence">
+      카드 그리드 컬럼 <span class="val">129.57px / 86.39px</span> (= 3:2, 골격 크게 / 신발·반지 작게).
+      서브라벨이 "4개 아이템" → 실제 옷 이름 <span class="val">"리넨 셔츠 · 치노 팬츠 · 가죽 로퍼"</span>.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">P0-6</span>새벽 아닌데 "좋은 아침" · React #418 매 로드</span>
+    </div>
+    <div class="evidence">
+      오후 접속 시 Hero 인사말 <span class="val">"나른한 오후예요"</span>, 콘솔에 <span class="val">에러 0</span>.
+      인사말·데일리메시지를 마운트 후 렌더로 전환.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">P0-11</span>홈 로드마다 <code style="font-family:var(--font-mono);font-size:.85em">/api/admin/*</code> 429 폭주</span>
+    </div>
+    <div class="evidence">
+      <span class="val">/api/admin/seasonal · /recipes · /partners</span> 전부 <span class="val">200</span>.
+      요청 dedup + 실패 60초 백오프 + AI 파서와 별도 rate limit.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title"><span class="id">N-1</span>모션 스톨 시 "정상처럼 보이는 빈 화면"</span>
+    </div>
+    <div class="evidence">
+      CSS 번들에 <span class="val">nemoa-reveal-safety</span> 키프레임 (2초 뒤 강제 표시).
+      <span class="val">transform:translate</span> 있는 리빌만 겨냥 — 모달 backdrop 은 안 건드림.
+      <br><b style="color:var(--check)">단</b>: dev 프리뷰는 탭을 계속 hidden 으로 둬서 화면이 흐리게 보임 — 이건 프리뷰 한계이지 실사용 문제 아님.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip pass">✓</span>
+      <span class="item-title">전 라우트 200 · <span class="id">P0-13</span> <code style="font-family:var(--font-mono);font-size:.85em">smart-cart-*</code> 키 잔여 0</span>
+    </div>
+    <div class="evidence">
+      <span class="val">/ /fridge /closet /mypage /settings /search /seasonal</span> 전부 200.
+      CSS·JS 번들에서 구 프로덕트명 키 검색 결과 0건.
+    </div>
+  </div>
+
+  <h2 class="sec"><span class="tag hand">B · 실기기 확인</span> 이건 직접 봐줘</h2>
+  <p class="sec-note">dev 프리뷰가 재현 못 하거나(터치·safe-area·백그라운드 복귀), 눈으로 봐야 판단되는 것. 안드로이드 에뮬레이터/실기기에서.</p>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">1</span>
+      <span class="item-title"><span class="id">N-4</span>마이페이지 하단 내비 — <b>핵심</b></span>
+    </div>
+    <ol class="steps">
+      <li><b>내 정보</b> 탭 → 사용자 탭에서 <b>"프로필 전환"</b> 버튼 탭 (시트 열림)</li>
+      <li>시트 바깥 어두운 곳을 탭해서 <b>닫기</b></li>
+      <li>바로 하단 내비의 <b>냉장고 · 옷장 · 홈</b> 각각 눌러보기<span class="expect">전부 정상 이동. 안 눌리거나 화면이 살짝 어두우면 아직 버그</span></li>
+      <li>빠르게 열었다 닫기 5~6번 반복 후 다시 내비 탭</li>
+    </ol>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">2</span>
+      <span class="item-title"><span class="id">P0-9</span>폴더블 / 노치 — 헤더·탭바 위치</span>
+    </div>
+    <ol class="steps">
+      <li>냉장고 · 옷장 · 내 정보 각 화면 상단</li>
+      <li class="">화면 제목("스마트 냉장고" 등)이 <b>상태바 시계와 안 겹치는지</b><span class="expect">시계 아래로 내려와 있음</span></li>
+      <li>하단 탭바 아이콘·라벨이 <b>제스처 핸들바에 안 잘리는지</b>, 등록(+) 버튼이 겹치지 않는지</li>
+    </ol>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">3</span>
+      <span class="item-title"><span class="id">P0-10</span>배지 숫자</span>
+    </div>
+    <ol class="steps">
+      <li>냉장고에 유통기한 임박한 식품 몇 개 등록</li>
+      <li>홈 그리드의 냉장고 아이콘 배지 숫자 = 하단탭 냉장고 배지 숫자<span class="expect">같은 숫자. "긴급"·"임박" 용어 섞이지 않음</span></li>
+    </ol>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">4</span>
+      <span class="item-title"><span class="id">P1-14</span>코디 카드</span>
+    </div>
+    <ol class="steps">
+      <li>옷 5벌 이상 등록 (상의·하의·신발·액세서리 골고루) → 옷장 &gt; 코디 탭</li>
+      <li>"오늘 입을 코디" 카드에서 <b>상의·하의가 크게, 신발·반지가 우측에 작게</b><span class="expect">반지가 티셔츠와 같은 크기 아님</span></li>
+      <li>카드 하단에 <b>실제 옷 이름</b>이 나오는지 (예: "리넨 셔츠 · 청바지 · 로퍼")</li>
+    </ol>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">5</span>
+      <span class="item-title"><span class="id">P0-5</span>조사 — "OO이(가)"</span>
+    </div>
+    <ol class="steps">
+      <li>유통기한 오늘까지인 식품 등록 → 홈 상단 배너 문구 확인<span class="expect">"제주 감귤 주스가 오늘까지…" 처럼 자연스러움. "주스이(가)" 아님</span></li>
+    </ol>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">6</span>
+      <span class="item-title"><span class="id">P0-12</span>설정 → 클라우드 동기화 (무료 등급)</span>
+    </div>
+    <ol class="steps">
+      <li>설정 → "클라우드 동기화" 항목</li>
+      <li>제목 옆 <b>"Pro" 배지</b>, 설명 "무료 요금제는 이 기기에만 저장돼요"</li>
+      <li>탭하면 <b>업그레이드 시트</b>가 뜸 (로그인 화면 아님)</li>
+      <li>약관 동의 화면 문구: "기본적으로 이 기기에만 저장 (Pro로 로그인하면 클라우드에 백업)"</li>
+    </ol>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">7</span>
+      <span class="item-title"><span class="id">P1-12</span>첫 실행 온보딩</span>
+    </div>
+    <ol class="steps">
+      <li>앱 데이터 삭제 후 재실행 (또는 새 에뮬레이터)</li>
+      <li><b>약관 동의 화면만</b> 먼저 뜨는지 — 뒤에 "네모아에 오신 것을 환영해요" 소개가 겹쳐 보이면 안 됨<span class="expect">동의하고 시작 → 그 다음 소개 순서</span></li>
+    </ol>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="chip hand">8</span>
+      <span class="item-title"><span class="id">P1-13</span>빈 상태 첫 화면</span>
+    </div>
+    <ol class="steps">
+      <li>데이터 0개 상태의 홈</li>
+      <li>큰 버튼이 <b>"첫 항목 등록하기"</b> (등록 모달 열림), "샘플 데이터로 먼저 둘러보기"는 그 아래 작은 링크<span class="expect">이전엔 "샘플 데이터로 시작"이 1순위였음</span></li>
+    </ol>
+  </div>
+
+  <div class="callout">
+    <b>회귀 나면</b> 커밋이 항목별로 쪼개져 있으니 <code style="font-family:var(--font-mono)">git revert &lt;hash&gt;</code> 로 그 항목만 되돌리고
+    <code style="font-family:var(--font-mono)">vercel --prod --yes</code> 재배포하면 됨.
+    커밋 목록: <code style="font-family:var(--font-mono)">git log --oneline 357fe2c..d1d5728</code>
+  </div>
+
+  <div class="wrap-scroll">
+  <table class="summary">
+    <thead><tr><th>영역</th><th>완료</th><th>남음</th></tr></thead>
+    <tbody>
+      <tr><td>P0 (신뢰·정합)</td><td class="n">7</td><td class="n">0</td></tr>
+      <tr><td>P1 (이탈·오해)</td><td class="n">6</td><td class="n">3 · 홈 IA · 마이 6탭 · 개인정보 안내</td></tr>
+      <tr><td>P2 (완성도)</td><td class="n">3</td><td class="n">3 · 이모지 탭 · 타이포 · 다크모드</td></tr>
+      <tr><td>신규 버그 (N-1~4)</td><td class="n">4</td><td class="n">0</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <footer>
+    네모아 페르소나 검토 하네스 산출물 · 상세는 <code style="font-family:var(--font-mono)">docs/nemoa-review/수정목록.md</code> ·
+    적용 이력 <code style="font-family:var(--font-mono)">docs/nemoa-review/apply_2026-08-27.md</code>
+  </footer>
+
+</div>
