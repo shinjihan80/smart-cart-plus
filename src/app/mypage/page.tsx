@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { calcRemainingDays } from '@/components/FoodTags';
@@ -562,8 +562,9 @@ export default function MyPage() {
         />
       )}
 
-      {/* 사용자 교체 시트 */}
-      <AnimatePresence>
+      {/* 사용자 교체 시트 — AnimatePresence 미사용: exit 애니메이션이 스톨(백그라운드·
+          메인스레드 잼)되면 backdrop 이 DOM 에 남아 하단 내비를 영구히 덮는다.
+          닫기는 즉시 언마운트, 열기 애니메이션만. */}
       {showSwitcher && (
         <div
           className="fixed inset-0 z-50 flex items-end"
@@ -573,12 +574,11 @@ export default function MyPage() {
             className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           />
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
             className="relative w-full bg-white rounded-t-[28px] px-4 pt-5 pb-10 z-10"
             onClick={(e) => e.stopPropagation()}
@@ -628,7 +628,6 @@ export default function MyPage() {
           </motion.div>
         </div>
       )}
-      </AnimatePresence>
     </div>
   );
 }

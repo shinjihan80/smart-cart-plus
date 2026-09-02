@@ -33,6 +33,7 @@ export function SectionDetailSheet({
         const meta = FRIDGE_SECTION_META[section];
         return (
           <motion.div
+            key={section}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

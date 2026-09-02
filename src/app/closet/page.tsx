@@ -897,21 +897,17 @@ export default function ClosetPage() {
         wardrobeCells={wardrobeCells}
       />
 
-      {/* ─── 간략 뷰 상세 바텀시트 ─── */}
-      <AnimatePresence>
-        {compactDetailItem && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/40"
+      {/* ─── 간략 뷰 상세 바텀시트 ─── (AnimatePresence 미사용: exit 스톨 시
+          full-screen 오버레이가 남아 하단 내비를 덮는 문제. 즉시 언마운트) */}
+      {compactDetailItem && (
+          <div className="fixed inset-0 z-40">
+            <div
+              className="absolute inset-0 bg-black/40"
               onClick={() => setCompactDetailId(null)}
             />
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
-              exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 32, stiffness: 320 }}
               className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl overflow-y-auto max-h-[88vh] pb-10"
             >
@@ -944,9 +940,8 @@ export default function ClosetPage() {
                 />
               </div>
             </motion.div>
-          </>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }
