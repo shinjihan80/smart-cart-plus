@@ -104,17 +104,17 @@ export default function MyFridgeSection() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {pending && (
-          <MigrationConfirmModal
-            current={current.label}
-            target={FRIDGE_MODELS[pending.targetId].label}
-            migrations={pending.migrations}
-            onCancel={() => setPending(null)}
-            onConfirm={handleConfirmMigration}
-          />
-        )}
-      </AnimatePresence>
+      {/* AnimatePresence 미사용 — 커스텀 컴포넌트 child 라 exit 코디네이션이 안 되고,
+          스톨 시 z-50 오버레이가 남아 하단 내비를 덮는다. 닫기 즉시 언마운트. (N-4) */}
+      {pending && (
+        <MigrationConfirmModal
+          current={current.label}
+          target={FRIDGE_MODELS[pending.targetId].label}
+          migrations={pending.migrations}
+          onCancel={() => setPending(null)}
+          onConfirm={handleConfirmMigration}
+        />
+      )}
     </motion.div>
   );
 }
