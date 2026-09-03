@@ -73,6 +73,24 @@ body {
   overflow-wrap: break-word;
 }
 
+/* 가로 스크롤·오버스크롤 차단 (N-5)
+   폴더블(Z Fold) 대형·초협폭 뷰포트에서 중첩 가로 스크롤러 — 마이페이지 6탭
+   스트립처럼 뷰포트보다 넓은 overflow-x:auto 영역 — 를 드래그하면 그 스크롤이
+   문서/비주얼 뷰포트로 체이닝된다. 그 결과 position:fixed 하단 내비가 세로
+   스크롤 때 같이 밀려 올라가고 화면이 좌우로 흔들린다. 다른 페이지는 탭이
+   3개 이하라 가로 스크롤러가 활성화되지 않아 증상이 없었다.
+   overflow-x:clip 은 스크롤 컨테이너를 만들지 않아 sticky 헤더에 무해하다. */
+html,
+body {
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+/* 가로 스크롤러(탭 스트립·캐러셀) 내부 제스처가 페이지로 전파되지 않도록 */
+.scrollbar-hide {
+  overscroll-behavior: contain;
+}
+
 /* 상태바(노치·펀치홀·다이나믹아일랜드) 아래로 sticky 헤더 밀어내기.
    viewport-fit=cover 로 레이아웃이 상태바 밑까지 확장돼 있어, 인셋만큼
    헤더 상단에 여백을 준다. 비노치 기기에선 env() = 0 이라 무영향. (P0-9) */

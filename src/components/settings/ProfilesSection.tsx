@@ -634,7 +634,7 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
               onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
               placeholder={`${newRelation} 이름 (예: 엄마, 큰아이)`}
               aria-label="새 프로필 이름"
-              className="flex-1 text-xs text-gray-800 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+              className="flex-1 min-w-0 text-xs text-gray-800 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
             />
             <button
               onClick={handleAdd}
