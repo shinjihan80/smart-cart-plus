@@ -51,3 +51,6 @@ ios/App/build/
 ios/App/Pods/
 *.jks
 *.keystore
+
+# 빌드 산출물 (배포용 AAB)
+*.aab
