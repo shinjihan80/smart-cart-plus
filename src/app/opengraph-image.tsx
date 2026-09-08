@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { brandIconDataUri } from '@/lib/brandIcon';
 
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -19,19 +20,10 @@ export default function OpenGraphImage() {
           padding:        '80px',
         }}
       >
-        {/* 로고 — 빨강+파랑 겹침 */}
-        <div
-          style={{
-            position:     'relative',
-            width:        '200px',
-            height:       '200px',
-            marginBottom: '40px',
-            display:      'flex',
-          }}
-        >
-          <div style={{ position: 'absolute', left: 0,   top: 0,   width: 130, height: 130, background: '#1F1F2E', borderRadius: 28 }} />
-          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 130, height: 130, background: '#4F46E5', borderRadius: 28 }} />
-          <div style={{ position: 'absolute', left: 70,  top: 70,  width: 60,  height: 60,  background: '#0A0A18', borderRadius: 12 }} />
+        {/* 로고 — 겹친 두 네모 (아이소메트릭 블록) */}
+        <div style={{ display: 'flex', width: '200px', height: '200px', marginBottom: '40px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={brandIconDataUri(true)} alt="NEMOA" width={200} height={200} />
         </div>
 
         <div style={{ fontSize: '88px', fontWeight: 900, color: '#1F1F2E', letterSpacing: '-0.05em', marginBottom: '16px' }}>
