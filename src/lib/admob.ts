@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { canShowForcedAd, markForcedAdShown } from './adFrequency';
 
 /**
  * AdMob 보상형(리워드) 광고 — 네이티브 앱(iOS/Android)에서만 동작한다.
@@ -53,4 +54,16 @@ export async function showRewardedAd(): Promise<boolean> {
     console.error('[admob] showRewardedAd 실패:', err);
     return false;
   }
+}
+
+/**
+ * 강제 마일스톤 광고(실행·아이템 추가·인스턴스 생성) 공통 진입점.
+ * 쿨다운(5분)·일일 상한(2회)을 통과할 때만 리워드 영상을 노출한다.
+ * 트리거 쪽은 "몇 번째냐"만 판단하고, 실제 노출 여부는 여기서 통제한다.
+ */
+export async function showForcedMilestoneAd(): Promise<void> {
+  if (!isRewardedAdSupported()) return;
+  if (!canShowForcedAd()) return;
+  markForcedAdShown();          // 연속 트리거가 쿨다운을 함께 존중하도록 먼저 기록
+  await showRewardedAd();
 }

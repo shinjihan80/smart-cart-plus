@@ -1,4 +1,4 @@
-import { showRewardedAd, isRewardedAdSupported } from './admob';
+import { showForcedMilestoneAd, isRewardedAdSupported } from './admob';
 
 /**
  * 냉장고·옷장에 아이템을 "추가"할 때마다 누적 카운트하고,
@@ -35,6 +35,6 @@ export function recordAddsAndMaybeShowAd(addedCount: number): void {
 
   const crossedMilestone = Math.floor(after / MILESTONE_STEP) > Math.floor(before / MILESTONE_STEP);
   if (crossedMilestone) {
-    showRewardedAd();
+    showForcedMilestoneAd();
   }
 }

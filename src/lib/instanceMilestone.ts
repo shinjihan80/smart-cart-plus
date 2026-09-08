@@ -1,4 +1,4 @@
-import { showRewardedAd, isRewardedAdSupported } from './admob';
+import { showForcedMilestoneAd, isRewardedAdSupported } from './admob';
 
 /**
  * 냉장고·옷장 인스턴스(예: "냉장고 1", "냉장고 2"…)를 3번째부터 새로 만들 때마다
@@ -15,6 +15,6 @@ const FREE_INSTANCE_LIMIT = 2;
 export function maybeShowInstanceCreateAd(currentCount: number): void {
   if (!isRewardedAdSupported()) return;
   if (currentCount >= FREE_INSTANCE_LIMIT) {
-    showRewardedAd();
+    showForcedMilestoneAd();
   }
 }
