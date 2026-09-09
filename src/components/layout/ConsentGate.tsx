@@ -66,8 +66,13 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-              className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] p-6"
-              style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)' }}
+              className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] p-6 max-h-[90dvh] overflow-y-auto"
+              style={{
+                boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)',
+                // 제스처 내비게이션 바에 마지막 버튼이 잘리는 문제 (갤S26U 등).
+                // 일부 안드로이드 WebView 는 env() 가 0 으로 와서 max() 로 최소치 확보.
+                paddingBottom: 'calc(1.5rem + max(env(safe-area-inset-bottom), 12px))',
+              }}
             >
               <div className="text-center mb-4">
                 <div className="flex justify-center mb-2"><EmojiIcon emoji="📱" size={28} className="text-brand-primary" /></div>
