@@ -57,7 +57,7 @@ export default function BottomNav() {
           paddingBottom: 'max(env(safe-area-inset-bottom), 6px)',
         }}
       >
-        <div className="max-w-md sm:max-w-lg mx-auto flex">
+        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto flex">
           {NAV_ITEMS.map((entry) => {
             if (entry.kind === 'action') {
               const Icon = entry.icon;
