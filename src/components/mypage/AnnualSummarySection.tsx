@@ -94,7 +94,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
             <div key={s.label} className="flex flex-col items-center gap-0.5 py-1.5 px-1.5 rounded-2xl bg-gray-50">
               <EmojiIcon emoji={s.emoji} size={18} className="text-gray-700" />
               <span className="text-base font-extrabold text-brand-primary tabular-nums">{s.value}</span>
-              <span className="text-xs text-gray-400 font-medium">{s.label}</span>
+              <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{s.label}</span>
               {s.value > 0 && remaining > 30 && (
                 <span className="text-[10px] text-gray-400 tabular-nums">→ {pace}회 페이스</span>
               )}

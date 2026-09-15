@@ -53,17 +53,17 @@ export default function MonthlySummarySection({ discardHistory }: Props) {
         <div className="flex flex-col items-center gap-0.5 py-1">
           <EmojiIcon emoji="🍳" size={18} className="text-gray-700" />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{cookCount}</span>
-          <span className="text-xs text-gray-400 font-medium">조리 · {cookPerDay}/일</span>
+          <span className="text-xs text-gray-400 font-medium whitespace-nowrap">조리 · {cookPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
           <EmojiIcon emoji="👕" size={18} className="text-gray-700" />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{wearCount}</span>
-          <span className="text-xs text-gray-400 font-medium">착용 · {wearPerDay}/일</span>
+          <span className="text-xs text-gray-400 font-medium whitespace-nowrap">착용 · {wearPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
           <EmojiIcon emoji="♻️" size={18} className="text-gray-700" />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{discardCount}</span>
-          <span className="text-xs text-gray-400 font-medium">소진</span>
+          <span className="text-xs text-gray-400 font-medium whitespace-nowrap">소진</span>
         </div>
       </div>
     </motion.div>

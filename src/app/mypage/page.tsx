@@ -283,15 +283,15 @@ export default function MyPage() {
               <div className="grid grid-cols-3 gap-2">
                 <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
                   <span className="text-base font-bold text-gray-900 tabular-nums">{items.length}</span>
-                  <span className="text-xs text-gray-400">전체 항목</span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">전체 항목</span>
                 </div>
                 <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
                   <span className="text-base font-bold text-brand-primary tabular-nums">{foodItemsList.length}</span>
-                  <span className="text-xs text-gray-400">식품</span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">식품</span>
                 </div>
                 <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
                   <span className="text-base font-bold text-brand-primary tabular-nums">{clothingItemsList.length}</span>
-                  <span className="text-xs text-gray-400">의류</span>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">의류</span>
                 </div>
               </div>
               {urgentCount > 0 && (
