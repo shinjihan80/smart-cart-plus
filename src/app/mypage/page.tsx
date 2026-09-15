@@ -43,19 +43,25 @@ import ProfilesSection from '@/components/settings/ProfilesSection';
 import ProPreviewCard                            from '@/components/settings/ProPreviewCard';
 import AiQuotaCard                              from '@/components/settings/AiQuotaCard';
 
-type MyTab = 'user' | 'plan' | 'overview' | 'shopping' | 'closet' | 'cook';
+// v1.9까지 6탭(사용자/요금제/요약/쇼핑/옷장/요리)이었다가 v2.1에서 3탭으로 통합.
+// 사용자+요금제 → profile("내 정보"), 요약+옷장+요리 → activity("요약"). 쇼핑은 그대로.
+type MyTab = 'profile' | 'activity' | 'shopping';
 
 const TABS: { id: MyTab; emoji: string; label: string }[] = [
-  { id: 'user',     emoji: '👤', label: '사용자' },
-  { id: 'plan',     emoji: '💳', label: '요금제' },
-  { id: 'overview', emoji: '📊', label: '요약' },
+  { id: 'profile',  emoji: '👤', label: '내 정보' },
+  { id: 'activity', emoji: '📊', label: '요약' },
   { id: 'shopping', emoji: '🛒', label: '쇼핑' },
-  { id: 'closet',   emoji: '👕', label: '옷장' },
-  { id: 'cook',     emoji: '🍳', label: '요리' },
 ];
 
 const isMyTab = (v: unknown): v is MyTab =>
-  v === 'user' || v === 'plan' || v === 'overview' || v === 'shopping' || v === 'closet' || v === 'cook';
+  v === 'profile' || v === 'activity' || v === 'shopping';
+
+// 구 탭 ID(v1.9 이하 ?tab= 링크·저장된 localStorage 값) → 신규 3탭 매핑
+const LEGACY_TAB_MAP: Record<string, MyTab> = {
+  user: 'profile', plan: 'profile',
+  overview: 'activity', closet: 'activity', cook: 'activity',
+  shopping: 'shopping',
+};
 
 const RELATION_EMOJI: Record<string, string> = {
   본인: '👤', 배우자: '💞', 자녀: '🧒', 부모: '🧑‍🦳', 기타: '👥',
@@ -73,8 +79,8 @@ export default function MyPage() {
   const [browserOpen, setBrowserOpen]       = useState(false);
   const [archiveExpanded, setArchiveExpanded] = useState(false);
   const [activeTab, setActiveTab] = usePersistedState<MyTab>(
-    'nemoa-mypage-tab', 'user',
-    (raw) => (isMyTab(raw) ? raw : null),
+    'nemoa-mypage-tab', 'profile',
+    (raw) => (isMyTab(raw) ? raw : (typeof raw === 'string' && LEGACY_TAB_MAP[raw]) || null),
   );
 
   // ?tab=... 쿼리 또는 legacy 해시(#shopping 등)로 탭 초기화 — 외부 진입용
@@ -82,22 +88,25 @@ export default function MyPage() {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const requested = params.get('tab');
-    if (requested && isMyTab(requested)) {
-      if (requested !== activeTab) setActiveTab(requested);
-      return;
+    if (requested) {
+      const resolved = isMyTab(requested) ? requested : LEGACY_TAB_MAP[requested];
+      if (resolved) {
+        if (resolved !== activeTab) setActiveTab(resolved);
+        return;
+      }
     }
     // legacy 해시 — 마이페이지 v1.5 시절의 #shopping/#closet-cleanup/#cook-stats/#seasonal-hist 호환
     const hash = window.location.hash.replace('#', '');
     const HASH_TO_TAB: Record<string, MyTab> = {
       'shopping':       'shopping',
-      'closet-cleanup': 'closet',
-      'cook-stats':     'cook',
-      'seasonal-hist':  'cook',
-      // weekly-stats / partners는 항상 노출 영역 또는 overview 탭이라 매핑 불필요
+      'closet-cleanup': 'activity',
+      'cook-stats':     'activity',
+      'seasonal-hist':  'activity',
+      // weekly-stats / partners는 항상 노출 영역 또는 activity 탭이라 매핑 불필요
     };
     const mapped = HASH_TO_TAB[hash];
     if (mapped && mapped !== activeTab) setActiveTab(mapped);
-    else setActiveTab('user');
+    else setActiveTab('profile');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -266,7 +275,7 @@ export default function MyPage() {
 
         {/* ─── 탭별 섹션 ──────────────────────────────────── */}
 
-        {activeTab === 'user' && (
+        {activeTab === 'profile' && (
           <>
             {/* 사용자 요약 카드 */}
             <div className="flex items-center gap-2">
@@ -303,17 +312,14 @@ export default function MyPage() {
 
             {/* 프로필 관리 */}
             <ProfilesSection />
-          </>
-        )}
 
-        {activeTab === 'plan' && (
-          <>
+            {/* 요금제 (구 '요금제' 탭 흡수) */}
             <ProPreviewCard />
             <AiQuotaCard />
           </>
         )}
 
-        {activeTab === 'overview' && (
+        {activeTab === 'activity' && (
           <>
             <StatsSection
               items={items}
@@ -375,6 +381,39 @@ export default function MyPage() {
               <FrequentIngredientsSection
                 discardHistory={discardHistory}
                 currentItemNames={foodItemsList.map((f) => f.name)}
+              />
+            </SectionErrorBoundary>
+
+            {/* 옷장 통계 (구 '옷장' 탭 흡수) */}
+            <SectionErrorBoundary label="착용 로그 분석">
+              <PlanGate feature="착용 로그 분석">
+                <WearStatsSection items={items} />
+              </PlanGate>
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="계절 보관">
+              <SeasonalStorageSection items={items} />
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="옷장 정리 제안">
+              <ClosetCleanupSection items={items} />
+            </SectionErrorBoundary>
+
+            {/* 요리 통계 (구 '요리' 탭 흡수) */}
+            <SectionErrorBoundary label="조리 로그 분석">
+              <PlanGate feature="조리 로그 분석">
+                <CookStatsSection onOpenRecipe={setSelectedRecipe} />
+              </PlanGate>
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="제철 식탁 히스토리">
+              <SeasonalHistorySection history={discardHistory} />
+            </SectionErrorBoundary>
+
+            <SectionErrorBoundary label="즐겨찾기 레시피">
+              <FavoriteRecipesSection
+                onOpenRecipe={setSelectedRecipe}
+                onOpenBrowser={() => setBrowserOpen(true)}
               />
             </SectionErrorBoundary>
 
@@ -486,45 +525,6 @@ export default function MyPage() {
 
             <SectionErrorBoundary label="쇼핑 리스트">
               <ShoppingListSection addItems={addItems} showToast={showToast} />
-            </SectionErrorBoundary>
-          </>
-        )}
-
-        {activeTab === 'closet' && (
-          <>
-            <SectionErrorBoundary label="착용 로그 분석">
-              <PlanGate feature="착용 로그 분석">
-                <WearStatsSection items={items} />
-              </PlanGate>
-            </SectionErrorBoundary>
-
-            <SectionErrorBoundary label="계절 보관">
-              <SeasonalStorageSection items={items} />
-            </SectionErrorBoundary>
-
-            <SectionErrorBoundary label="옷장 정리 제안">
-              <ClosetCleanupSection items={items} />
-            </SectionErrorBoundary>
-          </>
-        )}
-
-        {activeTab === 'cook' && (
-          <>
-            <SectionErrorBoundary label="조리 로그 분석">
-              <PlanGate feature="조리 로그 분석">
-                <CookStatsSection onOpenRecipe={setSelectedRecipe} />
-              </PlanGate>
-            </SectionErrorBoundary>
-
-            <SectionErrorBoundary label="제철 식탁 히스토리">
-              <SeasonalHistorySection history={discardHistory} />
-            </SectionErrorBoundary>
-
-            <SectionErrorBoundary label="즐겨찾기 레시피">
-              <FavoriteRecipesSection
-                onOpenRecipe={setSelectedRecipe}
-                onOpenBrowser={() => setBrowserOpen(true)}
-              />
             </SectionErrorBoundary>
           </>
         )}

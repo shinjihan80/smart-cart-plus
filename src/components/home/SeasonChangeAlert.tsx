@@ -79,7 +79,7 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
-      <Link href="/mypage?tab=closet#seasonal" className="block">
+      <Link href="/mypage?tab=activity#seasonal" className="block">
         <div className="bg-brand-primary/8 border border-brand-primary/15 rounded-[24px] px-4 py-3 flex items-center gap-3 hover:bg-brand-primary/10 transition-colors">
           <span className="w-9 h-9 rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0 text-lg">
             {SEASON_EMOJI[season] ?? '🍃'}
