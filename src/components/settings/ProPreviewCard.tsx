@@ -194,7 +194,7 @@ export default function ProPreviewCard() {
               {isCurrent && (
                 <span className="text-[9px] font-bold text-brand-primary block mb-0.5">현재</span>
               )}
-              <p className="text-xs font-bold text-gray-900 leading-tight">{PLAN_LABEL[t.id]}</p>
+              <p className="text-xs font-bold text-gray-900 leading-tight whitespace-nowrap">{PLAN_LABEL[t.id]}</p>
               <p className="text-[10px] text-brand-primary font-semibold mt-0.5 leading-tight">{t.price}</p>
               {t.priceYear && (
                 <p className="text-[9px] text-gray-400 leading-tight">{t.priceYear}</p>

@@ -188,7 +188,13 @@ export default function MyPage() {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  onClick={() => setActiveTab(t.id)}
+                  onClick={() => {
+                    // 탭 전환 시 스크롤을 맨 위로 — 안 그러면 직전 스크롤 위치 그대로
+                    // 새 탭 콘텐츠가 중간부터 보인다 (탭마다 길이가 크게 다름, 특히
+                    // '요약' 탭 통합 이후 두드러짐)
+                    setActiveTab(t.id);
+                    window.scrollTo(0, 0);
+                  }}
                   className={[
                     'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive

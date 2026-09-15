@@ -81,7 +81,7 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             </div>
 
             <div className="mt-1.5">
-              <p className="text-[11px] font-bold text-gray-800 leading-tight">{meta.label}</p>
+              <p className="text-[11px] font-bold text-gray-800 leading-tight truncate">{meta.label}</p>
               {list.length === 0 ? (
                 <p className="text-[10px] text-gray-400 mt-0.5 leading-tight line-clamp-1">{meta.hint}</p>
               ) : (

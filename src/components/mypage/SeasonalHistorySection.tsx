@@ -145,7 +145,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
           >
             <div className="flex items-center gap-1.5">
               <EmojiIcon emoji="🫥" size={14} className="text-gray-600" />
-              <span className="text-xs font-semibold text-gray-600">
+              <span className="text-xs font-semibold text-gray-600 whitespace-nowrap">
                 아직 못 드신 {season}철 재료
               </span>
               <span className="text-sm px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold tabular-nums">

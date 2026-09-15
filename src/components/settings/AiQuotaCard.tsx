@@ -32,9 +32,9 @@ export default function AiQuotaCard() {
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
           <EmojiIcon emoji="🤖" size={16} className="text-brand-primary" />
-          <span className="text-xs text-gray-400 font-medium">AI 오늘 남은 횟수</span>
+          <span className="text-xs text-gray-400 font-medium whitespace-nowrap">AI 오늘 남은 횟수</span>
         </div>
-        <span className="text-xs text-gray-400">{PLAN_LABEL[tier]} · 매일 00시 리셋</span>
+        <span className="text-xs text-gray-400 whitespace-nowrap">{PLAN_LABEL[tier]} · 매일 00시 리셋</span>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -53,7 +53,7 @@ export default function AiQuotaCard() {
           return (
             <div key={a.key} className="rounded-xl border border-gray-100 p-2.5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-gray-600 truncate min-w-0">
                   {a.emoji} {a.label}{isVisionMonthly && <span className="text-gray-400"> (월간)</span>}
                 </span>
                 <span className={`text-xs font-bold tabular-nums ${tone}`}>

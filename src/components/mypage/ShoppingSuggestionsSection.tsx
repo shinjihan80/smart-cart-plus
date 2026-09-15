@@ -140,8 +140,8 @@ export default function ShoppingSuggestionsSection({
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2 min-w-0">
           <EmojiIcon emoji="🪄" size={16} className="text-brand-primary" />
-          <span className="text-xs text-gray-400 font-medium">장볼 거 추천</span>
-          <span className="text-xs text-gray-300">· 임박·소진·제철</span>
+          <span className="text-xs text-gray-400 font-medium whitespace-nowrap shrink-0">장볼 거 추천</span>
+          <span className="text-xs text-gray-300 whitespace-nowrap truncate min-w-0">· 임박·소진·제철</span>
         </div>
         {suggestions.length >= 2 && (
           <button

@@ -291,7 +291,7 @@ export default function ClosetPage() {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  onClick={() => setActiveTab(t.id)}
+                  onClick={() => { setActiveTab(t.id); window.scrollTo(0, 0); }}
                   className={[
                     'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
