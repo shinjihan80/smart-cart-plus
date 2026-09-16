@@ -22,7 +22,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
   const { main } = useProfiles();
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
   const { recipes } = useMergedCatalog();
-  const matched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, daysSinceCook, dietary }, recipes);
+  const matched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, daysSinceCook, dietary, allergies: main?.body.allergies }, recipes);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [pickIndex, setPickIndex] = useState(() => Math.floor(Math.random() * Math.max(1, matched.length)));
   const [selected, setSelected]   = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);

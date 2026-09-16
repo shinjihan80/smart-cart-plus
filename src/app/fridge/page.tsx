@@ -6,7 +6,7 @@ import { isFoodItem, type StorageType, type FoodGroup, type FridgeSection, FOOD_
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, X } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -90,6 +90,9 @@ export default function FridgePage() {
     'nemoa-fridge-seasonal-only', false,
     (raw) => typeof raw === 'boolean' ? raw : null,
   );
+  // "임박" 요약 수치를 눌렀을 때 그 개수만큼 실제로 걸러 보여주기 위한 토글.
+  // 예전엔 정렬만 바뀌고 필터가 안 걸려서 "6 임박" 눌러도 전체(21개)가 그대로 나왔다.
+  const [urgentOnly, setUrgentOnly] = useState(false);
   const [viewMode, setViewMode] = usePersistedState<'visual' | 'list' | 'compact'>(
     'nemoa-fridge-view', 'visual',
     (raw) => (raw === 'visual' || raw === 'list' || raw === 'compact') ? raw : null,
@@ -131,6 +134,7 @@ export default function FridgePage() {
       return i.ownerId === ownerFilter;
     })
     .filter((i) => !seasonalOnly || isSeasonalProduce(i.name, season))
+    .filter((i) => !urgentOnly || i.dDay <= 3)
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === 'dDay') return a.dDay - b.dDay;
@@ -347,19 +351,19 @@ export default function FridgePage() {
               style={CARD_SHADOW}
             >
               <div className="flex justify-between text-center">
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                   <p className="text-base font-bold text-gray-900 tabular-nums">{allFood.length}</p>
                   <p className="text-xs text-gray-400 mt-0.5">전체</p>
                 </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => scrollToStorage('냉장')}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('냉장'); }}>
                   <p className="text-base font-bold text-sky-600 tabular-nums">{coldCount}</p>
                   <p className="text-xs text-gray-400 mt-0.5">냉장</p>
                 </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => scrollToStorage('냉동')}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('냉동'); }}>
                   <p className="text-base font-bold text-indigo-600 tabular-nums">{frozenCount}</p>
                   <p className="text-xs text-gray-400 mt-0.5">냉동</p>
                 </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setActiveTab('food'); setStorageFilter('전체'); setSortBy('dDay'); scrollToFridgeItems(); }}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setActiveTab('food'); setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}>
                   <p className={`text-base font-bold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
                     {urgentCount}
                   </p>
@@ -419,19 +423,19 @@ export default function FridgePage() {
             {/* 요약 4수치 */}
             <div className={CARD} style={CARD_SHADOW}>
               <div className="flex justify-between text-center">
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                   <p className="text-base font-bold text-gray-900 tabular-nums">{allFood.length}</p>
                   <p className="text-xs text-gray-400 mt-0.5">전체</p>
                 </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉장'); scrollToFridgeItems(); }}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉장'); setUrgentOnly(false); scrollToFridgeItems(); }}>
                   <p className="text-base font-bold text-sky-600 tabular-nums">{coldCount}</p>
                   <p className="text-xs text-gray-400 mt-0.5">냉장</p>
                 </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉동'); scrollToFridgeItems(); }}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉동'); setUrgentOnly(false); scrollToFridgeItems(); }}>
                   <p className="text-base font-bold text-indigo-600 tabular-nums">{frozenCount}</p>
                   <p className="text-xs text-gray-400 mt-0.5">냉동</p>
                 </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setSortBy('dDay'); scrollToFridgeItems(); }}>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}>
                   <p className={`text-base font-bold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
                     {urgentCount}
                   </p>
@@ -469,6 +473,12 @@ export default function FridgePage() {
               )}
               <span className="text-xs text-gray-400 font-medium tabular-nums">{items.length}개</span>
               <div className="flex-1 h-px bg-gray-100" />
+              {urgentOnly && (
+                <button onClick={() => setUrgentOnly(false)}
+                  className="shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium bg-brand-warning text-white flex items-center gap-1">
+                  ⚠️ 임박만 <X size={11} strokeWidth={2.5} />
+                </button>
+              )}
               {seasonalCount > 0 && (
                 <button onClick={() => setSeasonalOnly(!seasonalOnly)}
                   className={`shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium transition-colors ${

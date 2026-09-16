@@ -14,6 +14,7 @@ import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
 import { Camera, Lock, X as XIcon } from 'lucide-react';
 import EmojiIcon from '@/components/EmojiIcon';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
+import { calcRemainingDays } from '@/components/FoodTags';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -355,10 +356,7 @@ interface FieldEditProps<T extends CartItem> {
 }
 
 function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, { category: '식품' }>>) {
-  const today  = new Date(); today.setHours(0, 0, 0, 0);
-  const expiry = new Date(item.purchaseDate);
-  expiry.setDate(expiry.getDate() + item.baseShelfLifeDays);
-  const dDay    = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const dDay    = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
   const isUrgent = dDay <= 2;
 
   return (

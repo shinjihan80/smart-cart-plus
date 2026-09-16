@@ -856,6 +856,14 @@ export interface MatchOptions {
   difficultyHint?: 'simple' | 'challenge';
   /** 식습관 — 맞지 않는 레시피는 결과에서 제외 */
   dietary?: 'none' | 'vegetarian' | 'vegan' | 'pescatarian';
+  /**
+   * 알레르기 — 프로필 body.allergies. 레시피 keywords 에 해당 알레르기
+   * 유발 식재료가 하나라도 있으면 결과에서 제외한다 (N-10, 검토단 C4 발견:
+   * 우유 알레르기를 등록해도 "레시피 추천 시 우유 포함 메뉴는 표시되지 않아요"
+   * 안내와 달리 우유 든 레시피가 실제로 추천됐음).
+   * keywords 기반 최선 노력 매칭 — steps 본문까지 훑지는 않는다.
+   */
+  allergies?: readonly string[];
 }
 
 // 동물성 식재료 키워드 — dietary 필터에 사용
@@ -894,6 +902,28 @@ export const DIETARY_BADGE: Record<NonNullable<ReturnType<typeof recipeDietary>>
   pescatarian:  { emoji: '🐟', label: '페스코' },
 };
 
+// 알레르기 유발 식재료 키워드 — ProfilesSection COMMON_ALLERGENS 10종과 1:1 대응
+const ALLERGEN_KEYWORDS: Record<string, readonly string[]> = {
+  갑각류: ['새우', '게', '랍스터', '대하', '가재'],
+  땅콩:   ['땅콩'],
+  계란:   ['달걀', '계란'],
+  우유:   ['우유', '치즈', '버터', '요거트', '그릭', '생크림'],
+  밀:     ['밀가루', '식빵', '빵', '면', '파스타', '우동', '라면', '부침가루', '튀김가루', '만두피'],
+  대두:   ['두부', '된장', '간장', '콩나물', '두유'],
+  복숭아: ['복숭아'],
+  토마토: ['토마토'],
+  견과류: ['호두', '아몬드', '잣', '캐슈', '피스타치오', '헤이즐넛'],
+  메밀:   ['메밀'],
+};
+
+function violatesAllergies(recipe: Recipe, allergies: readonly string[]): boolean {
+  return allergies.some((a) => {
+    const kws = ALLERGEN_KEYWORDS[a];
+    if (!kws) return false;
+    return recipe.keywords.some((k) => kws.some((kw) => k.includes(kw) || kw.includes(k)));
+  });
+}
+
 const PROTEIN_KEYWORDS = ['두부', '달걀', '계란', '닭', '소고기', '돼지', '생선', '연어', '참치', '새우', '오징어', '고등어', '꽁치', '굴', '방어', '전어', '민어', '대구', '햄', '소시지', '치즈'];
 const VEG_KEYWORDS     = ['채소', '샐러드', '시금치', '양파', '당근', '버섯', '브로콜리', '상추', '봄동', '쑥', '냉이', '달래', '두릅', '아스파라거스', '감자', '단호박', '호박', '가지', '오이', '토마토'];
 
@@ -923,7 +953,7 @@ export function matchRecipes(
   recipes: readonly Recipe[] = RECIPES,
 ): MatchedRecipe[] {
   const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
-  const { currentSeason, cookCounts, daysSinceCook, nutritionHint, difficultyHint, dietary } = options;
+  const { currentSeason, cookCounts, daysSinceCook, nutritionHint, difficultyHint, dietary, allergies } = options;
 
   const nameIndex = foods.map((f) => ({
     name:  f.name,
@@ -936,6 +966,8 @@ export function matchRecipes(
   for (const recipe of recipes) {
     // dietary 필터 — 맞지 않으면 제외
     if (dietary && violatesDietary(recipe, dietary)) continue;
+    // 알레르기 필터 — 유발 식재료가 keywords 에 있으면 제외
+    if (allergies && allergies.length > 0 && violatesAllergies(recipe, allergies)) continue;
 
     const matchedItems: string[] = [];
     let urgentBoost = 0;

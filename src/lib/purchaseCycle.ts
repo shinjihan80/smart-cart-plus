@@ -6,6 +6,8 @@
  * 재구매는 별도 로그가 없어서 discardHistory 내 동일 name의 연속 소진 날짜 간격으로 근사.
  */
 
+import { localMidnight, todayMidnight, daysBetween } from './dateMath';
+
 interface DiscardRecord {
   name:     string;
   category: string;
@@ -33,9 +35,7 @@ export function estimateCycles(history: DiscardRecord[], minOccurrences = 2): Cy
   }
 
   const out: CycleEstimate[] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayMs = today.getTime();
+  const today = todayMidnight();
 
   for (const [name, dates] of byName) {
     const sorted = [...dates].sort();  // 오래된 → 최신
@@ -43,13 +43,13 @@ export function estimateCycles(history: DiscardRecord[], minOccurrences = 2): Cy
     // 간격 합산
     let totalDiff = 0;
     for (let i = 1; i < sorted.length; i += 1) {
-      const a = new Date(sorted[i - 1]).getTime();
-      const b = new Date(sorted[i]).getTime();
-      totalDiff += (b - a) / 86_400_000;
+      const a = localMidnight(sorted[i - 1]);
+      const b = localMidnight(sorted[i]);
+      totalDiff += daysBetween(a, b);
     }
     const cycleDays = Math.max(1, Math.round(totalDiff / (sorted.length - 1)));
     const lastDate  = sorted[sorted.length - 1];
-    const sinceLast = Math.round((todayMs - new Date(lastDate).getTime()) / 86_400_000);
+    const sinceLast = daysBetween(localMidnight(lastDate), today);
     out.push({
       name,
       cycleDays,

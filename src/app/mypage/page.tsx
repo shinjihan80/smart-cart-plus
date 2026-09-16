@@ -18,7 +18,6 @@ import { usePersistedState } from '@/lib/usePersistedState';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import StatsSection                              from '@/components/mypage/StatsSection';
-import SpendingSection                           from '@/components/mypage/SpendingSection';
 import MyFridgeSection                            from '@/components/mypage/MyFridgeSection';
 import ShoppingListSection                       from '@/components/mypage/ShoppingListSection';
 import ShoppingSuggestionsSection                 from '@/components/mypage/ShoppingSuggestionsSection';
@@ -484,8 +483,6 @@ export default function MyPage() {
 
         {activeTab === 'shopping' && (
           <>
-            <SpendingSection />
-
             <ShoppingMallCard
               domain="groceries"
               title="식품 쇼핑몰"

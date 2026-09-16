@@ -24,7 +24,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
   const { showToast } = useToast();
   const { recipes } = useMergedCatalog();
-  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts, daysSinceCook, dietary }, recipes);
+  const matched = matchRecipes(foods, 1, { currentSeason: season, cookCounts, daysSinceCook, dietary, allergies: main?.body.allergies }, recipes);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
 

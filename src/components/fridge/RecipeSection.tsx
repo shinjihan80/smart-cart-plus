@@ -45,7 +45,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   const { main } = useProfiles();
   const dietary = main?.dietary !== 'none' ? main?.dietary : undefined;
 
-  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, daysSinceCook, nutritionHint, difficultyHint, dietary }, RECIPES);
+  const rawMatched = matchRecipes(foods, 12, { currentSeason: season, cookCounts, daysSinceCook, nutritionHint, difficultyHint, dietary, allergies: main?.body.allergies }, RECIPES);
   const { isFavorite, toggle } = useRecipeFavorites();
   const [selected, setSelected] = useState<{ recipe: Recipe; matchedItems: string[] } | null>(null);
   const [browserOpen, setBrowserOpen] = useState(false);

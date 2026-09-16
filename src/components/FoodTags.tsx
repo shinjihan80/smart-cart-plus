@@ -1,4 +1,5 @@
 import { FoodItem } from '@/types';
+import { localMidnight, todayMidnight, daysBetween } from '@/lib/dateMath';
 
 interface Props {
   item: FoodItem;
@@ -12,11 +13,9 @@ const STORAGE_LABEL: Record<FoodItem['storageType'], string> = {
 };
 
 export function calcRemainingDays(purchaseDate: string, baseShelfLifeDays: number): number {
-  const expiry = new Date(purchaseDate);
+  const expiry = localMidnight(purchaseDate);
   expiry.setDate(expiry.getDate() + baseShelfLifeDays);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return daysBetween(todayMidnight(), expiry);
 }
 
 type StatusTier = 'expired' | 'urgent' | 'warning' | 'fresh';
