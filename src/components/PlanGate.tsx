@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Lock } from 'lucide-react';
 import { usePlan } from '@/lib/usePlan';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 import type { PlanTier } from '@/types';
 
 const TIER_ORDER: PlanTier[] = ['free', 'pro_lite', 'pro_max'];
@@ -15,6 +16,10 @@ interface Props {
 
 export default function PlanGate({ minTier = 'pro_lite', feature, children }: Props) {
   const { tier } = usePlan();
+
+  // 결제 연동 전엔 업그레이드 버튼이 갈 곳이 없어 잠금만 걸면 이탈만 유발한다
+  // (사업자등록 후 PAYMENTS_ENABLED가 true가 되면 이 우회도 자동으로 사라진다).
+  if (!PAYMENTS_ENABLED) return <>{children}</>;
 
   if (TIER_ORDER.indexOf(tier) >= TIER_ORDER.indexOf(minTier)) return <>{children}</>;
 
