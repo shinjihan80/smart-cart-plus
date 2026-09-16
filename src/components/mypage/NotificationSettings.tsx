@@ -69,7 +69,7 @@ export default function NotificationSettings() {
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div id="notifications" className="flex items-center gap-2 scroll-mt-28">
         <EmojiIcon emoji="🔔" size={16} className="text-gray-600" />
         <span className="text-base font-bold text-gray-900 tracking-tight">알림 설정</span>
       </div>
@@ -94,7 +94,7 @@ export default function NotificationSettings() {
       {permState === 'denied' && (
         <div className="mb-3 p-2.5 rounded-2xl bg-brand-warning/5 border border-brand-warning/15">
           <p className="text-xs text-brand-warning font-semibold">알림이 차단됐어요</p>
-          <p className="text-xs text-gray-400 mt-0.5">브라우저 주소창 왼쪽 🔒 → 알림 허용으로 변경해주세요.</p>
+          <p className="text-xs text-gray-400 mt-0.5">휴대폰 설정 → 앱 → NEMOA → 알림에서 허용으로 바꿔주세요.</p>
         </div>
       )}
 

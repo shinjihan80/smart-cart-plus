@@ -30,10 +30,19 @@ export default function HomePage() {
   const { items, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
+  // 알림 권한이 꺼져 있으면 벨에 작은 점 — 알림이 이 앱의 핵심 리텐션 기능이라
+  // "꺼져 있다"는 걸 설정에 들어가기 전에 알 수 있게 (검토단 C1/C4·전문단 E1 발견:
+  // 예전엔 벨이 onClick 자체가 없는 죽은 버튼이었음)
+  const [notifOff, setNotifOff] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 300);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (typeof Notification === 'undefined') return;
+    setNotifOff(Notification.permission !== 'granted');
   }, []);
 
   // 일일 익명 파트너 클릭 집계 flush — opt-in (analytics enabled) 사용자만 어제 데이터 전송
@@ -48,13 +57,19 @@ export default function HomePage() {
         <div className="px-5 py-4 flex items-center justify-between gap-3">
           <NemoaLogo size="md" />
           <div className="flex items-center -mr-1">
-            <button
-              type="button"
-              aria-label="알림"
-              className="w-10 h-10 flex items-center justify-center text-brand-ink hover:text-brand-primary transition-colors"
+            <Link
+              href="/settings#notifications"
+              aria-label={notifOff ? '알림 — 꺼져 있음, 탭해서 설정' : '알림 설정'}
+              className="relative w-10 h-10 flex items-center justify-center text-brand-ink hover:text-brand-primary transition-colors"
             >
               <Bell size={22} strokeWidth={2} />
-            </button>
+              {notifOff && (
+                <span
+                  aria-hidden="true"
+                  className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-warning ring-2 ring-white"
+                />
+              )}
+            </Link>
             <Link
               href="/mypage"
               aria-label="내 정보"
