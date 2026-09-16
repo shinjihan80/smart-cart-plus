@@ -15,6 +15,7 @@ import { Camera, Lock, X as XIcon } from 'lucide-react';
 import EmojiIcon from '@/components/EmojiIcon';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { todayLocalStr } from '@/lib/dateMath';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -25,7 +26,7 @@ interface TextImportModalProps {
   onImport: (items: CartItem[]) => void;
 }
 
-type InputTab  = 'image' | 'text' | 'url';
+type InputTab  = 'manual' | 'image' | 'text' | 'url';
 type ModalStep = 'input' | 'confirm';
 
 const STORAGE_LABEL:   Record<string, string> = { 냉장: '❄️ 냉장', 냉동: '🧊 냉동', 실온: '📦 실온' };
@@ -83,9 +84,10 @@ function TabBar({ active, onChange, isPro }: {
   isPro:    boolean;
 }) {
   const tabs: { key: InputTab; label: string; emoji: string; proOnly: boolean }[] = [
-    { key: 'image', label: '사진',    emoji: '📷', proOnly: false },
-    { key: 'text',  label: '텍스트', emoji: '📝', proOnly: false },
-    { key: 'url',   label: 'URL',    emoji: '🔗', proOnly: true  },
+    { key: 'manual', label: '직접입력', emoji: '✏️', proOnly: false },
+    { key: 'image',  label: '사진',    emoji: '📷', proOnly: false },
+    { key: 'text',   label: '텍스트', emoji: '📝', proOnly: false },
+    { key: 'url',    label: 'URL',    emoji: '🔗', proOnly: true  },
   ];
   return (
     <div className="flex gap-1 bg-gray-100 rounded-2xl p-1 mb-4">
@@ -298,6 +300,33 @@ function TextTab({
 }
 
 // ── URL 탭 ────────────────────────────────────────────────────────────────────
+function ManualTab({ onPick }: { onPick: (domain: 'food' | 'clothing') => void }) {
+  return (
+    <>
+      <p className="text-xs text-gray-400 mb-3">
+        AI 없이 바로 등록해요. 이름만 입력해도 돼요 — 나머지는 나중에 고쳐도 괜찮아요.
+        <br />AI 사용 횟수를 쓰지 않아요.
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => onPick('food')}
+          className="flex flex-col items-center gap-1.5 py-5 rounded-2xl border border-gray-200 bg-gray-50 hover:border-brand-primary/40 hover:bg-brand-primary/5 active:scale-95 transition-all"
+        >
+          <span className="text-2xl" aria-hidden>🥦</span>
+          <span className="text-sm font-semibold text-gray-800">식품 등록</span>
+        </button>
+        <button
+          onClick={() => onPick('clothing')}
+          className="flex flex-col items-center gap-1.5 py-5 rounded-2xl border border-gray-200 bg-gray-50 hover:border-brand-primary/40 hover:bg-brand-primary/5 active:scale-95 transition-all"
+        >
+          <span className="text-2xl" aria-hidden>👕</span>
+          <span className="text-sm font-semibold text-gray-800">옷 등록</span>
+        </button>
+      </div>
+    </>
+  );
+}
+
 function UrlTab({
   url, setUrl, loading, onSubmit,
 }: {
@@ -643,6 +672,8 @@ function StepConfirm({
                     value={item.name}
                     onChange={(e) => updateName(item.id, e.target.value)}
                     aria-label="제품명"
+                    autoFocus={items.length === 1 && !item.name}
+                    placeholder={items.length === 1 && !item.name ? '이름 입력 (예: 계란)' : undefined}
                     className="w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
                   />
                   <div className="flex items-center gap-1 mt-1.5 flex-wrap">
@@ -723,9 +754,13 @@ function StepConfirm({
         </p>
       )}
 
+      {items.length > 0 && items.some((it) => !it.name.trim()) && (
+        <p className="mt-2 text-xs text-brand-warning font-medium text-center">이름이 빈 항목이 있어요 — 위에서 입력해주세요.</p>
+      )}
+
       <button
         onClick={handleConfirm}
-        disabled={items.length === 0}
+        disabled={items.length === 0 || items.some((it) => !it.name.trim())}
         className="mt-4 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
         {items.length > 0 ? `${items.length}개 추가하기` : '항목을 선택하세요'}
@@ -753,7 +788,10 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
   const monthlyVision = useMonthlyVisionQuota();
   const { isPro, isProMax } = usePlan();
   const [step, setStep]               = useState<ModalStep>('input');
-  const [activeTab, setActiveTab]     = useState<InputTab>('text');
+  // 기본 탭은 AI가 아니라 직접입력 — 무료 사용자가 항목 하나 등록하려고
+  // 매번 AI 한도를 쓰지 않도록 (검토단 C1/E1 발견: "우유 하나"에도 AI 호출 1회
+  // 소모, 장보기 한 번에 하루 한도 소진)
+  const [activeTab, setActiveTab]     = useState<InputTab>('manual');
   const [parsedItems, setParsedItems] = useState<CartItem[]>([]);
   const [domainSummary, setDomainSummary] = useState<{ food: number; fashion: number } | undefined>();
   const [loading, setLoading]         = useState(false);
@@ -848,6 +886,31 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     }
   }
 
+  function handleManualPick(domain: 'food' | 'clothing') {
+    const id = `manual-${Date.now()}`;
+    const blank: CartItem = domain === 'food'
+      ? {
+          id,
+          name:              '',
+          category:          '식품',
+          foodCategory:      '기타 식품',
+          storageType:       '냉장',
+          baseShelfLifeDays: 7,
+          purchaseDate:      todayLocalStr(),
+        }
+      : {
+          id,
+          name:      '',
+          category:  '상의',
+          size:      '',
+          thickness: '보통',
+          material:  '',
+        };
+    setParsedItems([blank]);
+    setDomainSummary(undefined);
+    setStep('confirm');
+  }
+
   function handleConfirm(tagged: CartItem[]) {
     onImport(tagged);
     onClose();
@@ -885,6 +948,9 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
             <StepIndicator step="input" />
             <TabBar active={activeTab} onChange={handleTabChange} isPro={isPro} />
 
+            {activeTab === 'manual' && (
+              <ManualTab onPick={handleManualPick} />
+            )}
             {activeTab === 'image' && (
               <>
                 <p className="text-[11px] text-gray-400 mb-2">
