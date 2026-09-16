@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { createSharedStore } from './sharedStore';
 import { usePlan } from './usePlan';
 import type { PlanTier } from '@/types';
+import { thisMonthLocalStr } from './dateMath';
 
 export const VISION_MONTHLY_LIMITS: Record<PlanTier, number> = {
   free:     10,
@@ -27,7 +28,7 @@ interface MonthlyState {
 const STORAGE_KEY = 'nemoa-vision-monthly-quota';
 
 function currentMonth(): string {
-  return new Date().toISOString().slice(0, 7);
+  return thisMonthLocalStr();
 }
 
 function emptyState(): MonthlyState {

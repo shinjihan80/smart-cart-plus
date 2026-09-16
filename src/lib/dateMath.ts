@@ -22,3 +22,23 @@ export function todayMidnight(): Date {
 export function daysBetween(a: Date, b: Date): number {
   return Math.round((b.getTime() - a.getTime()) / 86_400_000);
 }
+
+/**
+ * 오늘 날짜를 "YYYY-MM-DD" 로 — 로컬 기준.
+ *
+ * `new Date().toISOString().split('T')[0]` 는 UTC 기준이라, 한국(UTC+9)에서는
+ * 매일 00:00~09:00 KST 사이 "오늘"이 어제로 찍힌다. 이 시간대에 등록한 식품의
+ * purchaseDate 가 하루 전으로 저장되고, 자정 리셋인 줄 알았던 AI 일일 한도가
+ * 실제로는 오전 9시에 풀리는 등 — 데이터에 영구히 기록되는 만큼 localMidnight
+ * 보다 파급력이 크다 (검토단 E2 발견, N-10 후속).
+ */
+export function todayLocalStr(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** 이번 달을 "YYYY-MM" 으로 — 로컬 기준. */
+export function thisMonthLocalStr(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}`;
+}

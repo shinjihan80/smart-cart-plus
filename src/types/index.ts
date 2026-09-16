@@ -17,8 +17,14 @@ export type FoodCategory =
   | '양념·소스' | '면·즉석' | '빵·베이커리'
   | '건강식품' | '기타 식품';
 
-/** 식품 카테고리 그룹 (통계용) */
-export type FoodGroup = '신선식품' | '가공식품' | '음료·간식' | '기타';
+/**
+ * 식품 카테고리 그룹 (통계용) — 타입을 배열에서 파생시켜, 그룹을 순회하는
+ * 곳(요약 카드 등)이 배열을 따로 손으로 적다가 하나를 빠뜨리는 걸 막는다
+ * (검토단 E2 발견: 마이/냉장고 요약 카드가 '기타'를 뺀 3종만 세어 카테고리
+ * 합계가 전체 개수와 안 맞았음 — 13+5+2≠21).
+ */
+export const FOOD_GROUPS = ['신선식품', '가공식품', '음료·간식', '기타'] as const;
+export type FoodGroup = typeof FOOD_GROUPS[number];
 
 export const FOOD_GROUP: Record<FoodCategory, FoodGroup> = {
   '채소·과일':   '신선식품',

@@ -6,7 +6,7 @@
  */
 
 import type { FoodCategory, FoodItem, FridgeSection, StorageType } from '@/types';
-import { resolveSectionForModel, type FridgeModelId } from './fridgeModel';
+import { resolveSectionForModel, type FridgeModelId } from './fridgeModel.ts';
 
 // ─────────────────────────────────────────────
 // 칸 메타데이터 (라벨·이모지·짧은 설명)

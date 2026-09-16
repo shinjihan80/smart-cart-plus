@@ -1,5 +1,6 @@
 import { FOOD_EMOJI, type FoodCategory, type FoodItem, type StorageType } from '@/types';
 import { lookupSeasonalEmoji } from './seasonalProduce';
+import { todayLocalStr } from './dateMath';
 
 /** 키워드별 우선 매핑 (긴 단어 우선 매칭) */
 const KEYWORD_MAP: Array<{ category: FoodCategory; keywords: readonly string[] }> = [
@@ -63,6 +64,6 @@ export function createFoodItemFromIngredient(name: string): FoodItem {
     foodCategory,
     storageType,
     baseShelfLifeDays,
-    purchaseDate: new Date().toISOString().split('T')[0],
+    purchaseDate: todayLocalStr(),
   };
 }

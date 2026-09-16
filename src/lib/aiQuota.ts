@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { createSharedStore } from './sharedStore';
 import { usePlan } from './usePlan';
 import { TIER_LIMITS, MAX_REWARD_BONUS_PER_AGENT, type AiAgent } from './aiQuotaConstants';
+import { todayLocalStr } from './dateMath';
 
 export type { AiAgent };
 export { TIER_LIMITS };
@@ -20,7 +21,7 @@ interface QuotaState {
 const STORAGE_KEY = 'nemoa-ai-quota';
 
 function todayStr(): string {
-  return new Date().toISOString().split('T')[0];
+  return todayLocalStr();
 }
 
 function emptyCounts(): Record<AiAgent, number> {

@@ -7,6 +7,8 @@
  * 새로고침 3번에 광고가 떴다. 여기서 세션·쿨다운·일일 상한으로 묶는다.
  */
 
+import { todayLocalStr } from './dateMath';
+
 const LAUNCH_COUNT_KEY   = 'nemoa-launch-count';
 const LAUNCH_LAST_TS_KEY = 'nemoa-launch-last-ts';
 const FORCED_AD_TS_KEY   = 'nemoa-forced-ad-last-ts';
@@ -24,7 +26,7 @@ function now(): number {
 }
 
 function todayStr(): string {
-  return new Date().toISOString().slice(0, 10);
+  return todayLocalStr();
 }
 
 function readNum(key: string): number {

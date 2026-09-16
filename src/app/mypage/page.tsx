@@ -103,9 +103,11 @@ export default function MyPage() {
       'seasonal-hist':  'activity',
       // weekly-stats / partners는 항상 노출 영역 또는 activity 탭이라 매핑 불필요
     };
+    // 매칭되는 해시가 없으면 아무것도 하지 않는다 — usePersistedState 가 이미
+    // 복원해둔 마지막 탭을 여기서 'profile'로 강제 리셋하면 탭 기억 기능 자체가
+    // 무효화된다 (검토단 E1 발견: 일반 링크로 들어오면 매번 '내 정보' 탭으로 초기화됨).
     const mapped = HASH_TO_TAB[hash];
     if (mapped && mapped !== activeTab) setActiveTab(mapped);
-    else setActiveTab('profile');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

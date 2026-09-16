@@ -5,6 +5,7 @@ import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
+import { todayLocalStr } from '@/lib/dateMath';
 
 interface Props {
   discardHistory: { name: string; category: string; date: string }[];
@@ -23,7 +24,7 @@ export default function WeeklySummarySection({ discardHistory }: Props) {
   const weekStart = new Date(now);
   weekStart.setDate(now.getDate() - 6); // 오늘 포함 7일
   weekStart.setHours(0, 0, 0, 0);
-  const startStr = weekStart.toISOString().split('T')[0];
+  const startStr = todayLocalStr(weekStart);
   const inWeek = (d: string): boolean => d >= startStr;
 
   const cookCount    = Object.values(cookLog).flat().filter(inWeek).length;

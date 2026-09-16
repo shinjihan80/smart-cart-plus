@@ -5,6 +5,7 @@ import { CartItem, isFoodItem } from '@/types';
 import { mockCartItems } from '@/data/mockData';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { recordAddsAndMaybeShowAd } from '@/lib/addMilestone';
+import { todayLocalStr } from '@/lib/dateMath';
 
 const STORAGE_KEY  = 'nemoa-items';
 const DISCARD_KEY  = 'nemoa-discard-count';
@@ -221,7 +222,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (cur.some((x) => x.id === id)) return cur;
         // 식품은 구매일을 오늘로 갱신해 보관 기한 리셋
         const restored = isFoodItem(target)
-          ? { ...target, purchaseDate: new Date().toISOString().split('T')[0] }
+          ? { ...target, purchaseDate: todayLocalStr() }
           : target;
         return [restored, ...cur];
       });

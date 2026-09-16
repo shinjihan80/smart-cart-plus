@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type WardrobeSection } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
+import { todayLocalStr } from '@/lib/dateMath';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
 import type { MatchBadge } from '@/lib/weather';
@@ -47,7 +48,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
   const sizeReference = owner ?? profiles.find((p) => p.isMain) ?? null;
   const sizeMatch = sizeReference ? compareSize(item.category, item.size, sizeReference.body) : { status: 'unknown' as const, label: '' };
   const wear = getEntry(item.id);
-  const wornToday = wear.lastWorn === new Date().toISOString().split('T')[0];
+  const wornToday = wear.lastWorn === todayLocalStr();
   const daysAgo = wear.lastWorn ? daysSince(wear.lastWorn) : null;
   const coWorn = getCoWornWith(item.id, 3)
     .map((co) => {
@@ -462,7 +463,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                       📅
                       <input
                         type="date"
-                        max={new Date().toISOString().split('T')[0]}
+                        max={todayLocalStr()}
                         onChange={(e) => {
                           if (!e.target.value) return;
                           markWorn(item.id, e.target.value);

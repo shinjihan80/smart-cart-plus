@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isFoodItem, type StorageType, type FoodGroup, type FridgeSection, FOOD_GROUP } from '@/types';
+import { isFoodItem, type StorageType, type FoodGroup, FOOD_GROUPS, type FridgeSection, FOOD_GROUP } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { todayLocalStr } from '@/lib/dateMath';
 import { LayoutGrid, List, SlidersHorizontal, X } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
@@ -152,7 +153,7 @@ export default function FridgePage() {
   const coldCount   = allFood.filter((i) => i.storageType === '냉장').length;
   const frozenCount = allFood.filter((i) => i.storageType === '냉동').length;
 
-  const foodGroupCounts = (['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => ({
+  const foodGroupCounts = FOOD_GROUPS.map((g) => ({
     group: g,
     count: allFood.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length,
   })).filter((g) => g.count > 0);
@@ -175,7 +176,7 @@ export default function FridgePage() {
       foodCategory: preset.foodCategory,
       storageType: preset.storageType,
       baseShelfLifeDays: preset.days,
-      purchaseDate: new Date().toISOString().split('T')[0],
+      purchaseDate: todayLocalStr(),
       ownerId: quickAddOwner,
       fridgeSection: pickSection(preset),
       fridgeInstanceId: activeFridgeId,
@@ -211,7 +212,7 @@ export default function FridgePage() {
       foodCategory: '기타 식품',
       storageType: '냉장',
       baseShelfLifeDays: 7,
-      purchaseDate: new Date().toISOString().split('T')[0],
+      purchaseDate: todayLocalStr(),
       fridgeSection: pickSection(input),
       fridgeInstanceId: activeFridgeId,
     }]);
@@ -227,7 +228,7 @@ export default function FridgePage() {
       foodCategory: p.foodCategory,
       storageType: p.storageType,
       baseShelfLifeDays: p.baseShelfLifeDays,
-      purchaseDate: new Date().toISOString().split('T')[0],
+      purchaseDate: todayLocalStr(),
       ownerId: quickAddOwner,
       fridgeSection: pickSection(p),
       fridgeInstanceId: activeFridgeId,
@@ -506,9 +507,10 @@ export default function FridgePage() {
 
             {/* ─── 리스트 뷰 ─── */}
             {(vm === 'list' || vm === 'visual') && (
-              storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
+              storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly
+                && sortBy !== 'dDay' && !urgentOnly ? (
                 <>
-                  {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
+                  {FOOD_GROUPS.map((grp) => {
                     const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
                     if (group.length === 0) return null;
                     return (
@@ -548,9 +550,10 @@ export default function FridgePage() {
 
             {/* ─── 간략(그리드) 뷰 ─── */}
             {vm === 'compact' && (
-              storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly ? (
+              storageFilter === '전체' && groupFilter === '전체' && !search && !seasonalOnly
+                && sortBy !== 'dDay' && !urgentOnly ? (
                 <>
-                  {(['신선식품', '가공식품', '음료·간식', '기타'] as FoodGroup[]).map((grp) => {
+                  {FOOD_GROUPS.map((grp) => {
                     const group = items.filter((i) => (FOOD_GROUP[i.foodCategory] ?? '기타') === grp);
                     if (group.length === 0) return null;
                     return (

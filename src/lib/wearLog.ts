@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { createSharedStore } from './sharedStore';
+import { todayLocalStr, localMidnight, todayMidnight, daysBetween } from './dateMath';
 
 const STORAGE_KEY = 'nemoa-wear-log';
 
@@ -15,15 +16,12 @@ const store = createSharedStore<WearLog>({
 });
 
 function today(): string {
-  return new Date().toISOString().split('T')[0];
+  return todayLocalStr();
 }
 
 /** 두 ISO 날짜 문자열 간의 일 단위 차이 (양수 = 과거, 음수 = 미래). */
 export function daysSince(iso: string): number {
-  const a = new Date(iso);
-  const b = new Date();
-  const ms = b.setHours(0, 0, 0, 0) - a.setHours(0, 0, 0, 0);
-  return Math.round(ms / 86_400_000);
+  return daysBetween(localMidnight(iso), todayMidnight());
 }
 
 export interface WearEntry {

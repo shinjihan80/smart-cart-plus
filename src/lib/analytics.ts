@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { createSharedStore } from './sharedStore';
+import { todayLocalStr } from './dateMath';
 
 /**
  * 익명 사용 통계 — 프라이버시 기본값.
@@ -29,7 +30,7 @@ const STORAGE_KEY = 'nemoa-analytics';
 const ENDPOINT = process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT || '';
 
 function todayStr(): string {
-  return new Date().toISOString().split('T')[0];
+  return todayLocalStr();
 }
 
 function rand(): string {

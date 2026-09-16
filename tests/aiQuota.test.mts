@@ -27,8 +27,8 @@ test('TIER_LIMITS.free — vision 5회', () => {
   assert.match(constants, /vision:\s*5\b/);
 });
 
-test('TIER_LIMITS.free — parser 10회', () => {
-  assert.match(constants, /parser:\s*10\b/);
+test('TIER_LIMITS.free — parser 5회 (v2.2, 10회에서 축소)', () => {
+  assert.match(constants, /parser:\s*5\b/);
 });
 
 test('TIER_LIMITS.free — nutrition 2회', () => {
@@ -47,8 +47,9 @@ test('TIER_LIMITS.pro_lite — vision 30회', () => {
   assert.match(constants, /vision:\s*30\b/);
 });
 
-test('TIER_LIMITS.pro_max — Infinity 정의', () => {
-  assert.match(constants, /Infinity/);
+test('TIER_LIMITS.pro_max — 소프트캡(비정상 반복 호출 방지) + 마케팅상 무제한 표시', () => {
+  assert.match(constants, /pro_max:\s*\{[\s\S]*?parser:\s*200/);
+  assert.match(constants, /isMarketedUnlimited/);
 });
 
 test('aiQuotaConstants — 다섯 개 agent 타입 정의', () => {

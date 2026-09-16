@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { isAnalyticsEnabled } from './analytics';
+import { todayLocalStr } from './dateMath';
 
 /**
  * 파트너 클릭 로그 (localStorage 기반).
@@ -163,7 +164,7 @@ export async function flushPartnerClicksIfDue(): Promise<void> {
   if (!isAnalyticsEnabled()) return;
 
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayLocalStr();
     const lastFlush = localStorage.getItem(FLUSH_KEY);
     if (lastFlush === today) return; // 오늘 이미 보냄
 
@@ -171,9 +172,9 @@ export async function flushPartnerClicksIfDue(): Promise<void> {
     if (clicks.length === 0) return;
 
     // 어제와 그제 클릭만 집계 (오늘 데이터는 다음 날 보냄 — 완성된 1일치만)
-    const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+    const yesterday = todayLocalStr(new Date(Date.now() - 86_400_000));
     const yesterdayClicks = clicks.filter((c) => {
-      const d = new Date(c.ts).toISOString().split('T')[0];
+      const d = todayLocalStr(new Date(c.ts));
       return d === yesterday;
     });
     if (yesterdayClicks.length === 0) {

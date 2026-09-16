@@ -10,6 +10,7 @@ import { countRecipesByIngredient } from '@/lib/recipes';
 import { isSeasonalProduce, SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { usePersistedState } from '@/lib/usePersistedState';
+import { todayLocalStr } from '@/lib/dateMath';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { FOOD_ICON, FASHION_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -67,7 +68,7 @@ export default function SearchPage() {
       foodCategory: p.foodCategory,
       storageType: p.storageType,
       baseShelfLifeDays: p.baseShelfLifeDays,
-      purchaseDate: new Date().toISOString().split('T')[0],
+      purchaseDate: todayLocalStr(),
     }]);
     pushRecent(p.name);
     router.push('/fridge');

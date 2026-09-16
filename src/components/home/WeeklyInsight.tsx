@@ -6,11 +6,12 @@ import { useCookLog } from '@/lib/recipeCookLog';
 import { useWearLog } from '@/lib/wearLog';
 import EmojiIcon from '@/components/EmojiIcon';
 import { Widget } from './shared';
+import { todayLocalStr } from '@/lib/dateMath';
 
 const DAY_LABEL = ['일', '월', '화', '수', '목', '금', '토'];
 
 function ymd(d: Date): string {
-  return d.toISOString().split('T')[0];
+  return todayLocalStr(d);
 }
 
 /**

@@ -15,6 +15,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
 import { haptic } from '@/lib/haptics';
 import { playChime } from '@/lib/chime';
+import { todayLocalStr } from '@/lib/dateMath';
 import EmojiIcon from '@/components/EmojiIcon';
 
 interface RecipeDetailModalProps {
@@ -463,7 +464,7 @@ export default function RecipeDetailModal({
           <div className="flex items-center gap-1.5 justify-center mt-2">
             <button
               onClick={() => {
-                const y = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+                const y = todayLocalStr(new Date(Date.now() - 86_400_000));
                 markCooked(recipe.id, y);
                 haptic('tap');
                 showToast(`"${recipe.name}" 어제(${y}) 조리로 기록했어요.`);
@@ -477,7 +478,7 @@ export default function RecipeDetailModal({
               다른 날짜
               <input
                 type="date"
-                max={new Date().toISOString().split('T')[0]}
+                max={todayLocalStr()}
                 onChange={(e) => {
                   if (!e.target.value) return;
                   markCooked(recipe.id, e.target.value);

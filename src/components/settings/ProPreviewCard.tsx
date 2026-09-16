@@ -151,10 +151,11 @@ export default function ProPreviewCard() {
 
   return (
     <motion.div
+      id="plan"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.05 }}
-      className={`${CARD} relative overflow-hidden`}
+      className={`${CARD} relative overflow-hidden scroll-mt-28`}
       style={{
         ...CARD_SHADOW,
         backgroundImage: 'linear-gradient(135deg, rgba(79,70,229,0.04) 0%, rgba(79,70,229,0) 60%)',

@@ -6,7 +6,7 @@
  * 재구매는 별도 로그가 없어서 discardHistory 내 동일 name의 연속 소진 날짜 간격으로 근사.
  */
 
-import { localMidnight, todayMidnight, daysBetween } from './dateMath';
+import { localMidnight, todayMidnight, daysBetween } from './dateMath.ts';
 
 interface DiscardRecord {
   name:     string;

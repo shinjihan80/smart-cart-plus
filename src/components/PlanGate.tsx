@@ -33,7 +33,7 @@ export default function PlanGate({ minTier = 'pro_lite', feature, children }: Pr
         </p>
       </div>
       <Link
-        href="/settings"
+        href="/mypage?tab=profile#plan"
         className="text-xs font-semibold px-4 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90"
       >
         플랜 업그레이드 →

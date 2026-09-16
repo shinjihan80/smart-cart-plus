@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { createSharedStore } from './sharedStore';
+import { todayLocalStr } from './dateMath';
 
 const STORAGE_KEY = 'nemoa-cook-log';
 
@@ -15,7 +16,7 @@ const store = createSharedStore<CookLog>({
 });
 
 function today(): string {
-  return new Date().toISOString().split('T')[0];
+  return todayLocalStr();
 }
 
 export interface CookEntry {

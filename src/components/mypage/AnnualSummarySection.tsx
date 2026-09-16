@@ -5,6 +5,7 @@ import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
+import { localMidnight, todayMidnight, daysBetween } from '@/lib/dateMath';
 
 /**
  * 올해 누적 조리·착용·소진 요약 + 월별 히스토그램 + 연말 페이스 프로젝션.
@@ -49,7 +50,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
   if (cookTotal === 0 && wearTotal === 0 && discardTotal === 0) return null;
 
   const now = new Date();
-  const dayOfYear   = Math.floor((now.getTime() - new Date(yearStart).getTime()) / 86_400_000) + 1;
+  const dayOfYear   = daysBetween(localMidnight(yearStart), todayMidnight()) + 1;
   const yearTotal   = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 366 : 365;
   const remaining   = yearTotal - dayOfYear;
   const paceMultiplier = dayOfYear > 0 ? yearTotal / dayOfYear : 1;

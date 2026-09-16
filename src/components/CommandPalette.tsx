@@ -19,6 +19,7 @@ import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import EmojiIcon from '@/components/EmojiIcon';
+import { todayLocalStr } from '@/lib/dateMath';
 
 /**
  * 전역 명령 팔레트 — 어디서든 ⌘K로 호출.
@@ -163,7 +164,7 @@ export default function CommandPalette() {
     }
 
     // 오늘 하루 리뷰 — cookLog/wearLog 오늘 건수 토스트
-    const today = new Date().toISOString().split('T')[0];
+    const today = todayLocalStr();
     const cookToday = Object.values(cookLog).filter((dates) => Array.isArray(dates) && dates[0] === today).length;
     const wearToday = Object.values(wearLog).filter((dates) => Array.isArray(dates) && dates[0] === today).length;
     if (cookToday > 0 || wearToday > 0) {
@@ -175,7 +176,7 @@ export default function CommandPalette() {
     }
 
     // 어제 조리한 레시피 다시 열기
-    const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+    const yesterday = todayLocalStr(new Date(Date.now() - 86_400_000));
     const lastCookedId = Object.entries(cookLog).find(([, dates]) => Array.isArray(dates) && dates[0] === yesterday)?.[0];
     if (lastCookedId) {
       const r = RECIPES.find((x) => x.id === lastCookedId);

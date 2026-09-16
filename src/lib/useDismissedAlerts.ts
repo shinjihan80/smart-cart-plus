@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { todayLocalStr } from './dateMath';
 
 /**
  * 홈 알림 배너 "오늘 안 보기" 상태 관리.
