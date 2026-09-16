@@ -126,14 +126,18 @@ export default function FridgePage() {
     .filter((i) => (i.fridgeInstanceId ?? fridgeInstances[0]?.id ?? DEFAULT_FRIDGE_INSTANCE.id) === activeFridgeId)
     .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }));
 
-  const items = allFood
+  // 소유자 필터만 적용한 베이스 — 헤더·통계 카드·빈 상태가 전부 이 값을 기준으로 삼아야
+  // "목록은 0개인데 통계는 전체 그대로" 같은 불일치가 안 생긴다(구 버그: 통계는 allFood,
+  // 목록은 items로 서로 다른 베이스를 썼음).
+  const ownerFood = allFood.filter((i) => {
+    if (ownerFilter === '전체') return true;
+    if (ownerFilter === '공용') return !i.ownerId;
+    return i.ownerId === ownerFilter;
+  });
+
+  const items = ownerFood
     .filter((i) => storageFilter === '전체' || i.storageType === storageFilter)
     .filter((i) => groupFilter === '전체' || (FOOD_GROUP[i.foodCategory] ?? '기타') === groupFilter)
-    .filter((i) => {
-      if (ownerFilter === '전체') return true;
-      if (ownerFilter === '공용') return !i.ownerId;
-      return i.ownerId === ownerFilter;
-    })
     .filter((i) => !seasonalOnly || isSeasonalProduce(i.name, season))
     .filter((i) => !urgentOnly || i.dDay <= 3)
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
@@ -147,15 +151,15 @@ export default function FridgePage() {
       return a.dDay - b.dDay;
     });
 
-  const seasonalCount = allFood.filter((i) => isSeasonalProduce(i.name, season)).length;
+  const seasonalCount = ownerFood.filter((i) => isSeasonalProduce(i.name, season)).length;
 
-  const urgentCount = allFood.filter((i) => i.dDay <= 3).length;
-  const coldCount   = allFood.filter((i) => i.storageType === '냉장').length;
-  const frozenCount = allFood.filter((i) => i.storageType === '냉동').length;
+  const urgentCount = ownerFood.filter((i) => i.dDay <= 3).length;
+  const coldCount   = ownerFood.filter((i) => i.storageType === '냉장').length;
+  const frozenCount = ownerFood.filter((i) => i.storageType === '냉동').length;
 
   const foodGroupCounts = FOOD_GROUPS.map((g) => ({
     group: g,
-    count: allFood.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length,
+    count: ownerFood.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length,
   })).filter((g) => g.count > 0);
 
   function handleDiscard(id: string) {
@@ -166,6 +170,27 @@ export default function FridgePage() {
 
   function pickSection(input: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType }) {
     return effectiveFridgeSection({ ...input, fridgeSection: undefined }, fridgeModelId);
+  }
+
+  function handleRemoveFridgeInstance(id: string) {
+    const inst = fridgeInstances.find((i) => i.id === id);
+    if (!inst || fridgeInstances.length <= 1) return;
+    const orphaned = allItems.filter(isFoodItem)
+      .filter((i) => (i.fridgeInstanceId ?? fridgeInstances[0]?.id ?? DEFAULT_FRIDGE_INSTANCE.id) === id);
+    const confirmMsg = orphaned.length > 0
+      ? `"${inst.name}"을(를) 삭제할까요? 담긴 식품 ${orphaned.length}개는 다른 냉장고로 자동으로 옮겨져요.`
+      : `"${inst.name}"을(를) 삭제할까요?`;
+    if (!window.confirm(confirmMsg)) return;
+    // 소속 식품을 남은 첫 냉장고로 재배치 — 인스턴스만 지우고 아이템은 그대로 두면
+    // 어느 냉장고에도 안 잡히는 orphan 데이터가 됨(탭바 배지엔 잡히는데 목록엔 안 보임).
+    const fallbackId = fridgeInstances.find((i) => i.id !== id)?.id ?? DEFAULT_FRIDGE_INSTANCE.id;
+    orphaned.forEach((i) => updateItem(i.id, { fridgeInstanceId: fallbackId }));
+    removeFridgeInstance(id);
+    showToast(
+      orphaned.length > 0
+        ? `"${inst.name}" 삭제 — 식품 ${orphaned.length}개는 다른 냉장고로 옮겨졌어요.`
+        : `"${inst.name}" 삭제됐어요.`,
+    );
   }
 
   function handleQuickAdd(preset: typeof QUICK_ADD_FOODS[number]) {
@@ -246,7 +271,7 @@ export default function FridgePage() {
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
             <p className="text-sm text-gray-400 mt-0.5">
-              {fridgeInstances.length > 1 ? `${activeFridgeInstance?.name ?? '냉장고'} · ` : ''}{FRIDGE_MODELS[fridgeModelId].label} · 식품 {allFood.length}개
+              {fridgeInstances.length > 1 ? `${activeFridgeInstance?.name ?? '냉장고'} · ` : ''}{FRIDGE_MODELS[fridgeModelId].label} · 식품 {ownerFood.length}개
             </p>
           </div>
           <PaletteButton />
@@ -300,8 +325,8 @@ export default function FridgePage() {
                     {fridgeInstances.length > 1 && inst.id !== fridgeInstances[0].id && (
                       <button
                         type="button"
-                        onClick={() => removeFridgeInstance(inst.id)}
-                        className="w-4 h-4 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-[11px] leading-none hover:bg-red-100 hover:text-red-500 transition-colors"
+                        onClick={() => handleRemoveFridgeInstance(inst.id)}
+                        className="w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs leading-none hover:bg-red-100 hover:text-red-500 transition-colors"
                         aria-label={`${inst.name} 삭제`}
                       >
                         ×
@@ -353,7 +378,7 @@ export default function FridgePage() {
             >
               <div className="flex justify-between text-center">
                 <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  <p className="text-base font-bold text-gray-900 tabular-nums">{allFood.length}</p>
+                  <p className="text-base font-bold text-gray-900 tabular-nums">{ownerFood.length}</p>
                   <p className="text-xs text-gray-400 mt-0.5">전체</p>
                 </button>
                 <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('냉장'); }}>
@@ -383,7 +408,7 @@ export default function FridgePage() {
             </motion.div>
 
             {/* 시각화 */}
-            {allFood.length > 0 && (
+            {ownerFood.length > 0 && (
               <FridgeView
                 modelId={fridgeModelId}
                 items={items}
@@ -391,6 +416,18 @@ export default function FridgePage() {
               />
             )}
 
+            {/* 이 냉장고엔 있지만 선택한 구성원 몫은 없는 경우 — "완전히 비어있음"과 구분 */}
+            {ownerFood.length === 0 && allFood.length > 0 && (
+              <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
+                <EmojiIcon emoji="🔍" size={32} className="text-gray-400" />
+                <p className="text-sm font-medium text-gray-600">
+                  {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? ownerFilter}" 몫으로 등록된 식품이 없어요`}
+                </p>
+                <button onClick={() => setOwnerFilter('전체')} className="text-xs text-brand-primary font-semibold mt-0.5">
+                  전체 구성원 보기
+                </button>
+              </div>
+            )}
 
             {allFood.length === 0 && (
               <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
@@ -425,7 +462,7 @@ export default function FridgePage() {
             <div className={CARD} style={CARD_SHADOW}>
               <div className="flex justify-between text-center">
                 <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  <p className="text-base font-bold text-gray-900 tabular-nums">{allFood.length}</p>
+                  <p className="text-base font-bold text-gray-900 tabular-nums">{ownerFood.length}</p>
                   <p className="text-xs text-gray-400 mt-0.5">전체</p>
                 </button>
                 <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉장'); setUrgentOnly(false); scrollToFridgeItems(); }}>
@@ -609,12 +646,25 @@ export default function FridgePage() {
               )
             )}
 
-            {items.length === 0 && allFood.length > 0 && (
+            {items.length === 0 && ownerFood.length > 0 && (
               <div className="text-center py-12 text-gray-400">
                 <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
                 <p className="text-sm font-medium">검색 결과가 없어요</p>
                 <button onClick={() => { setSearch(''); setStorageFilter('전체'); setGroupFilter('전체'); }} className="text-xs text-brand-primary mt-1">
                   필터 초기화
+                </button>
+              </div>
+            )}
+
+            {/* 이 냉장고엔 있지만 선택한 구성원 몫은 없는 경우 */}
+            {ownerFood.length === 0 && allFood.length > 0 && (
+              <div className="text-center py-12 text-gray-400">
+                <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
+                <p className="text-sm font-medium">
+                  {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? ownerFilter}" 몫으로 등록된 식품이 없어요`}
+                </p>
+                <button onClick={() => setOwnerFilter('전체')} className="text-xs text-brand-primary mt-1">
+                  전체 구성원 보기
                 </button>
               </div>
             )}
