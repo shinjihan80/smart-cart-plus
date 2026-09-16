@@ -109,8 +109,8 @@ export default function HelpPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-10 bg-white/85 backdrop-blur-sm border-b border-gray-50">
-        <div className="px-4 py-3.5 flex items-center gap-3">
+      <header className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-10 bg-white/85 backdrop-blur-sm border-b border-gray-50">
+        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto px-4 py-3.5 flex items-center gap-3">
           <button
             onClick={handleBack}
             aria-label="뒤로"

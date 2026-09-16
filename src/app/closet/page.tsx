@@ -257,7 +257,8 @@ export default function ClosetPage() {
 
   return (
     <div>
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
+      <header className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
+        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto">
         <div className="px-4 py-3.5 flex items-center justify-between">
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
@@ -304,6 +305,7 @@ export default function ClosetPage() {
               );
             })}
           </div>
+        </div>
         </div>
       </header>
 

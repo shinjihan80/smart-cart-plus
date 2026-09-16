@@ -78,9 +78,10 @@ export default function SearchPage() {
     <div className="min-h-screen bg-white">
       {/* 헤더 — 뒤로 + 검색 input */}
       <header
-        className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-50 px-3 pb-3 flex items-center gap-1"
+        className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
+        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto px-3 pb-3 flex items-center gap-1">
         <button
           onClick={() => router.back()}
           aria-label="뒤로"
@@ -109,6 +110,7 @@ export default function SearchPage() {
               <X size={16} />
             </button>
           )}
+        </div>
         </div>
       </header>
 

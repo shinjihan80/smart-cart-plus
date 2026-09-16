@@ -53,8 +53,8 @@ export default function HomePage() {
   return (
     <div>
       {/* 헤더 — 로고 + 알림·프로필 (검색은 마이페이지에서) */}
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
-        <div className="px-5 py-4 flex items-center justify-between gap-3">
+      <header className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
+        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto px-5 py-4 flex items-center justify-between gap-3">
           <NemoaLogo size="md" />
           <div className="flex items-center -mr-1">
             <Link
