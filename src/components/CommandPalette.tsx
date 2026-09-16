@@ -105,7 +105,7 @@ export default function CommandPalette() {
       { kind: 'nav', id: 'n-home',     emoji: '🏠', label: '홈',         sub: '오늘의 한 마디·벤토',    href: '/' },
       { kind: 'nav', id: 'n-fridge',   emoji: '🧊', label: '스마트 냉장고', sub: '보관 기한·레시피·제철', href: '/fridge' },
       { kind: 'nav', id: 'n-closet',   emoji: '👔', label: '스마트 옷장',   sub: '코디·계절 꺼내기',      href: '/closet' },
-      { kind: 'nav', id: 'n-mypage',   emoji: '📊', label: '마이페이지',    sub: '통계·쇼핑·파트너',      href: '/mypage' },
+      { kind: 'nav', id: 'n-mypage',   emoji: '📊', label: '내 정보',      sub: '프로필·요약·쇼핑',      href: '/mypage' },
       { kind: 'nav', id: 'n-seasonal', emoji: '🌸', label: '제철 달력',      sub: '4계절 × 27종',          href: '/seasonal' },
       { kind: 'nav', id: 'n-settings', emoji: '⚙️', label: '설정',          sub: '백업·초기화·프로필',    href: '/settings' },
       { kind: 'nav', id: 'n-partners', emoji: '🚀', label: '파트너 로드맵',  sub: 'Phase 7 연결 예정 서비스', href: '/mypage#partners' },

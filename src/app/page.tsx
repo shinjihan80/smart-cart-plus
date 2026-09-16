@@ -57,7 +57,7 @@ export default function HomePage() {
             </button>
             <Link
               href="/mypage"
-              aria-label="마이페이지"
+              aria-label="내 정보"
               className="w-10 h-10 flex items-center justify-center text-brand-ink hover:text-brand-primary transition-colors"
             >
               <User size={22} strokeWidth={2} />

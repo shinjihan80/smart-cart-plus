@@ -206,7 +206,7 @@ export default function SettingsPage() {
               href="/mypage"
               className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors"
             >
-              마이페이지 <ChevronRight size={12} />
+              내 정보 <ChevronRight size={12} />
             </Link>
           </div>
         </motion.div>

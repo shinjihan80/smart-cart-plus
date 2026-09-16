@@ -71,7 +71,7 @@ function BillingSuccessContent() {
           onClick={() => router.replace('/mypage')}
           className="w-full max-w-xs py-3 rounded-2xl bg-brand-primary text-white font-semibold text-sm"
         >
-          마이페이지로
+          내 정보로
         </button>
       </motion.div>
     </div>

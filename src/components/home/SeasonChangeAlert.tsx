@@ -88,9 +88,10 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
             <p className="text-xs font-bold text-brand-primary">
               {season} 옷장 정리 시즌 — {total}벌
             </p>
-            <p className="text-xs text-gray-600 mt-0.5 truncate">
-              <Wind size={11} strokeWidth={2} className="inline mr-0.5 -mt-px" />
-              {message} · 마이페이지에서 한 번에 정리하세요
+            <p className="text-xs text-gray-600 mt-0.5 flex items-center gap-1 min-w-0">
+              <Wind size={11} strokeWidth={2} className="shrink-0" />
+              <span className="truncate min-w-0">{message}</span>
+              <span className="shrink-0 text-brand-primary font-medium">· 정리하기</span>
             </p>
           </div>
           <ChevronRight size={16} strokeWidth={2.2} className="text-brand-primary shrink-0" />
