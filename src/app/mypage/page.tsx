@@ -41,6 +41,7 @@ import { useProfiles }                           from '@/lib/profile';
 import ProfilesSection from '@/components/settings/ProfilesSection';
 import ProPreviewCard                            from '@/components/settings/ProPreviewCard';
 import AiQuotaCard                              from '@/components/settings/AiQuotaCard';
+import { EXPIRY_LABEL }                          from '@/lib/expiryThresholds';
 
 // v1.9까지 6탭(사용자/요금제/요약/쇼핑/옷장/요리)이었다가 v2.1에서 3탭으로 통합.
 // 사용자+요금제 → profile("내 정보"), 요약+옷장+요리 → activity("요약"). 쇼핑은 그대로.
@@ -314,7 +315,7 @@ export default function MyPage() {
               </div>
               {urgentCount > 0 && (
                 <p className="mt-2.5 text-xs text-brand-warning font-semibold text-center">
-                  ⚠️ 소비기한 임박 {urgentCount}개 확인이 필요해요
+                  ⚠️ {EXPIRY_LABEL.soon} {urgentCount}개 확인이 필요해요
                 </p>
               )}
             </motion.div>

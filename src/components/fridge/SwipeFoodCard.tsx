@@ -21,6 +21,8 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useCart } from '@/context/CartContext';
+import { todayLocalStr } from '@/lib/dateMath';
+import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
@@ -123,7 +125,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 <p className={`text-sm font-bold tabular-nums ${
                   isUrgent ? 'text-brand-warning' : 'text-gray-400'
                 }`}>
-                  {dDay <= 0 ? '만료' : `D-${dDay}`}
+                  {dDay <= 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
                 </p>
                 {!hideToggle && (
                   <ChevronDown
@@ -223,10 +225,10 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                       <span className="font-medium text-gray-700 tabular-nums">{item.purchaseDate}</span>
                     </div>
                     <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
-                      <span className="text-xs text-gray-400">보관 만료</span>
+                      <span className="text-xs text-gray-400">보관 기한</span>
                       <span className={`font-medium tabular-nums ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
-                        {(() => { const d = new Date(item.purchaseDate); d.setDate(d.getDate() + item.baseShelfLifeDays); return d.toISOString().split('T')[0]; })()}
-                        <span className="ml-1.5 text-xs text-gray-400">({dDay <= 0 ? '만료' : `${dDay}일`})</span>
+                        {(() => { const d = new Date(item.purchaseDate); d.setDate(d.getDate() + item.baseShelfLifeDays); return todayLocalStr(d); })()}
+                        <span className="ml-1.5 text-xs text-gray-400">({dDay <= 0 ? EXPIRY_LABEL.over : `${dDay}일`})</span>
                       </span>
                     </div>
                     <div className="flex items-center justify-between px-4 py-3 bg-gray-50">

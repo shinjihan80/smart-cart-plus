@@ -10,6 +10,7 @@ import { PARTNERS } from '@/lib/partnerLinks';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
 import EmojiIcon from '@/components/EmojiIcon';
+import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 export default function KnowledgeSummary() {
@@ -90,7 +91,7 @@ export default function KnowledgeSummary() {
             <div className="pt-3 mt-3 border-t border-gray-50 flex flex-col gap-2 text-sm text-gray-500 leading-relaxed">
               <p>
                 <strong className="text-gray-700">레시피 매칭</strong> — 보유 식재료 ∩ 레시피
-                키워드로 자동 추천. 소비 임박·제철·단골 시그널 가중치 적용.
+                키워드로 자동 추천. {EXPIRY_LABEL.soon}·제철·단골 시그널 가중치 적용.
               </p>
               <p>
                 <strong className="text-gray-700">제철 레지스트리</strong> — 4계절 × {produce}종

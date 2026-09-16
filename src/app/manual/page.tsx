@@ -296,7 +296,7 @@ export default function ManualPage() {
           {/* ── 냉장고 ─────────────────────────────── */}
           <section>
             <SectionTitle id="fridge">냉장고</SectionTitle>
-            <p className="text-gray-500 mb-6">식품을 보관 위치·유통기한별로 관리하고, 레시피 추천과 장보기 리스트를 한 곳에서 확인합니다.</p>
+            <p className="text-gray-500 mb-6">식품을 보관 위치·보관 기한별로 관리하고, 레시피 추천과 장보기 리스트를 한 곳에서 확인합니다.</p>
 
             <Row screen={
               <PhoneFrame src="/help/screen-fridge.jpg" alt="냉장고 화면" caption="냉장고 — 🧊냉장고 탭" />
@@ -392,7 +392,7 @@ export default function ManualPage() {
                 {
                   icon: '📷', title: '사진 분석',
                   limit: '월 10회',
-                  steps: ['카메라로 촬영하거나 갤러리에서 선택', '식품 라벨·의류 사이즈표·쇼핑백 등 촬영', 'AI가 이름·유통기한·사이즈 자동 추출', '결과 확인 후 수정 → 등록 완료'],
+                  steps: ['카메라로 촬영하거나 갤러리에서 선택', '식품 라벨·의류 사이즈표·쇼핑백 등 촬영', 'AI가 이름·보관 기한·사이즈 자동 추출', '결과 확인 후 수정 → 등록 완료'],
                 },
                 {
                   icon: '📝', title: '텍스트 파싱',
@@ -446,7 +446,7 @@ export default function ManualPage() {
           {/* ── 알림 ─────────────────────────────── */}
           <section>
             <SectionTitle id="notify">알림</SectionTitle>
-            <p className="text-gray-500 mb-6">유통기한·재구매·날씨·시즌 변경을 자동으로 알려줍니다. 설정 → 알림 설정에서 종류별로 켜고 끌 수 있습니다.</p>
+            <p className="text-gray-500 mb-6">보관 기한·재구매·날씨·시즌 변경을 자동으로 알려줍니다. 설정 → 알림 설정에서 종류별로 켜고 끌 수 있습니다.</p>
 
             <div className="space-y-3">
               {[

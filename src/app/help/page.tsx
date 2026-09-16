@@ -192,7 +192,7 @@ export default function HelpPage() {
         <MenuRow
           Icon={Bell}
           title="알림"
-          summary="유통기한 · 재구매 · 시즌 변경 · 날씨"
+          summary="보관 기한 · 재구매 · 시즌 변경 · 날씨"
           open={openId === 'notify'}
           onToggle={() => toggle('notify')}
         >

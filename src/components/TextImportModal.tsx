@@ -16,6 +16,7 @@ import EmojiIcon from '@/components/EmojiIcon';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { todayLocalStr } from '@/lib/dateMath';
+import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -395,7 +396,7 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
         <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
           isUrgent ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-600'
         }`}>
-          {dDay <= 0 ? '만료' : `D-${dDay}`}
+          {dDay <= 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
         </span>
       </div>
 

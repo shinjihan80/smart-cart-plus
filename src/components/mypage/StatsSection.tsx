@@ -7,6 +7,7 @@ import {
 } from '@/types';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 import EmojiIcon from '@/components/EmojiIcon';
+import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 
 function StatRow({ emoji, label, value, accent }: { emoji: string; label: string; value: string; accent?: boolean }) {
   return (
@@ -70,7 +71,7 @@ export default function StatsSection({
           <StatRow emoji="🛍️" label="전체 상품"       value={`${items.length}개`} />
           <StatRow emoji="🥦" label="식품"             value={`${foodItems.length}개`} />
           <StatRow emoji="👕" label="패션 전체"        value={`${clothingItems.length}개`} />
-          <StatRow emoji="⚠️" label="소비 임박"        value={`${urgentCount}개`} accent={urgentCount > 0} />
+          <StatRow emoji="⚠️" label={EXPIRY_LABEL.soon} value={`${urgentCount}개`} accent={urgentCount > 0} />
           <StatRow emoji="🗑️" label="소진 처리 (누적)"  value={`${discardCount}건`} />
         </div>
       </motion.div>
