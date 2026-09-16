@@ -148,7 +148,7 @@ export default function ManualPage() {
                 ←
               </button>
             )}
-            <span className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-sm shrink-0">N</span>
+            <Image src="/icon.svg" width={28} height={28} alt="" className="rounded-lg shrink-0" />
             <span className="font-bold text-gray-900">NEMOA</span>
             <span className="text-gray-300 mx-1 hidden sm:inline">|</span>
             <span className="text-sm text-gray-500 hidden sm:inline">사용 가이드</span>
