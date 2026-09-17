@@ -7,6 +7,15 @@ import EmojiIcon from '@/components/EmojiIcon';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 import { requestPermission } from '@/lib/notificationScheduler';
+import { isNative } from '@/lib/native';
+import {
+  requestLocalNotificationPermission,
+  getLocalNotificationPermissionState,
+  rescheduleExpiryNotifications,
+  cancelAllExpiryNotifications,
+} from '@/lib/native/localNotifications';
+import { useCart } from '@/context/CartContext';
+import { isFoodItem } from '@/types';
 
 const ALERT_LABEL: Record<string, string> = {
   urgent:        '⏰ 임박 식품',
@@ -24,12 +33,17 @@ interface NotiState { expiry: boolean; codi: boolean; deal: boolean }
 
 export default function NotificationSettings() {
   const { showToast } = useToast();
+  const { items: cartItems } = useCart();
   const { dismissedToday, restore, restoreAll } = useDismissedAlerts();
   const [state, setState]   = useState<NotiState>({ expiry: true, codi: true, deal: false });
   const [permState, setPermState] = useState<NotificationPermission | 'unsupported'>('default');
   const dismissed = dismissedToday();
 
   useEffect(() => {
+    if (isNative()) {
+      void getLocalNotificationPermissionState().then(setPermState);
+      return;
+    }
     if (typeof Notification === 'undefined') { setPermState('unsupported'); return; }
     setPermState(Notification.permission);
   }, []);
@@ -49,9 +63,9 @@ export default function NotificationSettings() {
   }, []);
 
   async function handlePermRequest() {
-    const granted = await requestPermission();
+    const granted = isNative() ? await requestLocalNotificationPermission() : await requestPermission();
     setPermState(granted ? 'granted' : 'denied');
-    showToast(granted ? '알림 권한이 허용됐어요.' : '알림 권한이 거부됐어요. 브라우저 설정에서 변경해주세요.');
+    showToast(granted ? '알림 권한이 허용됐어요.' : '알림 권한이 거부됐어요. 휴대폰 설정에서 변경해주세요.');
   }
 
   function toggle(key: NotiKey) {
@@ -59,6 +73,11 @@ export default function NotificationSettings() {
     setState(next);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
     showToast(next[key] ? '알림이 켜졌어요.' : '알림이 꺼졌어요.');
+
+    if (key === 'expiry' && isNative()) {
+      if (next.expiry) void rescheduleExpiryNotifications(cartItems.filter(isFoodItem));
+      else void cancelAllExpiryNotifications();
+    }
   }
 
   const items: { key: NotiKey; emoji: string; label: string }[] = [

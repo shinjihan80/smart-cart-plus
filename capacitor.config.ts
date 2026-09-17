@@ -34,6 +34,12 @@ const config: CapacitorConfig = {
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
     },
+    LocalNotifications: {
+      // smallIcon 미지정 — 커스텀 알림 아이콘 리소스(drawable)를 별도로 만들기
+      // 전까진 플러그인 기본값(앱 런처 아이콘) 사용. 잘못된 리소스명을 넣으면
+      // Android에서 알림 예약이 조용히 실패한다.
+      iconColor: '#4F46E5',
+    },
     Camera: {
       // 사진 촬영 직후 편집 허용 (iOS)
       allowEditing: false,
