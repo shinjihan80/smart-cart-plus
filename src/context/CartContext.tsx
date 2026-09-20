@@ -58,10 +58,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
   useEffect(() => {
     try {
-      // 리브랜딩 전 'smart-cart-*' 키 잔여물 정리 (1회성 — 2릴리스 후 이 블록 삭제 가능)
+      // 리브랜딩 전 'smart-cart-*' 키 잔여물 + 제거된 카카오 애드핏 SDK가 남긴
+      // 'adfit.*' 키 정리 (1회성 — 2릴리스 후 이 블록 삭제 가능). 애드핏 스크립트
+      // 자체는 이미 안 실리지만, 예전에 로드됐던 브라우저엔 흔적이 남아있어
+      // "정말 광고 추적이 꺼졌나" 의심을 샀다(P0-42).
       for (let i = localStorage.length - 1; i >= 0; i -= 1) {
         const k = localStorage.key(i);
-        if (k && k.startsWith('smart-cart-')) localStorage.removeItem(k);
+        if (k && (k.startsWith('smart-cart-') || k.startsWith('adfit.'))) localStorage.removeItem(k);
       }
 
       // 스키마 버전 불일치 시 자동 초기화

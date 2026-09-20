@@ -183,6 +183,7 @@ function ImageTab({
     <>
       <p className="text-xs text-gray-400 mb-3">
         식품 뒷면 라벨, 의류 사이즈표, 세탁 정보 캡처본을 올려주세요. 네모아가 자동으로 분류해 정보를 추출합니다.
+        <br />분석을 위해 사진이 AI(Google Gemini)로 전송돼요 — 저장은 이 기기에만 남아요.
       </p>
 
       {!preview ? (
@@ -280,6 +281,8 @@ function TextTab({
     <>
       <p className="text-xs text-gray-400 mb-3">
         이메일, 영수증, 구매 내역 텍스트를 붙여넣으면 네모아가 상품 정보를 추출합니다.
+        <br />분석을 위해 붙여넣은 텍스트가 AI(Google Gemini)로 전송돼요 — 이름·주소 등 개인정보가
+        포함된 부분은 지우고 붙여넣는 걸 권장해요.
       </p>
       <textarea
         value={text}

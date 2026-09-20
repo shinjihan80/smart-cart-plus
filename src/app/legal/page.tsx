@@ -9,7 +9,7 @@ import { ChevronLeft } from 'lucide-react';
  * 앱 스토어·PWA 등록 시 링크 필수 — 별도 경로 유지.
  */
 export default function LegalPage() {
-  const updatedAt = '2026-07-24';
+  const updatedAt = '2026-09-20';
   const router = useRouter();
 
   // 이전 경로로 복귀 — 설정·AppInfo·ConsentGate 등 어디서 왔든 자연스럽게.
@@ -90,8 +90,8 @@ export default function LegalPage() {
             </p>
             <p>
               <strong>3. 날씨 정보</strong><br />
-              사용자 동의 시 브라우저 Geolocation API로 대략적인 위치를 조회해 Open-Meteo 기상 API에 전달합니다.
-              위치 정보는 저장되지 않고 날씨 조회에만 사용됩니다.
+              위치 권한을 요청하지 않습니다. 날씨는 서울 기준 고정 좌표로 Open-Meteo 기상 API에서
+              조회하며, 이용자의 실제 위치 정보는 수집·전송하지 않습니다.
             </p>
             <p>
               <strong>4. 제3자 제공</strong><br />
@@ -100,11 +100,15 @@ export default function LegalPage() {
               사용자가 직접 파트너 웹사이트로 이동하는 방식만 제공됩니다.
             </p>
             <p>
-              <strong>5. 광고·쿠키</strong><br />
-              무료(베이직) 화면 하단에는 카카오 애드핏(Kakao AdFit) 배너 광고가 표시됩니다.
-              애드핏은 광고 제공을 위해 자체 쿠키·기기 식별자를 사용할 수 있으며, 이는 카카오의
-              개인정보처리방침에 따라 별도로 처리됩니다. 그 외 NEMOA 자체적으로는 행동 분석 도구를
-              사용하지 않으며, localStorage는 기능적 목적으로만 사용합니다.
+              <strong>5. 광고·통계·쿠키</strong><br />
+              모바일 앱(iOS/Android)에는 무료 이용을 지원하기 위해 Google AdMob 보상형(리워드) 영상
+              광고가 제한적으로 노출됩니다(하루 최대 2회, 5분 쿨다운). 광고 SDK 특성상 기기 광고 식별자가
+              Google에 전달될 수 있으며, 처리 방식은 Google의 개인정보처리방침을 따릅니다. 웹(브라우저)
+              버전에는 광고가 없습니다. 설정 → 피드백의 &ldquo;익명 사용 통계&rdquo;는 <strong>기본값이
+              꺼짐(opt-in)</strong>인 기능으로, 사용자가 직접 켠 경우에만 식별자 없는 하루 단위 토큰으로
+              세션·오류 발생 여부 등을 집계 서버로 전송합니다(이름·기기 고유 식별자 수집 없음). 꺼진
+              상태에서는 이 설정값 자체만 기기에 저장될 뿐 외부로 아무것도 전송되지 않습니다. 그 외
+              localStorage는 앱 기능(등록 목록·설정값 등) 유지 목적으로만 사용합니다.
             </p>
             <p>
               <strong>6. 데이터 삭제</strong><br />
