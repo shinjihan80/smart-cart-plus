@@ -35,6 +35,7 @@ import { InstanceMetaEditor } from '@/components/InstanceMetaEditor';
 import { effectiveFridgeSection } from '@/lib/fridgeSection';
 import { FRIDGE_MODELS } from '@/lib/fridgeModel';
 import { getFoodCategoryTone } from '@/lib/categoryImages';
+import { summarizeFoods } from '@/lib/foodStats';
 
 type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
@@ -153,9 +154,11 @@ export default function FridgePage() {
 
   const seasonalCount = ownerFood.filter((i) => isSeasonalProduce(i.name, season)).length;
 
-  const urgentCount = ownerFood.filter((i) => i.dDay <= 3).length;
-  const coldCount   = ownerFood.filter((i) => i.storageType === '냉장').length;
-  const frozenCount = ownerFood.filter((i) => i.storageType === '냉동').length;
+  const foodStats   = summarizeFoods(ownerFood);
+  const urgentCount = foodStats.soon;
+  const coldCount   = foodStats.cold;
+  const frozenCount = foodStats.frozen;
+  const roomCount   = foodStats.room;
 
   const foodGroupCounts = FOOD_GROUPS.map((g) => ({
     group: g,
@@ -390,6 +393,10 @@ export default function FridgePage() {
                 <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('냉동'); }}>
                   <p className="text-base font-bold text-indigo-600 tabular-nums">{frozenCount}</p>
                   <p className="text-xs text-gray-400 mt-0.5">냉동</p>
+                </button>
+                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('실온'); }}>
+                  <p className="text-base font-bold text-amber-600 tabular-nums">{roomCount}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">실온</p>
                 </button>
                 <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setActiveTab('food'); setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}>
                   <p className={`text-base font-bold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>

@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import {
-  FOOD_GROUP, FASHION_GROUP,
-  type CartItem, type FoodItem, type FoodGroup, type FashionGroup,
+  FOOD_GROUP, FASHION_GROUP, FOOD_GROUPS,
+  type CartItem, type FoodItem, type FashionGroup,
 } from '@/types';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -106,7 +106,7 @@ export default function StatsSection({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="text-xs text-gray-400 mb-1.5">🥬 식품</p>
-            {(['신선식품', '가공식품', '음료·간식'] as FoodGroup[]).map((g) => {
+            {FOOD_GROUPS.map((g) => {
               const count = foodItems.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length;
               if (count === 0) return null;
               const pct = foodItems.length > 0 ? (count / foodItems.length) * 100 : 0;

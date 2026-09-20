@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { summarizeFoods } from '@/lib/foodStats';
 import { Settings as SettingsIcon, Check, Users, ChevronRight } from 'lucide-react';
 import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
@@ -148,12 +148,11 @@ export default function MyPage() {
   const foodItemsList     = useMemo(() => items.filter(isFoodItem),     [items]);
   const clothingItemsList = useMemo(() => items.filter(isClothingItem), [items]);
 
-  const urgentCount = useMemo(() => foodItemsList.filter(
-    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
-  ).length, [foodItemsList]);
-  const coldCount   = useMemo(() => foodItemsList.filter((f) => f.storageType === '냉장').length,  [foodItemsList]);
-  const frozenCount = useMemo(() => foodItemsList.filter((f) => f.storageType === '냉동').length,  [foodItemsList]);
-  const roomCount   = useMemo(() => foodItemsList.filter((f) => f.storageType === '실온').length,  [foodItemsList]);
+  const foodStats   = useMemo(() => summarizeFoods(foodItemsList), [foodItemsList]);
+  const urgentCount = foodStats.soon;
+  const coldCount   = foodStats.cold;
+  const frozenCount = foodStats.frozen;
+  const roomCount   = foodStats.room;
 
   function handleBackupNow() {
     const filename = downloadBackup();

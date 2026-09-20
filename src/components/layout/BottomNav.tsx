@@ -8,7 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { isFoodItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
-import { EXPIRY_SOON_DAYS } from '@/lib/expiryThresholds';
+import { classifyExpiry } from '@/lib/expiryThresholds';
 import dynamic from 'next/dynamic';
 const TextImportModal = dynamic(() => import('@/components/TextImportModal'), { ssr: false });
 
@@ -32,9 +32,11 @@ export default function BottomNav() {
     return () => window.removeEventListener('nemoa:open-register', onOpen);
   }, []);
 
-  // 배지 = "행동이 필요한 수" 하나로 통일. 옷장 보유 개수는 배지로 안 씀 (P0-10)
+  // 배지 = "행동이 필요한 수" 하나로 통일(임박 + 이미 지난 것 포함). 옷장 보유
+  // 개수는 배지로 안 씀 (P0-10). classifyExpiry로 판정 — 이전엔 하한 없는
+  // <=3이라 우연히 지난 항목도 포함됐는데, 의도치 않은 경계였다(P0-30).
   const soonCount = mounted ? items.filter(isFoodItem).filter(
-    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= EXPIRY_SOON_DAYS,
+    (f) => classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays)) !== 'fresh',
   ).length : 0;
 
   const NAV_ITEMS: NavItem[] = [

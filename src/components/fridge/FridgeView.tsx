@@ -10,6 +10,7 @@ import {
   FRIDGE_SECTION_META,
   groupByEffectiveSection,
 } from '@/lib/fridgeSection';
+import { classifyExpiry } from '@/lib/expiryThresholds';
 import type { FoodItem, FridgeSection } from '@/types';
 
 interface FridgeViewProps {
@@ -40,10 +41,14 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
       }}
     >
       {model.cells.map((cell, idx) => {
-        const meta     = FRIDGE_SECTION_META[cell.section];
-        const list     = bySection.get(cell.section) ?? [];
-        const urgent   = list.some((i) => i.dDay <= 3);
-        const isActive = highlight === cell.section;
+        const meta        = FRIDGE_SECTION_META[cell.section];
+        const list        = bySection.get(cell.section) ?? [];
+        // 배지 색(urgent)과 숫자(list.length)가 서로 다른 의미라 빨간 배지 합이
+        // 임박 수와 안 맞던 버그(P0-29) — 총 개수 배지는 항상 중립색, 임박 개수는
+        // 별도 배지로 분리한다.
+        const urgentCount = list.filter((i) => classifyExpiry(i.dDay) !== 'fresh').length;
+        const urgent      = urgentCount > 0;
+        const isActive    = highlight === cell.section;
 
         return (
           <motion.button
@@ -70,14 +75,21 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
           >
             <div className="flex items-start justify-between gap-1">
               <span className="text-base leading-none" aria-hidden>{meta.emoji}</span>
-              {list.length > 0 && (
-                <span className={[
-                  'text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums',
-                  urgent ? 'bg-rose-500 text-white' : 'bg-gray-900 text-white',
-                ].join(' ')}>
-                  {list.length}
-                </span>
-              )}
+              <div className="flex items-center gap-1">
+                {urgent && (
+                  <span
+                    className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-rose-500 text-white"
+                    aria-label={`임박 ${urgentCount}개`}
+                  >
+                    ⏱{urgentCount}
+                  </span>
+                )}
+                {list.length > 0 && (
+                  <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-gray-900 text-white">
+                    {list.length}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="mt-1.5">
