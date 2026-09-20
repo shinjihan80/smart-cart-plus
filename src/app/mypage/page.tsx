@@ -67,6 +67,17 @@ const RELATION_EMOJI: Record<string, string> = {
   본인: '👤', 배우자: '💞', 자녀: '🧒', 부모: '🧑‍🦳', 기타: '👥',
 };
 
+/**
+ * 소진 기록 날짜 표시 — ISO(YYYY-MM-DD)는 "M/D"로 짧게, 과거에
+ * toLocaleDateString('ko-KR')로 저장된 레거시 값(P0-37 수정 전 기록)은
+ * 그대로 보여준다(파싱 시도하다 잘못된 날짜로 보이는 것보다 안전).
+ */
+function formatDiscardDate(date: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!m) return date;
+  return `${Number(m[2])}/${Number(m[3])}`;
+}
+
 export default function MyPage() {
   const { tier } = usePlan();
   const { main: mainProfile, profiles, setMain } = useProfiles();
@@ -362,7 +373,7 @@ export default function MyPage() {
                           <EmojiIcon emoji={record.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-600" />
                           <span className="text-sm text-gray-700 truncate">{record.name}</span>
                         </div>
-                        <span className="text-sm text-gray-400 tabular-nums shrink-0">{record.date}</span>
+                        <span className="text-sm text-gray-400 tabular-nums shrink-0">{formatDiscardDate(record.date)}</span>
                       </div>
                     ))}
                   </div>

@@ -169,7 +169,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const item = prev[index];
         setLastRemoved({ item, index });
         setDiscardHistory((h) => [
-          { name: item.name, category: item.category, date: new Date().toLocaleDateString('ko-KR') },
+          { name: item.name, category: item.category, date: todayLocalStr() },
           ...h,
         ].slice(0, 30));
       }

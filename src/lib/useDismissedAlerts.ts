@@ -23,10 +23,6 @@ interface DismissedMap {
   [alertKey: string]: string; // YYYY-MM-DD
 }
 
-function today(): string {
-  return new Date().toISOString().split('T')[0];
-}
-
 function load(): DismissedMap {
   if (typeof window === 'undefined') return {};
   try {
@@ -54,7 +50,7 @@ export function useDismissedAlerts() {
   useEffect(() => {
     // 하이드레이션 시 1회 — 한 주 이상 지난 항목 자동 GC
     const loaded = load();
-    const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString().split('T')[0];
+    const weekAgo = todayLocalStr(new Date(Date.now() - 7 * 86_400_000));
     const filtered: DismissedMap = {};
     let changed = false;
     for (const [key, date] of Object.entries(loaded)) {
@@ -70,13 +66,13 @@ export function useDismissedAlerts() {
   const isDismissedToday = useCallback((alertKey: string): boolean => {
     // 하이드레이션 전엔 false 반환 — SSR 일관성
     if (!hydrated) return false;
-    return map[alertKey] === today();
+    return map[alertKey] === todayLocalStr();
   }, [map, hydrated]);
 
   /** dismiss 처리 */
   const dismiss = useCallback((alertKey: string) => {
     setMap((prev) => {
-      const next = { ...prev, [alertKey]: today() };
+      const next = { ...prev, [alertKey]: todayLocalStr() };
       save(next);
       return next;
     });
@@ -102,7 +98,7 @@ export function useDismissedAlerts() {
   /** 오늘 dismiss 한 항목 목록 (UI 표시용) */
   const dismissedToday = useCallback((): string[] => {
     if (!hydrated) return [];
-    const t = today();
+    const t = todayLocalStr();
     return Object.entries(map)
       .filter(([_, date]) => date === t)
       .map(([key]) => key);

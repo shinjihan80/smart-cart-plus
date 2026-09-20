@@ -515,11 +515,12 @@ function ItemDetailTags({ item, onUpdate }: { item: CartItem; onUpdate: (patch: 
 
 // ── 결과 확인 단계 ─────────────────────────────────────────────────────────────
 function StepConfirm({
-  items, setItems, domainSummary, onConfirm, onBack,
+  items, setItems, domainSummary, manualEntry, onConfirm, onBack,
 }: {
   items: CartItem[];
   setItems: (v: CartItem[]) => void;
   domainSummary?: { food: number; fashion: number };
+  manualEntry?: boolean;
   onConfirm: (tagged: CartItem[]) => void;
   onBack: () => void;
 }) {
@@ -569,7 +570,7 @@ function StepConfirm({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h2 className="text-base font-bold text-gray-900">결과 확인 및 수정</h2>
+        <h2 className="text-base font-bold text-gray-900">{manualEntry ? '내용 확인' : '결과 확인 및 수정'}</h2>
       </div>
 
       <StepIndicator step="confirm" />
@@ -590,7 +591,9 @@ function StepConfirm({
       )}
 
       <p className="text-xs text-gray-400 mb-3">
-        네모아가 추출한 목록입니다. 각 카드를 탭하면 카테고리·보관·사이즈 등을 직접 수정할 수 있어요.
+        {manualEntry
+          ? '이름을 입력하고, 카드를 탭하면 카테고리·보관·사이즈 등을 직접 정할 수 있어요.'
+          : '네모아가 추출한 목록입니다. 각 카드를 탭하면 카테고리·보관·사이즈 등을 직접 수정할 수 있어요.'}
       </p>
 
       {/* 소유자 선택 — 프로필 2명 이상일 때 */}
@@ -674,8 +677,8 @@ function StepConfirm({
                     onChange={(e) => updateName(item.id, e.target.value)}
                     aria-label="제품명"
                     autoFocus={items.length === 1 && !item.name}
-                    placeholder={items.length === 1 && !item.name ? '이름 입력 (예: 계란)' : undefined}
-                    className="w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b border-transparent focus:border-brand-primary pb-0.5"
+                    placeholder={items.length === 1 && !item.name ? (isFoodItem(item) ? '이름 입력 (예: 계란)' : '이름 입력 (예: 반팔 티셔츠)') : undefined}
+                    className="w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b border-gray-200 focus:border-brand-primary pb-0.5"
                   />
                   <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                     <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
@@ -745,7 +748,7 @@ function StepConfirm({
       </div>
 
       <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-        💡 사진 영역을 탭하면 이미지를 추가할 수 있어요. 이름 옆 ✕로 항목을 빼고, 저장하면 냉장고/옷장에 등록됩니다.
+        💡 사진 영역을 탭하면 이미지를 추가할 수 있어요. 카드 오른쪽 ✕로 항목을 빼고, 저장하면 냉장고/옷장에 등록됩니다.
       </p>
 
       {items.length === 0 && (
@@ -794,6 +797,9 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
   // 소모, 장보기 한 번에 하루 한도 소진)
   const [activeTab, setActiveTab]     = useState<InputTab>('manual');
   const [parsedItems, setParsedItems] = useState<CartItem[]>([]);
+  // 2단계 확인 화면이 AI 문구("네모아가 추출한 목록입니다")를 쓸지 결정 —
+  // 직접입력 경로에서도 AI 문구가 그대로 나오던 카피 모순 수정 (P0-32)
+  const [manualEntry, setManualEntry] = useState(false);
   const [domainSummary, setDomainSummary] = useState<{ food: number; fashion: number } | undefined>();
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState<string | null>(null);
@@ -878,6 +884,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
 
       setParsedItems(data.items);
       setDomainSummary(data.domain_summary);
+      setManualEntry(false);
       setStep('confirm');
 
     } catch {
@@ -909,6 +916,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
         };
     setParsedItems([blank]);
     setDomainSummary(undefined);
+    setManualEntry(true);
     setStep('confirm');
   }
 
@@ -992,6 +1000,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
             items={parsedItems}
             setItems={setParsedItems}
             domainSummary={domainSummary}
+            manualEntry={manualEntry}
             onConfirm={handleConfirm}
             onBack={handleBack}
           />

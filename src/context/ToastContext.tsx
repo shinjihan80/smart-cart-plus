@@ -21,7 +21,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const showToast = useCallback((msg: string, onUndo?: () => void) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setToast({ msg, onUndo });
-    timerRef.current = setTimeout(() => setToast(null), 3500);
+    // 되돌리기가 있는 토스트는 더 오래 — 도움말이 "다음 행동 전까지"라고
+    // 안내하는데 실제로는 3.5초 만에 사라져 복구 기회를 놓치던 문제(P0-46).
+    // 여전히 시간제한형이지만 8초면 훨씬 여유가 생긴다.
+    timerRef.current = setTimeout(() => setToast(null), onUndo ? 8000 : 3500);
   }, []);
 
   function handleUndo() {
