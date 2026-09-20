@@ -97,41 +97,43 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             }}
             aria-label={`${meta.label} — ${count}개`}
           >
-            {/* 헤더: 섹션 이모지(배지) + 카운트 — 화면을 넓게 쓰도록 크게 */}
+            {/* 헤더: 섹션 이모지(배지)가 이 카드의 유일한 강조점 — 나머지는 한 단계씩 낮춰
+                크기 위계를 준다(배지 큼 > 라벨 중간 > 썸네일·카운트·힌트 작음). */}
             <div className="flex items-start justify-between gap-1">
               <span
-                className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-50 text-3xl leading-none shrink-0"
+                className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 text-2xl leading-none shrink-0"
                 aria-hidden
               >
                 {meta.emoji}
               </span>
               {count > 0 && (
-                <span className="text-xs font-bold rounded-full px-2 py-0.5 tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
+                <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
                   {count}
                 </span>
               )}
             </div>
 
-            {/* 바디: 섹션명 + 의류 이모지 썸네일 */}
+            {/* 바디: 섹션명 + 의류 이모지 썸네일. 썸네일은 좁은 1열 칸에서도
+                줄바꿈 없이 나란히 들어가도록 헤더 배지보다 확연히 작게. */}
             <div className="flex flex-col gap-1.5">
               <p className="text-sm font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
               {count === 0 ? (
                 <p className="text-xs text-gray-400 leading-tight truncate">{meta.hint}</p>
               ) : (
-                <div className="flex flex-wrap gap-1.5 leading-none">
-                  {cellItems.slice(0, 4).map((item, i) => (
+                <div className="flex flex-wrap gap-1 leading-none">
+                  {cellItems.slice(0, 3).map((item, i) => (
                     <span
                       key={i}
-                      className="text-2xl leading-none"
+                      className="text-lg leading-none"
                       aria-hidden
                       title={item.name}
                     >
                       {FASHION_EMOJI[item.category] ?? '👕'}
                     </span>
                   ))}
-                  {count > 4 && (
-                    <span className="text-xs text-gray-400 font-semibold self-end leading-none">
-                      +{count - 4}
+                  {count > 3 && (
+                    <span className="text-xs text-gray-400 font-semibold self-center leading-none">
+                      +{count - 3}
                     </span>
                   )}
                 </div>
