@@ -58,6 +58,32 @@ test('resolveSectionForModel — 모델이 가진 칸이면 그대로 반환', (
   assert.equal(resolveSectionForModel('four_door', 'main_bottom', 'fridge'), 'main_bottom');
 });
 
+// ─── P0-31 회귀 방지 — 냉동실에 냉장 보관 품목(김치)이 배정되던 버그 ────────
+
+test('resolveSectionForModel — 김치 칸 없는 모델에서 냉동실로 안 떨어짐 (체인 폴백)', () => {
+  // 이전 버그: kimchi zone fallback이 kimchi_top 하나뿐이라 그마저 모델에
+  // 없으면 "모델의 첫 셀"(freezer_top)로 떨어졌다. 지금은 체인을 타고
+  // crisper(냉장 계열, storageType 호환)로 가야 한다.
+  for (const modelId of ['side_by_side', 'four_door', 'one_door'] as const) {
+    const result = resolveSectionForModel(modelId, 'kimchi_bottom', 'kimchi', '냉장');
+    assert.notEqual(result, 'freezer_top', `${modelId}: 김치가 냉동실로 감`);
+    assert.notEqual(result, 'freezer_bottom', `${modelId}: 김치가 냉동실로 감`);
+  }
+});
+
+test('resolveSectionForModel — storageType 호환 안 되는 최종 폴백 방지 (냉동 식품)', () => {
+  // zone 체인이 전부 실패해도, storageType이 있으면 호환되는 칸을 찾는다.
+  // one_door 모델에서 'kimchi'(모델에 없는 존재하지 않는 zone) + 냉동 storageType이면
+  // freezer_top(냉동 호환)으로 가야지 cells[0](main_top이 아니라 freezer_top이긴 하지만
+  // 일반적으로 cells[0]이 우연히 호환 안 될 수도 있는 경우를 대비한 명시적 검증)
+  const result = resolveSectionForModel('one_door', 'kimchi_bottom', 'kimchi', '냉동');
+  assert.equal(result, 'freezer_top');
+});
+
+test('resolveSectionForModel — storageType 미지정 시 기존처럼 모델 첫 셀로 폴백(하위 호환)', () => {
+  assert.equal(resolveSectionForModel('kimchi_only', 'main_top', 'fridge'), 'kimchi_top');
+});
+
 // ─── planSectionMigrations (Phase 8.0 Step 5 — 우선순위 3) ────────────────
 
 function food(id: string, name: string, section?: string): CartItem {

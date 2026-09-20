@@ -6,7 +6,7 @@
  * 단위로 표현되어 Step 3 시각화 컴포넌트가 그대로 렌더링한다.
  */
 
-import type { CartItem, FoodItem, FridgeSection } from '@/types';
+import type { CartItem, FoodItem, FridgeSection, StorageType } from '@/types';
 
 // ─────────────────────────────────────────────
 // 모델 ID
@@ -161,28 +161,57 @@ export function modelHasSection(modelId: FridgeModelId, section: FridgeSection):
 }
 
 /**
- * 권장 칸이 모델에 없으면 가장 비슷한 칸으로 폴백한다.
- * 예) 김치냉장고 모델인데 채소·과일 추천 → kimchi_top
+ * 권장 칸이 모델에 없으면 가장 비슷한 칸으로 폴백한다 — 후보를 순서대로
+ * 시도하는 체인. 예) 김치냉장고 칸이 없는 모델에서 김치 추천 →
+ * kimchi_bottom(모델에 없음) → kimchi_top(모델에 없음) → crisper → main_bottom.
+ * 이전엔 zone당 후보가 1개뿐이라 그마저 모델에 없으면 바로 "모델의 첫 셀"로
+ * 떨어져, 양문형 모델에서 김치가 냉동실 위칸에 배정되는 등 storageType과
+ * 무관한 칸에 떨어지는 버그가 있었다(P0-31).
  */
-const FALLBACK_BY_ZONE: Record<string, FridgeSection> = {
-  fridge:  'main_middle',
-  door:    'door_middle',
-  crisper: 'crisper',
-  freezer: 'freezer_top',
-  kimchi:  'kimchi_top',
-  pantry:  'pantry',
+const FALLBACK_CHAIN_BY_ZONE: Record<string, FridgeSection[]> = {
+  fridge:  ['main_middle', 'main_top', 'main_bottom', 'crisper', 'butter'],
+  door:    ['door_middle', 'door_top', 'door_bottom', 'main_middle'],
+  crisper: ['crisper', 'main_middle'],
+  freezer: ['freezer_top', 'freezer_bottom'],
+  kimchi:  ['kimchi_bottom', 'kimchi_top', 'crisper', 'main_bottom'],
+  pantry:  ['pantry', 'main_middle'],
 };
+
+/**
+ * zone과 보관 방법이 호환되는지 — `fridgeSection.ts`의 `isSectionCompatible`과
+ * 같은 규칙이지만 순환 참조를 피하려고 zone 문자열 기준으로 독립 구현했다
+ * (getSectionZone과 FRIDGE_SECTION_META.zone의 동기화는 fridgeModel.test로 보장).
+ */
+function isZoneCompatible(zone: string, storageType: StorageType): boolean {
+  if (storageType === '냉동') return zone === 'freezer';
+  if (storageType === '실온') return zone === 'pantry';
+  return zone !== 'freezer' && zone !== 'pantry';
+}
 
 export function resolveSectionForModel(
   modelId: FridgeModelId,
   preferred: FridgeSection,
   zone: string,
+  storageType?: StorageType,
 ): FridgeSection {
   if (modelHasSection(modelId, preferred)) return preferred;
-  const fallback = FALLBACK_BY_ZONE[zone];
-  if (fallback && modelHasSection(modelId, fallback)) return fallback;
-  // 마지막 폴백 — 모델의 첫 셀
-  return FRIDGE_MODELS[modelId].cells[0].section;
+
+  const chain = FALLBACK_CHAIN_BY_ZONE[zone] ?? [];
+  for (const candidate of chain) {
+    if (!modelHasSection(modelId, candidate)) continue;
+    if (storageType && !isZoneCompatible(getSectionZone(candidate), storageType)) continue;
+    return candidate;
+  }
+
+  // 마지막 폴백 — storageType과 호환되는 첫 셀(냉동 식품이 실온 칸에, 김치가
+  // 냉동실에 떨어지는 등 보관 방법과 반대되는 칸으로 가지 않도록). storageType이
+  // 없거나 호환 칸이 하나도 없으면 그동안처럼 모델의 첫 셀로 폴백한다.
+  const cells = FRIDGE_MODELS[modelId].cells;
+  if (storageType) {
+    const compatible = cells.find((c) => isZoneCompatible(getSectionZone(c.section), storageType));
+    if (compatible) return compatible.section;
+  }
+  return cells[0].section;
 }
 
 // ─────────────────────────────────────────────
@@ -227,11 +256,12 @@ export function planSectionMigrations(
   const migrations: FridgeSectionMigration[] = [];
   for (const item of items) {
     if (item.category !== '식품') continue;
-    const current = (item as FoodItem).fridgeSection;
+    const food = item as FoodItem;
+    const current = food.fridgeSection;
     if (!current) continue;
     if (modelHasSection(targetModelId, current)) continue;
 
-    const next = resolveSectionForModel(targetModelId, current, getSectionZone(current));
+    const next = resolveSectionForModel(targetModelId, current, getSectionZone(current), food.storageType);
     if (next === current) continue;
 
     migrations.push({ id: item.id, name: item.name, from: current, to: next });

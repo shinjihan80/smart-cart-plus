@@ -155,7 +155,7 @@ export function effectiveFridgeSection(
 ): FridgeSection {
   const preferred = item.fridgeSection ?? recommendFridgeSection(item);
   const zone = FRIDGE_SECTION_META[preferred].zone;
-  return resolveSectionForModel(modelId, preferred, zone);
+  return resolveSectionForModel(modelId, preferred, zone, item.storageType);
 }
 
 /** items를 effectiveFridgeSection 기준으로 그룹화 — 그리드 타일 렌더링용. */
