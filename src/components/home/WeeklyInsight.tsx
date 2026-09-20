@@ -158,14 +158,32 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
         </div>
       </div>
 
-      {/* 인사이트 텍스트 (최대 2개) */}
+      {/* 인사이트 텍스트 (최대 2개). 자연스러운 끊김(—, 마침표)에서 줄바꿈해
+          "때예요"처럼 단어 한둘만 다음 줄로 밀려나는 어색한 자동 줄바꿈을 피한다. */}
       <div className="flex flex-col gap-1">
-        {insights.slice(0, 2).map((text, i) => (
-          <p key={i} className="text-sm text-gray-600 leading-relaxed">
-            {text}
-          </p>
-        ))}
+        {insights.slice(0, 2).map((text, i) => {
+          const [first, second] = splitInsightLine(text);
+          return (
+            <p key={i} className="text-sm text-gray-600 leading-relaxed">
+              {first}
+              {second && (
+                <>
+                  <br />
+                  {second}
+                </>
+              )}
+            </p>
+          );
+        })}
       </div>
     </Widget>
   );
+}
+
+function splitInsightLine(text: string): [string, string | null] {
+  const dashIdx = text.indexOf(' — ');
+  if (dashIdx !== -1) return [text.slice(0, dashIdx), text.slice(dashIdx + 3)];
+  const dotIdx = text.indexOf('. ');
+  if (dotIdx !== -1) return [text.slice(0, dotIdx + 1), text.slice(dotIdx + 2)];
+  return [text, null];
 }
