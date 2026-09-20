@@ -9,6 +9,7 @@ import {
 } from '@/lib/profile';
 import { recommendSizes } from '@/lib/sizeRecommend';
 import { useToast } from '@/context/ToastContext';
+import { useCart } from '@/context/CartContext';
 import { usePlan } from '@/lib/usePlan';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -530,6 +531,7 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
 
 const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSection(_, ref) {
   const { profiles, add, remove, update } = useProfiles();
+  const { items, updateItem } = useCart();
   const { showToast } = useToast();
   const { isFree } = usePlan();
   const [newName, setNewName] = useState('');
@@ -583,9 +585,18 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
             initialExpanded={p.isMain && mainExpandKey > 0}
             onUpdate={(patch) => update(p.id, patch)}
             onRemove={() => {
-              if (confirm(`"${p.name}" 프로필을 삭제할까요? 연결된 아이템 정보는 유지돼요.`)) {
+              if (confirm(`"${p.name}" 프로필을 삭제할까요? 연결된 아이템은 "공용"으로 옮겨져요.`)) {
+                // 프로필만 지우고 아이템의 ownerId를 그대로 두면 죽은 id를 가리키는
+                // 미아 데이터가 된다 — 소유자 배지가 조용히 사라지고, 어느 필터에도
+                // 안 잡힌다(P0-38, P0-24와 동일 패턴). 공용으로 일괄 재배치.
+                const orphaned = items.filter((i) => i.ownerId === p.id);
+                orphaned.forEach((i) => updateItem(i.id, { ownerId: undefined }));
                 remove(p.id);
-                showToast(`"${p.name}" 삭제됐어요.`);
+                showToast(
+                  orphaned.length > 0
+                    ? `"${p.name}" 삭제 — 아이템 ${orphaned.length}개는 공용으로 옮겨졌어요.`
+                    : `"${p.name}" 삭제됐어요.`,
+                );
               }
             }}
           />
