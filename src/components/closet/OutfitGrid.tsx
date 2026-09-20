@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ClothingItem } from '@/types';
 import { generateOutfits, type Outfit } from '@/lib/outfitMatcher';
 import { useWearLog, daysSince } from '@/lib/wearLog';
@@ -22,16 +23,18 @@ interface OutfitGridProps {
 /**
  * 코디 그리드 — 옷장에서 자동 생성한 N개 코디.
  *
- * v5: 가로 스와이프 캐러셀 복구 (1.3장 노출)
- *   - 진짜 원인이었던 body 스크롤 잠금 버그(OutfitDetailModal useModalA11y) 수정 후
- *     이제 가로 스와이프 캐러셀도 안전하게 사용 가능
- *   - native overflow-x-auto + scroll-snap-mandatory
- *   - 카드 폭 calc((100% - 0.625rem) / 1.3) → 다음 카드 30% 미리 보임
+ * v6: 히어로 카드 1장 + 이전/다음 넘기기로 재설계.
+ *   - v5의 "1.3장 노출 가로 캐러셀"은 카드가 작아 아이템을 알아보기 어렵고
+ *     다음 카드가 슬쩍 잘려 보이는 게 오히려 산만하다는 피드백으로 교체.
+ *   - 지금은 큰 카드 1장(4:3)을 화면 폭 그대로 보여주고, 좌우 화살표 +
+ *     점 인디케이터로 나머지 후보를 넘겨본다 — "오늘 뭘 입을지" 하나를
+ *     또렷하게 보여주는 데 집중.
  */
 export default function OutfitGrid({ items, count = 6, season, thickness }: OutfitGridProps) {
   const { log } = useWearLog();
   const { outfits: saved } = useSavedOutfits();
   const [selected, setSelected] = useState<Outfit | null>(null);
+  const [index, setIndex] = useState(0);
 
   // 저장 코디에서 함께 입은 쌍 추출
   const coWornPairs = useMemo(() => {
@@ -62,6 +65,13 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
 
   if (outfits.length === 0) return null;
 
+  const safeIndex = Math.min(index, outfits.length - 1);
+  const current   = outfits[safeIndex];
+
+  function go(delta: number) {
+    setIndex((i) => (Math.min(i, outfits.length - 1) + delta + outfits.length) % outfits.length);
+  }
+
   return (
     <>
       <motion.div
@@ -75,30 +85,60 @@ export default function OutfitGrid({ items, count = 6, season, thickness }: Outf
           <h3 className="text-sm font-bold text-gray-900">
             👗 오늘 입을 코디
           </h3>
-          <span className="text-xs text-gray-400">← 스와이프 · 탭하면 상세</span>
+          <span className="text-xs text-gray-400 tabular-nums">{safeIndex + 1}/{outfits.length}</span>
         </div>
 
-        {/* 가로 스와이프 캐러셀 — 1.3장 노출
-            body 스크롤 잠금 버그가 해소되어 native overflow-x 로 안전하게 작동 */}
-        <div
-          className="-mx-5 px-5 flex gap-2.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1"
-          style={{ scrollPaddingLeft: '1.25rem' }}
-        >
-          {outfits.map((o) => (
-            <div
-              key={o.id}
-              className="snap-start shrink-0"
-              style={{ width: 'calc((100% - 0.625rem) / 1.3)' }}
+        {/* 큰 히어로 카드 1장 — 아이템이 또렷이 보이도록 화면 폭 그대로.
+            좌우 화살표 + 점 인디케이터로 나머지 후보를 넘겨본다. */}
+        <div className="relative">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={current.id}
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12 }}
+              transition={{ duration: 0.18 }}
             >
-              <OutfitCard outfit={o} onClick={() => setSelected(o)} />
-            </div>
-          ))}
-          <div className="shrink-0 w-1" aria-hidden />
+              <OutfitCard outfit={current} onClick={() => setSelected(current)} size="hero" />
+            </motion.div>
+          </AnimatePresence>
+
+          {outfits.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => go(-1)}
+                aria-label="이전 코디"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:scale-95 transition-all"
+              >
+                <ChevronLeft size={18} strokeWidth={2.4} />
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                aria-label="다음 코디"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-700 hover:bg-white active:scale-95 transition-all"
+              >
+                <ChevronRight size={18} strokeWidth={2.4} />
+              </button>
+            </>
+          )}
         </div>
 
-        <p className="text-xs text-gray-400 mt-2 text-center">
-          {outfits.length}개 코디 · 좌우로 넘겨보세요
-        </p>
+        {outfits.length > 1 && (
+          <div className="flex items-center justify-center gap-1.5 mt-3">
+            {outfits.map((o, i) => (
+              <button
+                key={o.id}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`${i + 1}번째 코디 보기`}
+                aria-current={i === safeIndex}
+                className={`h-1.5 rounded-full transition-all ${i === safeIndex ? 'w-5 bg-brand-primary' : 'w-1.5 bg-gray-200'}`}
+              />
+            ))}
+          </div>
+        )}
       </motion.div>
 
       <OutfitDetailModal outfit={selected} onClose={() => setSelected(null)} />
