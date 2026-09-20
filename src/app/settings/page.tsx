@@ -104,16 +104,26 @@ export default function SettingsPage() {
     }
   }
 
-  /** 항상 백업을 먼저 받은 뒤 전체 초기화 — 복원 가능한 지점 확보 */
+  /**
+   * 항상 백업을 먼저 받은 뒤 전체 초기화 — 복원 가능한 지점 확보.
+   * 브라우저 다운로드 API는 "파일이 실제로 저장됐는지" 알려주는 신호가
+   * 없어(<a download> 클릭 직후엔 성공 여부를 코드로 확인할 방법이 없음)
+   * 예전엔 300ms만 기다리고 바로 지웠다 — 백업이 실패했어도 삭제는
+   * 그대로 진행되는 최악의 경우가 가능했다(P0-36). 대신 "다운로드가
+   * 실제로 시작됐는지" 사용자에게 직접 확인받는 두 번째 확인 단계를 둔다.
+   */
   function handleReset() {
-    if (!confirm('모든 데이터를 초기화할까요?\n\n1) 현재 상태가 JSON으로 백업됩니다.\n2) 백업 완료 후 앱이 초기 상태로 돌아갑니다.')) return;
+    if (!confirm('모든 데이터를 초기화할까요?\n\n1) 먼저 현재 상태를 JSON 파일로 다운로드합니다.\n2) 다운로드를 확인한 뒤에만 초기화가 진행됩니다.')) return;
     try {
       const filename = downloadBackup();
       backup.refresh();
-      setTimeout(() => {
-        resetData();
-        showToast(`백업(${filename}) 저장 후 초기화됐어요.`);
-      }, 300);
+      const saved = confirm(`"${filename}" 다운로드를 시작했어요.\n\n다운로드 폴더(또는 방금 뜬 저장 위치)에서 파일이 실제로 저장된 걸 확인하셨나요?\n\n확인을 누르면 바로 초기화가 진행되고 되돌릴 수 없어요.`);
+      if (!saved) {
+        showToast('초기화를 취소했어요. 백업 파일을 확인한 뒤 다시 시도해주세요.');
+        return;
+      }
+      resetData();
+      showToast(`백업(${filename}) 확인 후 초기화됐어요.`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류';
       showToast(`백업 실패 — 초기화 중단: ${msg}`);
@@ -177,7 +187,7 @@ export default function SettingsPage() {
             <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
               {backup.isStale
                 ? '브라우저 캐시가 비면 데이터가 사라질 수 있어요. 지금 백업해두세요.'
-                : '데이터가 안전하게 보관 중이에요.'}
+                : '다운로드 폴더에서 백업 파일을 확인해보세요.'}
             </p>
           </div>
           <button

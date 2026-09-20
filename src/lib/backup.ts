@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 const LAST_BACKUP_KEY = 'nemoa-last-backup-at';
-const BACKUP_VERSION  = 3;  // v3: savedOutfits 추가
+const BACKUP_VERSION  = 4;  // v4: 냉장고·옷장 인스턴스 추가(P0-35 — 예전엔 "전체 백업"에 냉장고 자체가 안 들어가 복원 시 orphan 발생)
 const STALE_AFTER_MS  = 7 * 24 * 60 * 60 * 1000; // 7일
 
 export interface BackupSnapshot {
@@ -23,6 +23,10 @@ export interface BackupSnapshot {
   cookLog?:    unknown;  // v2+ recipe id → ISO date[]
   profiles?:   unknown[]; // v2+ 사용자 프로필 (본인 + 가족)
   outfits?:    unknown[]; // v3+ 저장된 코디
+  fridgeInstances?:    unknown[]; // v4+ 냉장고 인스턴스(모델·이름·이모지)
+  fridgeActiveId?:      unknown;  // v4+
+  wardrobeInstances?:   unknown[]; // v4+ 옷장 인스턴스
+  wardrobeActiveId?:    unknown;  // v4+
 }
 
 function readTimestamp(): number | null {
@@ -68,6 +72,10 @@ export function buildSnapshot(): BackupSnapshot {
     cookLog:   safe('nemoa-cook-log',         {}),
     profiles:  safe('nemoa-profiles',         []),
     outfits:   safe('nemoa-saved-outfits',    []),
+    fridgeInstances:  safe('nemoa-fridge-instances',   []),
+    fridgeActiveId:   safe('nemoa-fridge-active-id',   null),
+    wardrobeInstances: safe('nemoa-wardrobe-instances', []),
+    wardrobeActiveId:  safe('nemoa-wardrobe-active-id', null),
   };
 }
 
@@ -123,6 +131,14 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
       localStorage.setItem('nemoa-profiles',         JSON.stringify(snap.profiles));
     if (Array.isArray(snap.outfits))
       localStorage.setItem('nemoa-saved-outfits',    JSON.stringify(snap.outfits));
+    if (Array.isArray(snap.fridgeInstances) && snap.fridgeInstances.length > 0)
+      localStorage.setItem('nemoa-fridge-instances', JSON.stringify(snap.fridgeInstances));
+    if (typeof snap.fridgeActiveId === 'string')
+      localStorage.setItem('nemoa-fridge-active-id', JSON.stringify(snap.fridgeActiveId));
+    if (Array.isArray(snap.wardrobeInstances) && snap.wardrobeInstances.length > 0)
+      localStorage.setItem('nemoa-wardrobe-instances', JSON.stringify(snap.wardrobeInstances));
+    if (typeof snap.wardrobeActiveId === 'string')
+      localStorage.setItem('nemoa-wardrobe-active-id', JSON.stringify(snap.wardrobeActiveId));
   } catch { /* quota */ }
   writeTimestamp(Date.now());
 }
