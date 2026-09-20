@@ -13,7 +13,7 @@ import GlobalRecipeModal from "@/components/GlobalRecipeModal";
 import AnalyticsGate from "@/components/layout/AnalyticsGate";
 import InstallBanner from "@/components/layout/InstallBanner";
 import OfflineBanner from "@/components/layout/OfflineBanner";
-import LaunchRewardAdTrigger from "@/components/layout/LaunchRewardAdTrigger";
+import MilestoneAdPrompt from "@/components/layout/MilestoneAdPrompt";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -137,7 +137,7 @@ export default function RootLayout({
             <AnalyticsGate />
             <InstallBanner />
             <OfflineBanner />
-            <LaunchRewardAdTrigger />
+            <MilestoneAdPrompt />
           </ConsentGate>
         </Providers>
       </body>
