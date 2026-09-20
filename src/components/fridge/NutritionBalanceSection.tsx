@@ -87,7 +87,7 @@ export default function NutritionBalanceSection({ foods }: { foods: FoodItem[] }
             <div key={b.key}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs text-gray-600">{b.label}</span>
-                <span className="text-sm text-gray-400 tabular-nums">
+                <span className="text-xs text-gray-400 tabular-nums">
                   {value.toLocaleString()} / {b.target.toLocaleString()} {b.unit} · {pct}%
                 </span>
               </div>

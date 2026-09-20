@@ -49,7 +49,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
                 </span>
               </div>
               <p className="text-sm font-bold text-gray-900 truncate">{sample}</p>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 mt-0.5">
                 가장 맛있을 때예요 — 이번 주 안에 드셔보세요
               </p>
             </div>
@@ -73,7 +73,7 @@ export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
             <div className="flex-1 min-w-0 text-left">
               <p className="text-xs text-gray-400 font-medium mb-0.5">이번 {season} 놓치지 마세요</p>
               <p className="text-sm font-bold text-gray-900 truncate">{sample}</p>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 mt-0.5">
                 피크 제철 {peakMissing.length}종이 기다려요
               </p>
             </div>

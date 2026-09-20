@@ -107,7 +107,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
             올{season} 드신 제철 재료
           </span>
         </div>
-        <span className="text-sm text-gray-500 tabular-nums shrink-0">
+        <span className="text-xs text-gray-500 tabular-nums shrink-0">
           {distinct}종 · {total}회
         </span>
       </div>

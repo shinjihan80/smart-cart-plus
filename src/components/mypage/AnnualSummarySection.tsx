@@ -82,7 +82,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
           <EmojiIcon emoji="📅" size={16} className="text-gray-600" />
           <span className="text-xs text-gray-400 font-medium">올해 활동 요약</span>
         </div>
-        <span className="text-sm text-gray-400 tabular-nums shrink-0">
+        <span className="text-xs text-gray-400 tabular-nums shrink-0">
           {year}년 · {dayOfYear}일째
         </span>
       </div>

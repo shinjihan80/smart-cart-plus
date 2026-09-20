@@ -50,7 +50,7 @@ export default function PartnerClickInsights() {
           <EmojiIcon emoji="🔗" size={16} className="text-gray-600" />
           <span className="text-xs text-gray-400 font-medium">파트너 사용 기록</span>
         </div>
-        <span className="text-sm text-gray-400 tabular-nums shrink-0">
+        <span className="text-xs text-gray-400 tabular-nums shrink-0">
           최근 30일 · {total}회
         </span>
       </div>

@@ -75,7 +75,7 @@ export default function StorageUsage() {
           <EmojiIcon emoji="📦" size={16} className="text-gray-600" />
           <span className="text-xs text-gray-400 font-medium">저장 용량</span>
         </div>
-        <span className="text-sm text-gray-500 tabular-nums shrink-0">
+        <span className="text-xs text-gray-500 tabular-nums shrink-0">
           총 {formatBytes(total)}
         </span>
       </div>

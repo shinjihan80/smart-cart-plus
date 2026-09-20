@@ -164,7 +164,7 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
         {insights.slice(0, 2).map((text, i) => {
           const [first, second] = splitInsightLine(text);
           return (
-            <p key={i} className="text-sm text-gray-600 leading-relaxed">
+            <p key={i} className="text-xs text-gray-500 leading-relaxed">
               {first}
               {second && (
                 <>

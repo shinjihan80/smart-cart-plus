@@ -574,7 +574,7 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
           <h3 className="text-xs text-gray-400 font-medium">프로필 관리</h3>
           <p className="text-xs text-gray-300 mt-0.5">본인 · 가족 · 공용 구매 물품 분리</p>
         </div>
-        <span className="text-sm text-gray-400 tabular-nums">{profiles.length}명</span>
+        <span className="text-xs text-gray-400 tabular-nums">{profiles.length}명</span>
       </div>
 
       <div className="flex flex-col gap-2">

@@ -50,7 +50,7 @@ export default function WeeklySummarySection({ discardHistory }: Props) {
           <EmojiIcon emoji="📅" size={16} className="text-gray-600" />
           <span className="text-xs text-gray-400 font-medium">이번 주 활동</span>
         </div>
-        <span className="text-sm text-gray-400 shrink-0">최근 7일</span>
+        <span className="text-xs text-gray-400 shrink-0">최근 7일</span>
       </div>
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col items-center gap-0.5 py-1">
