@@ -10,6 +10,7 @@ import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { SEASONAL_PRODUCE, isSeasonalProduce } from '@/lib/seasonalProduce';
 import { josa } from '@/lib/korean';
 import { getDaypart, greetingText } from '@/lib/daypart';
+import { classifyExpiry } from '@/lib/expiryThresholds';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
 
@@ -42,8 +43,25 @@ export function pickDailyMessage(
 
   // ── 1. 긴급 — 바로 행동 유도 ─────────────────────────────────────────────
   const season = currentSeasonByMonth();
+  // 이미 기한이 지난 것과 "오늘까지"는 다른 메시지 — expired에는
+  // "곧 만료"·레시피 CTA를 절대 안 붙인다(P0-30: 상한 음식에 레시피를 권하던 버그).
+  const expired = foods.filter(
+    (f) => classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays)) === 'expired',
+  );
+  if (expired.length > 0) {
+    const firstName = expired[0].name;
+    const extra = expired.length > 1 ? ` 외 ${expired.length - 1}개` : '';
+    return {
+      emoji:    '🗑️',
+      text:     `${josa(`${firstName}${extra}`, '이/가')} 보관 기한이 지났어요. 냉장고에서 확인해주세요.`,
+      priority: 'urgent',
+      cta:      { label: '확인하기', href: '/fridge' },
+      paletteQuery: firstName,
+    };
+  }
+
   const expiringToday = foods.filter(
-    (f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 1,
+    (f) => classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays)) === 'today',
   );
   // 제철 + 임박 겹친 것 최우선 — 1회 기회 강조
   const seasonalExpiring = expiringToday.filter((f) => isSeasonalProduce(f.name, season));

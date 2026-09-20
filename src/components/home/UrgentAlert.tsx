@@ -6,6 +6,7 @@ import { ChevronRight, AlertTriangle, X } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
+import { classifyExpiry } from '@/lib/expiryThresholds';
 import { springTransition } from './shared';
 
 export default function UrgentAlert({ items }: { items: CartItem[] }) {
@@ -13,9 +14,11 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
 
   if (isDismissedToday('urgent')) return null;
 
+  // 이미 기한이 지난 항목은 "오늘까지 먹어야 할"에서 제외 — 상한 걸 먹으라고
+  // 권하던 버그(P0-30). 지난 항목은 히어로 메시지(dailyMessage.ts)가 별도 문구로 안내한다.
   const urgent = items.filter(isFoodItem)
     .map((f) => ({ name: f.name, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }))
-    .filter((f) => f.dDay <= 1);
+    .filter((f) => classifyExpiry(f.dDay) === 'today');
 
   if (urgent.length === 0) return null;
 

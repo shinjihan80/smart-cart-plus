@@ -396,7 +396,7 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
         <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
           isUrgent ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-600'
         }`}>
-          {dDay <= 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
+          {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
         </span>
       </div>
 

@@ -125,7 +125,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 <p className={`text-sm font-bold tabular-nums ${
                   isUrgent ? 'text-brand-warning' : 'text-gray-400'
                 }`}>
-                  {dDay <= 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
+                  {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
                 </p>
                 {!hideToggle && (
                   <ChevronDown
@@ -144,7 +144,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
               <span>📅 {item.purchaseDate.slice(5).replace('-', '/')}</span>
               <span className="text-gray-200">·</span>
               <span className={isUrgent ? 'text-brand-warning font-medium' : ''}>
-                {dDay <= 0 ? '만료됨' : `${dDay}일 남음`}
+                {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}
               </span>
             </div>
 
@@ -228,7 +228,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                       <span className="text-xs text-gray-400">보관 기한</span>
                       <span className={`font-medium tabular-nums ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
                         {(() => { const d = new Date(item.purchaseDate); d.setDate(d.getDate() + item.baseShelfLifeDays); return todayLocalStr(d); })()}
-                        <span className="ml-1.5 text-xs text-gray-400">({dDay <= 0 ? EXPIRY_LABEL.over : `${dDay}일`})</span>
+                        <span className="ml-1.5 text-xs text-gray-400">({dDay < 0 ? EXPIRY_LABEL.over : `${dDay}일`})</span>
                       </span>
                     </div>
                     <div className="flex items-center justify-between px-4 py-3 bg-gray-50">

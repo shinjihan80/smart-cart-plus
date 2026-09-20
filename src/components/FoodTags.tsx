@@ -22,7 +22,7 @@ export function calcRemainingDays(purchaseDate: string, baseShelfLifeDays: numbe
 type StatusTier = 'expired' | 'urgent' | 'warning' | 'fresh';
 
 function getStatus(days: number): StatusTier {
-  if (days <= 0) return 'expired';
+  if (days < 0) return 'expired';
   if (days <= 2) return 'urgent';
   if (days <= 5) return 'warning';
   return 'fresh';
@@ -56,7 +56,7 @@ export default function FoodTags({ item, wide }: Props) {
           status === 'warning' ? 'text-yellow-500' :
           'text-gray-900'
         }`}>
-          {days <= 0 ? EXPIRY_LABEL.over : `D-${days}`}
+          {days < 0 ? EXPIRY_LABEL.over : `D-${days}`}
         </span>
         <span className="text-xs text-gray-400 font-medium">
           {STORAGE_LABEL[item.storageType]}

@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { isFoodItem, type CartItem } from '@/types';
 import { calcRemainingDays } from '@/components/FoodTags';
+import { classifyExpiry, EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
@@ -37,14 +38,16 @@ export default function ShoppingSuggestionsSection({
     const haveNames = new Set(foods.map((f) => f.name));
     const out: Suggestion[] = [];
 
-    // 1) 임박(D-Day ≤ 2) 식품 — 이미 있지만 곧 떨어질 것
+    // 1) 임박(today/soon) 식품 — 이미 있지만 곧 떨어질 것. 이미 지난(expired)
+    // 건 여기 안 넣는다 — SwipeFoodCard와 반대로 "아직 안 늦었다"고 말하던 버그(P0-30/40).
     for (const f of foods) {
       const d = calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays);
-      if (d <= 2 && d >= 0) {
+      const bucket = classifyExpiry(d);
+      if (bucket === 'today' || bucket === 'soon') {
         out.push({
           name: f.name,
-          reason: d === 0 ? '오늘이 마지막' : `${d}일 뒤 만료`,
-          badge: '⚠️ 임박',
+          reason: d === 0 ? `${EXPIRY_LABEL.today} 소비` : `${d}일 뒤 기한 종료`,
+          badge: `⚠️ ${EXPIRY_LABEL.soon}`,
           emoji: getFoodEmoji(f.name, f.foodCategory),
           source: '임박 재구매',
         });

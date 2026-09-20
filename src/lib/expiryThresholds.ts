@@ -20,3 +20,23 @@ export const EXPIRY_LABEL = {
   today: '오늘까지',
   soon:  '임박',
 } as const;
+
+export type ExpiryBucket = 'expired' | 'today' | 'soon' | 'fresh';
+
+/**
+ * dDay(calcRemainingDays 결과) → 4단 판정. 홈 배너·인사이트·쇼핑 추천 등
+ * "이미 지난 걸 곧 만료로 안내"하던 버그(P0-30)의 근본 원인은 각 화면이
+ * `dDay <= 1`/`<= 3` 등을 하한 없이 하드코딩해 음수(이미 지난 날짜)까지
+ * "곧 만료"에 섞였던 것 — 이 함수 하나로만 판정해야 재발하지 않는다.
+ */
+export function classifyExpiry(dDay: number): ExpiryBucket {
+  if (dDay < 0) return 'expired';
+  if (dDay <= EXPIRY_TODAY_DAYS) return 'today';
+  if (dDay <= EXPIRY_SOON_DAYS) return 'soon';
+  return 'fresh';
+}
+
+/** "곧 만료" 계열 문구·레시피 CTA·재구매 추천에 넣어도 되는지 — expired만 제외. */
+export function isUpcoming(dDay: number): boolean {
+  return classifyExpiry(dDay) !== 'expired';
+}
