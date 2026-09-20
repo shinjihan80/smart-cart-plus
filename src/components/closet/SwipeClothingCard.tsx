@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type WardrobeSection } from '@/types';
-import { FASHION_ICON } from '@/lib/iconMap';
 import { todayLocalStr } from '@/lib/dateMath';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
@@ -482,10 +481,10 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     <p className="text-sm text-gray-400 mb-1.5">같이 자주 입는 조합</p>
                     <div className="flex gap-1.5 flex-wrap">
                       {coWorn.map((co) => {
-                        const Icon = FASHION_ICON[co.item.category] ?? FASHION_ICON['기타 액세서리'];
+                        const tone = getFashionCategoryTone(co.item.category);
                         return (
                           <div key={co.item.id} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-100 border border-gray-200 text-gray-700">
-                            <Icon size={11} strokeWidth={2} />
+                            <span aria-hidden>{tone.emoji}</span>
                             <span className="font-medium truncate max-w-[100px]">{co.item.name}</span>
                             <span className="text-xs text-gray-500 tabular-nums">· {co.count}회</span>
                           </div>

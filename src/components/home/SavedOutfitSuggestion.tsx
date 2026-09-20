@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronRight, Bookmark, Shirt } from 'lucide-react';
+import { ChevronRight, Bookmark } from 'lucide-react';
 import { isClothingItem, type CartItem } from '@/types';
 import { useSavedOutfits } from '@/lib/savedOutfits';
+import { getFashionCategoryTone } from '@/lib/categoryImages';
 import { Widget } from './shared';
 
 /**
@@ -41,12 +42,15 @@ export default function SavedOutfitSuggestion({ items }: { items: CartItem[] }) 
             <p className="text-xs text-gray-500 font-medium">오늘 저장된 코디</p>
             <p className="text-sm font-bold text-gray-900 truncate">{pick.name}</p>
             <div className="flex gap-1 mt-1 flex-wrap">
-              {resolved.slice(0, 4).map(({ item }) => (
-                <span key={item.id} className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                  <Shirt size={10} strokeWidth={2} />
-                  <span className="font-medium truncate max-w-[60px]">{item.name}</span>
-                </span>
-              ))}
+              {resolved.slice(0, 4).map(({ item }) => {
+                const tone = getFashionCategoryTone(item.category);
+                return (
+                  <span key={item.id} className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                    <span aria-hidden>{tone.emoji}</span>
+                    <span className="font-medium truncate max-w-[60px]">{item.name}</span>
+                  </span>
+                );
+              })}
             </div>
           </div>
           <ChevronRight size={16} className="text-gray-300 shrink-0" />

@@ -116,15 +116,20 @@ export function generateOutfits(
       if (seenSig.has(sig)) continue;
       seenSig.add(sig);
 
-      // co-worn 보너스 — 사용자가 저장한 코디에서 본 조합이면 가산
+      // co-worn 보너스 — 사용자가 저장한 코디에서 본 조합이면 가산.
+      // "자주 입는 조합" 라벨은 상의+하의가 실제로 함께 저장된 경우만 붙인다 —
+      // 신발 하나가 여러 저장 코디에 공통으로 들어있으면(자주 신는 신발) 그
+      // 신발이 낀 모든 조합이 "자주 입는 조합"으로 오염되던 버그(C2 발견,
+      // P1-37) — 신발만 겹치는 약한 신호는 점수 가산에만 반영하고 라벨엔 안 씀.
+      const topBottomCoWorn = isCoWorn(t.item.id, b.item.id, opts.coWornPairs);
       let coBoost = 0;
-      if (isCoWorn(t.item.id, b.item.id, opts.coWornPairs)) coBoost += 1.5;
+      if (topBottomCoWorn) coBoost += 1.5;
       if (sh && isCoWorn(t.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
       if (sh && isCoWorn(b.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
 
       // 추천 이유 수집
       const reasons: string[] = [];
-      if (coBoost > 0) reasons.push('💞 자주 입는 조합');
+      if (topBottomCoWorn) reasons.push('💞 자주 입는 조합');
       if (opts.season && (t.item.weatherTags?.includes(opts.season) || b.item.weatherTags?.includes(opts.season))) {
         const seasonEmoji = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' }[opts.season];
         reasons.push(`${seasonEmoji} ${opts.season} 매칭`);
@@ -137,9 +142,11 @@ export function generateOutfits(
       const total = t.score + b.score + (ou ? 1 : 0) + coBoost;
       result.push({
         id:    `o-${sig}`,
-        label: coBoost > 0
-          ? '💞 자주 입는 조합'
-          : (`${opts.season ?? ''} 코디`.trim() || '추천 코디'),
+        // label은 실제 옷 이름 기반 — 예전엔 계절만 써서 캐러셀 6장이 전부
+        // "가을 코디"로 똑같이 찍혔다(C2: "코디는 이름으로 기억하는데 다
+        // 가을 코디면 저장해도 못 찾는다"). 대표 아이템(상의) 이름을 넣어
+        // 카드마다 실제로 구분되게 한다. reasons 배지와는 절대 안 겹치게.
+        label: `${t.item.name} 코디`,
         slots: { top: t.item, bottom: b.item, outer: ou, shoes: sh, accessory: ac },
         score: total,
         reasons,
@@ -166,7 +173,7 @@ export function generateOutfits(
 
     result.push({
       id:    `o-${sig}`,
-      label: '원피스 코디',
+      label: `${op.item.name} 코디`,
       slots: { onepiece: op.item, shoes: sh, accessory: ac },
       score: op.score,
       reasons,

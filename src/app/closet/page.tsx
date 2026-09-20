@@ -532,7 +532,7 @@ export default function ClosetPage() {
                   })}
                 </div>
                 <p className="text-sm text-gray-400 mt-1.5 leading-relaxed">
-                  오늘 한 번 꺼내볼까요? 카드에서 &ldquo;👕 오늘 입었어요&rdquo;로 기록할 수 있어요.
+                  오늘 한 번 꺼내볼까요? 카드에서 &ldquo;오늘 입었어요&rdquo;로 기록할 수 있어요.
                 </p>
               </motion.div>
             </>

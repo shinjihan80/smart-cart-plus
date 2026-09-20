@@ -2,7 +2,6 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Bookmark } from 'lucide-react';
-import { FASHION_EMOJI } from '@/types';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
 import { outfitItemList, outfitItemIds, type Outfit } from '@/lib/outfitMatcher';
 import { useWearLog } from '@/lib/wearLog';
@@ -126,7 +125,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-gray-900 truncate">{item.name}</p>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          {FASHION_EMOJI[item.category]} {item.category} · {item.size}
+                          {item.category} · {item.size}
                           {item.material && ` · ${item.material}`}
                         </p>
                       </div>
@@ -154,7 +153,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
                   }`}
                 >
                   <Check size={14} strokeWidth={2.5} />
-                  {allWornToday ? '오늘 이미 기록됨' : '✓ 오늘 입었어요'}
+                  {allWornToday ? '오늘 이미 기록됨' : '오늘 입었어요'}
                 </button>
               </div>
             </motion.div>

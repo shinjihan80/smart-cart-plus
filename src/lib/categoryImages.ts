@@ -39,15 +39,17 @@ const FOOD_TONE: Record<FoodCategory, CategoryTone> = {
 const FASHION_TONE: Record<FashionCategory, CategoryTone> = {
   '상의':         { bg: 'bg-sky-50',     text: 'text-sky-700',     emoji: '👕' },
   '하의':         { bg: 'bg-indigo-50',  text: 'text-indigo-700',  emoji: '👖' },
-  '아우터':       { bg: 'bg-stone-100',  text: 'text-stone-700',   emoji: '🧥' },
+  // 아우터·안경·선글라스·시계가 전부 stone/slate/zinc/gray로 사실상 같은
+  // 회색이라 구분이 안 됐다(C6) — 서로 확실히 갈리는 색으로 재배정.
+  '아우터':       { bg: 'bg-emerald-50', text: 'text-emerald-700', emoji: '🧥' },
   '원피스':       { bg: 'bg-rose-50',    text: 'text-rose-700',    emoji: '👗' },
-  '신발':         { bg: 'bg-amber-50',   text: 'text-amber-800',   emoji: '👟' },
+  '신발':         { bg: 'bg-blue-50',    text: 'text-blue-700',    emoji: '👟' },
   '가방':         { bg: 'bg-orange-50',  text: 'text-orange-700',  emoji: '👜' },
   '모자':         { bg: 'bg-cyan-50',    text: 'text-cyan-700',    emoji: '🧢' },
   '스카프':       { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', emoji: '🧣' },
-  '안경':         { bg: 'bg-slate-100',  text: 'text-slate-700',   emoji: '👓' },
-  '선글라스':     { bg: 'bg-zinc-100',   text: 'text-zinc-800',    emoji: '🕶️' },
-  '시계':         { bg: 'bg-gray-100',   text: 'text-gray-700',    emoji: '⌚' },
+  '안경':         { bg: 'bg-teal-50',    text: 'text-teal-700',    emoji: '👓' },
+  '선글라스':     { bg: 'bg-purple-50',  text: 'text-purple-700',  emoji: '🕶️' },
+  '시계':         { bg: 'bg-yellow-50',  text: 'text-yellow-800',  emoji: '⌚' },
   '주얼리':       { bg: 'bg-pink-50',    text: 'text-pink-700',    emoji: '💍' },
   '기타 액세서리': { bg: 'bg-violet-50',  text: 'text-violet-700',  emoji: '✨' },
 };
