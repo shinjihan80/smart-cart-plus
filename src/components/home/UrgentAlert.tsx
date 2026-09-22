@@ -44,7 +44,10 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
             <p className="text-xs font-bold text-brand-warning">
               오늘까지 먹어야 할 식품 {urgent.length}개
             </p>
-            <p className="text-xs text-gray-500 truncate mt-0.5">
+            {/* 이 줄만은 형제(RebuyAlert 등)와 맞추지 않는다 — 오늘 당장
+                처리해야 할 유일한 항목이라 홈에서 가장 작은 글자가 되면
+                안 된다는 걸 페르소나 검토(C1·C4)에서 확인 */}
+            <p className="text-sm text-gray-500 truncate mt-0.5">
               {urgent.map((u) => u.name).join(', ')}
             </p>
           </div>

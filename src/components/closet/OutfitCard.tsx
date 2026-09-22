@@ -80,12 +80,20 @@ export default function OutfitCard({ outfit, onClick, size = 'compact' }: Outfit
         </div>
       )}
 
-      {/* 라벨 오버레이 — 하단 그라데이션. 시즌 라벨은 한 번, 나머지는 실제 아이템명 */}
-      <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent pointer-events-none ${isHero ? 'px-4 py-3.5' : 'px-3 py-2'}`}>
-        <p className={`font-bold text-white truncate text-left ${isHero ? 'text-base' : 'text-xs'}`}>
+      {/* 라벨 오버레이 — 하단 그라데이션. 시즌 라벨은 한 번, 나머지는 실제 아이템명.
+          그라데이션만으로는 우측 액세서리 칸의 밝은 이모지(반지 등) 위에서 글자가
+          씹혀 보여(C2·C8 발견) text-shadow를 더해 배경과 무관하게 읽히게 한다. */}
+      <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none ${isHero ? 'px-4 pt-8 pb-3.5' : 'px-3 pt-5 pb-2'}`}>
+        <p
+          className={`font-bold text-white truncate text-left ${isHero ? 'text-base' : 'text-xs'}`}
+          style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}
+        >
           {outfit.label}
         </p>
-        <p className={`text-white/80 truncate text-left ${isHero ? 'text-xs mt-0.5' : 'text-[10px]'}`}>
+        <p
+          className={`text-white/80 truncate text-left ${isHero ? 'text-xs mt-0.5' : 'text-[10px]'}`}
+          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}
+        >
           {sublabel}
         </p>
       </div>

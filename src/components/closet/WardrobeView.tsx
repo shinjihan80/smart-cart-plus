@@ -86,7 +86,10 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             className={[
-              'relative flex flex-col justify-between text-left rounded-2xl p-4 overflow-hidden',
+              // justify-between이었을 때, 같은 행의 옆 칸이 아이템이 많아 카드가
+              // 커지면 이 칸의 본문(라벨)이 아래로 밀려 옆 칸과 라벨 높이가
+              // 어긋나 보였다(C2·C8 발견). 본문을 헤더 바로 아래 고정.
+              'relative flex flex-col gap-2 text-left rounded-2xl p-4 overflow-hidden',
               'bg-white ring-1',
               isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
             ].join(' ')}
