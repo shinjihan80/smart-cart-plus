@@ -2,6 +2,7 @@
 
 import { calcRemainingDays } from '@/components/FoodTags';
 import type { FoodItem } from '@/types';
+import { addNotificationLogEntry, type NotificationKind } from './notificationLog';
 
 export interface NotiState { expiry: boolean; codi: boolean; deal: boolean }
 
@@ -31,9 +32,16 @@ export async function requestPermission(): Promise<boolean> {
   return result === 'granted';
 }
 
-/** Service Worker를 통해 알림 표시 (background-safe) */
-async function showNotification(title: string, body: string, tag: string) {
+/**
+ * Service Worker를 통해 알림 표시(background-safe) + 인앱 알림함(/notifications)에도
+ * 같은 시점에 기록한다 — 벨 아이콘을 눌러도 목록이 없던 문제(알림 종을 눌렀는데
+ * 왜 없냐는 지적)의 데이터 소스. OS 알림을 실제로 "띄운" 순간에만 기록하므로
+ * 권한이 꺼져 있으면(위 얼리 리턴) 알림함에도 안 쌓인다 — 안 온 알림을 왔다고
+ * 보여주지 않기 위함.
+ */
+async function showNotification(title: string, body: string, tag: string, kind: NotificationKind) {
   if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  addNotificationLogEntry({ kind, title, body, dedupeKey: tag });
   try {
     const reg = await navigator.serviceWorker.ready;
     await reg.showNotification(title, {
@@ -41,7 +49,7 @@ async function showNotification(title: string, body: string, tag: string) {
       tag,
       icon:   '/icon-192.png',
       badge:  '/icon-192.png',
-      data:   { url: '/' },
+      data:   { url: '/notifications' },
     });
   } catch {
     // SW showNotification 실패 시 인앱 Notification 폴백
@@ -75,6 +83,7 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
     `⏰ 오늘 소비해야 할 식품 ${urgent.length}개`,
     `${names}${more}`,
     'nemoa-expiry',
+    'expiry',
   );
 }
 
@@ -85,5 +94,5 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
 export async function scheduleCodiNotification(message: string) {
   if (!getNotiState().codi) return;
   if (!(await requestPermission())) return;
-  await showNotification('👗 오늘의 코디 추천', message, 'nemoa-codi');
+  await showNotification('👗 오늘의 코디 추천', message, 'nemoa-codi', 'codi');
 }
