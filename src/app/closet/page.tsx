@@ -502,16 +502,19 @@ export default function ClosetPage() {
 
         {/* 아직 안 입어본 옷 — 구매 후 한 번도 안 입은 의류 */}
         {(() => {
-          const untried = activeClothing
+          const untriedAll = activeClothing
             .filter((c) => FASHION_GROUP[c.category] === '의류')
-            .filter((c) => (wearLog[c.id]?.length ?? 0) === 0)
-            .slice(0, 5);
+            .filter((c) => (wearLog[c.id]?.length ?? 0) === 0);
+          // 칩은 5개까지만 노출하되, 개수 표시는 잘라내기 전 전체 개수를 써야
+          // 한다 — 이전엔 잘라낸 배열의 length를 그대로 써서 6벌 이상이어도
+          // 항상 "5벌"로 고정 표시되는 버그가 있었다(전문단 E2 발견).
+          const untried = untriedAll.slice(0, 5);
           if (untried.length === 0) return null;
           return (
             <>
               <div className="flex items-center gap-2">
                 <EmojiIcon emoji="🆕" size={16} className="text-gray-600" />
-                <span className="text-base font-bold text-gray-900 tracking-tight">아직 안 입어본 옷 {untried.length}벌</span>
+                <span className="text-base font-bold text-gray-900 tracking-tight">아직 안 입어본 옷 {untriedAll.length}벌</span>
               </div>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
