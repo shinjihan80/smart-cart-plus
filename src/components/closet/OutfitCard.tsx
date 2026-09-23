@@ -31,8 +31,13 @@ export default function OutfitCard({ outfit, onClick, size = 'compact' }: Outfit
   // 부속 — 신발·액세서리
   const accents: ClothingItem[] = [s.shoes, s.accessory].filter(Boolean).slice(0, 2) as ClothingItem[];
 
-  const names = [...skeleton, ...accents].map((i) => i.name);
-  const sublabel = names.length > 0 ? names.slice(0, 3).join(' · ') : '탭하면 상세';
+  // 부제는 골격(상의·하의 등) 이름을 반복하지 않는다 — outfit.label이 이미
+  // 그걸 담고 있어서(예: "무인양품 옥스포드 셔츠 × 리바이스 501 데님"),
+  // 예전엔 부제에도 같은 이름을 또 넣어 256px 폭에서 제목·부제 둘 다
+  // 잘리고도 새 정보가 하나도 없었다(전문단 C2·C6 발견). 부제는 라벨에
+  // 없는 정보(신발·액세서리)만 보여준다.
+  const accentNames = accents.map((i) => i.name);
+  const sublabel = accentNames.length > 0 ? accentNames.join(' · ') : '탭하면 상세';
 
   return (
     <button
