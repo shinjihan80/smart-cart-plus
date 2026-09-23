@@ -1,23 +1,21 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ClothingItem } from '@/types';
-import { generateOutfits, type Outfit } from '@/lib/outfitMatcher';
-import { useWearLog, daysSince } from '@/lib/wearLog';
-import { useSavedOutfits } from '@/lib/savedOutfits';
+import type { Outfit } from '@/lib/outfitMatcher';
+import { useTodayOutfits } from '@/lib/useTodayOutfits';
+import type { WeatherSnapshot } from '@/lib/weather';
 import OutfitCard from './OutfitCard';
 import dynamic from 'next/dynamic';
 const OutfitDetailModal = dynamic(() => import('./OutfitDetailModal'), { ssr: false });
 import { springTransition, CARD, CARD_SHADOW } from './shared';
-import type { Season } from '@/lib/season';
 
 interface OutfitGridProps {
   items: ClothingItem[];
   count?: number;
-  season?: Season;
-  thickness?: string[];
+  weather: WeatherSnapshot | null;
 }
 
 /**
@@ -30,38 +28,10 @@ interface OutfitGridProps {
  *     점 인디케이터로 나머지 후보를 넘겨본다 — "오늘 뭘 입을지" 하나를
  *     또렷하게 보여주는 데 집중.
  */
-export default function OutfitGrid({ items, count = 6, season, thickness }: OutfitGridProps) {
-  const { log } = useWearLog();
-  const { outfits: saved } = useSavedOutfits();
+export default function OutfitGrid({ items, count = 6, weather }: OutfitGridProps) {
+  const outfits = useTodayOutfits(items, weather, count);
   const [selected, setSelected] = useState<Outfit | null>(null);
   const [index, setIndex] = useState(0);
-
-  // 저장 코디에서 함께 입은 쌍 추출
-  const coWornPairs = useMemo(() => {
-    const pairs = new Map<string, Set<string>>();
-    for (const o of saved) {
-      const ids = Object.values(o.slots).filter((id): id is string => !!id);
-      for (let i = 0; i < ids.length; i += 1) {
-        for (let j = i + 1; j < ids.length; j += 1) {
-          if (!pairs.has(ids[i])) pairs.set(ids[i], new Set());
-          if (!pairs.has(ids[j])) pairs.set(ids[j], new Set());
-          pairs.get(ids[i])!.add(ids[j]);
-          pairs.get(ids[j])!.add(ids[i]);
-        }
-      }
-    }
-    return pairs;
-  }, [saved]);
-
-  const outfits = useMemo(() => {
-    if (items.length < 3) return [];
-    const idleByItem: Record<string, number> = {};
-    for (const item of items) {
-      const dates = log[item.id] ?? [];
-      idleByItem[item.id] = dates.length > 0 ? daysSince(dates[0]) : 9999;
-    }
-    return generateOutfits(items, idleByItem, { season, thickness, count, coWornPairs });
-  }, [items, log, season, thickness, count, coWornPairs]);
 
   if (outfits.length === 0) return null;
 

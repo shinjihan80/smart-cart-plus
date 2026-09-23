@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Sun, Moon, Sunrise, CloudSun, CloudMoon, Check, Sparkles as SparklesIcon, type LucideIcon } from 'lucide-react';
-import { isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
+import { ChevronRight, Sun, Moon, Sunrise, CloudSun, CloudMoon, Check, type LucideIcon } from 'lucide-react';
+import { isClothingItem, type CartItem } from '@/types';
 import {
-  fetchWeather, dressingTip, clothingMatch,
+  fetchWeather, dressingTip,
   type WeatherSnapshot,
 } from '@/lib/weather';
-import { useWearLog, daysSince } from '@/lib/wearLog';
+import { useWearLog } from '@/lib/wearLog';
+import { useTodayOutfits } from '@/lib/useTodayOutfits';
+import { outfitItemList } from '@/lib/outfitMatcher';
 import { useToast } from '@/context/ToastContext';
 import { haptic } from '@/lib/haptics';
 import { FASHION_ICON, weatherIcon, WEATHER_COLOR } from '@/lib/iconMap';
@@ -47,6 +49,12 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
     return () => { cancelled = true; };
   }, []);
 
+  // 옷장 코디 탭과 완전히 같은 훅 — 예전엔 이 위젯이 낱개 의류를 실시간
+  // 기온으로 직접 매칭해, 코디 탭(완성 세트 기반)과 같은 날 서로 다른 옷을
+  // "오늘 추천"으로 제시했다(P0-49). count=1은 1위 코디만 있으면 되므로.
+  const [todayOutfit] = useTodayOutfits(clothes, weather, 1);
+  const outfitItems = todayOutfit ? outfitItemList(todayOutfit) : [];
+
   const useLive = weather !== null;
   const fallback = fallbackBriefing();
   const Icon: LucideIcon = useLive ? weatherIcon(weather.condition, weather.isDay) : fallback.Icon;
@@ -57,25 +65,6 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
   const tip      = useLive
     ? dressingTip(weather.tempC, weather.condition)
     : fallback.tip;
-
-  // 매칭 등급(perfect > good) + 로테이션 선호(오래 안 입은 옷 우선)
-  const topMatches = useLive
-    ? clothes
-        .filter((c) => FASHION_GROUP[c.category] === '의류')
-        .map((c) => {
-          const entry = getEntry(c.id);
-          const idleDays = entry.lastWorn ? daysSince(entry.lastWorn) : 9999;
-          return { item: c, match: clothingMatch(c.thickness, c.weatherTags, weather.tempC), idleDays };
-        })
-        .filter((x) => x.match.level !== 'mismatch')
-        .sort((a, b) => {
-          // 1순위: match 등급 (perfect > good)
-          if (a.match.level !== b.match.level) return a.match.level === 'perfect' ? -1 : 1;
-          // 2순위: 오래 안 입은 옷 우선 (idleDays 내림차순)
-          return b.idleDays - a.idleDays;
-        })
-        .slice(0, 3)
-    : [];
 
   return (
     <Link href="/closet?tab=outfit" className="block">
@@ -109,11 +98,14 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
             )}
           </p>
 
-          {topMatches.length > 0 && (
+          {outfitItems.length > 0 && (
             <div className="mt-3">
-              <p className="text-xs text-gray-400 mb-1.5">탭하면 오늘 입었어요로 기록 — ✨ 오늘 가장 어울림 · 🌙 오래 안 입음</p>
+              <p className="text-xs text-gray-400 mb-1.5 truncate">
+                탭하면 오늘 입었어요로 기록
+                {todayOutfit!.reasons.length > 0 && ` — ${todayOutfit!.reasons.slice(0, 2).join(' · ')}`}
+              </p>
               <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
-                {topMatches.map(({ item, match, idleDays }) => {
+                {outfitItems.map((item) => {
                   const ItemIcon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
                   const today = new Date().toISOString().split('T')[0];
                   const wornToday = getEntry(item.id).lastWorn === today;
@@ -137,11 +129,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                           ? 'bg-brand-success/10 border-brand-success/30'
                           : 'bg-white/80 border-gray-100 hover:border-brand-primary/30 hover:bg-white'
                       }`}
-                      title={
-                        wornToday ? '오늘 이미 기록됨'
-                        : idleDays >= 30 ? `${idleDays}일째 안 입은 옷 — 탭해서 오늘 입었어요로 기록`
-                        : '탭해서 오늘 입었어요로 기록'
-                      }
+                      title={wornToday ? '오늘 이미 기록됨' : '탭해서 오늘 입었어요로 기록'}
                     >
                       <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
                         {wornToday ? (
@@ -154,8 +142,6 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                         )}
                       </div>
                       <span className={`text-sm font-medium truncate ${wornToday ? 'text-brand-success' : 'text-gray-700'}`}>{item.name}</span>
-                      {!wornToday && match.level === 'perfect' && <SparklesIcon size={10} strokeWidth={2.2} className="text-amber-500 shrink-0" />}
-                      {!wornToday && idleDays >= 30 && idleDays < 9999 && <Moon size={10} strokeWidth={2} className="text-sky-500 shrink-0" />}
                     </button>
                   );
                 })}

@@ -510,17 +510,11 @@ export default function ClosetPage() {
           </>
         )}
 
-        {/* 자동 생성 코디 그리드 — 메인 (이미지 위주) — 코디 탭 최상단 */}
+        {/* 자동 생성 코디 그리드 — 메인 (이미지 위주) — 코디 탭 최상단.
+            계절·두께 계산은 useTodayOutfits 훅 안으로 옮겨 홈 위젯과
+            공유한다(P0-49) — 여기서 직접 만들지 않는다. */}
         <SectionErrorBoundary label="오늘 입을 코디">
-          <OutfitGrid
-            items={activeClothing}
-            count={6}
-            season={(() => {
-              const month = new Date().getMonth() + 1;
-              return month <= 2 || month === 12 ? '겨울' : month <= 5 ? '봄' : month <= 8 ? '여름' : '가을';
-            })()}
-            thickness={weather ? (weather.tempC >= 23 ? ['얇음'] : weather.tempC >= 15 ? ['얇음', '보통'] : weather.tempC >= 5 ? ['보통', '두꺼움'] : ['두꺼움']) : undefined}
-          />
+          <OutfitGrid items={activeClothing} count={6} weather={weather} />
         </SectionErrorBoundary>
 
         {/* 아직 안 입어본 옷 — 구매 후 한 번도 안 입은 의류 */}
