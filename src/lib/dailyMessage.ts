@@ -11,8 +11,11 @@ import { SEASONAL_PRODUCE, isSeasonalProduce } from '@/lib/seasonalProduce';
 import { josa } from '@/lib/korean';
 import { getDaypart, greetingText } from '@/lib/daypart';
 import { classifyExpiry } from '@/lib/expiryThresholds';
+import { estimateCycles } from '@/lib/purchaseCycle';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
+
+interface DiscardRecord { name: string; category: string; date: string; }
 
 export interface DailyMessage {
   emoji:    string;
@@ -21,11 +24,15 @@ export interface DailyMessage {
   cta?:     { label: string; href: string };
   /** 설정 시 CTA 클릭이 페이지 이동 대신 명령 팔레트를 이 쿼리로 연다. */
   paletteQuery?: string;
+  /** 이 메시지가 특정 품목을 가리킬 때만 설정 — 홈 하단 위젯이 같은
+   *  품목을 다시 보여주지 않도록 제외 처리하는 데 쓴다(P1-51 중복 노출). */
+  driverName?: string;
 }
 
 /**
  * 여러 시그널을 우선순위대로 평가해 네모아가 할 "하나의" 메시지를 뽑는다.
  * urgent (긴급) > insight (발견) > gentle (일상) 순.
+ * urgent 안에서는 기한초과 > 임박(오늘) > 재구매 임박 > 시즌옷장 순 사다리를 둔다(P1-51).
  * 결정성을 위해 하루 내에는 같은 시그널이 반복 우선되더라도 단일 메시지만 노출.
  */
 export function pickDailyMessage(
@@ -35,6 +42,7 @@ export function pickDailyMessage(
   cookLog: CookLog = {},
   favorites: readonly string[] = [],
   shoppingCount = 0,
+  discardHistory: DiscardRecord[] = [],
 ): DailyMessage {
   const foods    = items.filter(isFoodItem);
   const clothes  = items.filter(isClothingItem);
@@ -57,6 +65,7 @@ export function pickDailyMessage(
       priority: 'urgent',
       cta:      { label: '확인하기', href: '/fridge' },
       paletteQuery: firstName,
+      driverName: firstName,
     };
   }
 
@@ -73,6 +82,7 @@ export function pickDailyMessage(
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge' },
       paletteQuery: f.name,
+      driverName: f.name,
     };
   }
   if (expiringToday.length > 0) {
@@ -84,6 +94,7 @@ export function pickDailyMessage(
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge' },
       paletteQuery: firstName,
+      driverName: firstName,
     };
   }
 
@@ -94,6 +105,27 @@ export function pickDailyMessage(
       text:     `오늘 ${word}가 와요. 우산과 방수 신발 챙기세요.`,
       priority: 'urgent',
       cta:      { label: '옷장 열기', href: '/closet' },
+    };
+  }
+
+  // 재구매 임박 — 2회 이상 소진 이력으로 주기 추정, 곧 떨어지는데 지금 없는 식품.
+  // 우선순위 사다리(기한초과>임박>재구매>시즌옷장>제철, P1-51)에서 이 자리가
+  // 빠져 있어 재구매 시점이 제철 마케팅 문구보다 항상 밀렸던 문제를 해소.
+  const dueSoon = estimateCycles(discardHistory, 2).filter(
+    (c) => c.dueInDays <= 2 && !foods.some((f) => f.name === c.name),
+  );
+  if (dueSoon.length > 0) {
+    const firstName = dueSoon[0].name;
+    const extra = dueSoon.length > 1 ? ` 외 ${dueSoon.length - 1}개` : '';
+    const overdue = dueSoon[0].dueInDays < 0;
+    return {
+      emoji:    '🔁',
+      text:     overdue
+        ? `${josa(`${firstName}${extra}`, '이/가')} 떨어질 때가 지났어요. 장 볼 때 챙기세요.`
+        : `${josa(`${firstName}${extra}`, '이/가')} 곧 떨어질 때예요. 장 볼 때 챙기세요.`,
+      priority: 'insight',
+      cta:      { label: '쇼핑 리스트', href: '/mypage?tab=shopping' },
+      driverName: firstName,
     };
   }
 
@@ -238,6 +270,7 @@ export function pickDailyMessage(
       text:     `${josa(`"${f.name}"`, '이/가')} 지금 제철이에요. 가장 맛있을 때 드셔보세요.`,
       priority: 'insight',
       cta:      { label: '레시피 찾기', href: '/fridge' },
+      driverName: f.name,
     };
   }
 

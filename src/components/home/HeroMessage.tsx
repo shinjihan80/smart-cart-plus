@@ -58,7 +58,17 @@ const DAYPART_ICON: Record<Daypart, LucideIcon> = {
   night:     Moon,
 };
 
-export default function HeroMessage({ items }: { items: CartItem[] }) {
+interface DiscardRecord { name: string; category: string; date: string; }
+
+export default function HeroMessage({
+  items, discardHistory = [], onMessage,
+}: {
+  items: CartItem[];
+  discardHistory?: DiscardRecord[];
+  /** 이 홈 방문에서 히어로가 어떤 메시지를 뽑았는지 부모에 보고 — 부모가
+   *  driverName을 하단 위젯 excludeNames로 넘겨 같은 품목 중복 노출을 막는다(P1-51). */
+  onMessage?: (msg: DailyMessage) => void;
+}) {
   const [weather, setWeather] = useState<WeatherSnapshot | null>(null);
   const [mounted, setMounted] = useState(false);
   const { log: wearLog } = useWearLog();
@@ -79,8 +89,15 @@ export default function HeroMessage({ items }: { items: CartItem[] }) {
   // 시간·localStorage 의존 값은 마운트 후에만 — SSR/CSR 텍스트 불일치(React #418) 방지 (P0-6)
   const PLACEHOLDER: DailyMessage = { emoji: '', text: '네모아가 오늘 하루를 살펴보고 있어요', priority: 'gentle' };
   const msg  = mounted
-    ? pickDailyMessage(items, weather, wearLog, cookLog, favorites, shopping.length)
+    ? pickDailyMessage(items, weather, wearLog, cookLog, favorites, shopping.length, discardHistory)
     : PLACEHOLDER;
+
+  useEffect(() => {
+    if (mounted) onMessage?.(msg);
+    // msg는 매 렌더 새 객체라 참조 비교 대신 내용으로 변경 여부를 판단한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, msg.text, msg.driverName]);
+
   const tone = TONE[msg.priority];
   const greetingLabel = mounted ? greetingText(getDaypart()) : '';
 

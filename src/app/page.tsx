@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Bell, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
@@ -11,6 +11,7 @@ import { useSessionPing } from '@/lib/analytics';
 import { flushPartnerClicksIfDue } from '@/lib/partnerClickLog';
 import { selectExpiring } from '@/lib/expirySelectors';
 import { useNotificationLog } from '@/lib/notificationLog';
+import type { DailyMessage } from '@/lib/dailyMessage';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import HeroMessage     from '@/components/home/HeroMessage';
@@ -32,6 +33,12 @@ export default function HomePage() {
   const { items, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
+  // 히어로가 headline으로 짚은 품목 — 바로 아래 "오늘 할 일" 카드들이 같은
+  // 품목을 다시 보여주지 않도록 제외 처리한다(P1-51 렌더 단계 품목 중복배제).
+  const [heroDriverName, setHeroDriverName] = useState<string | undefined>(undefined);
+  const handleHeroMessage = useCallback((msg: DailyMessage) => {
+    setHeroDriverName(msg.driverName);
+  }, []);
   // 벨의 점 = 안 읽은 알림 개수(/notifications 목록 기준). 예전엔 "알림 권한이
   // 꺼져 있음"을 점으로 표시했는데, 눌러보면 알림함이 아니라 설정으로 가고
   // 읽을 게 없어 "새 소식 있음"으로 오독됐다(검토단 C1/C4·전문단 E1 발견).
@@ -50,8 +57,12 @@ export default function HomePage() {
 
   // 긴급 알림(UrgentAlert)이 이미 보여준 "오늘까지" 품목 이름 — 바로 아래
   // 제철 식탁(SeasonalHintWidget)에서 같은 품목을 "여유 있게" 다시 보여주는
-  // 모순된 중복 노출을 막는다.
+  // 모순된 중복 노출을 막는다. 히어로의 headline 품목도 함께 제외(P1-51).
   const urgentTodayNames = new Set(selectExpiring(items).today.map((e) => e.item.name));
+  const seasonalExcludeNames = heroDriverName
+    ? new Set([...urgentTodayNames, heroDriverName])
+    : urgentTodayNames;
+  const heroExcludeNames = heroDriverName ? new Set([heroDriverName]) : undefined;
 
   return (
     <div>
@@ -113,43 +124,54 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Hero — 네모아의 오늘 한 마디 */}
+      {/* Hero — 네모아의 오늘 한 마디. 아래 "오늘 할 일" 카드들의 headline
+          역할이라 3존 재편성(P1-52)에서도 항상 맨 위에 고정한다. */}
       <div className="px-5 pt-5">
         <SectionErrorBoundary label="오늘 한 마디">
-          <HeroMessage items={items} />
+          <HeroMessage items={items} discardHistory={discardHistory} onMessage={handleHeroMessage} />
         </SectionErrorBoundary>
       </div>
 
-      {/* 카테고리 아이콘 그리드 */}
-      <div className="px-5 pt-6">
+      {/* "오늘 할 일" — 임박·재구매·시즌옷장 (예전 "지금 바로"). localStorage
+          기반 dismiss 상태를 읽는 카드들이라 마운트 후에만 그린다(SSR 불일치
+          방지, 기존 ready 게이트 유지) — 3존 재편성(P1-52)에서 히어로 바로
+          다음, 카테고리 그리드보다 앞으로 옮겨 가장 시급한 정보를 첫 화면에
+          들어오게 한다. 예전엔 이 자리에 무행동 카테고리 그리드가 있어
+          "오늘 할 일"이 두 번째 스크롤에야 나왔다(C2·C6·E1 발견). */}
+      {!ready ? (
+        <HomeSkeleton />
+      ) : (
+        <div className="px-5 pb-2">
+          <SectionHeader title="오늘 할 일" actionHref="/fridge" actionLabel="냉장고">
+            <SectionErrorBoundary label="임박 식품">
+              <UrgentAlert items={items} excludeNames={heroExcludeNames} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="재구매 알림">
+              <RebuyAlert items={items} excludeNames={heroExcludeNames} />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="시즌 옷장 정리">
+              <SeasonChangeAlert items={items} />
+            </SectionErrorBoundary>
+          </SectionHeader>
+        </div>
+      )}
+
+      {/* 카테고리 아이콘 그리드 — 탐색 진입점. props만으로 그려 ready 게이트가
+          필요 없다(원래도 그랬다) — "오늘 할 일" 바로 다음이라 긴급한 게
+          없는 날에도 스크롤 한 번 안에 닿는다. */}
+      <div className="px-5 pt-6 pb-2">
         <SectionErrorBoundary label="카테고리">
           <QuickLinks items={items} history={discardHistory} />
         </SectionErrorBoundary>
       </div>
 
-      {/* 섹션 그룹 */}
-      {!ready ? (
-        <HomeSkeleton />
-      ) : (
+      {ready && (
         <div className="px-5 pb-10">
-          {/* 지금 바로 — 임박·제철 */}
-          <SectionHeader title="지금 바로" actionHref="/fridge" actionLabel="냉장고">
-            <SectionErrorBoundary label="임박 식품">
-              <UrgentAlert items={items} />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="재구매 알림">
-              <RebuyAlert items={items} />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="시즌 옷장 정리">
-              <SeasonChangeAlert items={items} />
-            </SectionErrorBoundary>
+          {/* 오늘의 나 — 제철 식탁·식사·옷차림 추천 (예전 "오늘 추천" + 제철 힌트) */}
+          <SectionHeader title="오늘의 나" actionHref="/fridge" actionLabel="전체 레시피">
             <SectionErrorBoundary label="제철 힌트">
-              <SeasonalHintWidget items={items} excludeNames={urgentTodayNames} />
+              <SeasonalHintWidget items={items} excludeNames={seasonalExcludeNames} />
             </SectionErrorBoundary>
-          </SectionHeader>
-
-          {/* 오늘 추천 — 식사·옷차림 */}
-          <SectionHeader title="오늘 추천" actionHref="/fridge" actionLabel="전체 레시피">
             <SectionErrorBoundary label="오늘 한 그릇">
               <TodayDishCard items={items} />
             </SectionErrorBoundary>
@@ -161,8 +183,8 @@ export default function HomePage() {
             </SectionErrorBoundary>
           </SectionHeader>
 
-          {/* 이번 주 — 한 줄 요약 */}
-          <SectionHeader title="이번 주" actionHref="/mypage?tab=activity#weekly-stats" actionLabel="더보기">
+          {/* 둘러보기 — 한 줄 요약 (예전 "이번 주") */}
+          <SectionHeader title="둘러보기" actionHref="/mypage?tab=activity#weekly-stats" actionLabel="더보기">
             <SectionErrorBoundary label="주간 인사이트">
               <WeeklyInsight items={items} />
             </SectionErrorBoundary>

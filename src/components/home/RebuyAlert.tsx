@@ -22,7 +22,9 @@ import { springTransition } from './shared';
  *   - UrgentAlert: 보유 중인 식품의 임박 만료
  *   - RebuyAlert:  보유하지 않은 식품의 재구매 시점
  */
-export default function RebuyAlert({ items }: { items: CartItem[] }) {
+export default function RebuyAlert({
+  items, excludeNames,
+}: { items: CartItem[]; excludeNames?: ReadonlySet<string> }) {
   const { discardHistory } = useCart();
   const { isDismissedToday, dismiss } = useDismissedAlerts();
 
@@ -31,9 +33,11 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
   const cycles = estimateCycles(discardHistory, 2);
   const haveNames = new Set(items.filter(isFoodItem).map((f) => f.name));
 
+  // 히어로가 이미 같은 재구매 임박 품목을 headline으로 짚었으면 제외(P1-51)
   const dueSoon = cycles
     .filter((c) => c.dueInDays <= 2)
     .filter((c) => !haveNames.has(c.name))
+    .filter((c) => !excludeNames?.has(c.name))
     .slice(0, 5);
 
   if (dueSoon.length === 0) return null;
