@@ -104,6 +104,11 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                 탭하면 오늘 입었어요로 기록
                 {todayOutfit!.reasons.length > 0 && ` — ${todayOutfit!.reasons.slice(0, 2).join(' · ')}`}
               </p>
+              {/* 칩 폭을 max-w-[110px]로 고정하고 텍스트를 truncate했던 게
+                  브랜드명 절반을 지웠고(예: "Nike"→"Nik"), 4번째 아이템은
+                  잘려서 카드 밖으로 사라져 보였다(검토단 C1·C2 발견). 이 줄
+                  자체가 가로 스크롤이라 칩을 접을 이유가 없다 — 내용만큼
+                  넓히고 스와이프로 나머지를 보게 한다. */}
               <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
                 {outfitItems.map((item) => {
                   const ItemIcon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
@@ -124,7 +129,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                         showToast(`"${item.name}" 오늘 입었어요 ✓`);
                       }}
                       aria-label={`${item.name} 오늘 입었어요${wornToday ? ' (이미 기록됨)' : ''}`}
-                      className={`shrink-0 flex items-center gap-1 max-w-[110px] pl-1 pr-2 py-0.5 rounded-full border transition-colors active:scale-95 ${
+                      className={`shrink-0 flex items-center gap-1 pl-1 pr-2 py-0.5 rounded-full border transition-colors active:scale-95 ${
                         wornToday
                           ? 'bg-brand-success/10 border-brand-success/30'
                           : 'bg-white/80 border-gray-100 hover:border-brand-primary/30 hover:bg-white'
@@ -141,7 +146,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
                           <ItemIcon size={11} strokeWidth={2} className="text-gray-600" />
                         )}
                       </div>
-                      <span className={`text-sm font-medium truncate ${wornToday ? 'text-brand-success' : 'text-gray-700'}`}>{item.name}</span>
+                      <span className={`text-sm font-medium whitespace-nowrap ${wornToday ? 'text-brand-success' : 'text-gray-700'}`}>{item.name}</span>
                     </button>
                   );
                 })}
