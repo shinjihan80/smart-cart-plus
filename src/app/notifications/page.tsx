@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, BellOff, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight, BellOff, Trash2 } from 'lucide-react';
 import { useNotificationLog, type NotificationLogEntry } from '@/lib/notificationLog';
 
-const KIND_META: Record<NotificationLogEntry['kind'], { emoji: string; bg: string }> = {
-  expiry: { emoji: '⏰', bg: 'bg-brand-warning/10' },
-  codi:   { emoji: '👗', bg: 'bg-brand-primary/10' },
+// 카드를 눌렀을 때 갈 곳 — 알림 종류별로 실제 확인할 화면으로 보낸다.
+// 예전엔 카드가 아예 안 눌려서 "우유가 임박"이라고 읽고도 냉장고 탭을
+// 처음부터 다시 찾아 들어가야 했다(검토단 C9 발견).
+const KIND_META: Record<NotificationLogEntry['kind'], { emoji: string; bg: string; href: string }> = {
+  expiry: { emoji: '⏰', bg: 'bg-brand-warning/10', href: '/fridge' },
+  codi:   { emoji: '👗', bg: 'bg-brand-primary/10', href: '/closet?tab=outfit' },
 };
 
 function formatWhen(iso: string): string {
@@ -63,11 +67,13 @@ export default function NotificationsPage() {
           <h1 className="flex-1 text-base font-bold text-gray-900 tracking-tight">알림</h1>
           {entries.length > 0 && (
             <button
-              onClick={clear}
-              aria-label="전체 삭제"
-              className="shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors"
+              onClick={() => {
+                if (window.confirm('알림을 전부 삭제할까요? 되돌릴 수 없어요.')) clear();
+              }}
+              className="shrink-0 flex items-center gap-1 h-10 px-2 text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors"
             >
-              <Trash2 size={18} />
+              <Trash2 size={16} />
+              전체 삭제
             </button>
           )}
         </div>
@@ -75,18 +81,22 @@ export default function NotificationsPage() {
 
       <div className="px-5 pt-4 pb-12 flex flex-col gap-2">
         {notifOff && (
-          <a
+          <Link
             href="/settings#notifications"
-            className="flex items-center gap-3 rounded-[20px] bg-gray-50 border border-gray-100 px-4 py-3.5 mb-2"
+            className="flex items-center gap-3 rounded-[20px] bg-gray-50 border border-gray-100 px-4 py-3.5 mb-2 active:scale-[0.99] transition-transform"
           >
             <span className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
               <BellOff size={16} className="text-gray-500" />
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-800">알림이 꺼져 있어요</p>
-              <p className="text-xs text-gray-500 mt-0.5">설정에서 켜면 유통기한 임박 등을 알려드려요</p>
+              {/* 설정 화면(NotificationSettings.tsx)과 같은 표현("차단") 사용 —
+                  예전엔 여기만 "꺼져 있어요"라 같은 상태를 두 화면이 다른 말로
+                  불러 서로 다른 문제인 줄 알았다는 지적(검토단 C9) */}
+              <p className="text-sm font-semibold text-gray-800">알림이 차단됐어요</p>
+              <p className="text-xs text-gray-500 mt-0.5">탭해서 네모아 알림 설정으로 이동</p>
             </div>
-          </a>
+            <ChevronRight size={16} className="text-gray-300 shrink-0" />
+          </Link>
         )}
 
         {entries.length === 0 ? (
@@ -101,21 +111,25 @@ export default function NotificationsPage() {
           entries.map((entry) => {
             const meta = KIND_META[entry.kind];
             return (
-              <div
+              <Link
                 key={entry.id}
-                className="flex items-start gap-3 rounded-[20px] px-4 py-3.5 bg-white ring-1 ring-gray-100"
+                href={meta.href}
+                className="flex items-start gap-3 rounded-[20px] px-4 py-3.5 bg-white ring-1 ring-gray-100 active:scale-[0.99] transition-transform"
               >
                 <span className={`w-9 h-9 rounded-full ${meta.bg} flex items-center justify-center shrink-0 text-base`} aria-hidden>
                   {meta.emoji}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{entry.title}</p>
+                  {/* 아이콘이 이미 종류를 나타내므로 제목의 이모지는 지운다 —
+                      한 카드에 같은 그림이 두 번 나와 좁은 화면에서 가장 중요한
+                      정보(개수)가 밀려 잘리던 문제(검토단 C9). 제목은 줄바꿈
+                      허용(line-clamp-2)해서 숫자가 안 잘리게. */}
+                  <p className="text-sm font-semibold text-gray-900 line-clamp-2">{entry.title.replace(/^\S+\s/, '')}</p>
                   <p className="text-xs text-gray-500 mt-0.5 truncate">{entry.body}</p>
+                  <p className="text-[11px] text-gray-400 tabular-nums mt-1">{formatWhen(entry.createdAt)}</p>
                 </div>
-                <span className="text-[11px] text-gray-400 tabular-nums shrink-0 mt-0.5">
-                  {formatWhen(entry.createdAt)}
-                </span>
-              </div>
+                <ChevronRight size={16} className="text-gray-300 shrink-0 mt-1" />
+              </Link>
             );
           })
         )}
