@@ -84,3 +84,34 @@ test('generateOutfits — 아이템이 부족하면 빈 배열이 아니라 가�
   assert.equal(outfits.length, 1);
   assert.deepEqual(outfitItemIds(outfits[0]).sort(), ['b1', 't1']);
 });
+
+// 신발·액세서리 라운드로빈이 "최근 3일 이내 착용 회피"(scoreItem의 −1.5 패널티)
+// 를 무시하고 그냥 idx%length로 순환시키면, 어제 신은 신발도 다시 추천에
+// 섞여 들어간다 — 라운드로빈 도입 전에는 항상 최고점 1개만 뽑아서 이런 일이
+// 없었다. shoeRotation/accRotation이 score<0인 아이템을 걸러내는지 검증.
+test('generateOutfits — 최근 3일 이내 착용한 신발은 라운드로빈에서 제외된다', () => {
+  const tops2 = [
+    makeItem({ id: 't1', name: '흰 티셔츠', category: '상의' }),
+    makeItem({ id: 't2', name: '체크 셔츠', category: '상의' }),
+  ];
+  const bottoms2 = [
+    makeItem({ id: 'b1', name: '청바지', category: '하의' }),
+    makeItem({ id: 'b2', name: '슬랙스', category: '하의' }),
+  ];
+  const shoes2 = [
+    makeItem({ id: 's1', name: '어제 신은 운동화', category: '신발' }),
+    makeItem({ id: 's2', name: '로퍼',            category: '신발' }),
+    makeItem({ id: 's3', name: '샌들',            category: '신발' }),
+  ];
+  const items = [...tops2, ...bottoms2, ...shoes2];
+  const idleByItem: Record<string, number> = {
+    t1: 20, t2: 20, b1: 20, b2: 20,
+    s1: 1, // 어제 착용 — scoreItem에서 −1.5 패널티 대상 (idleDays<=3)
+    s2: 20, s3: 20,
+  };
+
+  const outfits = generateOutfits(items, idleByItem, { count: 6 });
+
+  const s1Count = outfits.filter((o) => o.slots.shoes?.id === 's1').length;
+  assert.equal(s1Count, 0, '최근 3일 이내 착용한 신발이 라운드로빈으로 다시 추천됨');
+});

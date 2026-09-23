@@ -107,6 +107,16 @@ export function generateOutfits(
   const scoredShoes     = pickTopN(shoes.map((i) => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) })), shoes.length);
   const scoredAccs      = pickTopN(accs.map((i)  => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) })), accs.length);
 
+  // 신발·액세서리 라운드로빈 대상 풀 — score<0(예: 최근 3일 이내 착용 회피
+  // 패널티가 걸린 아이템)은 제외한다. 안 그러면 "어제 신은 신발"도 그냥
+  // idx%length로 균등 순환에 끼어 다시 추천되어 버려, scoreItem()의 회피
+  // 의도가 라운드로빈 도입으로 무력화된다. 전부 음수면(옵션 없음) 어쩔 수
+  // 없이 전체 풀로 폴백.
+  const shoePool = scoredShoes.filter((s) => s.score >= 0);
+  const accPool  = scoredAccs.filter((s) => s.score >= 0);
+  const shoeRotation = shoePool.length > 0 ? shoePool : scoredShoes;
+  const accRotation  = accPool.length  > 0 ? accPool  : scoredAccs;
+
   const result: Outfit[] = [];
   const seenSig = new Set<string>(); // 중복 조합 방지
 
@@ -148,8 +158,8 @@ export function generateOutfits(
   chosen.forEach(({ t, b, score: tbScore }, idx) => {
     // 신발·액세서리도 결과 인덱스 기준 라운드로빈 — 예전엔 항상 [0]으로
     // 고정 대입해 캐러셀을 몇 장 넘겨도 신발·액세서리가 절대 안 바뀌었다.
-    const sh = scoredShoes.length > 0 ? scoredShoes[idx % scoredShoes.length].item : undefined;
-    const ac = scoredAccs.length  > 0 ? scoredAccs[idx  % scoredAccs.length].item  : undefined;
+    const sh = shoeRotation.length > 0 ? shoeRotation[idx % shoeRotation.length].item : undefined;
+    const ac = accRotation.length  > 0 ? accRotation[idx  % accRotation.length].item  : undefined;
     const ou = (opts.thickness && opts.thickness.includes('두꺼움')) ? scoredOuters[0]?.item : undefined;
 
     const sig = [t.item.id, b.item.id, sh?.id, ou?.id].join('|');
@@ -194,8 +204,8 @@ export function generateOutfits(
 
   // 원피스 조합 (남는 자리) — 신발·액세서리는 여기도 인덱스 기준 라운드로빈.
   pickTopN(scoredOnepieces, count - result.length).forEach((op, idx) => {
-    const sh = scoredShoes.length > 0 ? scoredShoes[idx % scoredShoes.length].item : undefined;
-    const ac = scoredAccs.length  > 0 ? scoredAccs[idx  % scoredAccs.length].item  : undefined;
+    const sh = shoeRotation.length > 0 ? shoeRotation[idx % shoeRotation.length].item : undefined;
+    const ac = accRotation.length  > 0 ? accRotation[idx  % accRotation.length].item  : undefined;
     const sig = [op.item.id, sh?.id].join('|');
     if (seenSig.has(sig)) return;
     seenSig.add(sig);
