@@ -1,5 +1,6 @@
 import type { FoodItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { getRemainingDays } from './expirySelectors';
+import { classifyExpiry } from './expiryThresholds';
 import type { Season } from './season';
 
 // 레시피 하나
@@ -955,10 +956,12 @@ export function matchRecipes(
   const options: MatchOptions = typeof opts === 'string' ? { currentSeason: opts } : opts;
   const { currentSeason, cookCounts, daysSinceCook, nutritionHint, difficultyHint, dietary, allergies } = options;
 
-  const nameIndex = foods.map((f) => ({
-    name:  f.name,
-    urgent: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= 3,
-  }));
+  // urgent = today/soon 버킷만 — 예전엔 dDay <= 3을 하한 없이 비교해 이미
+  // 기한이 지난(expired, 음수 dDay) 재료까지 "임박 재료"로 매칭에 가산했다(P0-30류).
+  const nameIndex = foods.map((f) => {
+    const bucket = classifyExpiry(getRemainingDays(f));
+    return { name: f.name, urgent: bucket === 'today' || bucket === 'soon' };
+  });
 
   const difficultyOrder = { 간단: 0, 보통: 1, 도전: 2 } as const;
 

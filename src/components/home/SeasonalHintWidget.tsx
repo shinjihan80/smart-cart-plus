@@ -17,13 +17,20 @@ import { Widget } from './shared';
  * 2) 피크 재료 미보유 → 장보기 유도 (상위 3개 이름 노출)
  * 3) 계절 변동기 → 다음 계절 미리보기 (현재는 비노출)
  */
-export default function SeasonalHintWidget({ items }: { items: CartItem[] }) {
+export default function SeasonalHintWidget({
+  items, excludeNames,
+}: { items: CartItem[]; excludeNames?: ReadonlySet<string> }) {
   const season = currentSeasonByMonth();
   const { seasonal } = useMergedCatalog();
   const foods = items.filter(isFoodItem);
   const haveNames = new Set(foods.map((f) => f.name));
 
-  const ownedSeasonal = foods.filter((f) => isSeasonalProduce(f.name, season));
+  // 바로 위 긴급 알림(UrgentAlert)이 이미 "오늘까지 드세요"로 보여준 품목은
+  // 여기서 "가장 맛있을 때예요, 이번 주 안에"로 다시 보여주면 같은 품목에
+  // 모순된 안내(급함 vs 여유)가 겹친다 — 그 품목은 제외한다.
+  const ownedSeasonal = foods
+    .filter((f) => isSeasonalProduce(f.name, season))
+    .filter((f) => !excludeNames?.has(f.name));
   const peakMissing = currentSeasonalProduce(season, 10, seasonal)
     .filter((p) => p.peak === season && !haveNames.has(p.name))
     .slice(0, 3);

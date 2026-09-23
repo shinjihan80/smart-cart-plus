@@ -1,6 +1,7 @@
 'use client';
 
-import { calcRemainingDays } from '@/components/FoodTags';
+import { getRemainingDays } from '@/lib/expirySelectors';
+import { classifyExpiry } from '@/lib/expiryThresholds';
 import type { FoodItem } from '@/types';
 import { addNotificationLogEntry, type NotificationKind } from './notificationLog';
 
@@ -71,10 +72,7 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
 
   if (!(await requestPermission())) return;
 
-  const urgent = foodItems.filter((item) => {
-    const d = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
-    return d >= 0 && d <= 1;
-  });
+  const urgent = foodItems.filter((item) => classifyExpiry(getRemainingDays(item)) === 'today');
   if (urgent.length === 0) return;
 
   const names = urgent.slice(0, 3).map((i) => i.name).join(', ');

@@ -9,6 +9,7 @@ import NemoaLogo from '@/components/layout/NemoaLogo';
 import EmojiIcon from '@/components/EmojiIcon';
 import { useSessionPing } from '@/lib/analytics';
 import { flushPartnerClicksIfDue } from '@/lib/partnerClickLog';
+import { selectExpiring } from '@/lib/expirySelectors';
 import { useNotificationLog } from '@/lib/notificationLog';
 
 import { HomeSkeleton } from '@/components/home/shared';
@@ -46,6 +47,11 @@ export default function HomePage() {
   useEffect(() => {
     flushPartnerClicksIfDue();
   }, []);
+
+  // 긴급 알림(UrgentAlert)이 이미 보여준 "오늘까지" 품목 이름 — 바로 아래
+  // 제철 식탁(SeasonalHintWidget)에서 같은 품목을 "여유 있게" 다시 보여주는
+  // 모순된 중복 노출을 막는다.
+  const urgentTodayNames = new Set(selectExpiring(items).today.map((e) => e.item.name));
 
   return (
     <div>
@@ -138,7 +144,7 @@ export default function HomePage() {
               <SeasonChangeAlert items={items} />
             </SectionErrorBoundary>
             <SectionErrorBoundary label="제철 힌트">
-              <SeasonalHintWidget items={items} />
+              <SeasonalHintWidget items={items} excludeNames={urgentTodayNames} />
             </SectionErrorBoundary>
           </SectionHeader>
 

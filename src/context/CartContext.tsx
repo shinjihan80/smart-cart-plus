@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { CartItem, isFoodItem } from '@/types';
 import { mockCartItems } from '@/data/mockData';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { getRemainingDays } from '@/lib/expirySelectors';
 import { recordAddsAndMaybeShowAd } from '@/lib/addMilestone';
 import { todayLocalStr } from '@/lib/dateMath';
 
@@ -199,7 +199,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const toArchive: CartItem[] = [];
       const remaining = prev.filter((item) => {
         if (isFoodItem(item)) {
-          const dDay = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
+          const dDay = getRemainingDays(item);
           if (dDay < -7) {
             toArchive.push(item);
             count++;
