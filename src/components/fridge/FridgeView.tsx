@@ -45,8 +45,13 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
         const list        = bySection.get(cell.section) ?? [];
         // 배지 색(urgent)과 숫자(list.length)가 서로 다른 의미라 빨간 배지 합이
         // 임박 수와 안 맞던 버그(P0-29) — 총 개수 배지는 항상 중립색, 임박 개수는
-        // 별도 배지로 분리한다.
-        const urgentCount = list.filter((i) => classifyExpiry(i.dDay) !== 'fresh').length;
+        // 별도 배지로 분리한다. "임박"은 today+soon만 — 홈 배지들과 같은 기준으로
+        // 맞추기 위해 이미 지난(expired) 항목은 여기서도 뺀다(!== 'fresh'는 expired도
+        // 포함해 홈 배지보다 항상 컸다).
+        const urgentCount = list.filter((i) => {
+          const bucket = classifyExpiry(i.dDay);
+          return bucket === 'today' || bucket === 'soon';
+        }).length;
         const urgent      = urgentCount > 0;
         const isActive    = highlight === cell.section;
 

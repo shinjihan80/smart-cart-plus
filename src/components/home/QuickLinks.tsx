@@ -8,8 +8,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
-import { EXPIRY_SOON_DAYS } from '@/lib/expiryThresholds';
+import { selectExpiring } from '@/lib/expirySelectors';
 import { currentSeasonByMonth, seasonStart } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
@@ -43,8 +42,11 @@ export default function QuickLinks({
   const { list: shopping } = useShoppingList();
 
   const foods = items.filter(isFoodItem);
-  // 배지·표시는 "임박(≤3일)" 하나로 통일 — 보유 총 개수는 배지로 쓰지 않음 (P0-10)
-  const soonCount = foods.filter((f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) <= EXPIRY_SOON_DAYS).length;
+  // 배지·표시는 "임박(today+soon)" 하나로 통일 — 보유 총 개수는 배지로 쓰지 않음(P0-10).
+  // 이전엔 calcRemainingDays <= EXPIRY_SOON_DAYS를 직접 비교해 하한이 없어
+  // 이미 지난(expired) 식품까지 세는 바람에 하단 탭·홈 다른 배지와 숫자가
+  // 어긋났다(P0-30 재발) — selectExpiring()으로 다른 배지와 같은 값을 쓴다.
+  const soonCount = selectExpiring(items).urgentTotal;
 
   // 제철 놓친 개수
   const missedCount = (() => {

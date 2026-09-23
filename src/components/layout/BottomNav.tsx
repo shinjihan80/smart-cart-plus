@@ -6,9 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Home, Refrigerator, Shirt, User, Plus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { isFoodItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
-import { classifyExpiry } from '@/lib/expiryThresholds';
+import { selectExpiring } from '@/lib/expirySelectors';
 import dynamic from 'next/dynamic';
 const TextImportModal = dynamic(() => import('@/components/TextImportModal'), { ssr: false });
 
@@ -32,12 +30,11 @@ export default function BottomNav() {
     return () => window.removeEventListener('nemoa:open-register', onOpen);
   }, []);
 
-  // 배지 = "행동이 필요한 수" 하나로 통일(임박 + 이미 지난 것 포함). 옷장 보유
-  // 개수는 배지로 안 씀 (P0-10). classifyExpiry로 판정 — 이전엔 하한 없는
-  // <=3이라 우연히 지난 항목도 포함됐는데, 의도치 않은 경계였다(P0-30).
-  const soonCount = mounted ? items.filter(isFoodItem).filter(
-    (f) => classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays)) !== 'fresh',
-  ).length : 0;
+  // 배지 = "임박(today+soon)" 하나로 통일 — 홈 QuickLinks·WeeklyInsight·
+  // 냉장고 칸 배지와 같은 selectExpiring()을 써서 화면마다 숫자가 안 갈리게
+  // 한다. 예전엔 !== 'fresh'로 이미 지난(expired) 것까지 포함해 다른 배지보다
+  // 항상 컸다 — expired는 별도 문구(오늘 한 마디 등)로만 안내하고 배지엔 안 뺀다.
+  const soonCount = mounted ? selectExpiring(items).urgentTotal : 0;
 
   const NAV_ITEMS: NavItem[] = [
     { kind: 'link',   href: '/',       label: '홈',     icon: Home,         badge: 0 },

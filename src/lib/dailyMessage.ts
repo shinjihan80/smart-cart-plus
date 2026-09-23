@@ -1,5 +1,5 @@
 import { isFoodItem, isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { getRemainingDays } from '@/lib/expirySelectors';
 import type { WeatherSnapshot } from '@/lib/weather';
 import type { WearLog } from '@/lib/wearLog';
 import type { CookLog } from '@/lib/recipeCookLog';
@@ -46,7 +46,7 @@ export function pickDailyMessage(
   // 이미 기한이 지난 것과 "오늘까지"는 다른 메시지 — expired에는
   // "곧 만료"·레시피 CTA를 절대 안 붙인다(P0-30: 상한 음식에 레시피를 권하던 버그).
   const expired = foods.filter(
-    (f) => classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays)) === 'expired',
+    (f) => classifyExpiry(getRemainingDays(f)) === 'expired',
   );
   if (expired.length > 0) {
     const firstName = expired[0].name;
@@ -61,7 +61,7 @@ export function pickDailyMessage(
   }
 
   const expiringToday = foods.filter(
-    (f) => classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays)) === 'today',
+    (f) => classifyExpiry(getRemainingDays(f)) === 'today',
   );
   // 제철 + 임박 겹친 것 최우선 — 1회 기회 강조
   const seasonalExpiring = expiringToday.filter((f) => isSeasonalProduce(f.name, season));

@@ -1,5 +1,5 @@
 import type { FoodItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { getRemainingDays } from './expirySelectors';
 import { classifyExpiry } from './expiryThresholds';
 
 export interface FoodStats {
@@ -26,7 +26,7 @@ export function summarizeFoods(foods: readonly FoodItem[]): FoodStats {
     else if (f.storageType === '냉동') frozen += 1;
     else if (f.storageType === '실온') room += 1;
 
-    const bucket = classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays));
+    const bucket = classifyExpiry(getRemainingDays(f));
     if (bucket === 'today' || bucket === 'soon') soon += 1;
   }
   return { total: foods.length, cold, frozen, room, soon };
