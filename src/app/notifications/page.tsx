@@ -81,11 +81,14 @@ export default function NotificationsPage() {
 
       <div className="px-5 pt-4 pb-12 flex flex-col gap-2">
         {notifOff && (
+          // 배너와 아래 알림 카드가 같은 화면인데도 면 처리가 서로 달랐다
+          // (배너: bg-gray-50+테두리 1px, 대비 1.05:1로 사실상 안 보임 /
+          // 카드: bg-white+ring). 카드와 같은 표면 스타일로 통일(검토단 C6).
           <Link
             href="/settings#notifications"
-            className="flex items-center gap-3 rounded-[20px] bg-gray-50 border border-gray-100 px-4 py-3.5 mb-2 active:scale-[0.99] transition-transform"
+            className="flex items-center gap-3 rounded-[20px] px-4 py-3.5 mb-2 bg-white ring-1 ring-gray-100 active:scale-[0.99] transition-transform"
           >
-            <span className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+            <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
               <BellOff size={16} className="text-gray-500" />
             </span>
             <div className="flex-1 min-w-0">
@@ -126,7 +129,10 @@ export default function NotificationsPage() {
                       허용(line-clamp-2)해서 숫자가 안 잘리게. */}
                   <p className="text-sm font-semibold text-gray-900 line-clamp-2">{entry.title.replace(/^\S+\s/, '')}</p>
                   <p className="text-xs text-gray-500 mt-0.5 truncate">{entry.body}</p>
-                  <p className="text-[11px] text-gray-400 tabular-nums mt-1">{formatWhen(entry.createdAt)}</p>
+                  {/* 11px + gray-400 조합이 2.6:1로 흰 배경에서 거의 안 보였다
+                      (검토단 C6·C8) — "언제 온 알림인지"가 이 줄의 핵심
+                      정보라 gray-500(대비 개선)으로 올림 */}
+                  <p className="text-xs text-gray-500 tabular-nums mt-1">{formatWhen(entry.createdAt)}</p>
                 </div>
                 <ChevronRight size={16} className="text-gray-300 shrink-0 mt-1" />
               </Link>

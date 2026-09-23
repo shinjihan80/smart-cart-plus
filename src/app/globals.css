@@ -47,9 +47,16 @@
 
 /* SUIT 한국어 본문 가독성 — 모바일 표준 (토스·컬리·당근 스타일) */
 html {
-  /* 1rem = 18px — Tailwind 전 클래스 비례 12.5% ↑
-     text-xs 13.5 · text-sm 15.75 · text-base 18 · text-lg 20.25 · text-xl 22.5 */
-  font-size: 18px;
+  /* 브라우저 기본(보통 16px) 기준 112.5% = 18px — px 고정이 아니라 %라서
+     사용자가 OS/브라우저에서 글자 크기를 키우면 이 값도 따라 커진다.
+     이전엔 `font-size: 18px`로 고정해뒀는데, 그러면 시스템 글자를 키운
+     사용자(저시력 등, 검토단 C8 페르소나가 대표하는 사용자군)에게 앱만
+     반응하지 않아 WCAG 1.4.4(Resize Text) 위반이었다(전문단 E2/E3 발견,
+     P1-48 — 임의 px 타이포·radius 혼용 등 8건 findings의 공통 원인으로
+     지목됨). 기본 설정 사용자에게는 계산값이 18px로 그대로라 시각 회귀 없음.
+     text-xs 13.5 · text-sm 15.75 · text-base 18 · text-lg 20.25 · text-xl 22.5
+     (기본 16px 환경 기준 — 사용자가 확대하면 전부 비례해서 커진다) */
+  font-size: 112.5%;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }

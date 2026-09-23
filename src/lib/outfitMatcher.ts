@@ -63,10 +63,15 @@ function pickTopN<T extends { score: number }>(arr: T[], n: number): T[] {
 
 function scoreItem(item: ClothingItem, opts: MatchOptions, idleDays: number): number {
   let score = 0;
-  // 시즌 매치 +2
-  if (opts.season && item.weatherTags?.includes(opts.season)) score += 2;
-  // 두께 매치 +1
-  if (opts.thickness?.includes(item.thickness)) score += 1;
+  // 두께 매치 +2 — 실시간 기온(recommendedThickness) 기반이라 계절보다
+  // 우선한다. 예전엔 시즌 매치가 더 높은 가산(+2)을 받아, 체감 25°에도
+  // "가을" 태그가 붙은 두꺼운 액세서리(울 머플러 등)가 얇은 옷보다 높은
+  // 점수로 뽑혔다(검토단 C2·C4 발견 — "체감 25°인데 울 머플러 추천").
+  // 시즌은 달력 월 기준의 느슨한 신호일 뿐이라 실시간 기온 신호보다
+  // 낮게 둔다.
+  if (opts.thickness?.includes(item.thickness)) score += 2;
+  // 시즌 매치 +1
+  if (opts.season && item.weatherTags?.includes(opts.season)) score += 1;
   // 오래 안 입은 옷 가산 (로테이션 유도) — 14일+ 마다 +0.5
   if (idleDays > 14) score += Math.min(2, (idleDays - 14) / 14);
   // 최근 3일 이내 착용한 옷 회피 — 같은 옷 연속 노출 방지 (−1.5)
