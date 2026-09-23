@@ -10,7 +10,7 @@
  * "코디 만들기"의 진입 장벽을 낮춘다.
  */
 
-import { FASHION_GROUP, type ClothingItem } from '@/types';
+import { FASHION_GROUP, type ClothingItem } from '../types/index.ts';
 import type { Season } from './season';
 
 export interface Outfit {
@@ -85,7 +85,7 @@ export function generateOutfits(
 ): Outfit[] {
   const count = opts.count ?? 6;
 
-  // 카테고리별 분류 + 점수
+  // 카테고리별 분류
   const tops      = items.filter((i) => i.category === '상의');
   const bottoms   = items.filter((i) => i.category === '하의');
   const onepieces = items.filter((i) => i.category === '원피스');
@@ -93,75 +93,111 @@ export function generateOutfits(
   const shoes     = items.filter((i) => FASHION_GROUP[i.category] === '신발');
   const accs      = items.filter((i) => FASHION_GROUP[i.category] === '액세서리');
 
+  // 콜드스타트(착용 로그 0건, 호출부가 idleDays=9999로 균일 전달) 감지 —
+  // 9999는 scoreItem에서 이미 전원 동일(+2 상한)로 취급돼 순위엔 영향 없지만,
+  // "오랜만에" 배지(idle>14)는 모든 카드에 찍혀 노이즈가 된다. 점수 계산은
+  // 그대로 두고(시즌/두께 매치가 유일한 변별 요인), 배지만 콜드스타트에서 끈다
+  // — 다양성은 아래 라운드로빈 슬롯 배정에 맡긴다("카테고리 커버리지 우선").
+  const coldStart = [...tops, ...bottoms, ...onepieces].every((i) => (idleByItem[i.id] ?? 9999) === 9999);
+
   const scoredTops      = tops.map((i)      => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) }));
   const scoredBottoms   = bottoms.map((i)   => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) }));
   const scoredOnepieces = onepieces.map((i) => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) }));
   const scoredOuters    = outers.map((i)    => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) }));
-  const scoredShoes     = shoes.map((i)     => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) }));
-  const scoredAccs      = accs.map((i)      => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) }));
+  const scoredShoes     = pickTopN(shoes.map((i) => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) })), shoes.length);
+  const scoredAccs      = pickTopN(accs.map((i)  => ({ item: i, score: scoreItem(i, opts, idleByItem[i.id] ?? 0) })), accs.length);
 
   const result: Outfit[] = [];
   const seenSig = new Set<string>(); // 중복 조합 방지
 
-  // 상의+하의 조합
+  // 상의×하의 전체 조합에 점수를 매겨 정렬한 뒤, 슬롯별 최대 등장 횟수(cap)를
+  // 넘는 조합은 건너뛴다 — 예전엔 이중 루프+early break라 상의 후보 1개가
+  // count-1장을 독점했다(신발·액세서리도 매번 [0]으로 고정이라 더 심했다).
+  // cap은 후보 풀 크기에 맞춰 동적으로(옷이 적을수록 완화) 계산해 MMR과
+  // 비슷하게 "한 아이템이 결과 집합을 과점하면 후보에서 제외"를 흉내낸다.
   const topCandidates    = pickTopN(scoredTops, Math.min(5, scoredTops.length));
   const bottomCandidates = pickTopN(scoredBottoms, Math.min(5, scoredBottoms.length));
-  for (const t of topCandidates) {
-    for (const b of bottomCandidates) {
-      const sh = scoredShoes[0]?.item;
-      const ac = scoredAccs[0]?.item;
-      const ou = (opts.thickness && opts.thickness.includes('두꺼움')) ? scoredOuters[0]?.item : undefined;
+  const capFor = (n: number) => Math.max(1, Math.ceil(count / Math.max(1, n)));
+  const topCap    = capFor(topCandidates.length);
+  const bottomCap = capFor(bottomCandidates.length);
 
-      const sig = [t.item.id, b.item.id, sh?.id, ou?.id].join('|');
-      if (seenSig.has(sig)) continue;
-      seenSig.add(sig);
+  const combos = topCandidates.flatMap((t) => bottomCandidates.map((b) => ({ t, b, score: t.score + b.score })));
+  combos.sort((a, b) => b.score - a.score);
 
-      // co-worn 보너스 — 사용자가 저장한 코디에서 본 조합이면 가산.
-      // "자주 입는 조합" 라벨은 상의+하의가 실제로 함께 저장된 경우만 붙인다 —
-      // 신발 하나가 여러 저장 코디에 공통으로 들어있으면(자주 신는 신발) 그
-      // 신발이 낀 모든 조합이 "자주 입는 조합"으로 오염되던 버그(C2 발견,
-      // P1-37) — 신발만 겹치는 약한 신호는 점수 가산에만 반영하고 라벨엔 안 씀.
-      const topBottomCoWorn = isCoWorn(t.item.id, b.item.id, opts.coWornPairs);
-      let coBoost = 0;
-      if (topBottomCoWorn) coBoost += 1.5;
-      if (sh && isCoWorn(t.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
-      if (sh && isCoWorn(b.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
-
-      // 추천 이유 수집
-      const reasons: string[] = [];
-      if (topBottomCoWorn) reasons.push('💞 자주 입는 조합');
-      if (opts.season && (t.item.weatherTags?.includes(opts.season) || b.item.weatherTags?.includes(opts.season))) {
-        const seasonEmoji = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' }[opts.season];
-        reasons.push(`${seasonEmoji} ${opts.season} 매칭`);
-      }
-      if (ou) reasons.push('🧥 추울 때');
-      const tIdle = idleByItem[t.item.id] ?? 0;
-      const bIdle = idleByItem[b.item.id] ?? 0;
-      if (tIdle > 14 || bIdle > 14) reasons.push('🌙 오랜만에');
-
-      const total = t.score + b.score + (ou ? 1 : 0) + coBoost;
-      result.push({
-        id:    `o-${sig}`,
-        // label은 실제 옷 이름 기반 — 예전엔 계절만 써서 캐러셀 6장이 전부
-        // "가을 코디"로 똑같이 찍혔다(C2: "코디는 이름으로 기억하는데 다
-        // 가을 코디면 저장해도 못 찾는다"). 대표 아이템(상의) 이름을 넣어
-        // 카드마다 실제로 구분되게 한다. reasons 배지와는 절대 안 겹치게.
-        label: `${t.item.name} 코디`,
-        slots: { top: t.item, bottom: b.item, outer: ou, shoes: sh, accessory: ac },
-        score: total,
-        reasons,
-      });
-      if (result.length >= count) break;
+  const topUsed    = new Map<string, number>();
+  const bottomUsed = new Map<string, number>();
+  const chosen: typeof combos = [];
+  for (const c of combos) {
+    if (chosen.length >= count) break;
+    if ((topUsed.get(c.t.item.id) ?? 0) >= topCap) continue;
+    if ((bottomUsed.get(c.b.item.id) ?? 0) >= bottomCap) continue;
+    chosen.push(c);
+    topUsed.set(c.t.item.id, (topUsed.get(c.t.item.id) ?? 0) + 1);
+    bottomUsed.set(c.b.item.id, (bottomUsed.get(c.b.item.id) ?? 0) + 1);
+  }
+  // cap 때문에 count를 못 채웠으면(후보 풀이 아주 얇을 때) 점수순으로 보충 —
+  // 이땐 cap을 넘기더라도 결과를 count장 채우는 쪽이 우선.
+  if (chosen.length < count) {
+    for (const c of combos) {
+      if (chosen.length >= count) break;
+      if (chosen.includes(c)) continue;
+      chosen.push(c);
     }
-    if (result.length >= count) break;
   }
 
-  // 원피스 조합 (남는 자리)
-  for (const op of pickTopN(scoredOnepieces, count - result.length)) {
-    const sh = scoredShoes[0]?.item;
-    const ac = scoredAccs[0]?.item;
+  chosen.forEach(({ t, b, score: tbScore }, idx) => {
+    // 신발·액세서리도 결과 인덱스 기준 라운드로빈 — 예전엔 항상 [0]으로
+    // 고정 대입해 캐러셀을 몇 장 넘겨도 신발·액세서리가 절대 안 바뀌었다.
+    const sh = scoredShoes.length > 0 ? scoredShoes[idx % scoredShoes.length].item : undefined;
+    const ac = scoredAccs.length  > 0 ? scoredAccs[idx  % scoredAccs.length].item  : undefined;
+    const ou = (opts.thickness && opts.thickness.includes('두꺼움')) ? scoredOuters[0]?.item : undefined;
+
+    const sig = [t.item.id, b.item.id, sh?.id, ou?.id].join('|');
+    if (seenSig.has(sig)) return;
+    seenSig.add(sig);
+
+    // co-worn 보너스 — 사용자가 저장한 코디에서 본 조합이면 가산.
+    // "자주 입는 조합" 라벨은 상의+하의가 실제로 함께 저장된 경우만 붙인다 —
+    // 신발 하나가 여러 저장 코디에 공통으로 들어있으면(자주 신는 신발) 그
+    // 신발이 낀 모든 조합이 "자주 입는 조합"으로 오염되던 버그(C2 발견,
+    // P1-37) — 신발만 겹치는 약한 신호는 점수 가산에만 반영하고 라벨엔 안 씀.
+    const topBottomCoWorn = isCoWorn(t.item.id, b.item.id, opts.coWornPairs);
+    let coBoost = 0;
+    if (topBottomCoWorn) coBoost += 1.5;
+    if (sh && isCoWorn(t.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
+    if (sh && isCoWorn(b.item.id, sh.id, opts.coWornPairs)) coBoost += 0.75;
+
+    // 추천 이유 수집
+    const reasons: string[] = [];
+    if (topBottomCoWorn) reasons.push('💞 자주 입는 조합');
+    if (opts.season && (t.item.weatherTags?.includes(opts.season) || b.item.weatherTags?.includes(opts.season))) {
+      const seasonEmoji = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' }[opts.season];
+      reasons.push(`${seasonEmoji} ${opts.season} 매칭`);
+    }
+    if (ou) reasons.push('🧥 추울 때');
+    const tIdle = idleByItem[t.item.id] ?? 0;
+    const bIdle = idleByItem[b.item.id] ?? 0;
+    if (!coldStart && (tIdle > 14 || bIdle > 14)) reasons.push('🌙 오랜만에');
+
+    const total = tbScore + (ou ? 1 : 0) + coBoost;
+    result.push({
+      id:    `o-${sig}`,
+      // label은 상의+하의 이름 조합 — 예전엔 상의 이름만 써서 상의가 고정된
+      // 카드끼리는 라벨도 똑같았다(C2: "코디는 이름으로 기억하는데 다 같은
+      // 이름이면 저장해도 못 찾는다"). reasons 배지와는 절대 안 겹치게.
+      label: `${t.item.name} × ${b.item.name}`,
+      slots: { top: t.item, bottom: b.item, outer: ou, shoes: sh, accessory: ac },
+      score: total,
+      reasons,
+    });
+  });
+
+  // 원피스 조합 (남는 자리) — 신발·액세서리는 여기도 인덱스 기준 라운드로빈.
+  pickTopN(scoredOnepieces, count - result.length).forEach((op, idx) => {
+    const sh = scoredShoes.length > 0 ? scoredShoes[idx % scoredShoes.length].item : undefined;
+    const ac = scoredAccs.length  > 0 ? scoredAccs[idx  % scoredAccs.length].item  : undefined;
     const sig = [op.item.id, sh?.id].join('|');
-    if (seenSig.has(sig)) continue;
+    if (seenSig.has(sig)) return;
     seenSig.add(sig);
 
     const reasons: string[] = [];
@@ -169,7 +205,7 @@ export function generateOutfits(
       const seasonEmoji = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' }[opts.season];
       reasons.push(`${seasonEmoji} ${opts.season} 매칭`);
     }
-    if ((idleByItem[op.item.id] ?? 0) > 14) reasons.push('🌙 오랜만에');
+    if (!coldStart && (idleByItem[op.item.id] ?? 0) > 14) reasons.push('🌙 오랜만에');
 
     result.push({
       id:    `o-${sig}`,
@@ -178,8 +214,7 @@ export function generateOutfits(
       score: op.score,
       reasons,
     });
-    if (result.length >= count) break;
-  }
+  });
 
   return pickTopN(result, count);
 }
