@@ -10,6 +10,7 @@ import EmojiIcon from '@/components/EmojiIcon';
 import { useSessionPing } from '@/lib/analytics';
 import { flushPartnerClicksIfDue } from '@/lib/partnerClickLog';
 import { selectExpiring } from '@/lib/expirySelectors';
+import { useNotificationLog } from '@/lib/notificationLog';
 
 import { HomeSkeleton } from '@/components/home/shared';
 import HeroMessage     from '@/components/home/HeroMessage';
@@ -31,19 +32,15 @@ export default function HomePage() {
   const { items, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
   const [ready, setReady] = useState(false);
-  // 알림 권한이 꺼져 있으면 벨에 작은 점 — 알림이 이 앱의 핵심 리텐션 기능이라
-  // "꺼져 있다"는 걸 설정에 들어가기 전에 알 수 있게 (검토단 C1/C4·전문단 E1 발견:
-  // 예전엔 벨이 onClick 자체가 없는 죽은 버튼이었음)
-  const [notifOff, setNotifOff] = useState(false);
+  // 벨의 점 = 안 읽은 알림 개수(/notifications 목록 기준). 예전엔 "알림 권한이
+  // 꺼져 있음"을 점으로 표시했는데, 눌러보면 알림함이 아니라 설정으로 가고
+  // 읽을 게 없어 "새 소식 있음"으로 오독됐다(검토단 C1/C4·전문단 E1 발견).
+  // 권한 꺼짐 안내는 이제 /notifications 안의 배너로 옮겼다.
+  const { unreadCount } = useNotificationLog();
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 300);
     return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    if (typeof Notification === 'undefined') return;
-    setNotifOff(Notification.permission !== 'granted');
   }, []);
 
   // 일일 익명 파트너 클릭 집계 flush — opt-in (analytics enabled) 사용자만 어제 데이터 전송
@@ -64,15 +61,15 @@ export default function HomePage() {
           <NemoaLogo size="md" />
           <div className="flex items-center -mr-1">
             <Link
-              href="/settings#notifications"
-              aria-label={notifOff ? '알림 — 꺼져 있음, 탭해서 설정' : '알림 설정'}
+              href="/notifications"
+              aria-label={unreadCount > 0 ? `알림 — 안 읽은 알림 ${unreadCount}개` : '알림'}
               className="relative w-10 h-10 flex items-center justify-center text-brand-ink hover:text-brand-primary transition-colors"
             >
               <Bell size={22} strokeWidth={2} />
-              {notifOff && (
+              {unreadCount > 0 && (
                 <span
                   aria-hidden="true"
-                  className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-warning ring-2 ring-white"
+                  className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-primary ring-2 ring-white"
                 />
               )}
             </Link>
