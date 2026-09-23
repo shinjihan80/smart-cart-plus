@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { isFoodItem, type StorageType, type FoodGroup, FOOD_GROUPS, type FridgeSection, FOOD_GROUP } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { getRemainingDays } from '@/lib/expirySelectors';
 import { todayLocalStr } from '@/lib/dateMath';
 import { LayoutGrid, List, SlidersHorizontal, X } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
@@ -103,7 +103,7 @@ export default function FridgePage() {
   const [activeTab, setActiveTab] = useState<FridgeTab>('fridge');
   const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
   const compactDetailItem = compactDetailId ? allItems.filter(isFoodItem).find(i => i.id === compactDetailId) ?? null : null;
-  const compactDetailDDay = compactDetailItem ? calcRemainingDays(compactDetailItem.purchaseDate, compactDetailItem.baseShelfLifeDays) : 0;
+  const compactDetailDDay = compactDetailItem ? getRemainingDays(compactDetailItem) : 0;
   const {
     instances: fridgeInstances,
     activeId: activeFridgeId,
@@ -125,7 +125,7 @@ export default function FridgePage() {
 
   const allFood = allItems.filter(isFoodItem)
     .filter((i) => (i.fridgeInstanceId ?? fridgeInstances[0]?.id ?? DEFAULT_FRIDGE_INSTANCE.id) === activeFridgeId)
-    .map((f) => ({ ...f, dDay: calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) }));
+    .map((f) => ({ ...f, dDay: getRemainingDays(f) }));
 
   // 소유자 필터만 적용한 베이스 — 헤더·통계 카드·빈 상태가 전부 이 값을 기준으로 삼아야
   // "목록은 0개인데 통계는 전체 그대로" 같은 불일치가 안 생긴다(구 버그: 통계는 allFood,

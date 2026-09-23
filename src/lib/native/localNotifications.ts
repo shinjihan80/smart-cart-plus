@@ -2,8 +2,8 @@
 
 import { isNative } from './index';
 import type { FoodItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
-import { EXPIRY_SOON_DAYS } from '@/lib/expiryThresholds';
+import { getRemainingDays } from '@/lib/expirySelectors';
+import { classifyExpiry } from '@/lib/expiryThresholds';
 
 const SCHEDULED_IDS_KEY = 'nemoa-local-noti-ids';
 
@@ -79,8 +79,9 @@ export async function rescheduleExpiryNotifications(foodItems: readonly FoodItem
   const now = new Date();
   const candidates = foodItems
     .map((item) => {
-      const dDay = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
-      if (dDay < 0 || dDay > EXPIRY_SOON_DAYS) return null; // 임박 창 밖 — 나중에 재계산됨
+      const dDay = getRemainingDays(item);
+      const bucket = classifyExpiry(dDay);
+      if (bucket !== 'today' && bucket !== 'soon') return null; // 임박 창 밖 — 나중에 재계산됨
       const fireAt = new Date();
       fireAt.setDate(fireAt.getDate() + Math.max(dDay - 1, 0));
       fireAt.setHours(9, 0, 0, 0);

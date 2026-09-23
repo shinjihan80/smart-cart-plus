@@ -1,5 +1,6 @@
 import type { FoodItem, FoodCategory } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
+import { getRemainingDays } from './expirySelectors';
+import { isUpcoming } from './expiryThresholds';
 import { inferFoodCategory } from './ingredientInference';
 
 /** 성인 기준 1일 평균 섭취 권장량(weekly로 환산) — 단위: g 또는 kcal */
@@ -54,7 +55,7 @@ export interface NutritionBalance {
  * - 1줄 네모아 조언 (가장 부족하거나 과한 항목 기반)
  */
 export function analyzeBalance(foods: FoodItem[]): NutritionBalance {
-  const active = foods.filter((f) => calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays) >= 0);
+  const active = foods.filter((f) => isUpcoming(getRemainingDays(f)));
 
   const totals = active.reduce(
     (acc, f) => {

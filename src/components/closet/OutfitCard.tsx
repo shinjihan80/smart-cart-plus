@@ -38,62 +38,62 @@ export default function OutfitCard({ outfit, onClick, size = 'compact' }: Outfit
     <button
       type="button"
       onClick={onClick}
-      className={`group relative w-full overflow-hidden rounded-3xl bg-gray-50 ring-1 ring-gray-100 hover:ring-brand-primary/30 transition-all active:scale-[0.98] ${isHero ? 'aspect-[4/3]' : 'aspect-square'}`}
+      className="group relative flex flex-col w-full overflow-hidden rounded-3xl bg-gray-50 ring-1 ring-gray-100 hover:ring-brand-primary/30 transition-all active:scale-[0.98]"
       style={{ touchAction: 'manipulation' }}
       aria-label={`${outfit.label} 코디 상세 보기`}
     >
-      <div
-        className="grid h-full w-full"
-        style={{ gridTemplateColumns: accents.length > 0 ? '3fr 2fr' : '1fr' }}
-      >
+      {/* 콜라주 — 라벨을 이 위에 얹지 않는다. 이전엔 하단 그라데이션 오버레이가
+          라벨 가독성을 위해 카드 높이의 45%까지 콜라주를 가렸고, 그래도
+          대비가 부족해(실측 최대 2.17:1, 필요 4.5:1) 액세서리 칸의 밝은
+          이모지(반지 등) 위에서 글자가 씹혀 보였다(전문단 E3 실측 확인).
+          라벨을 아예 별도 불투명 밴드로 분리해 겹침을 구조적으로 없앤다. */}
+      <div className={`relative w-full ${isHero ? 'aspect-[4/3]' : 'aspect-square'}`}>
         <div
           className="grid h-full w-full"
-          style={{ gridTemplateRows: `repeat(${Math.max(skeleton.length, 1)}, 1fr)` }}
+          style={{ gridTemplateColumns: accents.length > 0 ? '3fr 2fr' : '1fr' }}
         >
-          {(skeleton.length > 0 ? skeleton : [undefined]).map((item, i) => (
-            <SlotBox key={i} item={item} hero={isHero} />
-          ))}
-        </div>
-        {accents.length > 0 && (
           <div
-            className="grid h-full w-full border-l border-white/50"
-            style={{ gridTemplateRows: `repeat(${accents.length}, 1fr)` }}
+            className="grid h-full w-full"
+            style={{ gridTemplateRows: `repeat(${Math.max(skeleton.length, 1)}, 1fr)` }}
           >
-            {accents.map((item, i) => (
-              <SlotBox key={i} item={item} small hero={isHero} />
+            {(skeleton.length > 0 ? skeleton : [undefined]).map((item, i) => (
+              <SlotBox key={i} item={item} hero={isHero} />
+            ))}
+          </div>
+          {accents.length > 0 && (
+            <div
+              className="grid h-full w-full border-l border-white/50"
+              style={{ gridTemplateRows: `repeat(${accents.length}, 1fr)` }}
+            >
+              {accents.map((item, i) => (
+                <SlotBox key={i} item={item} small hero={isHero} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 이유 배지 — 좌상단 */}
+        {outfit.reasons.length > 0 && (
+          <div className={`absolute top-2 left-2 flex flex-wrap gap-1 max-w-[80%] ${isHero ? 'top-3 left-3 gap-1.5' : ''}`}>
+            {outfit.reasons.slice(0, 2).map((r) => (
+              <span
+                key={r}
+                className={`font-semibold rounded-full bg-white/90 backdrop-blur-sm text-gray-800 shadow-sm ${isHero ? 'text-xs px-2 py-1' : 'text-[10px] px-1.5 py-0.5'}`}
+              >
+                {r}
+              </span>
             ))}
           </div>
         )}
       </div>
 
-      {/* 이유 배지 — 좌상단 */}
-      {outfit.reasons.length > 0 && (
-        <div className={`absolute top-2 left-2 flex flex-wrap gap-1 max-w-[80%] ${isHero ? 'top-3 left-3 gap-1.5' : ''}`}>
-          {outfit.reasons.slice(0, 2).map((r) => (
-            <span
-              key={r}
-              className={`font-semibold rounded-full bg-white/90 backdrop-blur-sm text-gray-800 shadow-sm ${isHero ? 'text-xs px-2 py-1' : 'text-[10px] px-1.5 py-0.5'}`}
-            >
-              {r}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* 라벨 오버레이 — 하단 그라데이션. 시즌 라벨은 한 번, 나머지는 실제 아이템명.
-          그라데이션만으로는 우측 액세서리 칸의 밝은 이모지(반지 등) 위에서 글자가
-          씹혀 보여(C2·C8 발견) text-shadow를 더해 배경과 무관하게 읽히게 한다. */}
-      <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none ${isHero ? 'px-4 pt-8 pb-3.5' : 'px-3 pt-5 pb-2'}`}>
-        <p
-          className={`font-bold text-white truncate text-left ${isHero ? 'text-base' : 'text-xs'}`}
-          style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}
-        >
+      {/* 라벨 — 콜라주와 겹치지 않는 불투명 밴드. 시즌 라벨은 한 번, 나머지는
+          실제 아이템명. */}
+      <div className={`bg-gray-900 ${isHero ? 'px-4 py-3' : 'px-3 py-1.5'}`}>
+        <p className={`font-bold text-white truncate text-left ${isHero ? 'text-base' : 'text-xs'}`}>
           {outfit.label}
         </p>
-        <p
-          className={`text-white/80 truncate text-left ${isHero ? 'text-xs mt-0.5' : 'text-[10px]'}`}
-          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}
-        >
+        <p className={`text-white/70 truncate text-left ${isHero ? 'text-xs mt-0.5' : 'text-[10px]'}`}>
           {sublabel}
         </p>
       </div>

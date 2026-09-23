@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -79,6 +80,9 @@ const FILTERS: { key: GroupFilter; label: string }[] = [
 
 type ClosetTab = 'closet' | 'clothing' | 'outfit' | 'shopping';
 
+const isClosetTab = (v: unknown): v is ClosetTab =>
+  v === 'closet' || v === 'clothing' || v === 'outfit' || v === 'shopping';
+
 const CLOSET_TABS: { id: ClosetTab; emoji: string; label: string }[] = [
   { id: 'closet',   emoji: '👔', label: '옷장' },
   { id: 'clothing', emoji: '🧥', label: '의류' },
@@ -113,9 +117,28 @@ export default function ClosetPage() {
     'nemoa-closet-view', 'list',
     (raw) => (raw === 'list' || raw === 'compact') ? raw : null,
   );
-  // 탭은 세션 내 이동용만 — /closet 진입 시 항상 '옷장'부터. (persist 하면
-  // SSR(옷장)↔CSR(저장값) 하이드레이션 미스매치 + 매 마운트 리셋 충돌. N-2)
+  // 탭 자체는 여전히 localStorage에 persist 안 함(N-2 — SSR/CSR 하이드레이션
+  // 미스매치 회피). 대신 ?tab= 쿼리는 마운트 후에만(useEffect, 클라이언트
+  // 전용) 읽어 초기 탭을 정하므로 SSR과는 절대 어긋나지 않는다 — 홈의 "오늘
+  // 코디" 카드 등에서 특정 탭으로 딥링크할 방법 자체가 없던 문제(전문단
+  // E1·E2 공통 발견)를 이 방식으로 해결. mypage/page.tsx와 동일 패턴이되,
+  // useSearchParams() 대신 window.location.search를 직접 읽어 Suspense
+  // 경계 요구사항도 피한다.
   const [activeTab, setActiveTab] = useState<ClosetTab>('closet');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (isClosetTab(requested)) setActiveTab(requested);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function selectTab(tab: ClosetTab) {
+    setActiveTab(tab);
+    router.replace(`/closet?tab=${tab}`, { scroll: false });
+    window.scrollTo(0, 0);
+  }
   const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
   const compactDetailItem = compactDetailId ? (allItems.filter(isClothingItem).find(i => i.id === compactDetailId) ?? null) : null;
   const { log: wearLog } = useWearLog();
@@ -201,7 +224,7 @@ export default function ClosetPage() {
   }
 
   function scrollToGroup(grp: FashionGroup) {
-    setActiveTab('clothing');
+    selectTab('clothing');
     setFilter('전체');
     setSearch('');
     setTimeout(() => {
@@ -292,7 +315,7 @@ export default function ClosetPage() {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  onClick={() => { setActiveTab(t.id); window.scrollTo(0, 0); }}
+                  onClick={() => selectTab(t.id)}
                   className={[
                     'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
@@ -384,7 +407,7 @@ export default function ClosetPage() {
           <div className="flex justify-between text-center">
             <button
               className="flex-1 py-1 rounded-2xl hover:bg-gray-50 transition-colors active:scale-95"
-              onClick={() => { setActiveTab('clothing'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => selectTab('clothing')}
             >
               <p className="text-base font-bold text-gray-900 tabular-nums">{allClothing.length}</p>
               <p className="text-xs text-gray-400 mt-0.5">전체</p>
@@ -478,7 +501,7 @@ export default function ClosetPage() {
                 현재 옷이 {activeClothing.length}벌이에요. 옷을 더 추가하면 날씨·계절에 맞는 코디 추천이 풍부해져요.
               </p>
               <button
-                onClick={() => setActiveTab('shopping')}
+                onClick={() => selectTab('shopping')}
                 className="mt-2 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-colors"
               >
                 🛍️ 쇼핑 탭으로 가기

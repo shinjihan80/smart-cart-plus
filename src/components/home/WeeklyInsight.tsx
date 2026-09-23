@@ -1,13 +1,12 @@
 'use client';
 
 import { isFoodItem, isClothingItem, type CartItem } from '@/types';
-import { calcRemainingDays } from '@/components/FoodTags';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useWearLog } from '@/lib/wearLog';
 import EmojiIcon from '@/components/EmojiIcon';
 import { Widget } from './shared';
 import { todayLocalStr } from '@/lib/dateMath';
-import { classifyExpiry } from '@/lib/expiryThresholds';
+import { selectExpiring } from '@/lib/expirySelectors';
 
 const DAY_LABEL = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -28,12 +27,10 @@ function ymd(d: Date): string {
 export default function WeeklyInsight({ items }: { items: CartItem[] }) {
   const food    = items.filter(isFoodItem);
   const clothes = items.filter(isClothingItem);
-  // "만료 임박"은 today/soon 버킷만 — 이미 지난(expired) 건 별도 문구가 없어
-  // 여기 섞으면 "곧 만료"라고 오해하게 된다(P0-30).
-  const urgent  = food.filter((f) => {
-    const bucket = classifyExpiry(calcRemainingDays(f.purchaseDate, f.baseShelfLifeDays));
-    return bucket === 'today' || bucket === 'soon';
-  }).length;
+  // "만료 임박"은 today/soon 버킷(urgentTotal)만 — 이미 지난(expired) 건 별도
+  // 문구가 없어 여기 섞으면 "곧 만료"라고 오해하게 된다(P0-30). 홈/네비/냉장고
+  // 배지와 같은 selectExpiring()을 써서 화면마다 숫자가 갈리지 않게 한다.
+  const urgent = selectExpiring(items).urgentTotal;
 
   const { log: cookLog } = useCookLog();
   const { log: wearLog } = useWearLog();
