@@ -61,9 +61,13 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
   const total = toStow + toUnstow;
   if (total === 0) return null;
 
+  // 예전엔 "N벌 보관할 때"처럼 술어 없는 조각을 join해, 한쪽 조각만 남으면
+  // "3벌 보관할 때 · 정리하기"처럼 문장이 끝나지 않은 채 렌더됐다(P2-35,
+  // 검토단 C1·C4·C8·C9 반복 지적, 전문단 E3 확정 카피). 각 조각을 그
+  // 자체로 완결된 명사구로 바꿔 몇 개가 남아도 파편이 안 되게 한다.
   const messageParts: string[] = [];
-  if (toUnstow > 0) messageParts.push(`${toUnstow}벌 꺼낼 때`);
-  if (toStow > 0)   messageParts.push(`${toStow}벌 보관할 때`);
+  if (toStow > 0)   messageParts.push(`보관할 옷 ${toStow}벌`);
+  if (toUnstow > 0) messageParts.push(`꺼낼 옷 ${toUnstow}벌`);
   const message = messageParts.join(' · ');
 
   function handleDismiss(e: React.MouseEvent) {
@@ -86,12 +90,13 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
           </span>
           <div className="flex-1 min-w-0 pr-6">
             <p className="text-xs font-bold text-brand-primary">
-              {season} 옷장 정리 시즌 — {total}벌
+              {season} 옷장 정리 시즌
             </p>
+            {/* 총 개수(total)는 위 제목과 겹쳐 여기선 다시 안 쓴다 — 카드 전체가
+                이미 Link+chevron이라 "· 정리하기" 같은 동사 유도 문구도 중복 */}
             <p className="text-xs text-gray-600 mt-0.5 flex items-center gap-1 min-w-0">
               <Wind size={11} strokeWidth={2} className="shrink-0" />
               <span className="truncate min-w-0">{message}</span>
-              <span className="shrink-0 text-brand-primary font-medium">· 정리하기</span>
             </p>
           </div>
           <ChevronRight size={16} strokeWidth={2.2} className="text-brand-primary shrink-0" />

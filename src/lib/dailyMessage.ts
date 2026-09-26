@@ -77,8 +77,13 @@ export function pickDailyMessage(
   if (seasonalExpiring.length > 0) {
     const f = seasonalExpiring[0];
     return {
+      // 예전엔 "곧 만료예요. 지금 아니면 내년까지 기다려야 해요!"처럼 한
+      // 문장에 냉장고 만료 경고(진짜 긴급)와 제철 희소성 마케팅(사실도
+      // 아님 — 이 주스가 상한다고 감귤을 내년까지 못 사는 게 아니다)이
+      // 섞여 "거짓 긴급성"으로 읽혔다(P1-63, 검토단 C1·C8·전문단 E3
+      // 확정 카피안). 경고를 먼저 말하고 제철은 이유로만 종속시킨다.
       emoji:    SEASON_EMOJI[season],
-      text:     `${josa(`${season}철 "${f.name}"`, '이/가')} 곧 만료예요. 지금 아니면 내년까지 기다려야 해요!`,
+      text:     `${f.name}, 오늘까지 드세요. 지금이 ${season} 제철이라 맛이 가장 좋아요.`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge' },
       paletteQuery: f.name,
