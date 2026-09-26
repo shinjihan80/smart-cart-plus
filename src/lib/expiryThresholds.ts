@@ -40,3 +40,22 @@ export function classifyExpiry(dDay: number): ExpiryBucket {
 export function isUpcoming(dDay: number): boolean {
   return classifyExpiry(dDay) !== 'expired';
 }
+
+/**
+ * 개별 품목의 dDay를 정확한 문장으로 — 버킷명(EXPIRY_LABEL)과 달리 항상
+ * 그 품목의 실제 남은 일수를 그대로 말한다.
+ *
+ * 'today' 버킷은 dDay 0과 1을 함께 묶는데(EXPIRY_TODAY_DAYS=1), 그 버킷의
+ * 대표 문구 `EXPIRY_LABEL.today='오늘까지'`를 집합 전체에 그대로 쓰면 실제로
+ * 남은 품목이 전부 1일(D-1)인 경우에도 "오늘까지"라고 말하게 된다 — 같은
+ * 품목이 다른 화면(냉장고 목록 등)에선 "1일 남음"으로 나와 신뢰를 깬다
+ * (P0-53, 검토단 C4·C8 독립 발견). 집합 문구(UrgentAlert 헤드라인 등)는
+ * 반드시 이 함수로 실제 dDay를 확인해 만들 것 — EXPIRY_LABEL.today를
+ * 직접 사용자 문장에 쓰지 않는다.
+ */
+export function expiryLabel(dDay: number): string {
+  if (dDay < 0) return EXPIRY_LABEL.over;
+  if (dDay === 0) return EXPIRY_LABEL.today;
+  if (dDay === 1) return '내일까지';
+  return `${dDay}일 남음`;
+}

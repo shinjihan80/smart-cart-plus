@@ -42,3 +42,16 @@ export function thisMonthLocalStr(d: Date = new Date()): string {
   const p = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}`;
 }
+
+/**
+ * 구매일 + 보관 일수 → 만료일("YYYY-MM-DD", 로컬 기준).
+ *
+ * 식품 카드 접힌 상태가 구매일(`purchaseDate`)을 라벨 없이 📅로만 보여줘
+ * 만료일처럼 오인되던 문제(P0-52, 검토단 C1·C9·C8 독립 발견)의 수정 —
+ * 같은 계산을 펼친 상세("보관 기한" 행)와 공유해 두 화면이 어긋나지 않게 한다.
+ */
+export function expiryDateStr(item: { purchaseDate: string; baseShelfLifeDays: number }): string {
+  const d = localMidnight(item.purchaseDate);
+  d.setDate(d.getDate() + item.baseShelfLifeDays);
+  return todayLocalStr(d);
+}

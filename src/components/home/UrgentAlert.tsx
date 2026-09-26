@@ -25,6 +25,14 @@ export default function UrgentAlert({
 
   if (urgent.length === 0) return null;
 
+  // 'today' 버킷은 dDay 0·1을 함께 묶는데(EXPIRY_TODAY_DAYS=1), 헤드라인을
+  // "오늘까지"로 고정해두면 히어로 dedup으로 진짜 D-0 품목이 빠졌을 때 남은
+  // 품목이 전부 D-1인데도 "오늘까지"라고 말하게 된다 — 냉장고 목록에선 같은
+  // 품목이 "1일 남음"으로 나와 모순돼 보인다(P0-53). 실제 남은 집합의 dDay로
+  // 헤드라인을 고른다.
+  const maxDay = Math.max(...urgent.map((u) => u.dDay));
+  const headline = maxDay === 0 ? '오늘까지' : urgent.every((u) => u.dDay === 1) ? '내일까지' : '오늘·내일';
+
   function handleDismiss(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
@@ -45,7 +53,7 @@ export default function UrgentAlert({
           </span>
           <div className="flex-1 min-w-0 pr-6">
             <p className="text-xs font-bold text-brand-warning">
-              오늘까지 먹어야 할 식품 {urgent.length}개
+              {headline} 먹어야 할 식품 {urgent.length}개
             </p>
             {/* 이 줄만은 형제(RebuyAlert 등)와 맞추지 않는다 — 오늘 당장
                 처리해야 할 유일한 항목이라 홈에서 가장 작은 글자가 되면

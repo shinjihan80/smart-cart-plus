@@ -2,13 +2,19 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { estimateCycles } from '../src/lib/purchaseCycle.ts';
+import { todayLocalStr } from '../src/lib/dateMath.ts';
 
 const FOOD = '식품';
 
+// toISOString()은 UTC 기준이라 한국(UTC+9)에서는 00:00~09:00 KST 사이
+// 오늘 날짜가 하루 전으로 찍힌다 — estimateCycles는 localMidnight/
+// todayMidnight(로컬 기준)으로 계산하므로 이 시간대에 테스트를 돌리면
+// dueInDays가 1 어긋나 flaky했다(dateMath.ts의 todayLocalStr 도입 배경과
+// 동일한 버그, P0-53 작업 중 재발 확인). 로컬 기준으로 통일해 해결.
 function daysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split('T')[0];
+  return todayLocalStr(d);
 }
 
 test('estimateCycles — 1회만 소진된 품목은 제외 (기본 minOccurrences=2)', () => {

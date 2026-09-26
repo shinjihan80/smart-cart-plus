@@ -21,7 +21,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useCart } from '@/context/CartContext';
-import { todayLocalStr } from '@/lib/dateMath';
+import { expiryDateStr } from '@/lib/dateMath';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
@@ -139,9 +139,13 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
 
             {item.memo && <p className="text-xs text-gray-400 truncate mb-2">{item.memo}</p>}
 
-            {/* 핵심 정보: 구매일 + 만료일 — 한 줄 (펼치면 자세히) */}
+            {/* 핵심 정보: 만료일 — 한 줄 (펼치면 구매일도 자세히)
+                예전엔 구매일(purchaseDate)을 라벨 없이 📅로만 보여줘 만료일로
+                오인됐다(P0-52) — "09/20 · 3일 남음"처럼 산술이 안 맞아 보여
+                D-day 전체를 못 믿게 만들었다(검토단 C1·C9·C8 독립 발견).
+                이 줄에서 실제로 궁금한 값(언제까지 먹어야 하는가)을 보여준다. */}
             <div className="flex items-center gap-2 text-xs text-gray-400 tabular-nums mb-3">
-              <span>📅 {item.purchaseDate.slice(5).replace('-', '/')}</span>
+              <span>🗓 {expiryDateStr(item).slice(5).replace('-', '/')}{dDay >= 0 ? '까지' : ''}</span>
               <span className="text-gray-200">·</span>
               <span className={isUrgent ? 'text-brand-warning font-medium' : ''}>
                 {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}
@@ -227,7 +231,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                     <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
                       <span className="text-xs text-gray-400">보관 기한</span>
                       <span className={`font-medium tabular-nums ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
-                        {(() => { const d = new Date(item.purchaseDate); d.setDate(d.getDate() + item.baseShelfLifeDays); return todayLocalStr(d); })()}
+                        {expiryDateStr(item)}
                         <span className="ml-1.5 text-xs text-gray-400">({dDay < 0 ? EXPIRY_LABEL.over : `${dDay}일`})</span>
                       </span>
                     </div>
