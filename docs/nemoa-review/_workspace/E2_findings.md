@@ -1,94 +1,73 @@
-# E2 (이현석 / 20년차 개발자) — 2026-09-27 재검토
+# E2 (이현석 / 20년차 프론트엔드·PWA 개발) — 2026-09-27 밤 재검증
 
-대상: https://nemoa.vercel.app · 375px 고정 + 루트폰트 18→24→27px 실측 · 소스 대조 `src/`
+대상: https://nemoa.vercel.app · 소스 대조 `src/`
 
 ## 발견
 
-- screen: 전역 — 접근성 확대 시 레이아웃 (냉장고 > 🍽️음식 탭에서 측정)
-  observed: 루트 18→24→27px 실측. 카드 내 rem 치수 전부 커짐(썸네일 108→162px, 패딩 22.5→33.75px, gap 18→27px, D-day 블록 52→70px) → 제목 가용폭 166→97→**63px**로 역전 축소.
-  problem: 확대할수록 텍스트 자리가 좁아짐 — C8이 관측한 모든 확대 증상(냉장고 칸 축소·홈 카드 183→124px·카테고리 타일 겹침·히어로 7줄 붕괴)의 **단일 공통 원인**. WCAG 1.4.4 실패.
-  cause: Tailwind v4 spacing이 전부 rem 기반인데 P1-48의 `html{font-size:112.5%}`로 폰트뿐 아니라 **모든 레이아웃 치수가 루트에 연동**됨. 뷰포트(px)는 고정이므로 확대분(+103.5px)이 장식 치수(썸네일·패딩·갭)에 먼저 먹히고 차액이 텍스트 영역에서 빠짐. P1-48이 "장식 치수는 확대를 따라가면 안 된다"는 구분을 안 둔 게 누락.
-  fix: (1) 확대 비추종 고정 px 토큰 신설(`--size-thumb:96px`, `--pad-card:20px`, `--gap-card:16px`). (2) 썸네일·카드패딩·그리드갭·아이콘박스를 임의값(`w-[var(--size-thumb)]` 등)으로 교체 — 대상: SwipeFoodCard/SwipeClothingCard/FridgeView/WardrobeView/홈 알림카드 3종/카테고리 그리드. 폰트·line-height·radius는 rem 유지. (3) Playwright 회귀 테스트로 루트 27px에서 `scrollWidth>0 && clientWidth===0`인 요소 0건 단정.
-  effort: L (규칙 S, 적용 M, 테스트 S — 합 1주)
-  priority_guess: P0 (신뢰 훼손 — 확대 사용자에게 핵심 정보 소실)
+- screen: 등록(FAB) > 식품 등록 > 직접입력 (`TextImportModal.tsx:900-924`, `:537-539`)
+  observed: `handleManualPick()`이 빈 식품 아이템을 리터럴 하드코딩(`foodCategory:'기타 식품'`, `storageType:'냉장'`, `baseShelfLifeDays:7`)으로 만들고, 이후 `StepConfirm.updateName()`(:537)이 name 필드만 패치. 이름 변경이 카테고리·보관기한을 재계산하는 경로가 없음.
+  problem: 추론 엔진(`ingredientInference.ts`의 `inferFoodCategory`/`defaultsFor`)이 이미 존재하고 쇼핑리스트→냉장고 경로(`ShoppingListSection.tsx`)는 이미 사용 중인데, `TextImportModal.tsx`는 이 모듈을 import조차 안 함 — "장보기에서 담은 우유"는 유제품/10일, "직접입력한 우유"는 기타식품/7일로 갈림(P0-52의 신뢰 회복이 등록 단계에서 상쇄).
+  cause: 추론 로직이 "이름이 이미 있는 아이템"만 상정해 작성돼, "빈 카드 먼저→이름 나중 타이핑" 흐름에 구조적으로 안 맞았음. `defaultsFor`가 모듈 private이라 재사용도 막힘.
+  fix: ① `defaultsFor`를 `export function inferFoodDefaults(category)`로 공개 ② `StepConfirm`에 "사용자가 손댄 필드" 추적 추가, `updateName`에서 이름→재추론(매칭 실패 시 '기타 식품'의 실온/30일로 fallback 금지 — 기존 보수값 냉장/7일 유지) ③ 추론 성공 시 확인 단계에 "'서울우유 1L'→유제품·냉장·10일로 추정했어요" 한 줄 노출.
+  effort: S
+  priority_guess: P0
 
-- screen: 냉장고 음식 카드 제목 (`SwipeFoodCard.tsx:123`) · 옷장 카드 제목(`SwipeClothingCard.tsx:129`, 동일 코드 복제)
-  observed: `text-[15px] truncate flex-1` + 형제 D-day(`text-sm shrink-0`, rem이라 확대시 커짐). clientWidth: 기본105→133%21→150%**0**(scrollWidth 84~110 그대로). 20개 카드 전부 동일.
-  problem: 확대하면 이름이 통째로 0px로 사라짐 — 사진·D-day만 남아 "뭐가 D-0인지" 알 수 없음.
-  cause: (1) `text-[15px]` 절대값이라 정작 커져야 할 이름만 고정. (2) `truncate`가 flex item의 `min-width:auto`를 무효화해 하한 없음. (3) 형제가 `shrink-0`+rem이라 확대시 혼자 커져 남는 폭을 다 가져가고 이름이 0까지 압축.
-  fix: `text-[15px]`→`text-[0.9375rem]`(렌더 동일, 확대 추종), `truncate`→`line-clamp-2 break-keep`, 컨테이너 `min-w-[8rem]` 하한. D-day는 `shrink-0` 유지하되 컨테이너 `flex-wrap`으로 좁을 때 아래줄로. 두 파일 동일 수정. ESLint로 `text-\[\d+px\]` 신규 유입 차단(아래 항목과 공통 가드).
-  effort: S (반나절)
-  priority_guess: P0 (신뢰 훼손)
+- screen: 데이터 모델 전반(`types/index.ts:83-99`)
+  observed: `FoodItem`에 만료일 필드 없음 — 매 렌더 `purchaseDate+baseShelfLifeDays`로 파생. "사용자 확인값 vs 앱 추정값" 구분 플래그도 없음.
+  problem: 카드가 추정값을 확정적 서체로 표시(C8 지적). finding1로 추론 정확도를 올려도 "추론은 추론"이라 구분 없이는 근본 해소 불가.
+  cause: 표시 레이어만 P0-52에서 만료일 중심으로 바뀌고 저장 레이어(구매일+일수)·출처 기록은 그대로 — 3중 비대칭.
+  fix: `FoodItem`에 `shelfLifeSource?:'user'|'inferred'|'ai'` 옵셔널 필드 추가(기존 스냅샷 마이그레이션 불필요, 미지정='inferred' 취급). 사용자가 직접 저장 시 'user', 카드에서 'user' 아닐 때만 "추정" 칩.
+  effort: M (finding1·3과 같은 스프린트 권장)
+  priority_guess: P0
 
-- screen: 전역 (냉장고 칸 그리드·하단 탭바·배지·주간 인사이트) — 절대 px 폰트 85곳
-  observed: `src` 전체 `text-[Npx]` 85곳(10px 50/11px 17/9px 6/12px 4/8px 2/15px 2/13px 2). 최다: ProPreviewCard 13, TextImportModal 10, FridgeView 5, WeeklyInsight 4, TodayDishCard 4, FridgeSectionPicker 4, BottomNav 3. 루트 18→27px에도 개수·크기 불변. `text-size-adjust:100%`는 `layout.tsx:23`의 `width=device-width, initialScale:1`로 인해 애초에 no-op — 원인 아님, 순수 절대px 85곳이 범인.
-  problem: OS 글자 확대해도 화면 작은 글자 절반이 안 커짐. 8~11px는 기본 상태서도 모바일 최소 가독(12px) 미달. WCAG 1.4.4 실패.
-  cause: 타이포 스케일 토큰이 없어 "Tailwind 프리셋보다 작게"가 매번 임의 px로 해결됨. P1-48이 루트를 %로 바꿨지만 하위 절대px 85곳을 같이 정리 안 해 스케일이 두 갈래로 갈림.
-  fix: (1) `@theme`에 `--text-2xs:0.6875rem`(11px 상당)/`--text-3xs:0.625rem`(10px 상당) 추가, 기본 렌더값 보존(시각 회귀 0). (2) `text-[10px]`→`text-3xs`, `text-[11px]`→`text-2xs`, `text-[9/8px]`→`text-3xs`, `text-[12/13px]`→`text-xs` 일괄 치환(79곳, sed 가능). (3) ESLint `no-restricted-syntax`로 `text-[Npx]` 신규 차단 — 핵심, 없으면 재발. (4) 하단탭바 라벨/배지 최소 12px 상향 여부는 E3 판단 연계.
-  effort: M (토큰+치환 반나절, ESLint 가드 반나절, 79곳 육안회귀 1~2일)
-  priority_guess: P0 (접근성 — 신뢰 훼손)
-
-- screen: 냉장고 > 🧊냉장고 탭 (칸 그리드, `FridgeView.tsx`)
-  observed: `grid gap-2 p-3` + `minmax(64px, auto)`(line 40), 제목 `text-[11px] truncate`(101), 내용 `text-[10px] line-clamp-1`(103/105). 실측(11칸): 기본에서 "냉동실 위칸" 49/50(이미 1px 잘림). 루트27px에서 칸폭 71→**60px**(gap-2·p-3가 rem), 제목26/50·내용26/26. 칸 높이는 265→350px로 커짐(세로만 확장). WardrobeView는 제목이 `text-sm`이라 상대적으로 양호.
-  problem: 냉장고 칸 이름이 기본상태서도 잘리고 확대시 폭이 더 줄어 더 잘림 — C8의 2026-09-23 지적 미해소.
-  cause: 칸 크기 제약이 높이만 있고(`minmax(64px,auto)`) 폭 하한이 없음(`minmax(0,1fr)`). 375px에서 p-3·gap-2 제하면 칸당 60px인데 "냉동실 아래칸"(6자)엔 59px 필요. 확대시 p-3/gap-2가 rem이라 더 깎임.
-  fix: (1) `p-3`/`gap-2`를 고정px 토큰(`p-[12px] gap-[8px]`)으로 — 확대해도 칸폭 유지. (2) 제목 `truncate`→`line-clamp-2 break-keep`, `text-[11px]`→`text-2xs`. (3) 장기: `FRIDGE_SECTION_META`에 `shortLabel`("냉동↑" 등) 추가 — 그리드는 축약형, 상세시트는 정식 라벨(E3 협의).
-  effort: M (1·2는 S, shortLabel은 11칸×4모델이라 M)
-  priority_guess: P1(기본상태 1px 잘림이라 P0 후보 — 오케스트레이터 판단)
-
-- screen: 냉장고 음식 카드 접힌 상태 — 구매일 무라벨 (`SwipeFoodCard.tsx:142-149`)
-  observed: 코드 주석 "구매일 + 만료일 — 한 줄"인데 실제 렌더는 `📅{purchaseDate}` 하나뿐, 라벨 없음. 만료일은 상대값("3일 남음")으로만. 펼친 상세(224-230)는 "구매일"/"보관 기한" 라벨 정상 — **접힌 카드만 문제**. 무라벨 절대날짜 출력은 전역 grep으로 이 한 줄이 유일.
-  problem: 달력아이콘+날짜는 관례상 기한으로 읽힘 — "09/20·3일 남음"(오늘 09/27)이 산술 안 맞아 보여 D-day를 못 믿게 됨(C1·C9·C8 3인 독립 지적).
-  cause: 카드 압축 과정에서 "구매일+만료일" 설계가 만료일 절대값만 누락된 채 구현(주석↔코드 불일치가 증거), 남은 하나에 라벨 미부착.
-  fix: 만료일 중심으로 교체 — `🗓 {expiryStr}까지 · {dDay}일 남음`. `expiryStr`은 line230 계산을 `dateMath.ts`에 `expiryDateStr(item)` 헬퍼로 추출해 공유. 구매일을 남기려면 `📅 산 날 09/20`(C9 제안).
-  effort: S (헬퍼 1개+1줄 교체, 반나절 — **투입 대비 신뢰회복 효과 이번 라운드 최고, 최우선 착수 권고**)
-  priority_guess: P0 (신뢰 훼손 — 날짜 데이터 오해)
-
-- screen: 홈 > 오늘 할 일 > 임박 식품 카드 (P1-51 dedup 사후 검증)
-  observed: `UrgentAlert.tsx:22` `selectExpiring(items).today` — `EXPIRY_TODAY_DAYS=1`이라 dDay 0·1이 같은 'today' 버킷. line48 "오늘까지 먹어야 할 식품 N개" 고정. dedup(line24 excludeNames)이 유일한 진짜 D-0을 빼면 남은 2건이 전부 D-1인데도 "오늘까지" 유지. line23에서 dDay를 map으로 가져오지만 렌더에 미사용.
-  problem: 라벨-실제D-day 불일치(C4·C8 독립 지적) — **P1-51의 회귀는 아니나 P1-51이 노출시킨 기존 결함**.
-  cause: 임계값 상수(`EXPIRY_TODAY_DAYS=1`)와 표시 문구(`EXPIRY_LABEL.today='오늘까지'`)가 같은 파일에 있으나 의미가 다름(버킷=오늘+내일, 라벨=오늘). 경계 변경 시 라벨 동반검토 장치 없음.
-  fix: dDay가 이미 엔트리에 있으므로 렌더 분기. (1) `allToday = urgent.every(u=>u.dDay===0)`로 "오늘까지 N개"/"오늘·내일 N개" 선택. (2) 더 나은 안: 품목별 "이름(오늘)"/"이름(내일)" 칩 — 아래 NameChips 항목과 통합 해결. (3) `EXPIRY_LABEL`에 `todayOrTomorrow:'오늘·내일'` 추가, `EXPIRY_TODAY_DAYS` JSDoc에 "값 변경시 EXPIRY_LABEL.today도 같이 고칠 것" 명시.
-  effort: S (반나절)
-  priority_guess: P1 (신뢰 훼손 — 카피↔데이터 불일치)
-
-- screen: 전역 — C4의 "자동 화면 전환" P0 주장 코드 판정
-  observed: 클라이언트 내비게이션 호출 12곳 전수 확인, 조건 없는 자동 실행 0건, 타이머 내 내비게이션 0건. 내역 전부 onClick/사용자액션/OAuth 서버 리다이렉트. `useEffect` 내 내비게이션은 closet/seasonal 2곳뿐이고 둘 다 같은 경로 `?tab=` 쿼리 동기화용(다른 라우트로 안 보냄). 라이브 검증 중 E2 전용 탭이 `/fridge`→`/`로 실시간 이동, 뷰포트가 임의로 375x812로 변경되는 것을 직접 관측 — 다른 세션의 동시 조작 확인.
-  problem: **코드상 근거 없음 — 공유 브라우저 탭 아티팩트로 최종 판정.** C8의 정정이 코드로 뒷받침됨. 단, C4가 같이 보고한 URL↔DOM 불일치는 별개의 실재 버그(아래).
-  cause(URL-DOM 불일치, 실재): `mypage/page.tsx`에 `useRouter` 자체가 없음(grep 0건). 탭 전환(204-209)이 `setActiveTab`+`scrollTo`만 하고 URL 미갱신, `?tab=` 파싱 useEffect(98-124)는 `[]` 의존성 마운트 1회뿐. `/mypage?tab=profile` 진입 후 쇼핑탭 클릭 시 주소는 `?tab=profile`인데 화면은 쇼핑 — C4 관측 그대로, 단독세션 100% 재현. `usePersistedState('nemoa-mypage-tab')`로 localStorage 기억해 쿼리없는 진입시 지난 탭 복원 → 공유링크/뒤로가기 깨짐. `fridge`도 `useRouter` 없음. `closet`만 `router.replace` 동기화 — 3개 탭 구현이 서로 다른 규칙.
-  fix: `useUrlTab<T>(key, tabs, storageKey?)` 훅 신설 — 마운트시 `location.search`에서 초기값, selectTab에서 `router.replace`, popstate 구독. mypage/fridge/closet 3페이지 교체(closet 중복로직 제거). localStorage persist는 쿼리 없을 때만(우선순위: 쿼리>localStorage>기본값).
-  effort: M (훅 S + 3페이지 교체·회귀 M, 2~3일)
-  priority_guess: 자동전환=미등록(아티팩트) / URL-DOM 불일치=P1
-
-- screen: 냉장고·옷장·마이페이지 상단 탭 스트립
-  observed: `overflow-x-auto scrollbar-hide` + `shrink-0 whitespace-nowrap`(fridge/closet/mypage 동일구조). 실측 375px: 기본폰트 clientWidth375/scrollWidth**377**(이미 2px 넘침), 마지막 탭 "🛒장보기" right=377. 루트27px에서 scrollWidth563/right563. `.scrollbar-hide`가 스크롤바 완전 은닉.
-  problem: **C8 진단 정정** — 탭이 "사라지는" 게 아니라 가로스크롤은 정상 동작하되 어포던스가 0. 확대 사용자에겐 "장보기 탭이 없는 앱"으로 보임. 기본폰트도 2px 초과.
-  cause: `overflow-x-auto`+`scrollbar-hide` 조합이 스크롤 가능성을 시각적으로 지움 — 대체 어포던스 부재. 4탭 구성 자체가 375px에 2px 초과해 기본상태도 경계선.
-  fix: (1) `scrollLeft/scrollWidth` 구독해 좌우 `mask-image` 페이드 토글하는 `useScrollHint()` 훅, 3페이지 스트립+closet 캐러셀에 공용 적용. (2) `scroll-snap-type:x mandatory`+`snap-start`로 스와이프 촉각 피드백. (3) 활성탭 전환시 `scrollIntoView({inline:'nearest'})`로 화면밖 활성탭 방지.
-  effort: M (훅+3페이지+캐러셀 재사용, 2~3일)
+- screen: 냉장고 > 카드 펼침 > ✏️정보 수정(`SwipeFoodCard.tsx:298-318`)
+  observed: 편집 폼에 구매일+보관일수(숫자)만 있고 만료일 입력란 없음, 전 필드 비제어(defaultValue+onBlur).
+  problem: 포장 날짜를 그대로 못 넣고 역산 필요(C1·C4·C8 3인 확인).
+  fix: 구매일·만료일 두 칸만 제어 컴포넌트로 승격, `commitDates()`로 상호 동기화(`daysBetween`/`localMidnight` 기존 export 재사용, 한 줄 역산). 기존 "보관 가능 일수" 숫자칸은 읽기전용 파생 표시로 강등. ⚠️ 만료일=구매일(days=0) 가능해지면 `SwipeFoodCard.tsx:161` 진행바가 `(dDay/baseShelfLifeDays)*100`에서 0으로 나눠 `width:"NaN%"` — 같은 커밋에서 `Math.max(1, baseShelfLifeDays)` 가드 필수.
+  effort: S
   priority_guess: P1
 
-- screen: 홈 > 오늘 할 일(임박카드 본문·옷장정리카드) > 지금 가을철 식탁 — join+truncate 패턴
-  observed: 기본375px에서 잘림 2건, 둘다 `truncate`+`join`. `UrgentAlert:53-54` join(', ') → 184/223. `SeasonalHintWidget:72` join(' · ') → 193/294. 동일패턴 `RebuyAlert:46`, `FridgeView:106`, `RecipeSection:134`, `OutfitCard:40`. 별건: `SeasonChangeAlert:66` `messageParts.push(\`${toStow}벌 보관할 때\`)` — 조각 1개만 남으면 짝없이 "3벌 보관할 때 · 정리하기" 미완성 문장(C1·C4·C8·C9 4인, 2라운드 미해소).
-  problem: "오늘 뭘 해야 하는지" 답인 품목명이 기본상태서도 잘려 냉장고 재진입 필요.
-  cause: "N개→문자열1개→한줄truncate"가 홈 위젯 공통 패턴. flatten하면 길이 제어권 상실.
-  fix: (1) 공용 `<NameChips names max={2}/>` 신설 — 개별 span칩, 넘치면 +N. 잘림 원천 차단, 위 "오늘/내일" 표기도 칩에 얹으면 동시 해결. 적용: UrgentAlert:53/RebuyAlert:46/SeasonalHintWidget:43,72/FridgeView:106/OutfitCard:40. (2) SeasonChangeAlert은 join 버리고 `<ul>` 렌더 또는 완결형 문구("${toStow}벌 보관할 때예요").
-  effort: M (컴포넌트S+6곳적용M, SeasonChangeAlert만이면 S)
-  priority_guess: P1 (문장조각 건은 P2)
+- screen: 냉장고 > 접힌 카드 — **P0-52 배포로 새로 생긴 회귀**(`SwipeFoodCard.tsx:148`)
+  observed: `expiryDateStr(item).slice(5).replace('-','/')`가 연도를 무조건 절삭. `baseShelfLifeDays`가 365일 넘는 품목(양념·면류 기본값 180/730일)에서 항상 재현 — 실측: 샘표 진간장(730일)→2028-07-27→"07/27까지", 순창 고추장(365일)→2027-08-27→"08/27까지"(오늘 09/27 기준 한 달 전처럼 보임). 또한 `dDay>=0`일 때만 "까지" 부착 → **기한 초과 품목은 다시 라벨 없는 맨 날짜**(P0-52가 고치려던 실패모드가 expired 케이스에 남음).
+  cause: 포맷팅이 헬퍼 없이 인라인 문자열 연산으로 박혔고, 검증 시나리오가 D-0/D-1 임박 품목에만 맞춰져 1년+ 케이스·expired 케이스가 빠짐.
+  fix(오케스트레이터 직접 적용 가능한 최소 diff):
+    1. `dateMath.ts` 끝에 `expiryDateLabel(item, today=new Date())` 추가 — 올해면 "MM/DD", 해가 바뀌면 "YYYY.MM.DD".
+    2. `SwipeFoodCard.tsx:24` import에 `expiryDateLabel` 추가(`expiryDateStr`는 :234 펼침상세에서 계속 쓰이므로 유지).
+    3. `:148`을 `🗓 {expiryDateLabel(item)}{dDay >= 0 ? '까지' : ' 지남'}`로 교체.
+    검증: `tests/dateMath.test.mts` 신설 — 730일/365일/expired/올해 4케이스.
+  effort: S
+  priority_guess: P0
 
-- screen: 홈 > 오늘 할 일 카드 닫기(✕) (`UrgentAlert.tsx:60-67`)
-  observed: `w-6 h-6`=1.5rem=기본환경 27px. 카드 전체가 `<Link>`이고 우측중앙에 ChevronRight도 있음. ✕는 absolute 배치.
-  problem: WCAG 2.5.5 최소 터치타깃(44px) 미달. 10px만 놓쳐도 의도와 반대로 냉장고 이동. 반대로 ✕ 오탭시 "오늘 안 보기" 적용되고 되돌리기 UI 없음(C1·C8 지적).
-  cause: 시각크기=터치타깃(`w-6 h-6`이 곧 히트영역). 히트영역만 확장하는 공통 유틸 부재.
-  fix: (1) `.touch-target-44::after{content:'';position:absolute;inset:-9px}` 유틸 추가해 ✕에 적용(아이콘은 작게, 히트영역만 44px+, inset은 px로 확대비추종). (2) ✕를 카드 바깥 또는 >와 충분히 이격. (3) dismiss 직후 "오늘 안 보기 적용—되돌리기" 토스트(ToastContext 기존 활용). (4) `w-6 h-6` 이하 아이콘버튼 전역 grep 일괄 적용.
-  effort: S (유틸+UrgentAlert 반나절, 전역 일괄이면 M)
-  priority_guess: P2
+- screen: 냉장고 > 접힌 카드 — 폰트 단위 혼용(`:123` vs `:125,147`)
+  observed: 품목명 `text-[15px]`(절대px) vs D데이 `text-sm`(rem) vs 날짜줄 `text-xs`(rem). 루트 150%에서 rem 형제만 커지고 px 이름은 고정 → `flex-1 min-w-0 truncate`인 이름이 clientWidth 0(C8 실측 5건).
+  problem: P0-52가 날짜 칸을 1개→2개(만료일+남은일수)로 늘리며 이름을 밀어내는 압력이 전보다 커짐 — P0-51의 재발이 아니라 악화.
+  fix: 즉시(S) `:123`을 `text-[0.9375rem]`로 단위 통일 + `:124` D데이 묶음의 `shrink-0` 제거. 근본(M): `text-[Npx]` 리터럴 ESLint 금지 + 카드 타이포 3단 토큰화(P0-51/P1-31과 동일 작업 범위).
+  effort: S(즉시) / M(근본)
+  priority_guess: P0(기존 P0-51/P1-31에 통합 권고)
 
-## 오케스트레이터 참고 (finding 아님)
+- screen: 냉장고 > 음식 카드 신선도 진행바(`:156-163`)
+  observed: `width:(dDay/baseShelfLifeDays)*100%` — 감귤주스(shelf10,D-0)→4%, 샐러드(shelf3,D-1)→33%, 생연어(shelf10,D-1)→10%, 진간장(shelf730,D-669)→92%. 색은 절대 dDay 기준(`dDay<=2/≤5`)인데 길이는 품목별 상대비율 — 같은 D-1인 두 품목이 33% vs 10%로 3배 차이(C1 지적과 일치).
+  problem: 길이와 색이 서로 다른 축을 말해 목록에서 급함 순서가 거꾸로 읽힘.
+  fix: 분모를 고정 긴급지평(`EXPIRY_SOON_DAYS`, 이미 export됨)으로 정규화 — `width:(Math.max(0,dDay)/(EXPIRY_SOON_DAYS+1))*100%`. finding3의 0-division 가드도 동시 해소.
+  effort: S
+  priority_guess: P1
 
-1. **P1-51/52 사후검증: 구조는 정상 배포.** DOM 실측으로 3존 순서 확인(오늘할일 y=377→그리드→오늘의나 y=842→둘러보기 y=1439). 콘솔에러 0, SW active. excludeNames dedup 코드·렌더 양쪽 확인. **P1-51/52 자체 회귀는 없음** — "오늘까지" 라벨 문제는 P1-51 이전부터 있던 `EXPIRY_TODAY_DAYS=1` 설계 결함이며 dedup이 가시화했을 뿐(E1과 동일 결론, 독립 확인).
-2. C4의 "전역 자동 전환" P0 → **코드상 근거 없음, 공유 브라우저 탭 아티팩트로 최종 판정**(E2 실시간 관측으로 재확인). URL↔DOM 불일치(mypage `useRouter` 부재)는 실재 버그로 별도 등록.
-3. 다음 라운드 권고: 세션마다 전용 `tabId`로 `preview_start` 하되 다른 세션이 `tabId` 없이 호출하면 활성탭이 간섭받음 — 확대/내비게이션 검토는 병렬 세션 없는 시간대에 단독 권장.
-4. 착수 순서 권고: ①📅구매일 라벨(S, 신뢰회복 최대) → ②"오늘까지" 라벨 정확화(S) → ③절대px 85곳 토큰화+ESLint가드(M) → ④rem/px 역할분리+확대회귀테스트(L). ③④를 가드 없이 하면 재발.
-5. E3와 상충 가능: `text-3xs`(10px상당) 토큰화는 렌더값 보존안 — E3가 "10~11px 자체를 12px+로 올려야" 판단하면 하단탭바·배지 재설계 대상. E2는 "1단계 값보존 토큰화 → 2단계 크기상향" 순서 권장(한번에 하면 회귀원인 분리 불가).
-6. 미확인 범위: Lighthouse 정식실행(공유pane 간섭 미수행), 오프라인/SW캐시, 실기기 Android 글자슬라이더(루트폰트 시뮬레이션으로 대체). `text-size-adjust:100%`는 `width=device-width`라 무해한 no-op으로 판단, 실기기 확인 권장.
+- screen: 등록(+) 시트 — 소유자 필드(`TextImportModal.tsx:530-532,563-566,603-628`)
+  observed: `ownerId` 상태·선택 UI가 이미 구현돼 있으나 `{profiles.length>=2 && (...)}` 조건부라 프로필 1개면 안 보임. `handleConfirm`은 전체 아이템에 단일 소유자 일괄 적용(아이템별 지정 불가).
+  problem: C4의 "소유자 선택이 없다"는 기능 부재가 아니라 프로필 1개 상태의 조건부 숨김 — 다만 여러 사람 물건을 한 번에 담을 때 배치별로만 지정 가능한 실제 결함은 남음.
+  fix: ① 프로필 1개일 때 게이트 대신 "가족을 추가하면 나눠 담을 수 있어요→프로필 관리" 링크 ② `ownerId`를 배치 기본값으로 두되 아이템별 오버라이드 칩 추가(`item.ownerId ?? ownerId`로 병합).
+  effort: M
+  priority_guess: P1
+
+- screen: 배포 검증 프로세스(`tests/`)
+  observed: 7개 스위트 있으나 `dateMath.test.mts` 없음. P0-52 커밋(db3cc41)이 `expiryDateStr` 추가하며 테스트 미포함, 수동 시나리오 1건뿐.
+  problem: 날짜·타임존 로직이 이 레포 최다 재발 버그 클래스(dateMath.ts 주석에 이미 3건 문서화)인데 정작 이 모듈만 테스트 없어 finding4(연도절삭)가 배포까지 그대로 감.
+  fix: `tests/dateMath.test.mts` 신설 — 4함수 × 경계케이스(해넘김/윤년/730일/expired/KST 자정 전후). 표시 포맷 함수는 컴포넌트 인라인 금지, 전부 `dateMath.ts` 경유 규칙화.
+  effort: S
+  priority_guess: P1
+
+## 오케스트레이터 3질문 직답
+
+1. **추론 로직은 이미 존재, 직접입력 경로만 배선 안 됨.** effort S. `defaultsFor('기타 식품')`=실온/30일이라 fallback으로 그대로 쓰면 안 됨(반드시 제외).
+2. **만료일 date input 추가는 기술적으로 간단(S).** 역산은 한 줄이나 현재 폼이 전부 비제어라 구매일·만료일 두 칸만 제어 컴포넌트로 승격 필요 + `days===0` 가능해지는 순간 진행바 0-division 가드 필수(같은 커밋).
+3. **정확한 위치는 `SwipeFoodCard.tsx:148` 단 한 줄**(`slice(5)` 패턴 grep 결과 이 줄 유일). 최소 diff는 finding4에 정리. **같은 줄에 두 번째 결함**(`dDay>=0`일 때만 "까지" 부착 → expired 시 무라벨 맨 날짜 재현) — 한 번에 같이 닫을 것.
