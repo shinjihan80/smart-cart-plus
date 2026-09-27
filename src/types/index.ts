@@ -96,6 +96,15 @@ export interface FoodItem {
   ownerId?:           string;        // 프로필 id — undefined면 공용
   fridgeSection?:     FridgeSection; // Phase 8.0 — 냉장고 시각화 보관 위치
   fridgeInstanceId?:  string;        // 복수 냉장고 중 어떤 냉장고에 속하는지
+  /**
+   * baseShelfLifeDays 가 어디서 왔는지 — 'user'면 사용자가 포장지 날짜를
+   * 직접 입력해 확정한 값, 그 외(undefined)는 등록 시 기본값/이름 추론값.
+   * P0-33/P0-54 — 카드가 만료일을 확정적으로 보여주는데(P0-52) 그 값이
+   * 실측인지 추측인지 구분할 방법이 없던 문제의 최소 비용 해법(검토단
+   * C8, 전문단 E1·E2). 사용자가 유통기한 입력칸에서 직접 날짜를 고치면
+   * 'user'로 표시하고, 카드 표시를 "쯤까지"(추정) vs "까지"(확인)로 구분.
+   */
+  shelfLifeSource?:   'user';
 }
 
 // ────────────────────────────────────────────────

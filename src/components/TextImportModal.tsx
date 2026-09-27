@@ -15,7 +15,7 @@ import { Camera, Lock, X as XIcon } from 'lucide-react';
 import EmojiIcon from '@/components/EmojiIcon';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 import { getRemainingDays } from '@/lib/expirySelectors';
-import { todayLocalStr } from '@/lib/dateMath';
+import { todayLocalStr, expiryDateStr, daysBetween, localMidnight } from '@/lib/dateMath';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { inferFoodCategory, inferFoodDefaults } from '@/lib/ingredientInference';
 
@@ -427,23 +427,31 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
           </select>
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[10px] text-gray-500 font-medium">보관 기한 (일)</span>
-          <input
-            type="number"
-            min={1}
-            max={365}
-            value={item.baseShelfLifeDays}
-            onChange={(e) => onUpdate({ baseShelfLifeDays: Math.max(1, parseInt(e.target.value, 10) || 1) })}
-            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
           <span className="text-[10px] text-gray-500 font-medium">구매일</span>
           <input
             type="date"
             value={item.purchaseDate}
             onChange={(e) => onUpdate({ purchaseDate: e.target.value })}
             className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] text-gray-500 font-medium">유통기한 — 포장에 적힌 날짜</span>
+          {/* 예전엔 "보관 기한(일)" 숫자칸뿐이라 포장지 날짜를 그대로 못
+              넣고 구매일 기준으로 역산해야 했다(P0-33, 검토단 C1·C4·C8
+              독립 발견) — 등록 시점부터 실제 날짜를 입력받는다. */}
+          <input
+            type="date"
+            min={item.purchaseDate}
+            value={expiryDateStr(item)}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!v) return;
+              const days = daysBetween(localMidnight(item.purchaseDate), localMidnight(v));
+              if (days < 1) return;
+              onUpdate({ baseShelfLifeDays: days, shelfLifeSource: 'user' });
+            }}
+            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-brand-primary/30 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
         </label>
         <FridgeSectionPicker

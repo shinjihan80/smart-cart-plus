@@ -21,7 +21,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useCart } from '@/context/CartContext';
-import { expiryDateStr, expiryDateLabel } from '@/lib/dateMath';
+import { expiryDateStr, expiryDateLabel, daysBetween, localMidnight } from '@/lib/dateMath';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
@@ -148,9 +148,16 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 넘는 품목(간장 730일 등)이 "07/27까지"처럼 이미 지난 날짜로
                 읽혔다(P0-55, 검토단 C4·C9 독립 발견) — expiryDateLabel()이
                 해가 바뀔 때만 연도를 붙인다. dDay<0(기한 지남)일 때도
-                "지남"을 붙여 무라벨 맨 날짜로 되돌아가지 않게 한다. */}
+                "지남"을 붙여 무라벨 맨 날짜로 되돌아가지 않게 한다.
+                shelfLifeSource가 'user'가 아니면(등록 시 기본값/이름
+                추론값 그대로) 이 날짜는 앱의 추정이라 "쯤까지"로 톤을
+                낮춘다 — 사용자가 포장지 날짜로 확정하면 "까지"로
+                바뀐다(P0-33, 전문단 E1 설계). */}
             <div className="flex items-center gap-2 text-xs text-gray-400 tabular-nums mb-3">
-              <span>🗓 {expiryDateLabel(item)}{dDay >= 0 ? '까지' : ' 지남'}</span>
+              <span>
+                🗓 {expiryDateLabel(item)}
+                {dDay >= 0 ? (item.shelfLifeSource === 'user' ? '까지' : '쯤까지') : ' 지남'}
+              </span>
               <span className="text-gray-200">·</span>
               <span className={isUrgent ? 'text-brand-warning font-medium' : ''}>
                 {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}
@@ -311,15 +318,35 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-400 block mb-1.5">보관 가능 일수</label>
+                      <label className="text-xs font-medium text-gray-400 block mb-1.5">
+                        유통기한 <span className="text-gray-300 font-normal">— 포장에 적힌 날짜</span>
+                      </label>
+                      {/* 예전엔 "보관 가능 일수"(숫자) 입력만 있어 포장지에 찍힌
+                          실제 날짜를 그대로 못 넣고 구매일 기준으로 역산해야
+                          했다(P0-33, 검토단 C1·C4·C8 독립 발견) — 카드 앞면이
+                          이미 만료일을 확정적으로 보여주는데(P0-52) 정작 그
+                          값을 직접 확인해 넣을 곳이 없던 비대칭을 해소한다. */}
                       <input
-                        type="number"
-                        aria-label={`${item.name} 보관 가능 일수 수정`}
-                        defaultValue={item.baseShelfLifeDays}
-                        min={1}
-                        onBlur={(e) => { const v = parseInt(e.target.value, 10); if (v > 0 && v !== item.baseShelfLifeDays) onUpdate(item.id, { baseShelfLifeDays: v }); }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 tabular-nums transition"
+                        type="date"
+                        aria-label={`${item.name} 유통기한 수정`}
+                        defaultValue={expiryDateStr(item)}
+                        min={item.purchaseDate}
+                        onBlur={(e) => {
+                          const v = e.target.value;
+                          if (!v) return;
+                          const days = daysBetween(localMidnight(item.purchaseDate), localMidnight(v));
+                          if (days < 1) { showToast('유통기한이 구매일보다 앞설 수 없어요.'); return; }
+                          if (days !== item.baseShelfLifeDays || item.shelfLifeSource !== 'user') {
+                            onUpdate(item.id, { baseShelfLifeDays: days, shelfLifeSource: 'user' });
+                          }
+                        }}
+                        className="w-full bg-white border border-brand-primary/30 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"
                       />
+                      <p className="text-[11px] text-gray-400 mt-1">
+                        {item.shelfLifeSource === 'user'
+                          ? '직접 확인한 날짜예요'
+                          : `네모아 추정값 — 구매일 기준 ${item.baseShelfLifeDays}일. 다르면 날짜를 고쳐주세요`}
+                      </p>
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-400 block mb-1.5">보관 위치</label>
