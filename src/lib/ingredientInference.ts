@@ -37,7 +37,7 @@ export function getFoodEmoji(name: string, category?: FoodCategory): string {
 }
 
 /** 카테고리별 합리적 기본 보관 방식과 기한 */
-function defaultsFor(category: FoodCategory): { storageType: StorageType; baseShelfLifeDays: number } {
+export function inferFoodDefaults(category: FoodCategory): { storageType: StorageType; baseShelfLifeDays: number } {
   switch (category) {
     case '정육·계란':   return { storageType: '냉장', baseShelfLifeDays: 5 };
     case '수산·해산':   return { storageType: '냉장', baseShelfLifeDays: 3 };
@@ -56,7 +56,7 @@ function defaultsFor(category: FoodCategory): { storageType: StorageType; baseSh
 /** 이름 하나로 FoodItem 생성 — 오늘 구매 가정, 스키마 v2 안전. */
 export function createFoodItemFromIngredient(name: string): FoodItem {
   const foodCategory = inferFoodCategory(name);
-  const { storageType, baseShelfLifeDays } = defaultsFor(foodCategory);
+  const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory);
   return {
     id:           `shop-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     name,

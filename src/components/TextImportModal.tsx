@@ -17,6 +17,7 @@ import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { todayLocalStr } from '@/lib/dateMath';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
+import { inferFoodCategory, inferFoodDefaults } from '@/lib/ingredientInference';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -534,10 +535,29 @@ function StepConfirm({
   // 펼친 아이템 id 추적 — 한 번에 하나만
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  // 직접입력에서 카테고리/보관법/보관기한을 사용자가 손댄 아이템 — 한 번
+  // 손대면 이름을 계속 고쳐도 그 값을 재추론으로 덮어쓰지 않는다(P0-54).
+  const [touched, setTouched] = useState<Set<string>>(new Set());
+
   function updateName(id: string, name: string) {
-    setItems(items.map((item) => (item.id === id ? { ...item, name } : item)));
+    setItems(items.map((item) => {
+      if (item.id !== id) return item;
+      const next = { ...item, name } as CartItem;
+      // "이름만 입력해도 돼요"라는 안내를 믿고 저장하면 카테고리·보관기한이
+      // 항상 기타식품/7일로 고정돼 D-day가 틀리게 계산됐다(P0-54, 검토단
+      // C1·C4 독립 발견) — 같은 레포에 있던 추론기(ingredientInference.ts,
+      // 장보기→냉장고 경로에서는 이미 사용 중)를 직접입력에도 연결한다.
+      if (!manualEntry || touched.has(id) || !isFoodItem(next)) return next;
+      const foodCategory = inferFoodCategory(name);
+      if (foodCategory === '기타 식품') return next; // 매칭 실패 시 기존 보수값(냉장/7일) 유지 — inferFoodDefaults('기타 식품')은 실온/30일이라 그대로 쓰면 더 위험함
+      const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory);
+      return { ...next, foodCategory, storageType, baseShelfLifeDays };
+    }));
   }
   function updateItem(id: string, patch: Partial<CartItem>) {
+    if ('foodCategory' in patch || 'storageType' in patch || 'baseShelfLifeDays' in patch) {
+      setTouched((s) => new Set(s).add(id));
+    }
     setItems(items.map((item) => (item.id === id ? ({ ...item, ...patch } as CartItem) : item)));
   }
   function removeItem(id: string) {
