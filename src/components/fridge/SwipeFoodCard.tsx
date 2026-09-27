@@ -21,7 +21,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useCart } from '@/context/CartContext';
-import { expiryDateStr } from '@/lib/dateMath';
+import { expiryDateStr, expiryDateLabel } from '@/lib/dateMath';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
@@ -143,9 +143,14 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 예전엔 구매일(purchaseDate)을 라벨 없이 📅로만 보여줘 만료일로
                 오인됐다(P0-52) — "09/20 · 3일 남음"처럼 산술이 안 맞아 보여
                 D-day 전체를 못 믿게 만들었다(검토단 C1·C9·C8 독립 발견).
-                이 줄에서 실제로 궁금한 값(언제까지 먹어야 하는가)을 보여준다. */}
+                이 줄에서 실제로 궁금한 값(언제까지 먹어야 하는가)을 보여준다.
+                연도를 매번 지우면(구 slice(5)) baseShelfLifeDays가 1년을
+                넘는 품목(간장 730일 등)이 "07/27까지"처럼 이미 지난 날짜로
+                읽혔다(P0-55, 검토단 C4·C9 독립 발견) — expiryDateLabel()이
+                해가 바뀔 때만 연도를 붙인다. dDay<0(기한 지남)일 때도
+                "지남"을 붙여 무라벨 맨 날짜로 되돌아가지 않게 한다. */}
             <div className="flex items-center gap-2 text-xs text-gray-400 tabular-nums mb-3">
-              <span>🗓 {expiryDateStr(item).slice(5).replace('-', '/')}{dDay >= 0 ? '까지' : ''}</span>
+              <span>🗓 {expiryDateLabel(item)}{dDay >= 0 ? '까지' : ' 지남'}</span>
               <span className="text-gray-200">·</span>
               <span className={isUrgent ? 'text-brand-warning font-medium' : ''}>
                 {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}

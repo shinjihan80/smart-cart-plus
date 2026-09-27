@@ -55,3 +55,17 @@ export function expiryDateStr(item: { purchaseDate: string; baseShelfLifeDays: n
   d.setDate(d.getDate() + item.baseShelfLifeDays);
   return todayLocalStr(d);
 }
+
+/**
+ * 만료일 표시용 — 올해면 "09/28", 해가 바뀌면 "2027.08.27".
+ *
+ * 연도를 늘 지우면 baseShelfLifeDays가 365일을 넘는 품목(간장 730일 등)이
+ * "07/27까지"로 찍혀 이미 지난 날짜처럼 읽힌다(P0-55, 검토단 C4·C9 독립 발견).
+ */
+export function expiryDateLabel(
+  item: { purchaseDate: string; baseShelfLifeDays: number },
+  today: Date = new Date(),
+): string {
+  const [y, m, d] = expiryDateStr(item).split('-');
+  return Number(y) === today.getFullYear() ? `${m}/${d}` : `${y}.${m}.${d}`;
+}
