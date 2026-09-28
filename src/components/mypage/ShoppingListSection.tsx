@@ -274,10 +274,17 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
       <div className="mt-3 pt-3 border-t border-gray-50">
         <p className="text-sm text-gray-400 mb-1.5">🛒 바로 장보기</p>
         <div className="flex gap-1.5 flex-wrap">
+          {/* PARTNERS에 'mart' 키가 없어(정의된 키: coupang/kurly/naver_shop/
+              ssg/homeplus 등) partner=undefined가 PartnerChip에 그대로
+              전달됐다 — 리스트가 비어 있을 때는 이 블록 자체가 렌더 안 돼
+              (상단 early-return) 숨어 있다가, "+담기"로 첫 항목이 생겨
+              이 블록이 처음 렌더되는 순간 `partner.enabled`에서 크래시하고
+              SectionErrorBoundary가 섹션 전체를 영구 대체했다(P0-57,
+              검토단 E1 발견 — 재현율 100%). */}
           <PartnerChip partner={PARTNERS.coupang} />
           <PartnerChip partner={PARTNERS.kurly} />
           <PartnerChip partner={PARTNERS.naver_shop} />
-          <PartnerChip partner={PARTNERS.mart} />
+          <PartnerChip partner={PARTNERS.homeplus} />
         </div>
       </div>
     </motion.div>

@@ -20,6 +20,11 @@ interface PartnerChipProps {
  * disabled 분기는 admin overlay 로 향후 일부 파트너 비활성화하는 경우 대비.
  */
 export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChipProps) {
+  // 호출부가 존재하지 않는 파트너 키로 조회하면(Record 조회라 undefined가
+  // 타입 체크를 통과함) 렌더 중 크래시해 부모 섹션 전체가 영구 에러로
+  // 대체됐다(P0-57). 한 칩이 사라지는 게 섹션 전체가 죽는 것보다 낫다.
+  if (!partner) return null;
+
   const base = size === 'sm'
     ? 'text-sm px-2 py-1'
     : 'text-xs px-2.5 py-1.5 font-medium';
