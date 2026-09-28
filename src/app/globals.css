@@ -12,6 +12,11 @@
   /* 부드러운 쿨 그레이 — MG/우리페이 스타일의 깨끗한 백그라운드 */
   --background: #F4F6F9;
   --foreground: #1F1F2E;
+  /* 앱 전체가 라이트 전용(dark: 변형·미디어쿼리 없음)인데 이 선언이
+     없으면 <input type="date">/<select> 같은 UA 기본 렌더 요소만 OS
+     다크모드를 따라가 흰 폼 안에 검은 날짜 피커가 뜬다(P1-86, 검토단
+     E3 발견) — 다크모드 정식 지원 전까지 부분 파손부터 막는다. */
+  color-scheme: light;
 }
 
 @theme inline {
