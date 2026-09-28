@@ -36,9 +36,23 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
 
   function accept() {
     try { localStorage.setItem(CONSENT_KEY, new Date().toISOString()); } catch { /* quota */ }
+    // 첫 방문자에게 홈 검색 샘플 시드 — 이미 검색 기록 있으면 건드리지 않음.
+    // 예전엔 8장 온보딩 캐러셀을 끝까지 봐야만 심어졌는데(P1-12), 그
+    // 캐러셀 자동 노출을 없애면서(P0-56) 모든 신규 사용자가 반드시 거치는
+    // 이 동의 시점으로 옮겼다 — 캐러셀을 안 봐도 빠지지 않게.
+    try {
+      const existing = localStorage.getItem('nemoa-home-recent-search');
+      if (!existing || existing === '[]') {
+        localStorage.setItem('nemoa-home-recent-search', JSON.stringify(['딸기', '불고기', '귤']));
+      }
+    } catch { /* storage full — 조용히 실패 */ }
+    // 냉장고 기종 선택도 예전엔 온보딩 캐러셀 안 스텝이었다 — 자동 노출을
+    // 없애면서(P0-56) /fridge 첫 방문 때 인라인 카드로 대신 보여주도록
+    // 이 신호만 남긴다(/fridge page.tsx가 읽고 1회 소비). 기존(이미
+    // 동의를 마친) 사용자는 이 시점을 다시 지나지 않으니 안 뜬다 — 정확히
+    // "신규 사용자만" 대상이 된다.
+    try { localStorage.setItem('nemoa-fridge-model-prompt-pending', '1'); } catch { /* quota */ }
     setShow(false);
-    // 온보딩 모달은 동의 이후에만 뜨도록 — 두 모달 동시 표시 방지 (P1-12)
-    window.dispatchEvent(new Event('nemoa:consent-given'));
   }
 
   function acceptWithSample() {

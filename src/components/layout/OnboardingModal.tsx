@@ -4,18 +4,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useModalA11y } from '@/lib/useModalA11y';
 import EmojiIcon from '@/components/EmojiIcon';
-import { FridgeModelPicker } from '@/components/fridge/FridgeModelPicker';
-import { useFridgeModel } from '@/lib/useFridgeModel';
-
-// v3: 냉장고 모델 선택 step 추가 (기존 v2 사용자도 재온보딩 1회)
-const ONBOARDING_KEY = 'nemoa-onboarded-v3';
 
 interface Step {
-  emoji:    string;
-  title:    string;
-  desc:     string;
-  /** 'fridge_model'이면 FridgeModelPicker 렌더링 */
-  picker?:  'fridge_model';
+  emoji: string;
+  title: string;
+  desc:  string;
 }
 
 const STEPS: Step[] = [
@@ -32,13 +25,7 @@ const STEPS: Step[] = [
   {
     emoji: '🧊',
     title: '스마트 냉장고',
-    desc: '보관 기한·영양 밸런스부터\n오늘 만들 레시피까지 챙겨드려요.',
-  },
-  {
-    emoji: '🧊',
-    title: '쓰는 냉장고를 골라주세요',
-    desc: '식재료가 어느 칸에 있는지 한눈에 보여드려요.\n나중에 내 정보에서도 바꿀 수 있어요.',
-    picker: 'fridge_model',
+    desc: '보관 기한·영양 밸런스부터\n오늘 만들 레시피까지 챙겨드려요.\n쓰는 냉장고 종류는 냉장고 탭에서 골라주세요.',
   },
   {
     emoji: '👕',
@@ -64,7 +51,6 @@ const STEPS: Step[] = [
 
 function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: (s: number) => void; onClose: () => void }) {
   useModalA11y(onClose);
-  const [fridgeModelId, setFridgeModelId] = useFridgeModel();
 
   function handleNext() {
     if (step < STEPS.length - 1) setStep(step + 1);
@@ -72,7 +58,6 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
   }
 
   const current = STEPS[step];
-  const isPicker = current.picker === 'fridge_model';
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center">
@@ -85,9 +70,7 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className={`relative bg-white rounded-[32px] py-10 text-center ${
-          isPicker ? 'w-[340px] px-6' : 'w-[320px] px-8'
-        }`}
+        className="relative bg-white rounded-[32px] py-10 text-center w-[320px] px-8"
         style={{ boxShadow: '0 20px 60px -15px rgba(0,0,0,0.15)' }}
       >
         <AnimatePresence mode="wait">
@@ -101,12 +84,6 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
             <div className="flex justify-center mb-5"><EmojiIcon emoji={current.emoji} size={48} className="text-brand-primary" /></div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">{current.title}</h2>
             <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-line">{current.desc}</p>
-
-            {isPicker && (
-              <div className="mt-5 text-left">
-                <FridgeModelPicker selected={fridgeModelId} onSelect={setFridgeModelId} compact />
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
 
@@ -146,38 +123,24 @@ export default function OnboardingModal() {
   const [show, setShow] = useState(false);
   const [step, setStep] = useState(0);
 
+  // 예전엔 동의 직후 자동으로 떴다(P1-12) — 동의 1탭 + 8장 캐러셀(건너뛰기
+  // 눌러도 최소 1탭 더)을 거쳐야 겨우 원래 홈으로 돌아와, 홈의 기존
+  // "첫 항목 등록하기" CTA(1탭으로 등록 시트 직행, 이미 정상 동작)에
+  // 닿기까지 총 10탭 이상이 걸렸다 — 카피는 "하나만 등록해보면 감이
+  // 와요"라고 약속하는데 실제로는 그 전에 설정 부담부터 온 셈이다
+  // (P0-56, 전문단 E1 발견). 자동 노출을 없애고 "설정 > 온보딩 다시
+  // 보기"에서만 여는 순수 리플레이 전용 투어로 바꾼다.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const seen = () => !!localStorage.getItem(ONBOARDING_KEY);
-    const consented = () => !!localStorage.getItem('nemoa-consent-v1');
-
-    // 약관 동의를 이미 마친 재방문자에게만 즉시 표시. 신규 사용자는
-    // ConsentGate가 먼저 뜨고, 동의 시 아래 이벤트로 이어서 표시. (P1-12)
-    if (!seen() && consented()) setShow(true);
-
-    function onConsentGiven() { if (!seen()) setShow(true); }
-    // 설정에서 '온보딩 다시 보기' 눌렀을 때 이벤트로 재오픈
     function onReplay() {
       setStep(0);
       setShow(true);
     }
-    window.addEventListener('nemoa:consent-given', onConsentGiven);
     window.addEventListener('nemoa:replay-onboarding', onReplay);
-    return () => {
-      window.removeEventListener('nemoa:consent-given', onConsentGiven);
-      window.removeEventListener('nemoa:replay-onboarding', onReplay);
-    };
+    return () => window.removeEventListener('nemoa:replay-onboarding', onReplay);
   }, []);
 
   function handleClose() {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
-    // 첫 방문자에게 홈 검색 샘플 시드 — 이미 검색 기록 있으면 건드리지 않음
-    try {
-      const existing = localStorage.getItem('nemoa-home-recent-search');
-      if (!existing || existing === '[]') {
-        localStorage.setItem('nemoa-home-recent-search', JSON.stringify(['딸기', '불고기', '귤']));
-      }
-    } catch { /* storage full — 조용히 실패 */ }
     setShow(false);
   }
 

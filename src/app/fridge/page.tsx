@@ -117,6 +117,18 @@ export default function FridgePage() {
   } = useFridgeInstances();
   const fridgeModelId = activeFridgeInstance?.modelId ?? DEFAULT_FRIDGE_INSTANCE.modelId;
   const [showFridgePicker, setShowFridgePicker] = useState(false);
+  // 냉장고 기종 선택은 예전엔 8장 온보딩 캐러셀 안 스텝이었는데, 그 캐러셀
+  // 자동 노출을 없애면서(P0-56, 전문단 E1) 신규 사용자가 처음 /fridge에
+  // 왔을 때 인라인으로 한 번 열어준다 — ConsentGate.accept()가 남긴 1회성
+  // 신호를 여기서 소비(읽자마자 지움, 다음 방문부터는 안 뜸).
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('nemoa-fridge-model-prompt-pending')) {
+        localStorage.removeItem('nemoa-fridge-model-prompt-pending');
+        setShowFridgePicker(true);
+      }
+    } catch { /* storage 접근 불가 — 조용히 무시 */ }
+  }, []);
   const [activeSection, setActiveSection] = useState<FridgeSection | null>(null);
   const [expandedFoodId, setExpandedFoodId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
