@@ -394,11 +394,17 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
 
                 {/* ── 액션 버튼 ── */}
                 {editing ? (
+                  // 위 필드들은 전부 onBlur에서 즉시 저장되므로 이 버튼은
+                  // 편집 모드를 닫을 뿐 그 자체로 뭔가를 저장하지 않는다.
+                  // "저장하고 완료"라는 라벨은 반대로 읽혀 "버튼을 눌러야
+                  // 반영된다"는 오해와 "안 누르고 닫으면 취소된다"는 오해를
+                  // 동시에 만들었다(P0-66, 검토단 E3 발견) — 카피를 실제
+                  // 동작과 맞춘다.
                   <button
-                    onClick={(e) => { e.stopPropagation(); showToast(`"${item.name}" 저장됐어요.`); setEditing(false); }}
+                    onClick={(e) => { e.stopPropagation(); setEditing(false); }}
                     className="w-full py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-colors mt-1"
                   >
-                    ✓ 저장하고 완료
+                    ✓ 완료
                   </button>
                 ) : (
                   <div className="flex gap-2 mt-1">
