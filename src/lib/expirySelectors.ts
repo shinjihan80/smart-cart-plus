@@ -36,7 +36,7 @@ export function selectExpiring(items: readonly CartItem[]): ExpirySelection {
 
   for (const item of items) {
     if (!isFoodItem(item)) continue;
-    const dDay   = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
+    const dDay   = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays, item.expiryDate);
     const bucket = classifyExpiry(dDay);
     const entry: ExpiringEntry = { item, dDay, bucket };
     if (bucket === 'expired') expired.push(entry);
@@ -49,5 +49,5 @@ export function selectExpiring(items: readonly CartItem[]): ExpirySelection {
 
 /** 분류가 아니라 단일 아이템의 D-Day 숫자만 필요한 화면(정렬·표시·알림 예약)용. */
 export function getRemainingDays(item: FoodItem): number {
-  return calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
+  return calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays, item.expiryDate);
 }

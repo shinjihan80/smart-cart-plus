@@ -49,8 +49,14 @@ export function thisMonthLocalStr(d: Date = new Date()): string {
  * 식품 카드 접힌 상태가 구매일(`purchaseDate`)을 라벨 없이 📅로만 보여줘
  * 만료일처럼 오인되던 문제(P0-52, 검토단 C1·C9·C8 독립 발견)의 수정 —
  * 같은 계산을 펼친 상세("보관 기한" 행)와 공유해 두 화면이 어긋나지 않게 한다.
+ *
+ * `item.expiryDate`(사용자가 포장지에서 직접 확인해 확정한 절대 날짜)가
+ * 있으면 그 값을 그대로 쓰고 purchaseDate/baseShelfLifeDays는 무시한다 —
+ * 상대일수만 저장하던 이전 모델은 확정 후 구매일을 고치면 확정값이 조용히
+ * 깨지는 회귀가 있었다(P0-33 재오픈, 검토단 E2·E3 라이브 재현).
  */
-export function expiryDateStr(item: { purchaseDate: string; baseShelfLifeDays: number }): string {
+export function expiryDateStr(item: { purchaseDate: string; baseShelfLifeDays: number; expiryDate?: string }): string {
+  if (item.expiryDate) return item.expiryDate;
   const d = localMidnight(item.purchaseDate);
   d.setDate(d.getDate() + item.baseShelfLifeDays);
   return todayLocalStr(d);
@@ -63,7 +69,7 @@ export function expiryDateStr(item: { purchaseDate: string; baseShelfLifeDays: n
  * "07/27까지"로 찍혀 이미 지난 날짜처럼 읽힌다(P0-55, 검토단 C4·C9 독립 발견).
  */
 export function expiryDateLabel(
-  item: { purchaseDate: string; baseShelfLifeDays: number },
+  item: { purchaseDate: string; baseShelfLifeDays: number; expiryDate?: string },
   today: Date = new Date(),
 ): string {
   const [y, m, d] = expiryDateStr(item).split('-');

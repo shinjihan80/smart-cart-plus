@@ -13,9 +13,15 @@ const STORAGE_LABEL: Record<FoodItem['storageType'], string> = {
   실온: '📦 실온 보관',
 };
 
-export function calcRemainingDays(purchaseDate: string, baseShelfLifeDays: number): number {
-  const expiry = localMidnight(purchaseDate);
-  expiry.setDate(expiry.getDate() + baseShelfLifeDays);
+/**
+ * expiryDate(사용자가 확정한 절대 유통기한)가 있으면 그 값을 그대로 D-day
+ * 기준으로 쓰고, 없을 때만 purchaseDate+baseShelfLifeDays로 역산한다 —
+ * 상대일수만 쓰면 확정 후 구매일을 고칠 때 확정값이 조용히 깨진다(P0-33
+ * 재오픈, 검토단 E2·E3 라이브 재현).
+ */
+export function calcRemainingDays(purchaseDate: string, baseShelfLifeDays: number, expiryDate?: string): number {
+  const expiry = expiryDate ? localMidnight(expiryDate) : localMidnight(purchaseDate);
+  if (!expiryDate) expiry.setDate(expiry.getDate() + baseShelfLifeDays);
   return daysBetween(todayMidnight(), expiry);
 }
 
@@ -42,7 +48,7 @@ const STATUS_BADGE: Record<StatusTier, { label: string; className: string }> = {
  * 뮤트 톤 컬러 (rose-50/amber-50)로 Calm Tech 감성 유지.
  */
 export default function FoodTags({ item, wide }: Props) {
-  const days   = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays);
+  const days   = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays, item.expiryDate);
   const status = getStatus(days);
   const badge  = STATUS_BADGE[status];
 

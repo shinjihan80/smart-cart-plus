@@ -105,6 +105,16 @@ export interface FoodItem {
    * 'user'로 표시하고, 카드 표시를 "쯤까지"(추정) vs "까지"(확인)로 구분.
    */
   shelfLifeSource?:   'user';
+  /**
+   * 사용자가 포장지에서 확인한 절대 유통기한("YYYY-MM-DD"). 있으면 이
+   * 값이 만료일의 유일한 진실이고 purchaseDate/baseShelfLifeDays는 더 이상
+   * 관여하지 않는다 — 처음엔 baseShelfLifeDays를 상대일수로 역산해 저장했는데
+   * (커밋 98cc4c7), 확정 후 구매일을 고치면 그 상대일수가 재계산되며 확정한
+   * 날짜가 경고 없이 깨지는 회귀가 발견됐다(P0-33 재오픈, 검토단 E2·E3
+   * 라이브 재현). `expiryDateStr()`/`calcRemainingDays()`가 이 필드를
+   * purchaseDate+baseShelfLifeDays보다 우선한다.
+   */
+  expiryDate?:        string;
 }
 
 // ────────────────────────────────────────────────

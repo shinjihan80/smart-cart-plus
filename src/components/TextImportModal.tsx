@@ -448,7 +448,11 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
           <span className="text-[10px] text-gray-500 font-medium">유통기한 — 포장에 적힌 날짜</span>
           {/* 예전엔 "보관 기한(일)" 숫자칸뿐이라 포장지 날짜를 그대로 못
               넣고 구매일 기준으로 역산해야 했다(P0-33, 검토단 C1·C4·C8
-              독립 발견) — 등록 시점부터 실제 날짜를 입력받는다. */}
+              독립 발견) — 등록 시점부터 실제 날짜를 입력받는다.
+              baseShelfLifeDays(상대일수)만 저장하면 확정 후 구매일을
+              고칠 때 확정값이 조용히 깨진다(P0-33 재오픈, 검토단 E2·E3) —
+              expiryDate(절대값)를 진실로 저장하고 baseShelfLifeDays는
+              현재 구매일 기준 참고값으로만 같이 갱신한다. */}
           <input
             type="date"
             min={item.purchaseDate}
@@ -458,7 +462,7 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
               if (!v) return;
               const days = daysBetween(localMidnight(item.purchaseDate), localMidnight(v));
               if (days < 1) return;
-              onUpdate({ baseShelfLifeDays: days, shelfLifeSource: 'user' });
+              onUpdate({ expiryDate: v, baseShelfLifeDays: days, shelfLifeSource: 'user' });
             }}
             className="text-xs px-2 py-1.5 rounded-lg bg-white border border-brand-primary/30 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />

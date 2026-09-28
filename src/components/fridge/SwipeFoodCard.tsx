@@ -326,7 +326,14 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                           실제 날짜를 그대로 못 넣고 구매일 기준으로 역산해야
                           했다(P0-33, 검토단 C1·C4·C8 독립 발견) — 카드 앞면이
                           이미 만료일을 확정적으로 보여주는데(P0-52) 정작 그
-                          값을 직접 확인해 넣을 곳이 없던 비대칭을 해소한다. */}
+                          값을 직접 확인해 넣을 곳이 없던 비대칭을 해소한다.
+                          baseShelfLifeDays(상대일수)만 저장하면 확정 후
+                          구매일을 고칠 때 확정값이 조용히 깨진다(재오픈,
+                          검토단 E2·E3) — expiryDate(절대값)를 진실로 저장한다.
+                          비제어 입력이라 값을 안 바꾸고 탭만 벗어나도(onBlur)
+                          v가 defaultValue와 같아 예전엔 days===baseShelfLifeDays
+                          비교가 우연히 어긋나 'user'로 잘못 확정되곤 했다 —
+                          v를 원래 표시값과 직접 비교해 실제 변경 때만 반영. */}
                       <input
                         type="date"
                         aria-label={`${item.name} 유통기한 수정`}
@@ -334,12 +341,10 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                         min={item.purchaseDate}
                         onBlur={(e) => {
                           const v = e.target.value;
-                          if (!v) return;
+                          if (!v || v === expiryDateStr(item)) return;
                           const days = daysBetween(localMidnight(item.purchaseDate), localMidnight(v));
                           if (days < 1) { showToast('유통기한이 구매일보다 앞설 수 없어요.'); return; }
-                          if (days !== item.baseShelfLifeDays || item.shelfLifeSource !== 'user') {
-                            onUpdate(item.id, { baseShelfLifeDays: days, shelfLifeSource: 'user' });
-                          }
+                          onUpdate(item.id, { expiryDate: v, baseShelfLifeDays: days, shelfLifeSource: 'user' });
                         }}
                         className="w-full bg-white border border-brand-primary/30 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"
                       />
