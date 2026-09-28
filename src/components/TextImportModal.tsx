@@ -431,7 +431,16 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
           <input
             type="date"
             value={item.purchaseDate}
-            onChange={(e) => onUpdate({ purchaseDate: e.target.value })}
+            max={todayLocalStr()}
+            onChange={(e) => {
+              // 빈 값을 그대로 저장하면 localMidnight('')가 1900-01-01로
+              // 승격돼(연도 없는 문자열) 유통기한이 "1900.01.23" 식으로
+              // 깨지고 저장 버튼도 그대로 활성 상태였다(P0-65, 검토단 E2
+              // 라이브 재현). 날짜 칸을 비워도 이전 값을 유지해 무효 상태
+              // 자체가 생기지 않게 막는다.
+              const v = e.target.value;
+              if (v) onUpdate({ purchaseDate: v });
+            }}
             className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
         </label>
@@ -795,7 +804,11 @@ function StepConfirm({
 
       <button
         onClick={handleConfirm}
-        disabled={items.length === 0 || items.some((it) => !it.name.trim())}
+        disabled={
+          items.length === 0
+          || items.some((it) => !it.name.trim())
+          || items.some((it) => isFoodItem(it) && !/^\d{4}-\d{2}-\d{2}$/.test(it.purchaseDate))
+        }
         className="mt-4 w-full rounded-2xl bg-brand-primary py-3 text-sm font-semibold text-white disabled:opacity-40 hover:opacity-90 active:scale-95 transition-all"
       >
         {items.length > 0 ? `${items.length}개 추가하기` : '항목을 선택하세요'}

@@ -21,7 +21,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useCart } from '@/context/CartContext';
-import { expiryDateStr, expiryDateLabel, daysBetween, localMidnight } from '@/lib/dateMath';
+import { expiryDateStr, expiryDateLabel, daysBetween, localMidnight, todayLocalStr } from '@/lib/dateMath';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
@@ -313,6 +313,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                         type="date"
                         aria-label={`${item.name} 구매일 수정`}
                         defaultValue={item.purchaseDate}
+                        max={todayLocalStr()}
                         onBlur={(e) => { const v = e.target.value; if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v }); }}
                         className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"
                       />
