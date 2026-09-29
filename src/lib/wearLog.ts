@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback } from 'react';
-import { createSharedStore } from './sharedStore';
-import { todayLocalStr, localMidnight, todayMidnight, daysBetween } from './dateMath';
-import { isClothingItem, FASHION_GROUP, type ClothingItem, type CartItem } from '@/types';
+import { createSharedStore } from './sharedStore.ts';
+import { todayLocalStr, localMidnight, todayMidnight, daysBetween } from './dateMath.ts';
+import { isClothingItem, FASHION_GROUP, type ClothingItem, type CartItem } from '../types/index.ts';
 
 const STORAGE_KEY = 'nemoa-wear-log';
 

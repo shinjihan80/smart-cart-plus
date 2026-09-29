@@ -5,6 +5,7 @@ import {
   currentSeasonByMonth,
   matchesSeason,
   seasonStart,
+  hasSeasonCycled,
 } from '../src/lib/season.ts';
 
 test('currentSeasonByMonth — 12월, 1월, 2월 → 겨울', () => {
@@ -56,4 +57,29 @@ test('seasonStart — 각 계절의 시작월 1일', () => {
 test('seasonStart — year 미지정 시 올해', () => {
   const currentYear = new Date().getFullYear();
   assert.ok(seasonStart('봄').startsWith(String(currentYear)));
+});
+
+test('hasSeasonCycled — 등록일 없는 레거시 아이템은 항상 true', () => {
+  assert.equal(hasSeasonCycled(['겨울'], undefined, new Date('2026-09-29')), true);
+});
+
+test('hasSeasonCycled — 계절 태그 없는 옷은 항상 true', () => {
+  assert.equal(hasSeasonCycled(undefined, '2026-09-01', new Date('2026-09-29')), true);
+  assert.equal(hasSeasonCycled([], '2026-09-01', new Date('2026-09-29')), true);
+  assert.equal(hasSeasonCycled(['우천', '맑음'], '2026-09-01', new Date('2026-09-29')), true);
+});
+
+test('hasSeasonCycled — 지금이 이미 그 옷의 계절이면 true', () => {
+  // 가을 옷을 가을에 등록 — 등록일 직후라도 바로 입을 기회가 있었음
+  assert.equal(hasSeasonCycled(['가을'], '2026-09-25', new Date('2026-09-29')), true);
+});
+
+test('hasSeasonCycled — 다른 계절 등록 후 그 계절이 아직 안 왔으면 false', () => {
+  // 겨울 코트를 여름(2026-07-01)에 등록, 아직 가을 초입(2026-09-29) — 겨울 시작(12/1) 전
+  assert.equal(hasSeasonCycled(['겨울'], '2026-07-01', new Date('2026-09-29')), false);
+});
+
+test('hasSeasonCycled — 등록 이후 그 계절 시작일이 지났으면 true', () => {
+  // 겨울 코트를 작년 여름(2025-07-01)에 등록, 지금은 2026-09-29 — 그사이 겨울(2025-12-01)이 지났음
+  assert.equal(hasSeasonCycled(['겨울'], '2025-07-01', new Date('2026-09-29')), true);
 });

@@ -21,6 +21,7 @@ import {
 } from '@/lib/weather';
 import { useProfiles } from '@/lib/profile';
 import { useWearLog, daysSince, selectNeverWorn } from '@/lib/wearLog';
+import { todayLocalStr } from '@/lib/dateMath';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
@@ -248,6 +249,7 @@ export default function ClosetPage() {
       material: preset.material,
       ownerId: quickAddOwner,
       wardrobeInstanceId: activeWardrobeId,
+      registeredAt: todayLocalStr(),
     }]);
     if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
     else showToast(`"${preset.name}" 이미 있어요.`);
