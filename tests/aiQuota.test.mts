@@ -35,8 +35,12 @@ test('TIER_LIMITS.free — nutrition 2회', () => {
   assert.match(constants, /nutrition:\s*2\b/);
 });
 
-test('TIER_LIMITS.free — url 2회', () => {
-  assert.match(constants, /url:\s*2\b/);
+// url은 등록 시트(proOnly 잠금)·비교표("Pro 전용")와는 반대로 여기만 2가
+// 남아있어 AI 한도 카드가 무료 사용자에게 "URL 분석 2/2"로 보였다(P0-14,
+// 검토단/전문단 4회 독립 재확인 — 한 화면에서 3가지 다른 상태). 0으로
+// 교정해 실제로 Pro 전용인 상태와 일치시킴.
+test('TIER_LIMITS.free — url 0회 (Pro 전용, 등록 시트 잠금과 일치)', () => {
+  assert.match(constants, /url:\s*0\b/);
 });
 
 test('TIER_LIMITS.free — fridgeSection 5회 (Phase 8.0 Step 5)', () => {

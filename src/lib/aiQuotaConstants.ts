@@ -9,7 +9,12 @@ export const TIER_LIMITS: Record<PlanTier, Record<AiAgent, number>> = {
     vision:        5,  // 미사용 (위 주석 참고)
     parser:        5,
     nutrition:      2,
-    url:            2,
+    // URL 분석은 무료 등급에 아예 잠겨있는 Pro 전용 기능(TextImportModal의
+    // proOnly 탭 잠금, ProPreviewCard 비교표의 "Pro 전용" 표기와 일치시킴).
+    // 예전엔 여기 2가 남아있어 AI 한도 카드엔 "2/2 남음"으로, 비교표엔
+    // "Pro 전용"으로, 등록 시트엔 자물쇠로 — 한 화면에서 3가지 다른 상태가
+    // 동시에 보였다(P0-14, 검토단/전문단 4회 독립 재확인)
+    url:            0,
     fridgeSection:  5,
   },
   pro_lite: {
