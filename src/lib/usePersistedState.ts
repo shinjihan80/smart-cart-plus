@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { safeSetItem } from './safeStorage';
 
 /**
  * localStorage에 자동 동기화되는 state 훅.
@@ -37,11 +38,14 @@ export function usePersistedState<T>(
   }, [key]);
 
   // state 변경 시 저장 (하이드레이션 전엔 스킵 — fallback 으로 덮어쓰기 방지)
+  // 예전엔 실패를 완전 침묵 처리해 화면엔 저장된 것처럼 보이다 새로고침
+  // 하면 사라지는 조용한 유실이 있었다(P0-23, 검토단 C5·전문단 E2
+  // 발견) — safeSetItem으로 바꿔 최소한 실패 사실은 사용자에게 알린다.
   useEffect(() => {
     if (!hydrated.current) return;
     try {
-      window.localStorage.setItem(key, JSON.stringify(state));
-    } catch { /* quota or serialization fail — silently skip */ }
+      safeSetItem(key, JSON.stringify(state));
+    } catch { /* serialization fail (순환 참조 등) — 저장 자체 시도 불가 */ }
   }, [key, state]);
 
   return [state, setState];

@@ -6,6 +6,7 @@ import { mockCartItems } from '@/data/mockData';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { recordAddsAndMaybeShowAd } from '@/lib/addMilestone';
 import { todayLocalStr } from '@/lib/dateMath';
+import { safeSetItem } from '@/lib/safeStorage';
 
 const STORAGE_KEY  = 'nemoa-items';
 const DISCARD_KEY  = 'nemoa-discard-count';
@@ -119,25 +120,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
   }, []);
 
-  // localStorage 동기화
+  // localStorage 동기화 — 사진 base64가 원인이 되는 용량 초과 시 이
+  // 4곳 전부 예외를 안 잡아 화면이 그대로 크래시했다(P0-23/P0-63,
+  // 검토단 C5·전문단 E2 발견). `safeSetItem`으로 통일해 실패해도
+  // 앱이 죽지 않고, 실패 사실을 이벤트로 알린다(ErrorCapture가 구독해
+  // 토스트로 안내).
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    safeSetItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(DISCARD_KEY, String(discardCount));
+    safeSetItem(DISCARD_KEY, String(discardCount));
   }, [discardCount, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archived));
+    safeSetItem(ARCHIVE_KEY, JSON.stringify(archived));
   }, [archived, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(discardHistory));
+    safeSetItem(HISTORY_KEY, JSON.stringify(discardHistory));
   }, [discardHistory, hydrated]);
 
   // 중복 방지 addItems — 같은 이름+카테고리면 스킵
