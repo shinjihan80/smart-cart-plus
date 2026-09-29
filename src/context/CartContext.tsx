@@ -256,7 +256,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetData = useCallback(() => {
-    setItems(mockCartItems);
+    // "모든 데이터를 초기화할까요?"라고 물어놓고 실제로는 빈 상태가 아니라
+    // mockCartItems 41개(샘플)로 되돌려, 사용자가 "초기화가 실패했다"고
+    // 오인하게 만들었다(P0-64, 전문단 E2 발견) — 샘플이 필요하면 이미
+    // 별도로 존재하는 loadSampleData()(빈 상태 화면의 "샘플 데이터로
+    // 먼저 둘러보기" 버튼)를 쓰면 된다.
+    setItems([]);
     setArchived([]);
     setDiscardCount(0);
     setDiscardHistory([]);

@@ -90,8 +90,15 @@ export function downloadBackup(): string {
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
+  // Firefox 등 일부 브라우저는 DOM에 없는 anchor의 click()이 다운로드를
+  // 안 띄우거나, revokeObjectURL을 곧바로 호출하면 다운로드 시작 전에
+  // blob URL이 무효화될 수 있다 — 그런데도 이 함수는 무조건 "성공"으로
+  // 간주돼 파괴적 초기화(전체 초기화)가 그대로 진행됐다(P0-64, 전문단
+  // E2 발견). DOM에 잠깐 삽입하고 revoke를 다음 틱으로 늦춘다.
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 
   writeTimestamp(Date.now());
   return filename;
