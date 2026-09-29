@@ -26,8 +26,8 @@ const CATEGORY_AVG: Record<FoodCategory, { calories: number; protein: number; fa
   '기타 식품':   { calories: 200, protein:  6.0, fat:  7.0, carbs: 28.0 },
 };
 
-/** 단일 아이템의 영양소 합계 추정. 값이 있으면 그대로, 없으면 카테고리 대표치 사용. */
-function itemNutrients(food: FoodItem): { calories: number; protein: number; fat: number; carbs: number } {
+/** 단일 아이템의 영양소 합계 추정 — 실측치가 있으면 그대로, 없으면 카테고리 대표치(추정)로 폴백. */
+function itemNutrients(food: FoodItem): { calories: number; protein: number; fat: number; carbs: number; estimated: boolean } {
   const nf = food.nutritionFacts;
   if (nf && typeof nf.calories === 'number') {
     return {
@@ -35,9 +35,10 @@ function itemNutrients(food: FoodItem): { calories: number; protein: number; fat
       protein:  nf.protein  ?? 0,
       fat:      nf.fat      ?? 0,
       carbs:    nf.carbs    ?? 0,
+      estimated: false,
     };
   }
-  return CATEGORY_AVG[food.foodCategory] ?? CATEGORY_AVG['기타 식품'];
+  return { ...(CATEGORY_AVG[food.foodCategory] ?? CATEGORY_AVG['기타 식품']), estimated: true };
 }
 
 export interface NutritionBalance {
@@ -46,6 +47,10 @@ export interface NutritionBalance {
   vegFruitCount:  number;
   proteinCount:   number;
   advice:   string;
+  /** 실측 영양정보 없이 카테고리 평균치로 추정한 항목 수 — 결측 비율 표시용(P0-59). */
+  estimatedCount: number;
+  /** 계산에 포함된 활성(만료 전) 식품 총 개수. */
+  activeCount:    number;
 }
 
 /**
@@ -57,9 +62,11 @@ export interface NutritionBalance {
 export function analyzeBalance(foods: FoodItem[]): NutritionBalance {
   const active = foods.filter((f) => isUpcoming(getRemainingDays(f)));
 
+  let estimatedCount = 0;
   const totals = active.reduce(
     (acc, f) => {
       const n = itemNutrients(f);
+      if (n.estimated) estimatedCount += 1;
       acc.calories += n.calories;
       acc.protein  += n.protein;
       acc.fat      += n.fat;
@@ -82,7 +89,11 @@ export function analyzeBalance(foods: FoodItem[]): NutritionBalance {
     f.foodCategory === '정육·계란' || f.foodCategory === '수산·해산',
   ).length;
 
-  return { totals, coverage, vegFruitCount, proteinCount, advice: buildAdvice(coverage, vegFruitCount, proteinCount) };
+  return {
+    totals, coverage, vegFruitCount, proteinCount,
+    advice: buildAdvice(coverage, vegFruitCount, proteinCount),
+    estimatedCount, activeCount: active.length,
+  };
 }
 
 /**

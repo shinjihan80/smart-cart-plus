@@ -14,7 +14,7 @@ const HISTORY_KEY  = 'nemoa-history';
 const SCHEMA_VERSION_KEY = 'nemoa-schema-version';
 const CURRENT_SCHEMA_VERSION = '2'; // 카테고리 세분화 (v1→v2)
 
-interface DiscardRecord {
+export interface DiscardRecord {
   name:      string;
   category:  string;
   date:      string;

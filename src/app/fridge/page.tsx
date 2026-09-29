@@ -720,7 +720,7 @@ export default function FridgePage() {
         {activeTab === 'suggest' && (
           <>
             <SectionErrorBoundary label="영양 밸런스">
-              <NutritionBalanceSection foods={allFood} />
+              <NutritionBalanceSection foods={allFood} discardHistory={discardHistory} />
             </SectionErrorBoundary>
 
             <SectionErrorBoundary label="오늘 뭐 먹지">

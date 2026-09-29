@@ -43,12 +43,33 @@ export function recipeGradient(recipe: Recipe): string {
   return 'from-brand-primary/5 to-brand-success/10';
 }
 
+/**
+ * 짧은 재료 키워드가 완전히 다른 식재료의 접두어로 우연히 겹치는 경우 —
+ * 부분 일치 대신 단어 단위 일치만 허용한다. RECIPES 키워드 전체에서 한
+ * 키워드가 다른 키워드의 접두어인 쌍을 데이터로 뽑아 확인한 뒤, 진짜 다른
+ * 식재료인 것만 여기 수동으로 남겼다(같은 재료의 표기 차이인 "닭"/
+ * "닭가슴살", "견과"/"견과류"는 의도된 일치라 제외) — 예: "감"(persimmon)
+ * 키워드가 "감귤 주스"에 부분 일치해 엉뚱한 "감 샐러드"를 추천하던 버그
+ * (P0-59, 전문단 E1 라이브 재현. "감귤"·"감자" 모두 "감"과 다른 재료인데
+ * 레시피 키워드 목록에 따로 있어 이 데이터로 자동 탐지됨).
+ */
+const AMBIGUOUS_INGREDIENT_KEYWORDS: ReadonlySet<string> = new Set(['감', '김', '쌀']);
+
+/** name 안에서 keyword가 (부분 일치가 아니라) 독립된 단어로 등장하는지. */
+function hasWordMatch(name: string, keyword: string): boolean {
+  return name.split(/\s+/).includes(keyword);
+}
+
+function keywordMatchesName(keyword: string, name: string): boolean {
+  return AMBIGUOUS_INGREDIENT_KEYWORDS.has(keyword)
+    ? hasWordMatch(name, keyword)
+    : name.includes(keyword) || keyword.includes(name);
+}
+
 /** 주어진 식재료(부분 일치)를 키워드로 하는 레시피 개수. */
 export function countRecipesByIngredient(ingredient: string): number {
   if (!ingredient) return 0;
-  return RECIPES.filter((r) =>
-    r.keywords.some((kw) => kw.includes(ingredient) || ingredient.includes(kw)),
-  ).length;
+  return RECIPES.filter((r) => r.keywords.some((kw) => keywordMatchesName(kw, ingredient))).length;
 }
 
 /** 레시피 time 문자열("15분", "1시간 10분" 등)을 초로 환산. 파싱 실패 시 null. */
@@ -975,7 +996,9 @@ export function matchRecipes(
     const matchedItems: string[] = [];
     let urgentBoost = 0;
     for (const kw of recipe.keywords) {
-      const hit = nameIndex.find((n) => n.name.includes(kw));
+      const hit = nameIndex.find((n) =>
+        AMBIGUOUS_INGREDIENT_KEYWORDS.has(kw) ? hasWordMatch(n.name, kw) : n.name.includes(kw),
+      );
       if (hit) {
         matchedItems.push(hit.name);
         if (hit.urgent) urgentBoost += 2;
