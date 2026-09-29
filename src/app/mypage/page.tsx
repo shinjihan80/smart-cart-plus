@@ -27,7 +27,6 @@ import CookStatsSection                          from '@/components/mypage/CookS
 import ClosetCleanupSection                      from '@/components/mypage/ClosetCleanupSection';
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
 import WaitlistBanner                            from '@/components/mypage/WaitlistBanner';
-import ShoppingMallCard                           from '@/components/ShoppingMallCard';
 import PaletteButton                              from '@/components/PaletteButton';
 import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
 import MonthlySummarySection                      from '@/components/mypage/MonthlySummarySection';
@@ -498,41 +497,11 @@ export default function MyPage() {
 
         {activeTab === 'shopping' && (
           <>
-            <ShoppingMallCard
-              domain="groceries"
-              title="식품 쇼핑몰"
-              subtitle="장보기 — 탭하면 새 창으로 이동"
-              emoji="🥬"
-            />
-
-            <ShoppingMallCard
-              domain="fashion"
-              title="패션 쇼핑몰"
-              subtitle="옷 사러 가기 — 탭하면 새 창으로 이동"
-              emoji="👕"
-            />
-
-            <ShoppingMallCard
-              domain="secondhand"
-              title="중고 판매"
-              subtitle="안 입는 옷 판매 — 당근·번개장터·KREAM"
-              emoji="💰"
-            />
-
-            <ShoppingMallCard
-              domain="donation"
-              title="기부하기"
-              subtitle="오래 안 입은 옷 따뜻하게 보내기"
-              emoji="❤️"
-            />
-
-            <ShoppingMallCard
-              domain="storage"
-              title="짐 보관 서비스"
-              subtitle="계절 옷 잠깐 빼두기 — 세탁특공대·다락"
-              emoji="📦"
-            />
-
+            {/* 파트너 쇼핑몰 디렉터리(식품/패션/중고/기부/짐보관) 5칸이
+                여기 그대로 중복돼 있었다 — 이미 냉장고=식품, 옷장=패션·중고·
+                기부·짐보관으로 전부 있어 3화면에 동일 목록이 세 번 노출됐다
+                (P0-58, 전문단 E1 발견). 여기서는 지우고 마이>쇼핑 고유
+                기능(장볼 거 추천·쇼핑 리스트)만 남긴다. */}
             <SectionErrorBoundary label="장볼 거 추천">
               <ShoppingSuggestionsSection
                 items={items}
