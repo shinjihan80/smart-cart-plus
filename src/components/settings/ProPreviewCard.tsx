@@ -71,7 +71,13 @@ const ROWS: Row[] = [
   },
   {
     label:    '분석 리포트',
-    free:     <Tick ok={false} />,
+    // PlanGate가 결제 killswitch(PAYMENTS_ENABLED=false)인 동안 잠금을
+    // 전부 우회해(P0-27) 실제로는 무료 사용자도 이미 쓰고 있는 기능인데,
+    // 이 비교표만 예전 그대로 "무료 ✗"를 유지해 "표에서 못 쓴다는 게
+    // 이미 쓰고 있는 기능"이라는 자기모순이 났다(P0-41, C7 발견) —
+    // PlanGate와 같은 플래그를 보게 해 결제 출시 시 자동으로 다시
+    // 갈린다.
+    free:     PAYMENTS_ENABLED ? <Tick ok={false} /> : <Tick ok={true} />,
     pro_lite: <Tick ok={true}  />,
     pro_max:  <Tick ok={true}  />,
   },
