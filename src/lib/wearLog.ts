@@ -3,11 +3,33 @@
 import { useCallback } from 'react';
 import { createSharedStore } from './sharedStore';
 import { todayLocalStr, localMidnight, todayMidnight, daysBetween } from './dateMath';
+import { isClothingItem, FASHION_GROUP, type ClothingItem, type CartItem } from '@/types';
 
 const STORAGE_KEY = 'nemoa-wear-log';
 
 /** clothing id → 착용 날짜(YYYY-MM-DD) 배열. 최신순 유지. */
 export type WearLog = Record<string, string[]>;
+
+/**
+ * "아직 안 입어본"(착용 기록 0건) 패션 아이템 — 단일 소스.
+ *
+ * 예전엔 화면마다 이 필터를 따로 짜서, 옷장>코디는 의류만 세고(예:
+ * 10벌) 마이>요약 쪽은 신발·가방·액세서리까지 포함한 패션 전체를
+ * 세는(예: 21벌) 등 같은 데이터를 두고 "미착용"이 화면마다 다른
+ * 숫자로 보였다(P0-60, 전문단 E1 발견). scope를 필수 인자로 받아
+ * 호출부가 실수로 범위를 섞지 못하게 한다 — 라벨에도 scope를 그대로
+ * 반영할 것("아직 안 입어본 의류 N벌" / "미착용 패션 전체 N벌").
+ */
+export function selectNeverWorn(
+  items: readonly CartItem[],
+  log: WearLog,
+  scope: 'clothing' | 'all-fashion',
+): ClothingItem[] {
+  return items
+    .filter(isClothingItem)
+    .filter((c) => scope === 'all-fashion' || FASHION_GROUP[c.category] === '의류')
+    .filter((c) => (log[c.id]?.length ?? 0) === 0);
+}
 
 const store = createSharedStore<WearLog>({
   storageKey: STORAGE_KEY,

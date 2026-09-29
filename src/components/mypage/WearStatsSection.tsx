@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { isClothingItem, type CartItem } from '@/types';
-import { useWearLog, daysSince } from '@/lib/wearLog';
+import { useWearLog, daysSince, selectNeverWorn } from '@/lib/wearLog';
 import { FASHION_GROUP, type FashionGroup } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import WeekdayPatternChart from './WeekdayPatternChart';
@@ -46,9 +46,15 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
     .sort((a, b) => b.count - a.count)
     .slice(0, 3);
 
-  const neverWorn = annotated
-    .filter((x) => x.count === 0)
-    .slice(0, 3);
+  // 옷장>코디의 "아직 안 입어본 의류"는 의류만 세는데(scope='clothing'),
+  // 여기는 신발·가방·액세서리까지 포함한 패션 전체를 센다 — 같은 개념을
+  // 화면마다 다른 범위로 세서 숫자가 달라 보이던 문제(P0-60, 전문단 E1
+  // 발견)를 selectNeverWorn(scope) 단일 셀렉터로 막고, 라벨에도 범위를
+  // 명시한다.
+  const neverWornAll = selectNeverWorn(clothes, log, 'all-fashion');
+  const neverWorn = neverWornAll
+    .slice(0, 3)
+    .map((item) => ({ item, count: 0, lastWorn: undefined as string | undefined }));
 
   const longIdle = annotated
     .filter((x) => x.count > 0 && x.lastWorn && daysSince(x.lastWorn) >= 30)
@@ -192,7 +198,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
 
       {neverWorn.length > 0 && (
         <div>
-          <p className="text-sm text-gray-500 font-semibold mb-1.5">👀 아직 안 입은 옷</p>
+          <p className="text-sm text-gray-500 font-semibold mb-1.5">👀 미착용 패션 전체 {neverWornAll.length}개</p>
           <div className="flex flex-col gap-1">
             {neverWorn.map((x) => {
               const Icon = FASHION_ICON[x.item.category] ?? FASHION_ICON['기타 액세서리'];

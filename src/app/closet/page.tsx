@@ -20,7 +20,7 @@ import {
   type WeatherSnapshot,
 } from '@/lib/weather';
 import { useProfiles } from '@/lib/profile';
-import { useWearLog, daysSince } from '@/lib/wearLog';
+import { useWearLog, daysSince, selectNeverWorn } from '@/lib/wearLog';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
@@ -517,11 +517,12 @@ export default function ClosetPage() {
           <OutfitGrid items={activeClothing} count={6} weather={weather} />
         </SectionErrorBoundary>
 
-        {/* 아직 안 입어본 옷 — 구매 후 한 번도 안 입은 의류 */}
+        {/* 아직 안 입어본 옷 — 구매 후 한 번도 안 입은 의류(신발·가방·
+            액세서리 제외 — 마이>요약의 "전체 패션" 스코프와는 다르다는 걸
+            라벨에 "의류"로 명시해 화면마다 숫자가 갈려 보이지 않게 한다,
+            P0-60). */}
         {(() => {
-          const untriedAll = activeClothing
-            .filter((c) => FASHION_GROUP[c.category] === '의류')
-            .filter((c) => (wearLog[c.id]?.length ?? 0) === 0);
+          const untriedAll = selectNeverWorn(activeClothing, wearLog, 'clothing');
           // 칩은 5개까지만 노출하되, 개수 표시는 잘라내기 전 전체 개수를 써야
           // 한다 — 이전엔 잘라낸 배열의 length를 그대로 써서 6벌 이상이어도
           // 항상 "5벌"로 고정 표시되는 버그가 있었다(전문단 E2 발견).
@@ -531,7 +532,7 @@ export default function ClosetPage() {
             <>
               <div className="flex items-center gap-2">
                 <EmojiIcon emoji="🆕" size={16} className="text-gray-600" />
-                <span className="text-base font-bold text-gray-900 tracking-tight">아직 안 입어본 옷 {untriedAll.length}벌</span>
+                <span className="text-base font-bold text-gray-900 tracking-tight">아직 안 입어본 의류 {untriedAll.length}벌</span>
               </div>
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
