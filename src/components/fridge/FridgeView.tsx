@@ -100,7 +100,13 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             <div className="mt-1.5">
               <p className="text-[11px] font-bold text-gray-800 leading-tight truncate">{meta.label}</p>
               {list.length === 0 ? (
-                <p className="text-[10px] text-gray-400 mt-0.5 leading-tight line-clamp-1">{meta.hint}</p>
+                // 빈 칸의 예시 힌트("잼·소스·드레싱" 등)와 실제 보유 품목이
+                // 글자 크기·굵기·위치가 전부 같고 명도 차이(gray-400 vs
+                // gray-500)만 있어 구분이 안 됐다 — 등록한 적 없는 품목을
+                // 있는 것으로 오인하게 했다(P0-25, 전문단 E3 발견).
+                // "예: " 접두 + 기울임으로 "이건 예시일 뿐 실제 보유품이
+                // 아니다"를 명시적으로 표시한다.
+                <p className="text-[10px] text-gray-400 italic mt-0.5 leading-tight line-clamp-1">예: {meta.hint}</p>
               ) : (
                 <p className="text-[10px] text-gray-500 mt-0.5 leading-tight line-clamp-1">
                   {list.slice(0, 3).map((i) => i.name).join(', ')}
