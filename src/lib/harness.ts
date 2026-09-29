@@ -15,6 +15,25 @@ function loadRules() {
   return JSON.parse(fs.readFileSync(rulesPath, 'utf-8'));
 }
 
+/**
+ * 파서(parser-agent/url-agent)에게 프롬프트로 "p1","p2" 형식 임시 인덱스
+ * id를 요청해 두고, 그 응답을 그대로 CartItem id로 승격시키는 재키잉 없는
+ * 경로였다 — 같은 영수증을 두 번 스캔하면 카트에 "p1"이 두 개 생기고,
+ * removeItem/updateItem이 id 매칭이라 중복 id 항목이 동시에 삭제·수정되며
+ * wearLog/savedOutfits도 id 키라 서로 다른 두 벌이 로그를 공유했다(P0-61,
+ * 전문단 E2 발견). 응답을 클라이언트로 돌려주기 직전, 모든 라우트에서
+ * 이 함수로 항상 새 UUID를 재발급한다 — raw id는 프롬프트 안에서만 쓰이고
+ * 밖으로 나가지 않는다.
+ */
+export function reassignItemIds(response: Record<string, unknown>): void {
+  if (!Array.isArray(response.items)) return;
+  for (const item of response.items) {
+    if (item && typeof item === 'object') {
+      (item as Record<string, unknown>).id = crypto.randomUUID();
+    }
+  }
+}
+
 // ─── 1. 글로벌 컨텍스트 주입 ──────────────────────────────────────────────────
 /**
  * harness/global-context.md 내용을 문자열로 반환한다.

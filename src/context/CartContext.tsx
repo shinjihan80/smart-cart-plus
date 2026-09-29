@@ -145,6 +145,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     let added = 0;
     let skipped = 0;
     setItems((prev) => {
+      const seenIds = new Set(prev.map((i) => i.id));
       const unique = newItems.filter((ni) => {
         const isDuplicate = prev.some(
           (existing) => existing.name === ni.name && existing.category === ni.category,
@@ -152,6 +153,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (isDuplicate) { skipped++; return false; }
         added++;
         return true;
+      // id 충돌 방어(P0-61) — removeItem/updateItem이 id 매칭이라 중복 id
+      // 항목은 동시에 삭제·수정되고 wearLog/savedOutfits도 id 키를 공유하게
+      // 된다. 근본 원인(AI 파서가 임시 인덱스 id를 그대로 승격)은 각
+      // agent 라우트에서 막았지만, 다른 경로(백업 복원 등)로 또 들어올
+      // 가능성에 대비해 마지막 방어선으로 여기서도 재발급한다.
+      }).map((ni) => {
+        if (!seenIds.has(ni.id)) { seenIds.add(ni.id); return ni; }
+        const reassigned = { ...ni, id: crypto.randomUUID() } as CartItem;
+        seenIds.add(reassigned.id);
+        return reassigned;
       });
       return [...prev, ...unique];
     });

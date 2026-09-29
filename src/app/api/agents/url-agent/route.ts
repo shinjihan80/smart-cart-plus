@@ -9,7 +9,7 @@
  * 주의: JS 기반 SPA 사이트(쿠팡 앱 딥링크 등)는 정적 HTML만 가져오므로 제한될 수 있음
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { validateOutput } from '@/lib/harness';
+import { validateOutput, reassignItemIds } from '@/lib/harness';
 import { runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { recordAgentUsage } from '@/lib/usageTelemetry';
@@ -168,6 +168,10 @@ export async function POST(req: NextRequest) {
         imageUrl: pageImageUrl,
       }));
     }
+
+    // id 재발급(P0-61) — AI가 매긴 "p1","p2" 임시 인덱스를 그대로 내보내면
+    // 재파싱 시 카트에 중복 id가 생긴다.
+    reassignItemIds(res);
 
     return NextResponse.json(result);
   } catch (err) {

@@ -194,13 +194,20 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
       ? (raw.foodCategory as import('@/types').FoodCategory)
       : '기타 식품' as import('@/types').FoodCategory;
 
+    // raw.id는 파서가 "p1","p2" 식으로 매기는 응답 내부 임시 인덱스일 뿐이라
+    // CartItem id로 그대로 승격시키면 영수증을 두 번 스캔했을 때 카트에 같은
+    // id("p1")가 두 개 생긴다 — removeItem/updateItem이 id 매칭이라 중복
+    // id 항목이 동시에 삭제·수정되고, wearLog/savedOutfits도 id 키라 서로
+    // 다른 두 벌이 로그를 공유하게 된다(P0-61, 전문단 E2 발견). 여기서
+    // 항상 새 UUID로 재발급.
+    const baseShelfLifeDays = Math.round(raw.baseShelfLifeDays);
     const item: FoodItem = {
-      id:                raw.id,
+      id:                crypto.randomUUID(),
       name:              raw.name,
       category:          '식품',
       foodCategory,
       storageType,
-      baseShelfLifeDays: Math.max(1, Math.round(raw.baseShelfLifeDays)),
+      baseShelfLifeDays: Number.isFinite(baseShelfLifeDays) ? Math.max(1, baseShelfLifeDays) : 7,
       purchaseDate:      raw.purchaseDate || new Date().toISOString().split('T')[0],
       nutritionFacts:    raw.nutritionFacts,
     };
@@ -223,7 +230,7 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
     : inferWeatherTagsFallback(thickness, category, raw.attributes?.lining);
 
   const item: EnrichedClothingItem = {
-    id:          raw.id,
+    id:          crypto.randomUUID(), // 재키잉 이유는 위 food 분기 주석 참고(P0-61)
     name:        raw.name,
     category,
     size:        raw.size || 'Free',

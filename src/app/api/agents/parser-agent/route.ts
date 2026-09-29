@@ -14,7 +14,7 @@
  *   4. 출력 검증 (Harness)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { validateInput, validateOutput } from '@/lib/harness';
+import { validateInput, validateOutput, reassignItemIds } from '@/lib/harness';
 import { runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { recordAgentUsage } from '@/lib/usageTelemetry';
@@ -120,6 +120,10 @@ export async function POST(req: NextRequest) {
         return rec;
       });
     }
+
+    // Step 6: id 재발급(P0-61) — AI가 매긴 "p1","p2" 임시 인덱스를 그대로
+    // 내보내면 재스캔 시 카트에 중복 id가 생긴다.
+    reassignItemIds(resultObj);
 
     return NextResponse.json(resultObj);
   } catch (err) {
