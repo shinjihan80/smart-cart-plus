@@ -104,7 +104,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
                 크기 위계를 준다(배지 큼 > 라벨 중간 > 썸네일·카운트·힌트 작음). */}
             <div className="flex items-start justify-between gap-1">
               <span
-                className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 text-2xl leading-none shrink-0"
+                className="emoji w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 text-2xl shrink-0"
                 aria-hidden
               >
                 {meta.emoji}
@@ -127,7 +127,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
                   {cellItems.slice(0, 3).map((item, i) => (
                     <span
                       key={i}
-                      className="text-lg leading-none"
+                      className="emoji text-lg"
                       aria-hidden
                       title={item.name}
                     >

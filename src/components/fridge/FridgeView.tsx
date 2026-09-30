@@ -79,7 +79,7 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             aria-label={`${meta.label} — ${list.length}개`}
           >
             <div className="flex items-start justify-between gap-1">
-              <span className="text-base leading-none" aria-hidden>{meta.emoji}</span>
+              <span className="emoji text-base" aria-hidden>{meta.emoji}</span>
               <div className="flex items-center gap-1">
                 {urgent && (
                   <span
