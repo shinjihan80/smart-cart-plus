@@ -187,6 +187,11 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
                 </div>
               )}
 
+              {/* 개인정보 안내 — 전역 동의 화면(ConsentGate)에서 "이 기기에만 저장"을
+                  1회 보여주지만, 이후 실제로 신체·알레르기 정보를 입력하는 시점엔
+                  다시 안 보여 불안해했다(P1-9, C3 발견). 입력 직전에 한 번 더. */}
+              <p className="text-xs text-gray-400">이름·신체 정보는 이 기기에만 저장돼요.</p>
+
               {/* 신체 정보 */}
               <div className="grid grid-cols-2 gap-2">
                 <div>

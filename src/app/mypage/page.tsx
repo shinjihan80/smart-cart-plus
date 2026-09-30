@@ -291,6 +291,7 @@ export default function MyPage() {
                 {backup.lastBackupAt === null ? `등록한 ${items.length}개, 파일로 저장해두면 안전해요` : `마지막 백업 ${backup.daysSince}일 전`}
               </p>
               <p className="text-sm text-gray-500 mt-0.5">백업 파일 하나면 기기를 바꿔도 그대로 옮길 수 있어요.</p>
+              <p className="text-xs text-gray-400 mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
             </div>
             <button
               onClick={handleBackupNow}
