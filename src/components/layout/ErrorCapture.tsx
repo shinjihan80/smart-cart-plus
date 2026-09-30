@@ -16,13 +16,25 @@ export default function ErrorCapture() {
   useInstallErrorHandlers();
   const { showToast } = useToast();
 
+  // 백업 복원 직후 새로고침으로 넘어오면(P0-62) 복원 화면은 이미 사라졌으니
+  // 여기서 완료 토스트를 대신 띄운다 — sessionStorage 1회성 플래그.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('nemoa-restore-just-completed')) {
+        sessionStorage.removeItem('nemoa-restore-just-completed');
+        showToast('백업에서 복원됐어요.');
+      }
+    } catch { /* sessionStorage 접근 불가 — 조용히 무시 */ }
+  }, [showToast]);
+
   useEffect(() => {
     function onStorageWriteFailed(e: Event) {
-      const detail = (e as CustomEvent<{ key: string; isQuota: boolean }>).detail;
+      const detail = (e as CustomEvent<{ key: string; isQuota: boolean; message?: string }>).detail;
       showToast(
-        detail?.isQuota
-          ? '저장 공간이 가득 찼어요 — 설정 > 백업에서 파일로 저장해주세요.'
-          : '방금 변경사항 저장에 실패했어요 — 새로고침하면 사라질 수 있어요.',
+        detail?.message
+          ?? (detail?.isQuota
+            ? '저장 공간이 가득 찼어요 — 설정 > 백업에서 파일로 저장해주세요.'
+            : '방금 변경사항 저장에 실패했어요 — 새로고침하면 사라질 수 있어요.'),
       );
     }
     window.addEventListener('nemoa:storage-write-failed', onStorageWriteFailed);

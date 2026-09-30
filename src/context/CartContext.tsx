@@ -7,6 +7,7 @@ import { getRemainingDays } from '@/lib/expirySelectors';
 import { recordAddsAndMaybeShowAd } from '@/lib/addMilestone';
 import { todayLocalStr } from '@/lib/dateMath';
 import { safeSetItem } from '@/lib/safeStorage';
+import { logError } from '@/lib/errorLog';
 
 const STORAGE_KEY  = 'nemoa-items';
 const DISCARD_KEY  = 'nemoa-discard-count';
@@ -110,16 +111,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
           if (cat === '액세서리') return Object.assign({}, item, { category: '주얼리' }) as CartItem;
           return item;
         });
-        // 유효성 검증: 모든 아이템에 필수 필드가 있는지 확인
-        const valid = migrated.every((item) => {
+        // 유효성 검증 — 예전엔 `every()`로 전부-아니면-전무라 아이템 50개 중
+        // 하나만 손상돼도(예: 백업 파일 일부 훼손) 카트 전체가 통째로
+        // 삭제됐다(P0-62, 전문단 E2 발견) — `filter()`로 바꿔 불량 아이템만
+        // 걸러내고 나머지는 살린다.
+        const isValidItem = (item: CartItem) => {
           if (!item.id || !item.name || !item.category) return false;
           if (item.category === '식품' && !('foodCategory' in item)) return false;
           return true;
-        });
-        if (valid && migrated.length > 0) {
-          setItems(migrated);
-        } else {
-          // 유효하지 않은 데이터 → 초기화
+        };
+        const validItems = migrated.filter(isValidItem);
+        if (validItems.length > 0) {
+          setItems(validItems);
+          if (validItems.length < migrated.length) {
+            const droppedCount = migrated.length - validItems.length;
+            logError(`카트 복원 중 손상된 항목 ${droppedCount}개를 건너뜀`, 'manual');
+            window.dispatchEvent(new CustomEvent('nemoa:storage-write-failed', {
+              detail: { key: STORAGE_KEY, isQuota: false, message: `손상된 항목 ${droppedCount}개를 제외하고 불러왔어요.` },
+            }));
+          }
+        } else if (migrated.length > 0) {
+          // 전부 손상 — 살릴 게 없을 때만 초기화
           localStorage.removeItem(STORAGE_KEY);
         }
       }

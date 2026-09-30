@@ -97,7 +97,15 @@ export default function SettingsPage() {
       });
       applyNonCartFromSnapshot(snap);
       backup.refresh();
-      showToast('백업에서 복원됐어요.');
+      // 착용로그·조리로그·쇼핑리스트 등은 createSharedStore(모듈 싱글턴)라
+      // applyNonCartFromSnapshot의 localStorage.setItem이 메모리 상태를
+      // 안 건드린다 — 토스트만 띄우고 넘어가면 화면은 복원 전 값 그대로
+      // 있다가, 사용자가 아무 조작(옷 "오늘 입었어요" 등)만 해도 그 stale
+      // 상태가 방금 복원한 로그 전체를 덮어써 데이터 절반이 조용히
+      // 사라졌다(P0-62, 전문단 E2 발견) — 기기 교체 시 유일한 이전
+      // 경로라 영향이 크다. 새로고침으로 모든 스토어를 새로 hydrate시킨다.
+      sessionStorage.setItem('nemoa-restore-just-completed', '1');
+      window.location.reload();
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류';
       showToast(`복원 실패: ${msg}`);
