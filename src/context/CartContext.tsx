@@ -59,10 +59,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
   useEffect(() => {
     try {
-      // 리브랜딩 전 'smart-cart-*' 키 잔여물 + 제거된 카카오 애드핏 SDK가 남긴
-      // 'adfit.*' 키 정리 (1회성 — 2릴리스 후 이 블록 삭제 가능). 애드핏 스크립트
-      // 자체는 이미 안 실리지만, 예전에 로드됐던 브라우저엔 흔적이 남아있어
-      // "정말 광고 추적이 꺼졌나" 의심을 샀다(P0-42).
+      // 리브랜딩 전 'smart-cart-*' 키를 곧바로 지우기만 했는데, 그 안에
+      // 실제 사용자 데이터(카트 아이템 등)가 남아있을 수 있어 한 번도
+      // 새 앱을 안 열어본 복귀 사용자는 이 정리 루프 자체가 데이터를
+      // 조용히 날리는 원인이었다(P0-13, 전문단 E2 발견) — 지우기 전에
+      // 새 키('nemoa-*')가 아직 없을 때만 값을 옮겨 담는다.
+      const RENAMED_KEYS: ReadonlyArray<[string, string]> = [
+        ['smart-cart-items',          STORAGE_KEY],
+        ['smart-cart-archive',        ARCHIVE_KEY],
+        ['smart-cart-discard-count',  DISCARD_KEY],
+        ['smart-cart-history',        HISTORY_KEY],
+      ];
+      for (const [oldKey, newKey] of RENAMED_KEYS) {
+        const oldValue = localStorage.getItem(oldKey);
+        if (oldValue !== null && localStorage.getItem(newKey) === null) {
+          localStorage.setItem(newKey, oldValue);
+        }
+      }
+
+      // 나머지 'smart-cart-*' 키(로그·플래그 등 저가치) + 제거된 카카오
+      // 애드핏 SDK가 남긴 'adfit.*' 키 정리 (1회성 — 2릴리스 후 이 블록
+      // 삭제 가능). 애드핏 스크립트 자체는 이미 안 실리지만, 예전에
+      // 로드됐던 브라우저엔 흔적이 남아있어 "정말 광고 추적이 꺼졌나"
+      // 의심을 샀다(P0-42).
       for (let i = localStorage.length - 1; i >= 0; i -= 1) {
         const k = localStorage.key(i);
         if (k && (k.startsWith('smart-cart-') || k.startsWith('adfit.'))) localStorage.removeItem(k);
