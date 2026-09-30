@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { summarizeFoods } from '@/lib/foodStats';
-import { Settings as SettingsIcon, Check, Users, ChevronRight } from 'lucide-react';
+import { Settings as SettingsIcon, Check, Users, ChevronRight, X } from 'lucide-react';
 import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
@@ -85,6 +85,15 @@ export default function MyPage() {
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
   const backup = useBackupStatus();
+  // 백업 배너 닫기 — 예전엔 닫기 버튼이 없어 데이터가 쌓인 사용자에게
+  // 계속 떠 있었다(P1-4). 닫으면 7일간 다시 안 뜨고, 그 뒤엔 여전히
+  // 미백업/stale 상태면 다시 노출.
+  const [backupBannerDismissedAt, setBackupBannerDismissedAt] = usePersistedState<number | null>(
+    'nemoa-backup-banner-dismissed-at', null,
+    (raw) => (typeof raw === 'number' || raw === null) ? raw : null,
+  );
+  const backupBannerRecentlyDismissed = backupBannerDismissedAt !== null
+    && (Date.now() - backupBannerDismissedAt) < 7 * 24 * 60 * 60 * 1000;
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [browserOpen, setBrowserOpen]       = useState(false);
   const [archiveExpanded, setArchiveExpanded] = useState(false);
@@ -269,7 +278,7 @@ export default function MyPage() {
         </motion.div>
 
         {/* 백업 안내 배너 — 지킬 데이터가 어느 정도 쌓였을 때만. 경고(빨강) 아닌 caution(황토) 톤 (P1-4) */}
-        {backup.isStale && items.length >= 5 && (
+        {backup.isStale && items.length >= 5 && !backupBannerRecentlyDismissed && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -288,6 +297,13 @@ export default function MyPage() {
               className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary text-white hover:opacity-90"
             >
               지금 백업
+            </button>
+            <button
+              onClick={() => setBackupBannerDismissedAt(Date.now())}
+              aria-label="백업 안내 닫기 — 7일간 다시 안 보기"
+              className="shrink-0 w-6 h-6 flex items-center justify-center text-gray-300 hover:text-gray-500 transition-colors"
+            >
+              <X size={14} strokeWidth={2.5} />
             </button>
           </motion.div>
         )}
