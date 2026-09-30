@@ -617,7 +617,10 @@ export default function ManualPage() {
 
             <div className="mt-8 bg-gray-50 rounded-2xl p-6 text-center">
               <p className="text-sm text-gray-500 mb-2">이 가이드에서 답을 찾지 못하셨나요?</p>
-              <p className="text-sm text-gray-700">설정 → 오류 기록에서 로그를 복사한 뒤, 상황 설명과 함께 문의해 주세요.</p>
+              <p className="text-sm text-gray-700">
+                설정 → 오류 기록에서 로그를 복사한 뒤, 상황 설명과 함께{' '}
+                <a href="mailto:baert211@gmail.com" className="text-brand-primary underline">baert211@gmail.com</a>으로 문의해 주세요.
+              </p>
             </div>
           </section>
 

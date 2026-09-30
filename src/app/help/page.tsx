@@ -299,9 +299,11 @@ export default function HelpPage() {
           open={openId === 'contact'}
           onToggle={() => toggle('contact')}
         >
-          <Bullet>설정 → 오류 기록에서 최근 오류를 복사</Bullet>
-          <Bullet>복사한 내용 + 상황 설명을 함께 전달해 주시면 빠른 해결에 도움이 됩니다</Bullet>
-          <Bullet>Pro 단계에서 카카오 채널 등 정식 문의 채널 안내 예정</Bullet>
+          <Bullet>
+            <a href="mailto:baert211@gmail.com" className="text-brand-primary underline">baert211@gmail.com</a>으로 문의해 주세요
+          </Bullet>
+          <Bullet>설정 → 오류 기록에서 최근 오류를 복사해 함께 보내주시면 빠른 해결에 도움이 됩니다</Bullet>
+          <Bullet>Pro 단계에서 카카오 채널 등 정식 문의 채널 추가 안내 예정</Bullet>
         </MenuRow>
 
         <p className="text-center text-xs text-gray-400 mt-4">

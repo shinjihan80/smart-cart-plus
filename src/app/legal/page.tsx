@@ -117,7 +117,7 @@ export default function LegalPage() {
             </p>
             <p>
               <strong>7. 문의</strong><br />
-              개인정보 처리 관련 문의는 앱 내 피드백 또는 개발자 이메일로 연락해 주세요.
+              개인정보 처리 관련 문의는 <a href="mailto:baert211@gmail.com" className="text-brand-primary underline">baert211@gmail.com</a>으로 연락해 주세요.
             </p>
           </div>
         </section>
