@@ -74,7 +74,7 @@ export default function QuickLinks({
     { href: '/fridge',             Icon: ChefHat,      label: '레시피', bgClass: 'bg-amber-50',   iconClass: 'text-amber-500'   },
     { href: '/mypage?tab=shopping',Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     badge: shopping.length > 0 ? String(shopping.length) : undefined },
     { href: '/mypage',             Icon: BarChart3,    label: '활동',   bgClass: 'bg-violet-50',  iconClass: 'text-violet-500'   },
-    { href: '/settings#profiles',  Icon: Users,        label: '프로필', bgClass: 'bg-orange-50',  iconClass: 'text-orange-500'   },
+    { href: '/mypage?tab=profile', Icon: Users,        label: '프로필', bgClass: 'bg-orange-50',  iconClass: 'text-orange-500'   },
     { href: '/settings',           Icon: Settings,     label: '설정',   bgClass: 'bg-gray-100',   iconClass: 'text-gray-600'     },
   ];
 

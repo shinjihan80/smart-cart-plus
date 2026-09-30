@@ -110,7 +110,7 @@ export default function CommandPalette() {
       { kind: 'nav', id: 'n-seasonal', emoji: '🌸', label: '제철 달력',      sub: '4계절 × 27종',          href: '/seasonal' },
       { kind: 'nav', id: 'n-settings', emoji: '⚙️', label: '설정',          sub: '백업·초기화·프로필',    href: '/settings' },
       { kind: 'nav', id: 'n-partners', emoji: '🚀', label: '파트너 로드맵',  sub: 'Phase 7 연결 예정 서비스', href: '/mypage#partners' },
-      { kind: 'nav', id: 'n-profiles', emoji: '👥', label: '프로필 관리',    sub: '소유자 추가·수정',        href: '/settings#profiles' },
+      { kind: 'nav', id: 'n-profiles', emoji: '👥', label: '프로필 관리',    sub: '소유자 추가·수정',        href: '/mypage?tab=profile' },
     ];
     const actions: Cmd[] = [
       {
