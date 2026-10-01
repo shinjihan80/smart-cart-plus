@@ -60,12 +60,15 @@ export default function UrgentAlert({
             <AlertTriangle size={18} strokeWidth={2.2} className="text-brand-warning" />
           </span>
           <div className="flex-1 min-w-0 pr-6">
-            <p className="text-xs font-bold text-brand-warning">
+            {/* 헤드라인은 본문 줄(바로 아래, text-sm)보다 작으면 안 된다 —
+                본문을 text-sm으로 올린 과거 수정(C1·C4, 오늘 당장 처리할
+                유일한 항목이라 홈에서 가장 작은 글자가 되면 안 됨)이 정작
+                제목을 text-xs에 그대로 둬 "제목 < 본문" 역전을 새로 만들었다
+                (P1-49, E3 발견). 본문은 그대로 두고 제목을 text-sm으로 맞춤
+                — bold+경고색은 유지돼 위계는 그대로 살아있음. */}
+            <p className="text-sm font-bold text-brand-warning">
               {headline} 먹어야 할 식품 {urgent.length}개
             </p>
-            {/* 이 줄만은 형제(RebuyAlert 등)와 맞추지 않는다 — 오늘 당장
-                처리해야 할 유일한 항목이라 홈에서 가장 작은 글자가 되면
-                안 된다는 걸 페르소나 검토(C1·C4)에서 확인 */}
             <p className="text-sm text-gray-500 truncate mt-0.5">
               {urgent.map((u) => u.name).join(', ')}
             </p>
