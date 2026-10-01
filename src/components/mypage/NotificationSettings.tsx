@@ -80,10 +80,14 @@ export default function NotificationSettings() {
     }
   }
 
-  const items: { key: NotiKey; emoji: string; label: string }[] = [
+  // "할인 정보 알림"은 토글을 켜도 실제로 아무 알림도 울리지 않았다 —
+  // 할인·가격 정보 화면 자체가 앱에 없다(P1-39, C7 발견: "셋 중 가장
+  // 솔깃한 토글이 계속 안 울리면 나중에 진짜 기능이 생겨도 안 켠다").
+  // 기능이 생기기 전까지 비활성 + "출시 예정" 배지로 명확히 표시.
+  const items: { key: NotiKey; emoji: string; label: string; comingSoon?: boolean }[] = [
     { key: 'expiry', emoji: '⏰', label: '보관 기한 임박 알림' },
     { key: 'codi',   emoji: '👗', label: '코디 추천 알림' },
-    { key: 'deal',   emoji: '🏷️', label: '할인 정보 알림' },
+    { key: 'deal',   emoji: '🏷️', label: '할인 정보 알림', comingSoon: true },
   ];
 
   return (
@@ -155,26 +159,43 @@ export default function NotificationSettings() {
       <div className="divide-y divide-gray-50">
         {items.map((item) => (
           <div key={item.key} className="flex items-center justify-between py-2.5">
-            <div className="flex items-center gap-2.5">
-              <EmojiIcon emoji={item.emoji} size={16} className="text-gray-600" />
-              <span className="text-sm text-gray-600">{item.label}</span>
+            <div className="flex items-center gap-2">
+              <EmojiIcon emoji={item.emoji} size={16} className={item.comingSoon ? 'text-gray-300' : 'text-gray-600'} />
+              <span className={`text-sm ${item.comingSoon ? 'text-gray-400' : 'text-gray-600'}`}>{item.label}</span>
+              {item.comingSoon && (
+                <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 rounded-full px-1.5 py-0.5">
+                  출시 예정
+                </span>
+              )}
             </div>
-            <button
-              role="switch"
-              aria-checked={state[item.key]}
-              aria-label={`${item.label} 토글`}
-              onClick={() => toggle(item.key)}
-              className={`w-10 h-6 rounded-full transition-colors relative ${
-                state[item.key] ? 'bg-brand-primary' : 'bg-gray-200'
-              }`}
-            >
+            {item.comingSoon ? (
               <div
-                aria-hidden="true"
-                className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                  state[item.key] ? 'translate-x-5' : 'translate-x-1'
+                role="switch"
+                aria-checked={false}
+                aria-disabled="true"
+                aria-label={`${item.label} — 출시 예정, 아직 켤 수 없음`}
+                className="w-10 h-6 rounded-full relative bg-gray-100 cursor-not-allowed"
+              >
+                <div aria-hidden="true" className="absolute top-1 translate-x-1 w-4 h-4 rounded-full bg-white shadow-sm" />
+              </div>
+            ) : (
+              <button
+                role="switch"
+                aria-checked={state[item.key]}
+                aria-label={`${item.label} 토글`}
+                onClick={() => toggle(item.key)}
+                className={`w-10 h-6 rounded-full transition-colors relative ${
+                  state[item.key] ? 'bg-brand-primary' : 'bg-gray-200'
                 }`}
-              />
-            </button>
+              >
+                <div
+                  aria-hidden="true"
+                  className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                    state[item.key] ? 'translate-x-5' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            )}
           </div>
         ))}
       </div>

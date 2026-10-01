@@ -529,7 +529,7 @@ export default function ManualPage() {
               <PhoneFrame src="/help/screen-settings.jpg" alt="설정 화면" caption="설정 화면" />
             }>
               <SubTitle>알림 설정</SubTitle>
-              <p className="text-gray-600 mb-3">보관 기한 임박 알림, 코디 추천 알림, 할인 정보 알림을 각각 켜고 끌 수 있습니다.</p>
+              <p className="text-gray-600 mb-3">보관 기한 임박 알림, 코디 추천 알림을 각각 켜고 끌 수 있습니다. 할인 정보 알림은 출시 예정 기능입니다.</p>
 
               <SubTitle>백업 & 내보내기</SubTitle>
               <div className="space-y-2">
