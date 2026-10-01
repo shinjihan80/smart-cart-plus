@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { CartItem, isFoodItem } from '@/types';
 import { mockCartItems } from '@/data/mockData';
 import { getRemainingDays } from '@/lib/expirySelectors';
@@ -54,7 +54,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [archived, setArchived]         = useState<CartItem[]>([]);
   const [discardCount, setDiscardCount] = useState(0);
   const [hydrated, setHydrated]         = useState(false);
-  const [lastRemoved, setLastRemoved]   = useState<{ item: CartItem; index: number } | null>(null);
+  // state가 아니라 ref — "소진" 직후 같은 이벤트 핸들러 안에서
+  // showToast(msg, undoRemove)로 즉시 되돌리기 콜백을 건네는데, state로
+  // 두면 그 시점엔 아직 이전 렌더의(= 방금 지운 아이템을 모르는) stale
+  // closure라 되돌리기가 조용히 no-op이었다(P1-34 조사 중 발견 — 리뷰가
+  // 지적한 "기록만 안 지워짐"보다 실제로는 더 심각했음, 복구 자체가 항상
+  // 실패). ref는 setItems와 무관하게 동기로 최신값을 유지해 undoRemove를
+  // 의존성 없는 안정 함수로 만들 수 있다.
+  const lastRemovedRef = useRef<{ item: CartItem; index: number } | null>(null);
   const [discardHistory, setDiscardHistory] = useState<DiscardRecord[]>([]);
 
   // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
@@ -213,31 +220,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeItem = useCallback((id: string) => {
-    setItems((prev) => {
-      const index = prev.findIndex((i) => i.id === id);
-      if (index !== -1) {
-        const item = prev[index];
-        setLastRemoved({ item, index });
-        setDiscardHistory((h) => [
-          { name: item.name, category: item.category, date: todayLocalStr() },
-          ...h,
-        ].slice(0, 30));
-      }
-      return prev.filter((i) => i.id !== id);
-    });
+    // setItems 업데이터 함수 안에서 setLastRemoved·setDiscardHistory를 같이
+    // 호출하던 예전 코드는 비순수 업데이터였다 — React가 개발 모드
+    // StrictMode에서 업데이터를 순수성 검사 목적으로 두 번 호출하면서
+    // discardHistory에 같은 소진 기록이 2건씩 쌓였다(P1-34 조사 중 발견,
+    // "되돌리기"가 기록 1건만 지워 1건이 그대로 남는 원인). index/item
+    // 조회와 side effect를 updater 밖으로 빼 setItems는 순수 필터만 하게.
+    const index = items.findIndex((i) => i.id === id);
+    if (index === -1) return;
+    const item = items[index];
+    lastRemovedRef.current = { item, index };
+    setDiscardHistory((h) => [
+      { name: item.name, category: item.category, date: todayLocalStr() },
+      ...h,
+    ].slice(0, 30));
+    setItems((prev) => prev.filter((i) => i.id !== id));
     setDiscardCount((prev) => prev + 1);
-  }, []);
+  }, [items]);
 
   const undoRemove = useCallback(() => {
-    if (!lastRemoved) return;
+    const removed = lastRemovedRef.current;
+    if (!removed) return;
     setItems((prev) => {
       const next = [...prev];
-      next.splice(lastRemoved.index, 0, lastRemoved.item);
+      next.splice(removed.index, 0, removed.item);
       return next;
     });
     setDiscardCount((prev) => Math.max(0, prev - 1));
-    setLastRemoved(null);
-  }, [lastRemoved]);
+    // 아이템은 되돌아오는데 "최근 소진 내역" 기록은 그대로 남아,
+    // 냉장고엔 있는데 소진 기록에도 있는 상태가 돼 재구매 추천에
+    // "🔄 최근에 다 썼어요"가 다시 떴다(P1-34, C5 발견). discardHistory는
+    // removeItem에서 매번 맨 앞(index 0)에 넣으므로, 되돌리기 시점의
+    // 최신 기록 1건을 지우면 항상 방금 그 소진 기록과 일치한다.
+    setDiscardHistory((h) => h.slice(1));
+    lastRemovedRef.current = null;
+  }, []);
 
   // 만료된 식품 자동 아카이브 (보관 기한 + 7일 초과)
   const archiveExpired = useCallback((): number => {
@@ -301,7 +318,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setArchived([]);
     setDiscardCount(0);
     setDiscardHistory([]);
-    setLastRemoved(null);
+    lastRemovedRef.current = null;
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(DISCARD_KEY);
     localStorage.removeItem(ARCHIVE_KEY);
@@ -318,7 +335,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (Array.isArray(snapshot.archived))        setArchived(snapshot.archived);
     if (typeof snapshot.discardCount === 'number') setDiscardCount(snapshot.discardCount);
     if (Array.isArray(snapshot.discardHistory))  setDiscardHistory(snapshot.discardHistory);
-    setLastRemoved(null);
+    lastRemovedRef.current = null;
     // localStorage 동기화는 기존 useEffect 체인이 items/archived/discardCount/history 변경 시 자동 수행
   }, []);
 
