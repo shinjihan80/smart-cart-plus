@@ -5,7 +5,9 @@ import { useEffect } from 'react';
 /**
  * Service Worker 등록 — 프로덕션에서만 활성화.
  * 개발 모드에서는 HMR과 충돌하므로 등록 해제까지 수행.
- * public/sw.js 파일이 서빙된다.
+ * src/app/sw.js/route.ts가 /sw.js를 서빙 — 정적 public 파일이 아니라
+ * Route Handler인 이유는 VERSION을 배포마다 커밋 SHA로 자동 갱신하기
+ * 위해서(P1-35, 캐시 영구 누적 버그 수정).
  */
 export default function SwRegister() {
   useEffect(() => {

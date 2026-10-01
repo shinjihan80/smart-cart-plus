@@ -1,18 +1,22 @@
-/**
- * NEMOA Service Worker (v1.5)
- *
- * 전략
- *  - API 호출 (/api/*): SW 건너뜀 — Anthropic 스트리밍·캐시 무의미
- *  - HTML 페이지: network-first → 실패 시 캐시 → 그래도 실패면 /offline.html
- *  - 정적 자산 (_next/static, /icon.svg, /manifest.json): stale-while-revalidate
- *  - 버전 바뀌면 이전 캐시 즉시 삭제 (activate 단계)
- *
- * 로컬 전용 앱 특성상 네트워크 나가도 대부분 동작 — 페이지 셸만 살아있으면 OK.
- */
+import { NextResponse } from 'next/server';
 
-const VERSION  = 'nemoa-v1.5.6';
-const SHELL    = `nemoa-shell-${VERSION}`;
-const ASSETS   = `nemoa-assets-${VERSION}`;
+/**
+ * public/sw.js의 VERSION이 'nemoa-v1.5.6'에 고정된 채 수십 번의 배포를
+ * 거치는 동안 한 번도 안 바뀌었다(P1-35, C5 발견) — activate 단계의
+ * "버전 바뀌면 이전 캐시 삭제" 로직은 SHELL/ASSETS 캐시 이름이 실제로
+ * 달라져야만 실행되는데, VERSION이 고정이라 매 배포마다 새 정적 자산이
+ * 같은 캐시에 계속 추가되기만 하고 옛 자산은 전혀 안 지워졌다(실측
+ * 오리진 저장공간의 99.9%를 SW 캐시가 차지 — 브라우저 저장공간 축출
+ * 1순위가 되는 구조). 정적 public 파일 대신 Route Handler로 바꿔
+ * Vercel이 배포마다 자동으로 주입하는 커밋 SHA로 VERSION을 매 배포
+ * 고유값으로 만든다 — 더 이상 수동으로 버전 문자열을 올릴 필요가 없다.
+ */
+const VERSION = `nemoa-v${process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ?? 'dev'}`;
+
+const SW_BODY = `
+const VERSION  = '${VERSION}';
+const SHELL    = \`nemoa-shell-\${VERSION}\`;
+const ASSETS   = \`nemoa-assets-\${VERSION}\`;
 const OFFLINE_URL = '/offline.html';
 
 // 최소 셸 — 온보딩·UI·manifest. 앱 라우트는 첫 방문 시 캐시에 추가됨.
@@ -129,3 +133,14 @@ self.addEventListener('notificationclick', (event) => {
     }),
   );
 });
+`;
+
+export async function GET() {
+  return new NextResponse(SW_BODY, {
+    headers: {
+      'Content-Type':  'application/javascript; charset=utf-8',
+      'Cache-Control': 'no-store, must-revalidate',
+      'Service-Worker-Allowed': '/',
+    },
+  });
+}
