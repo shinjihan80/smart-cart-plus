@@ -6,12 +6,14 @@ import { ChevronRight, AlertTriangle, X } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { selectExpiring } from '@/lib/expirySelectors';
+import { useToast } from '@/context/ToastContext';
 import { springTransition } from './shared';
 
 export default function UrgentAlert({
   items, excludeNames,
 }: { items: CartItem[]; excludeNames?: ReadonlySet<string> }) {
-  const { isDismissedToday, dismiss } = useDismissedAlerts();
+  const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
+  const { showToast } = useToast();
 
   if (isDismissedToday('urgent')) return null;
 
@@ -33,10 +35,16 @@ export default function UrgentAlert({
   const maxDay = Math.max(...urgent.map((u) => u.dDay));
   const headline = maxDay === 0 ? '오늘까지' : urgent.every((u) => u.dDay === 1) ? '내일까지' : '오늘·내일';
 
+  // X만 누르면 어떤 동작인지 글자 설명이 없고(aria-label만), 다시 보는
+  // 방법(설정 > 알림 설정 > "오늘 안 보기")도 안내가 안 돼 영구히 사라진
+  // 것처럼 느껴졌다(P1-42, C10 발견) — 실제로는 자정에 자동 복구되고
+  // 설정에서도 즉시 되살릴 수 있지만, 그 사실이 화면 어디에도 없었다.
+  // 앱의 다른 삭제/소진 동작과 똑같이 토스트+되돌리기로 안내.
   function handleDismiss(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     dismiss('urgent');
+    showToast('오늘 하루 숨겼어요. 내일 다시 보여요.', () => restore('urgent'));
   }
 
   return (

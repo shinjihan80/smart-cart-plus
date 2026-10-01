@@ -6,6 +6,7 @@ import { ChevronRight, Wind, X } from 'lucide-react';
 import { isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
+import { useToast } from '@/context/ToastContext';
 import { springTransition } from './shared';
 
 const SEASON_EMOJI: Record<string, string> = {
@@ -26,7 +27,8 @@ const SEASON_EMOJI: Record<string, string> = {
  * 클릭 → 마이페이지 옷장 탭의 SeasonalStorageSection 으로 이동.
  */
 export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
-  const { isDismissedToday, dismiss } = useDismissedAlerts();
+  const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
+  const { showToast } = useToast();
   const today  = new Date();
   const month  = today.getMonth() + 1; // 1-12
   const day    = today.getDate();
@@ -70,10 +72,12 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
   if (toUnstow > 0) messageParts.push(`꺼낼 옷 ${toUnstow}벌`);
   const message = messageParts.join(' · ');
 
+  // UrgentAlert와 동일한 사유(P1-42) — 토스트+되돌리기로 안내.
   function handleDismiss(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     dismiss(dismissKey);
+    showToast('오늘 하루 숨겼어요. 내일 다시 보여요.', () => restore(dismissKey));
   }
 
   return (

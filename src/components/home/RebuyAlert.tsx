@@ -7,6 +7,7 @@ import { isFoodItem, type CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
+import { useToast } from '@/context/ToastContext';
 import { springTransition } from './shared';
 
 /**
@@ -26,7 +27,8 @@ export default function RebuyAlert({
   items, excludeNames,
 }: { items: CartItem[]; excludeNames?: ReadonlySet<string> }) {
   const { discardHistory } = useCart();
-  const { isDismissedToday, dismiss } = useDismissedAlerts();
+  const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
+  const { showToast } = useToast();
 
   if (isDismissedToday('rebuy')) return null;
 
@@ -45,10 +47,12 @@ export default function RebuyAlert({
   const overdueCount = dueSoon.filter((c) => c.dueInDays < 0).length;
   const top3 = dueSoon.slice(0, 3).map((c) => c.name).join(' · ');
 
+  // UrgentAlert와 동일한 사유(P1-42) — 토스트+되돌리기로 안내.
   function handleDismiss(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     dismiss('rebuy');
+    showToast('오늘 하루 숨겼어요. 내일 다시 보여요.', () => restore('rebuy'));
   }
 
   return (
