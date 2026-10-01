@@ -184,34 +184,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [discardHistory, hydrated]);
 
   // 중복 방지 addItems — 같은 이름+카테고리면 스킵
+  // added/skipped를 setItems 업데이터 안에서 세고 호출 직후 반환하던 예전
+  // 코드는 removeItem(P1-34)과 같은 비순수 업데이터 패턴이었다 — StrictMode가
+  // 업데이터를 두 번 호출하면 클로저 변수 added/skipped가 두 배로 집계돼
+  // 호출부(토스트 "N개 추가됨" 등)에 잘못된 수치가 노출될 수 있었다.
+  // items(컴포넌트 스코프 상태)를 기준으로 미리 계산한 뒤 setItems에는
+  // 완성된 배열만 넘기도록 바꿔 updater를 순수하게 유지한다.
   const addItems = useCallback((newItems: CartItem[]): { added: number; skipped: number } => {
+    const seenIds = new Set(items.map((i) => i.id));
     let added = 0;
     let skipped = 0;
-    setItems((prev) => {
-      const seenIds = new Set(prev.map((i) => i.id));
-      const unique = newItems.filter((ni) => {
-        const isDuplicate = prev.some(
-          (existing) => existing.name === ni.name && existing.category === ni.category,
-        );
-        if (isDuplicate) { skipped++; return false; }
-        added++;
-        return true;
-      // id 충돌 방어(P0-61) — removeItem/updateItem이 id 매칭이라 중복 id
-      // 항목은 동시에 삭제·수정되고 wearLog/savedOutfits도 id 키를 공유하게
-      // 된다. 근본 원인(AI 파서가 임시 인덱스 id를 그대로 승격)은 각
-      // agent 라우트에서 막았지만, 다른 경로(백업 복원 등)로 또 들어올
-      // 가능성에 대비해 마지막 방어선으로 여기서도 재발급한다.
-      }).map((ni) => {
-        if (!seenIds.has(ni.id)) { seenIds.add(ni.id); return ni; }
-        const reassigned = { ...ni, id: crypto.randomUUID() } as CartItem;
-        seenIds.add(reassigned.id);
-        return reassigned;
-      });
-      return [...prev, ...unique];
+    const unique = newItems.filter((ni) => {
+      const isDuplicate = items.some(
+        (existing) => existing.name === ni.name && existing.category === ni.category,
+      );
+      if (isDuplicate) { skipped++; return false; }
+      added++;
+      return true;
+    // id 충돌 방어(P0-61) — removeItem/updateItem이 id 매칭이라 중복 id
+    // 항목은 동시에 삭제·수정되고 wearLog/savedOutfits도 id 키를 공유하게
+    // 된다. 근본 원인(AI 파서가 임시 인덱스 id를 그대로 승격)은 각
+    // agent 라우트에서 막았지만, 다른 경로(백업 복원 등)로 또 들어올
+    // 가능성에 대비해 마지막 방어선으로 여기서도 재발급한다.
+    }).map((ni) => {
+      if (!seenIds.has(ni.id)) { seenIds.add(ni.id); return ni; }
+      const reassigned = { ...ni, id: crypto.randomUUID() } as CartItem;
+      seenIds.add(reassigned.id);
+      return reassigned;
     });
+    setItems([...items, ...unique]);
     recordAddsAndMaybeShowAd(added);
     return { added, skipped };
-  }, []);
+  }, [items]);
 
   const updateItem = useCallback((id: string, updates: Partial<CartItem>) => {
     setItems((prev) => prev.map((item) =>
@@ -257,47 +261,51 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 만료된 식품 자동 아카이브 (보관 기한 + 7일 초과)
+  // setItems 업데이터 안에서 setArchived를 같이 호출하고 count까지 세어
+  // 호출 직후 반환하던 예전 코드는 removeItem(P1-34)과 같은 비순수 업데이터
+  // 패턴이었다 — StrictMode 이중 호출로 아카이브가 중복 저장될 수 있었고,
+  // count는 setItems 호출 이후 바로 읽혀 React 내부 구현(eager state 계산)에
+  // 우연히 기대 값이 되는 경우에만 맞는 값이라 신뢰할 수 없었다(실제로
+  // CommandPalette의 "N개 만료 식품이 아카이브됐어요" 토스트가 이 값을
+  // 그대로 노출한다). items를 기준으로 미리 계산해 toArchive.length를
+  // 직접 반환하고, setItems/setArchived는 각각 완성된 값만 받게 한다.
   const archiveExpired = useCallback((): number => {
-    let count = 0;
-    setItems((prev) => {
-      const toArchive: CartItem[] = [];
-      const remaining = prev.filter((item) => {
-        if (isFoodItem(item)) {
-          const dDay = getRemainingDays(item);
-          if (dDay < -7) {
-            toArchive.push(item);
-            count++;
-            return false;
-          }
+    const toArchive: CartItem[] = [];
+    const remaining = items.filter((item) => {
+      if (isFoodItem(item)) {
+        const dDay = getRemainingDays(item);
+        if (dDay < -7) {
+          toArchive.push(item);
+          return false;
         }
-        return true;
-      });
-      if (toArchive.length > 0) {
-        setArchived((a) => [...toArchive, ...a].slice(0, 50));
       }
-      return remaining;
+      return true;
     });
-    return count;
-  }, []);
+    if (toArchive.length > 0) {
+      setItems(remaining);
+      setArchived((a) => [...toArchive, ...a].slice(0, 50));
+    }
+    return toArchive.length;
+  }, [items]);
 
+  // setArchived 업데이터 안에서 setItems를 같이 호출하던 예전 코드도
+  // removeItem(P1-34)과 같은 비순수 업데이터 패턴이었다 — StrictMode
+  // 이중 호출 시 복원된 아이템이 items에 두 번 들어갈 수 있었다.
+  // archived/items(컴포넌트 스코프 상태)로 먼저 판정한 뒤 각 setX에는
+  // 완성된 값만 넘긴다.
   const restoreFromArchive = useCallback((id: string): boolean => {
-    let ok = false;
-    setArchived((prev) => {
-      const target = prev.find((x) => x.id === id);
-      if (!target) return prev;
-      setItems((cur) => {
-        if (cur.some((x) => x.id === id)) return cur;
-        // 식품은 구매일을 오늘로 갱신해 보관 기한 리셋
-        const restored = isFoodItem(target)
-          ? { ...target, purchaseDate: todayLocalStr() }
-          : target;
-        return [restored, ...cur];
-      });
-      ok = true;
-      return prev.filter((x) => x.id !== id);
-    });
-    return ok;
-  }, []);
+    const target = archived.find((x) => x.id === id);
+    if (!target) return false;
+    setArchived((prev) => prev.filter((x) => x.id !== id));
+    if (!items.some((x) => x.id === id)) {
+      // 식품은 구매일을 오늘로 갱신해 보관 기한 리셋
+      const restored = isFoodItem(target)
+        ? { ...target, purchaseDate: todayLocalStr() }
+        : target;
+      setItems((cur) => [restored, ...cur]);
+    }
+    return true;
+  }, [archived, items]);
 
   const loadSampleData = useCallback((): number => {
     setItems((prev) => {
