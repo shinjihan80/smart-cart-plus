@@ -97,9 +97,9 @@ const FAQS = [
   { q: '알림이 오지 않아요.',
     a: '설정 → 알림 설정에서 원하는 알림이 켜져 있는지 확인하세요. 브라우저(또는 앱) 알림 권한도 허용해야 실제 알림이 도착합니다.' },
   { q: '가족과 함께 쓸 수 있나요?',
-    a: '마이 → 사용자 탭에서 "가족·다른 구성원 추가"를 누르면 프로필을 여러 개 만들 수 있습니다. 마이 화면 상단의 "교체" 버튼으로 현재 사용자를 전환합니다.' },
+    a: '마이 → 내 정보 탭에서 "가족·다른 구성원 추가"를 누르면 프로필을 여러 개 만들 수 있습니다. 마이 화면 상단의 "교체" 버튼으로 현재 사용자를 전환합니다.' },
   { q: '냉장고 모델은 어떻게 바꾸나요?',
-    a: '마이 → 사용자 탭 → 나의 냉장고 섹션에서 양문형·4도어·1도어·김치냉장고 중 하나를 선택하면 냉장고 칸 구조가 해당 모델에 맞춰집니다.' },
+    a: '마이 → 내 정보 탭 → 나의 냉장고 섹션에서 양문형·4도어·1도어·김치냉장고 중 하나를 선택하면 냉장고 칸 구조가 해당 모델에 맞춰집니다.' },
   { q: '앱 아이콘을 홈 화면에 추가하고 싶어요.',
     a: 'iOS Safari: 화면 하단 공유 버튼 → "홈 화면에 추가". Android Chrome: 우측 상단 메뉴(⋮) → "앱 설치". 설치 후에는 일반 앱처럼 아이콘으로 실행됩니다.' },
 ];
@@ -322,7 +322,7 @@ export default function ManualPage() {
               <Step n={4}>&quot;소진&quot;으로 제거하면 마이 → 소진 이력에 기록됩니다.</Step>
 
               <SubTitle>AI 냉장고 위치 추천</SubTitle>
-              <p className="text-gray-600 mb-2">식품 등록 시 AI가 냉장고 어느 칸에 넣을지 자동으로 추천합니다. 마이 → 사용자 탭에서 보유한 냉장고 모델(양문형·4도어·1도어·김치냉장고)을 먼저 선택하면 더 정확한 추천을 받을 수 있습니다.</p>
+              <p className="text-gray-600 mb-2">식품 등록 시 AI가 냉장고 어느 칸에 넣을지 자동으로 추천합니다. 마이 → 내 정보 탭에서 보유한 냉장고 모델(양문형·4도어·1도어·김치냉장고)을 먼저 선택하면 더 정확한 추천을 받을 수 있습니다.</p>
 
               <Tip>&quot;오늘 뭐 먹지?&quot; 버튼을 탭하면 보관 중인 식품으로 만들 수 있는 레시피를 랜덤으로 추천합니다.</Tip>
             </Row>
@@ -377,7 +377,7 @@ export default function ManualPage() {
               </div>
             </Row>
 
-            <Tip>사이즈 매칭 기능을 사용하려면 마이 → 사용자 탭 → 프로필에서 키·체중을 먼저 입력하세요.</Tip>
+            <Tip>사이즈 매칭 기능을 사용하려면 마이 → 내 정보 탭 → 프로필에서 키·체중을 먼저 입력하세요.</Tip>
           </section>
 
           <Divider />
@@ -486,7 +486,7 @@ export default function ManualPage() {
             <p className="text-gray-500 mb-6">프로필 전환·활동 통계·연간 기록·Pro 예고 등을 확인합니다.</p>
 
             <Row screen={
-              <PhoneFrame src="/help/screen-mypage.jpg" alt="마이페이지 화면" caption="마이페이지 — 사용자 탭" />
+              <PhoneFrame src="/help/screen-mypage.jpg" alt="마이페이지 화면" caption="마이페이지 — 내 정보 탭" />
             }>
               <SubTitle>4탭 구조</SubTitle>
               <div className="space-y-2 mb-4">
@@ -504,12 +504,12 @@ export default function ManualPage() {
               </div>
 
               <SubTitle>사용자(프로필) 전환</SubTitle>
-              <Step n={1}>사용자 탭 상단 프로필 카드의 <strong>&quot;교체&quot;</strong> 버튼을 탭합니다.</Step>
+              <Step n={1}>내 정보 탭 상단 프로필 카드의 <strong>&quot;교체&quot;</strong> 버튼을 탭합니다.</Step>
               <Step n={2}>바텀시트에 등록된 프로필 목록이 표시됩니다.</Step>
               <Step n={3}>원하는 프로필을 탭하면 현재 사용자가 전환됩니다.</Step>
 
               <SubTitle>프로필 추가</SubTitle>
-              <Step n={1}>사용자 탭 하단의 <strong>&quot;+ 가족·다른 구성원 추가&quot;</strong>를 탭합니다.</Step>
+              <Step n={1}>내 정보 탭 하단의 <strong>&quot;+ 가족·다른 구성원 추가&quot;</strong>를 탭합니다.</Step>
               <Step n={2}>이름·관계·아바타(이모지 또는 사진)를 설정합니다.</Step>
               <Step n={3}>저장 후 교체 버튼으로 해당 프로필로 전환합니다.</Step>
             </Row>
