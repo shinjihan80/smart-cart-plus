@@ -3,12 +3,10 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  Refrigerator, Shirt, Flower2, ChefHat,
-  ShoppingCart, BarChart3, Users, Settings,
+  Flower2, ShoppingCart, BarChart3, Settings,
   type LucideIcon,
 } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
-import { selectExpiring } from '@/lib/expirySelectors';
 import { currentSeasonByMonth, seasonStart } from '@/lib/season';
 import { isSeasonalProduce } from '@/lib/seasonalProduce';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
@@ -32,7 +30,9 @@ interface CategoryItem {
  *
  * - 둥근 사각형 타일 (rounded-2xl) + 파스텔 배경
  * - Lucide 라인 아이콘 (이모지 대신)
- * - 8개 카테고리 × 4열 × 2행
+ * - 4개 카테고리 × 4열 × 1행 — 냉장고/옷장/내 정보는 하단 탭과 중복이라
+ *   제외, 레시피는 전용 라우트가 없어(냉장고 "추천" 탭은 딥링크 미지원,
+ *   N-2 설계) 제외했다(P1-20).
  */
 export default function QuickLinks({
   items, history,
@@ -42,11 +42,6 @@ export default function QuickLinks({
   const { list: shopping } = useShoppingList();
 
   const foods = items.filter(isFoodItem);
-  // 배지·표시는 "임박(today+soon)" 하나로 통일 — 보유 총 개수는 배지로 쓰지 않음(P0-10).
-  // 이전엔 calcRemainingDays <= EXPIRY_SOON_DAYS를 직접 비교해 하한이 없어
-  // 이미 지난(expired) 식품까지 세는 바람에 하단 탭·홈 다른 배지와 숫자가
-  // 어긋났다(P0-30 재발) — selectExpiring()으로 다른 배지와 같은 값을 쓴다.
-  const soonCount = selectExpiring(items).urgentTotal;
 
   // 제철 놓친 개수
   const missedCount = (() => {
@@ -68,13 +63,9 @@ export default function QuickLinks({
   })();
 
   const categories: CategoryItem[] = [
-    { href: '/fridge',             Icon: Refrigerator, label: '냉장고', bgClass: 'bg-blue-50',    iconClass: 'text-blue-500',    badge: soonCount > 0 ? String(soonCount) : undefined },
-    { href: '/closet',             Icon: Shirt,        label: '옷장',   bgClass: 'bg-rose-50',    iconClass: 'text-rose-500'    },
     { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', dot: missedCount > 0 },
-    { href: '/fridge',             Icon: ChefHat,      label: '레시피', bgClass: 'bg-amber-50',   iconClass: 'text-amber-500'   },
     { href: '/mypage?tab=shopping',Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     badge: shopping.length > 0 ? String(shopping.length) : undefined },
     { href: '/mypage?tab=activity',Icon: BarChart3,    label: '활동',   bgClass: 'bg-violet-50',  iconClass: 'text-violet-500'   },
-    { href: '/mypage?tab=profile', Icon: Users,        label: '프로필', bgClass: 'bg-orange-50',  iconClass: 'text-orange-500'   },
     { href: '/settings',           Icon: Settings,     label: '설정',   bgClass: 'bg-gray-100',   iconClass: 'text-gray-600'     },
   ];
 
@@ -83,7 +74,7 @@ export default function QuickLinks({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.03 }}
-      className="grid grid-cols-4 gap-y-4"
+      className="grid grid-cols-4"
     >
       {categories.map((c) => (
         <Link
