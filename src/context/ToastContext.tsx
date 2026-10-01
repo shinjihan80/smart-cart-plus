@@ -49,7 +49,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 max-w-xs w-full px-4"
+            // z-[65] — 냉장고 칸 상세 바텀시트(SectionDetailSheet, z-[60])에서
+            // 소진 처리하면 토스트의 "되돌리기"가 그 시트 뒤에 깔려 탭이 전혀
+            // 안 먹혔다(라이브 테스트 중 발견 — 음식 탭 목록에서는 토스트가
+            // z-50으로 유일한 오버레이라 멀쩡히 작동, 칸 상세 시트를 띄운
+            // 채로 소진할 때만 재현). ConsentGate(90)·CommandPalette(80)·
+            // UpgradeSheet/LoginSheet(70)처럼 "앱을 막는" 진짜 모달보다는
+            // 낮게 둬 그쪽 흐름 중엔 기존처럼 토스트가 깔리게 유지.
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[65] max-w-xs w-full px-4"
           >
             <div className="rounded-2xl bg-gray-900 text-white text-sm font-medium px-4 py-3 shadow-lg flex items-center justify-between gap-3">
               <span>{toast.msg}</span>
