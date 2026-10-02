@@ -268,12 +268,34 @@ export default function MyPage() {
                 )}
               </div>
             </div>
-            <button
-              onClick={() => setShowSwitcher(true)}
-              className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
-            >
-              <Users size={12} /> 프로필 전환
-            </button>
+            {/* 프로필이 1명뿐일 땐 "전환"이 할 게 없다 — 눌러도 본인 1명만
+                보이는 시트가 열리고 "가족을 추가하면 교체할 수 있어요"라는
+                안내문만 뜬다(P1-50, C4·E1 발견 — 가족 프로필 활성화·유료
+                전환 사다리의 첫 칸이 사실상 비어있던 문제). 그 자리에
+                바로 "가족 추가"로 아래 프로필 관리 폼까지 스크롤한다. */}
+            {profiles.length > 1 ? (
+              <button
+                onClick={() => setShowSwitcher(true)}
+                className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+              >
+                <Users size={12} /> 프로필 전환
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  // 프로필 카드는 모든 탭에서 보이지만 #profiles(폼)는
+                  // '내 정보' 탭에만 렌더되므로, 다른 탭에서 눌렀으면
+                  // 먼저 탭을 전환한 뒤 다음 프레임에 스크롤한다.
+                  setActiveTab('profile');
+                  requestAnimationFrame(() => {
+                    document.getElementById('profiles')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  });
+                }}
+                className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+              >
+                <Users size={12} /> 가족 추가
+              </button>
+            )}
           </div>
         </motion.div>
 

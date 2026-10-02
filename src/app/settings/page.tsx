@@ -207,7 +207,11 @@ export default function SettingsPage() {
           </button>
         </motion.div>
 
-        {/* 프로필은 마이페이지 > 사용자 탭에서 관리 */}
+        {/* 프로필은 마이페이지 > 내 정보 탭에서 관리 — "내 정보"로만 연결하면
+            탭 지정이 없어 usePersistedState가 기억한 마지막 탭(쇼핑 등)에
+            떨어질 수 있었다(P1-50, C4·E1 발견 — "프로필 관리" 진입 경로가
+            실질적으로 비어있던 문제). 다른 곳(P1-5/P1-20/P1-40)과 동일하게
+            ?tab=profile로 명시 지정. */}
         <div className="flex items-center gap-2">
           <EmojiIcon emoji="👤" size={16} className="text-gray-600" />
           <span className="text-base font-bold text-gray-900 tracking-tight">프로필 관리</span>
@@ -222,7 +226,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <p className="text-xs text-gray-400">이름·신체·식습관·아바타 수정</p>
             <Link
-              href="/mypage"
+              href="/mypage?tab=profile"
               className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-gray-900 transition-colors"
             >
               내 정보 <ChevronRight size={12} />
