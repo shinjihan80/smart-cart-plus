@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isFoodItem, type StorageType, type FoodGroup, FOOD_GROUPS, type FridgeSection, FOOD_GROUP } from '@/types';
 import { useCart } from '@/context/CartContext';
@@ -41,6 +42,9 @@ type StorageFilter = '전체' | StorageType;
 type GroupFilter   = '전체' | FoodGroup;
 type SortKey       = 'dDay' | 'name' | 'seasonal';
 type FridgeTab     = 'fridge' | 'food' | 'suggest' | 'shopping';
+
+const isFridgeTab = (v: unknown): v is FridgeTab =>
+  v === 'fridge' || v === 'food' || v === 'suggest' || v === 'shopping';
 
 const FRIDGE_TABS: { id: FridgeTab; emoji: string; label: string }[] = [
   { id: 'fridge',   emoji: '🧊', label: '냉장고' },
@@ -99,8 +103,26 @@ export default function FridgePage() {
     'nemoa-fridge-view', 'visual',
     (raw) => (raw === 'visual' || raw === 'list' || raw === 'compact') ? raw : null,
   );
-  // 탭은 세션 내 이동용만 — /fridge 진입 시 항상 '냉장고'부터. (N-2)
+  // 탭 자체는 localStorage에 persist 안 함(N-2 — SSR/CSR 하이드레이션
+  // 미스매치 회피, closet/page.tsx와 동일 설계). 다만 ?tab= 쿼리는 마운트
+  // 후에만(useEffect, 클라이언트 전용) 읽어 초기 탭을 정하므로 SSR과는
+  // 어긋나지 않는다 — 예전엔 이 쿼리 자체를 아예 안 읽어 홈의 "레시피 찾기"
+  // 등 어떤 CTA를 눌러도 항상 냉장고 칸 그리드에만 떨어졌다(P1-56, E1
+  // 발견 — 옷장·마이페이지는 v1.7부터 딥링크를 지원했는데 냉장고만 빠짐).
   const [activeTab, setActiveTab] = useState<FridgeTab>('fridge');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (isFridgeTab(requested)) setActiveTab(requested);
+  }, []);
+
+  function selectTab(tab: FridgeTab) {
+    setActiveTab(tab);
+    router.replace(`/fridge?tab=${tab}`, { scroll: false });
+    window.scrollTo(0, 0);
+  }
   const [compactDetailId, setCompactDetailId] = useState<string | null>(null);
   const compactDetailItem = compactDetailId ? allItems.filter(isFoodItem).find(i => i.id === compactDetailId) ?? null : null;
   const compactDetailDDay = compactDetailItem ? getRemainingDays(compactDetailItem) : 0;
@@ -302,7 +324,7 @@ export default function FridgePage() {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  onClick={() => { setActiveTab(t.id); window.scrollTo(0, 0); }}
+                  onClick={() => selectTab(t.id)}
                   className={[
                     'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive

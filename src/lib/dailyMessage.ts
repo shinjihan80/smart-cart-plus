@@ -85,7 +85,7 @@ export function pickDailyMessage(
       emoji:    SEASON_EMOJI[season],
       text:     `${f.name}, 오늘까지 드세요. 지금이 ${season} 제철이라 맛이 가장 좋아요.`,
       priority: 'urgent',
-      cta:      { label: '레시피 찾기', href: '/fridge' },
+      cta:      { label: '레시피 찾기', href: '/fridge?tab=suggest' },
       paletteQuery: f.name,
       driverName: f.name,
     };
@@ -97,7 +97,7 @@ export function pickDailyMessage(
       emoji:    '⚠️',
       text:     `${josa(`${firstName}${extra}`, '이/가')} 오늘 내로 소비가 필요해요. 레시피로 활용해볼까요?`,
       priority: 'urgent',
-      cta:      { label: '레시피 찾기', href: '/fridge' },
+      cta:      { label: '레시피 찾기', href: '/fridge?tab=suggest' },
       paletteQuery: firstName,
       driverName: firstName,
     };
@@ -227,7 +227,7 @@ export function pickDailyMessage(
           emoji:    '🍳',
           text:     `최근 ${josa(`"${a.name}"`, '과/와')} ${josa(`"${b.name}"`, '을/를')} ${count}번 같이 만드셨네요. 오늘도 어떠세요?`,
           priority: 'insight',
-          cta:      { label: '레시피 열기', href: '/fridge' },
+          cta:      { label: '레시피 열기', href: '/fridge?tab=suggest' },
           paletteQuery: a.name,
         };
       }
@@ -262,7 +262,7 @@ export function pickDailyMessage(
       emoji:    SEASON_EMOJI[season],
       text:     `지금이 ${sample} 제철 피크예요. 이번 주 한 번 장 보러 가볼까요?`,
       priority: 'insight',
-      cta:      { label: '제철 보기', href: '/fridge' },
+      cta:      { label: '제철 보기', href: '/seasonal' },
     };
   }
 
@@ -274,7 +274,7 @@ export function pickDailyMessage(
       emoji:    SEASON_EMOJI[season],
       text:     `${josa(`"${f.name}"`, '이/가')} 지금 제철이에요. 가장 맛있을 때 드셔보세요.`,
       priority: 'insight',
-      cta:      { label: '레시피 찾기', href: '/fridge' },
+      cta:      { label: '레시피 찾기', href: '/fridge?tab=suggest' },
       driverName: f.name,
     };
   }
@@ -288,7 +288,7 @@ export function pickDailyMessage(
         emoji:    '🛒',
         text:     `장볼 거 ${shoppingCount}개가 기다려요. 오늘 한번에 처리해볼까요?`,
         priority: 'insight',
-        cta:      { label: '쇼핑 리스트', href: '/mypage' },
+        cta:      { label: '쇼핑 리스트', href: '/mypage?tab=shopping' },
       };
     }
     if (shoppingCount >= 5) {
@@ -296,7 +296,7 @@ export function pickDailyMessage(
         emoji:    '🛒',
         text:     `쇼핑 리스트에 ${shoppingCount}개가 쌓였어요. 슬슬 장 보러 갈 때예요.`,
         priority: 'insight',
-        cta:      { label: '쇼핑 리스트', href: '/mypage' },
+        cta:      { label: '쇼핑 리스트', href: '/mypage?tab=shopping' },
       };
     }
   }
