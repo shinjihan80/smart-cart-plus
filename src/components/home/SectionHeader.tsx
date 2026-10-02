@@ -16,6 +16,15 @@ import { motion, AnimatePresence } from 'framer-motion';
  * 변형
  *  - actionHref → "더보기 →" 링크
  *  - collapsible → 접기/펼치기 토글
+ *
+ * actionLabel 원칙(P1-55)
+ *  - actionHref/actionLabel은 **섹션 전체의 범위**를 대표해야 한다 —
+ *    자식 카드 중 하나만 가리키거나, 섹션 제목이 말하는 것과 다른
+ *    곳으로 가면 안 된다("오늘의 나" 제목인데 액션은 "전체 레시피"로
+ *    /fridge에 가는 식의 모순, C9·E1 "계약 위반" 사례).
+ *  - 자식 카드들이 각자 이미 개별 링크/액션을 갖고 있다면, 섹션
+ *    레벨에는 actionHref를 아예 주지 않는 편이 낫다 — 어설픈 대표
+ *    액션 하나보다 "없음"이 더 정직하다.
  */
 
 interface SectionHeaderProps {

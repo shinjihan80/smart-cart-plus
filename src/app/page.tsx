@@ -165,10 +165,19 @@ export default function HomePage() {
         </SectionErrorBoundary>
       </div>
 
+      {/* 3존 배치 규칙(P1-57④) — 시급(지금 처리 안 하면 손해) → "오늘 할 일",
+          제안(둘러보되 급하진 않음) → "오늘의 추천", 기록·회고(지난 걸
+          돌아봄) → "둘러보기". 경고·긴급 문구는 "오늘 할 일"에만 둔다 —
+          "둘러보기"(가장 한가로운 이름)에 "⚠️ 만료 임박"이 들어가
+          구경거리로 오인됐던 사례(P1-57) 재발 방지. */}
       {ready && (
         <div className="px-5 pb-10">
-          {/* 오늘의 나 — 제철 식탁·식사·옷차림 추천 (예전 "오늘 추천" + 제철 힌트) */}
-          <SectionHeader title="오늘의 나" actionHref="/fridge" actionLabel="전체 레시피">
+          {/* 오늘의 추천 — 제철 식탁·식사·옷차림 추천 (예전 "오늘의 나").
+              제목·액션("전체 레시피"→/fridge)·내용(제철+레시피+옷차림
+              4종)이 서로 다른 걸 가리켜 5초 안에 의미가 안 읽혔다(P1-55,
+              C9·E1 "계약 위반"). 섹션 전체를 대표하는 단일 액션을 없애고
+              (카드별로 이미 각자 링크가 있음) 제목을 내용에 맞게 수정. */}
+          <SectionHeader title="오늘의 추천">
             <SectionErrorBoundary label="제철 힌트">
               <SeasonalHintWidget items={items} excludeNames={seasonalExcludeNames} />
             </SectionErrorBoundary>

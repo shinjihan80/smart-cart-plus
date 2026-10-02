@@ -6,7 +6,6 @@ import { useWearLog } from '@/lib/wearLog';
 import EmojiIcon from '@/components/EmojiIcon';
 import { Widget } from './shared';
 import { todayLocalStr } from '@/lib/dateMath';
-import { selectExpiring } from '@/lib/expirySelectors';
 
 const DAY_LABEL = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -27,10 +26,6 @@ function ymd(d: Date): string {
 export default function WeeklyInsight({ items }: { items: CartItem[] }) {
   const food    = items.filter(isFoodItem);
   const clothes = items.filter(isClothingItem);
-  // "만료 임박"은 today/soon 버킷(urgentTotal)만 — 이미 지난(expired) 건 별도
-  // 문구가 없어 여기 섞으면 "곧 만료"라고 오해하게 된다(P0-30). 홈/네비/냉장고
-  // 배지와 같은 selectExpiring()을 써서 화면마다 숫자가 갈리지 않게 한다.
-  const urgent = selectExpiring(items).urgentTotal;
 
   const { log: cookLog } = useCookLog();
   const { log: wearLog } = useWearLog();
@@ -70,11 +65,12 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
   const maxDay   = Math.max(...days.map((d) => d.cookCount + d.wearCount), 1);
   const activeDays = days.filter((d) => d.cookCount + d.wearCount > 0).length;
 
-  // 가장 임팩트 있는 인사이트 1-2개만
+  // 가장 임팩트 있는 인사이트 1-2개만. "만료 임박" 경고는 예전엔 여기도
+  // 중복으로 떴다 — "오늘 할 일" 카드와 BottomNav 배지(둘 다 같은
+  // selectExpiring() 출처)에 이미 있는데, 가장 한가로운 이름의 "둘러보기"
+  // 구역에까지 다시 나와 "구경거리인 줄 알고 넘겼다"는 지적을 받았다
+  // (P1-57, C9 발견) — 이 구역은 "지난 7일 기록"만 담당하도록 제거.
   const insights: string[] = [];
-  if (urgent > 0) {
-    insights.push(`⚠️ 식품 ${urgent}개 만료 임박 — 빨리 소비해주세요`);
-  }
   if (cookWeek === 0 && wearWeek === 0) {
     insights.push('📌 한 주가 비었어요. 오늘 만든 요리·입은 옷을 기록해볼까요?');
   } else if (cookWeek >= 5) {
