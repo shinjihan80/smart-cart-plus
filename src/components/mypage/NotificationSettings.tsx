@@ -24,6 +24,7 @@ const ALERT_LABEL: Record<string, string> = {
   'season-여름': '☀️ 여름 옷장 정리',
   'season-가을': '🍂 가을 옷장 정리',
   'season-겨울': '❄️ 겨울 옷장 정리',
+  'noti-off':    '🔕 알림 꺼짐 안내',
 };
 
 type NotiKey = 'expiry' | 'codi' | 'deal';
