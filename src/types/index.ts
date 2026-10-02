@@ -170,6 +170,14 @@ export interface ClothingItem {
   hibernating?:        boolean;       // 계절 보관 중 — 옷장 메인에서 숨김
   wardrobeSection?:    WardrobeSection; // 수동 지정 옷장 칸 — undefined면 카테고리 자동 배정
   wardrobeInstanceId?: string;         // 복수 옷장 중 어떤 옷장에 속하는지
+  /**
+   * NEMOA에 등록한 날짜("YYYY-MM-DD"). 없으면(레거시 아이템) 옷장 정리
+   * 제안이 90일+계절 경과 게이팅을 적용하지 않고 기존 동작(즉시 후보
+   * 가능)을 유지한다 — 필드 도입 이전 아이템의 정리 제안이 갑자기
+   * 사라지는 회귀를 막기 위함(P0-60 후속, 전문단 E1). `closetCleanup.ts`
+   * 참고.
+   */
+  registeredAt?:       string;
 }
 
 // ────────────────────────────────────────────────

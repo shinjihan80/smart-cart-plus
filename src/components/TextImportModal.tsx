@@ -992,7 +992,15 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
   }
 
   function handleConfirm(tagged: CartItem[]) {
-    onImport(tagged);
+    // 의류 등록일 기록 — 옷장 정리 제안 90일+계절 게이팅용(P0-60 후속).
+    // 입력 경로(수동/텍스트/이미지/URL) 무관하게 "지금 등록한다"는 사실은
+    // 항상 참이라 이 한 지점에서 일괄 스탬프한다.
+    const withRegisteredAt = tagged.map((item) =>
+      isClothingItem(item) && !item.registeredAt
+        ? { ...item, registeredAt: todayLocalStr() }
+        : item,
+    );
+    onImport(withRegisteredAt);
     onClose();
   }
 
