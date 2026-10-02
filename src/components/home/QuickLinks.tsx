@@ -74,7 +74,14 @@ export default function QuickLinks({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.03 }}
-      className="grid grid-cols-4"
+      // grid-cols-4 고정 + gap 0(computed column-gap: normal = 0px)이던
+      // 조합은 루트 폰트 확대(접근성 확대·P2-3의 과거 html{font-size:24px}
+      // 같은 설정) 시 rem 기반 타일이 서로 겹쳐 그려졌다 — 겹친 구간에선
+      // 뒤 타일의 배지가 앞 타일 위에 떠 "배지 소속 불명"으로 보였다
+      // (P1-65, C8·E3 발견, P0-51과 같은 뿌리). auto-fit + minmax로 열 수가
+      // 화면·글자 크기에 맞춰 자동으로 줄고, gap-x-2로 완충 구간을 둬
+      // 타일이 트랙 밖으로 겹쳐 나가지 않게 한다.
+      className="grid grid-cols-[repeat(auto-fit,minmax(4.5rem,1fr))] gap-x-2"
     >
       {categories.map((c) => (
         <Link
