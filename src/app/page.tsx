@@ -59,11 +59,19 @@ export default function HomePage() {
   // 긴급 알림(UrgentAlert)이 이미 보여준 "오늘까지" 품목 이름 — 바로 아래
   // 제철 식탁(SeasonalHintWidget)에서 같은 품목을 "여유 있게" 다시 보여주는
   // 모순된 중복 노출을 막는다. 히어로의 headline 품목도 함께 제외(P1-51).
+  //
+  // 예전엔 이 히어로 dedup을 UrgentAlert·RebuyAlert("오늘 할 일" 액션
+  // 존)에도 똑같이 적용했는데(heroExcludeNames), 그 결과 히어로가 유일한
+  // 진짜 긴급 품목을 headline으로 가져가면 "오늘 할 일" 목록에서 그 품목이
+  // 통째로 사라졌다 — 히어로는 배너 블라인드니스가 걸리는 자리라(C1: "광고로
+  // 오인해 넘김") 거기 안에만 있으면 사실상 안 보인 것과 같은데, 가장 급한
+  // 품목이 액션 존에서도 사라져버렸다(P1-67, C1·C8 독립 지적, E1 코드 지점
+  // 확정). dedup은 "오늘까지 vs 여유있게"처럼 실제 모순이 생기는 하위 추천
+  // 존(SeasonalHintWidget)에만 남기고, 액션 존에는 적용하지 않는다.
   const urgentTodayNames = new Set(selectExpiring(items).today.map((e) => e.item.name));
   const seasonalExcludeNames = heroDriverName
     ? new Set([...urgentTodayNames, heroDriverName])
     : urgentTodayNames;
-  const heroExcludeNames = heroDriverName ? new Set([heroDriverName]) : undefined;
 
   return (
     <div>
@@ -152,10 +160,10 @@ export default function HomePage() {
               <NotificationOffBanner items={items} />
             </SectionErrorBoundary>
             <SectionErrorBoundary label="임박 식품">
-              <UrgentAlert items={items} excludeNames={heroExcludeNames} />
+              <UrgentAlert items={items} />
             </SectionErrorBoundary>
             <SectionErrorBoundary label="재구매 알림">
-              <RebuyAlert items={items} excludeNames={heroExcludeNames} />
+              <RebuyAlert items={items} />
             </SectionErrorBoundary>
             <SectionErrorBoundary label="시즌 옷장 정리">
               <SeasonChangeAlert items={items} />

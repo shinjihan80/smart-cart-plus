@@ -9,21 +9,21 @@ import { selectExpiring } from '@/lib/expirySelectors';
 import { useToast } from '@/context/ToastContext';
 import { springTransition } from './shared';
 
-export default function UrgentAlert({
-  items, excludeNames,
-}: { items: CartItem[]; excludeNames?: ReadonlySet<string> }) {
+export default function UrgentAlert({ items }: { items: CartItem[] }) {
   const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
   const { showToast } = useToast();
 
   if (isDismissedToday('urgent')) return null;
 
   // 이미 기한이 지난 항목은 "오늘까지 먹어야 할"에서 제외 — 상한 걸 먹으라고
-  // 권하던 버그(P0-30). 지난 항목은 히어로 메시지(dailyMessage.ts)가 별도 문구로 안내한다.
-  // 바로 위 히어로가 이미 headline으로 짚은 품목(driverName)도 여기서 다시
-  // 나오면 같은 이름이 한 화면에 두 번 찍힌다 — 그 품목만 제외(P1-51).
+  // 권하던 버그(P0-30). 지난 항목은 히어로 메시지(dailyMessage.ts)가 별도 문구로
+  // 안내한다. 히어로가 headline으로 짚은 품목을 여기서도 빼던 적이 있었는데
+  // (P1-51), 유일한 긴급 품목이 히어로에 뽑히면 "오늘 할 일" 액션 존에서
+  // 그 품목이 통째로 사라지는 더 심각한 문제였다(P1-67, C1·C8 독립 지적) —
+  // 배너 블라인드니스가 걸리는 히어로 안에만 정보가 있으면 사실상 안 보인
+  // 것과 같다. 액션 존은 중복 노출을 감수하고 항상 전체를 보여준다.
   const urgent = selectExpiring(items).today
-    .map((e) => ({ name: e.item.name, dDay: e.dDay }))
-    .filter((u) => !excludeNames?.has(u.name));
+    .map((e) => ({ name: e.item.name, dDay: e.dDay }));
 
   if (urgent.length === 0) return null;
 
