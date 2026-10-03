@@ -70,6 +70,67 @@ const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCateg
   { name: '요거트',     foodCategory: '유제품',      storageType: '냉장', days: 14 },
 ];
 
+/**
+ * 냉장고 요약 카드 — 냉장고 탭·음식 탭 둘 다 같은 인스턴스를 쓴다.
+ *
+ * 예전엔 두 탭에 거의 동일한 마크업이 따로 있었는데, 음식 탭 쪽이
+ * "실온" 칸과 카테고리 분포 줄을 누락한 채로 갈라져 있었다 — 전체
+ * 20개인데 냉장12+냉동2=14개뿐이라 나머지 6개(실온)가 어디 있는지
+ * 음식 탭만 보면 설명이 안 됐다(P2-42, E2 실측). 5칸으로 통일.
+ */
+function FoodSummaryStats({
+  total, cold, frozen, room, urgent, groupCounts,
+  onAll, onCold, onFrozen, onRoom, onUrgent,
+}: {
+  total: number; cold: number; frozen: number; room: number; urgent: number;
+  groupCounts: { group: string; count: number }[];
+  onAll: () => void; onCold: () => void; onFrozen: () => void; onRoom: () => void; onUrgent: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={springTransition}
+      className={CARD}
+      style={CARD_SHADOW}
+    >
+      <div className="flex justify-between text-center">
+        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onAll}>
+          <p className="text-base font-bold text-gray-900 tabular-nums">{total}</p>
+          <p className="text-xs text-gray-400 mt-0.5">전체</p>
+        </button>
+        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onCold}>
+          <p className="text-base font-bold text-sky-600 tabular-nums">{cold}</p>
+          <p className="text-xs text-gray-400 mt-0.5">냉장</p>
+        </button>
+        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onFrozen}>
+          <p className="text-base font-bold text-indigo-600 tabular-nums">{frozen}</p>
+          <p className="text-xs text-gray-400 mt-0.5">냉동</p>
+        </button>
+        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onRoom}>
+          <p className="text-base font-bold text-amber-600 tabular-nums">{room}</p>
+          <p className="text-xs text-gray-400 mt-0.5">실온</p>
+        </button>
+        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onUrgent}>
+          <p className={`text-base font-bold tabular-nums ${urgent > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
+            {urgent}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">임박</p>
+        </button>
+      </div>
+      {groupCounts.length > 0 && (
+        <div className="flex gap-3 mt-3 pt-3 border-t border-gray-50">
+          {groupCounts.map(({ group, count }) => (
+            <span key={group} className="text-xs text-gray-400">
+              {group} <strong className="font-semibold text-gray-600 tabular-nums">{count}</strong>
+            </span>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
 export default function FridgePage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
@@ -410,48 +471,16 @@ export default function FridgePage() {
               </div>
             )}
 
-            {/* 요약 4수치 */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={springTransition}
-              className={CARD}
-              style={CARD_SHADOW}
-            >
-              <div className="flex justify-between text-center">
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  <p className="text-base font-bold text-gray-900 tabular-nums">{ownerFood.length}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">전체</p>
-                </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('냉장'); }}>
-                  <p className="text-base font-bold text-sky-600 tabular-nums">{coldCount}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">냉장</p>
-                </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('냉동'); }}>
-                  <p className="text-base font-bold text-indigo-600 tabular-nums">{frozenCount}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">냉동</p>
-                </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setUrgentOnly(false); scrollToStorage('실온'); }}>
-                  <p className="text-base font-bold text-amber-600 tabular-nums">{roomCount}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">실온</p>
-                </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setActiveTab('food'); setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}>
-                  <p className={`text-base font-bold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
-                    {urgentCount}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">임박</p>
-                </button>
-              </div>
-              {foodGroupCounts.length > 0 && (
-                <div className="flex gap-3 mt-3 pt-3 border-t border-gray-50">
-                  {foodGroupCounts.map(({ group, count }) => (
-                    <span key={group} className="text-xs text-gray-400">
-                      {group} <strong className="font-semibold text-gray-600 tabular-nums">{count}</strong>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </motion.div>
+            {/* 요약 5수치 — 음식 탭과 공유하는 FoodSummaryStats(P2-42) */}
+            <FoodSummaryStats
+              total={ownerFood.length} cold={coldCount} frozen={frozenCount} room={roomCount} urgent={urgentCount}
+              groupCounts={foodGroupCounts}
+              onAll={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onCold={() => { setUrgentOnly(false); scrollToStorage('냉장'); }}
+              onFrozen={() => { setUrgentOnly(false); scrollToStorage('냉동'); }}
+              onRoom={() => { setUrgentOnly(false); scrollToStorage('실온'); }}
+              onUrgent={() => { setActiveTab('food'); setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}
+            />
 
             {/* 시각화 */}
             {ownerFood.length > 0 && (
@@ -504,29 +533,18 @@ export default function FridgePage() {
         {/* ─── 음식 탭 ────────────────────────────── */}
         {activeTab === 'food' && (
           <>
-            {/* 요약 4수치 */}
-            <div className={CARD} style={CARD_SHADOW}>
-              <div className="flex justify-between text-center">
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  <p className="text-base font-bold text-gray-900 tabular-nums">{ownerFood.length}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">전체</p>
-                </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉장'); setUrgentOnly(false); scrollToFridgeItems(); }}>
-                  <p className="text-base font-bold text-sky-600 tabular-nums">{coldCount}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">냉장</p>
-                </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('냉동'); setUrgentOnly(false); scrollToFridgeItems(); }}>
-                  <p className="text-base font-bold text-indigo-600 tabular-nums">{frozenCount}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">냉동</p>
-                </button>
-                <button className="flex-1 active:opacity-70 transition-opacity" onClick={() => { setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}>
-                  <p className={`text-base font-bold tabular-nums ${urgentCount > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
-                    {urgentCount}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">임박</p>
-                </button>
-              </div>
-            </div>
+            {/* 요약 5수치 — 냉장고 탭과 공유하는 FoodSummaryStats(P2-42).
+                예전엔 여기만 "실온" 칸과 카테고리 분포 줄이 빠져 있어
+                전체 20-냉장12-냉동2=6개가 어디 있는지 설명이 안 됐다. */}
+            <FoodSummaryStats
+              total={ownerFood.length} cold={coldCount} frozen={frozenCount} room={roomCount} urgent={urgentCount}
+              groupCounts={foodGroupCounts}
+              onAll={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onCold={() => { setStorageFilter('냉장'); setUrgentOnly(false); scrollToFridgeItems(); }}
+              onFrozen={() => { setStorageFilter('냉동'); setUrgentOnly(false); scrollToFridgeItems(); }}
+              onRoom={() => { setStorageFilter('실온'); setUrgentOnly(false); scrollToFridgeItems(); }}
+              onUrgent={() => { setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}
+            />
 
             {/* 프로필 필터 (2명 이상일 때만) */}
             {profiles.length >= 2 && (
