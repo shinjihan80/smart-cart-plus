@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Bookmark } from 'lucide-react';
+import { X, Check, Bookmark, Share2 } from 'lucide-react';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
 import { outfitItemList, outfitItemIds, type Outfit } from '@/lib/outfitMatcher';
 import { useWearLog } from '@/lib/wearLog';
@@ -11,6 +12,7 @@ import { haptic } from '@/lib/haptics';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { logReasonsAction } from '@/lib/reasonsLog';
 import { todayLocalStr } from '@/lib/dateMath';
+import { shareOutfit } from '@/lib/shareOutfit';
 
 interface OutfitDetailModalProps {
   outfit:  Outfit | null;
@@ -24,6 +26,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
   const { markWorn, getEntry } = useWearLog();
   const { save } = useSavedOutfits();
   const { showToast } = useToast();
+  const [sharing, setSharing] = useState(false);
 
   return (
     <AnimatePresence>
@@ -48,6 +51,18 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
           }
           save(outfit!.label, slotsMap);
           showToast(`"${outfit!.label}" 저장됐어요`);
+        }
+
+        async function handleShare() {
+          if (sharing) return;
+          setSharing(true);
+          try {
+            const result = await shareOutfit(outfit!);
+            if (result === 'downloaded') showToast('코디 이미지를 다운로드했어요');
+            else if (result === 'unsupported') showToast('이 기기에서는 공유를 지원하지 않아요');
+          } finally {
+            setSharing(false);
+          }
         }
 
         return (
@@ -136,6 +151,14 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
 
               {/* 액션 버튼 */}
               <div className="flex gap-2">
+                <button
+                  onClick={handleShare}
+                  disabled={sharing}
+                  aria-label="코디 공유"
+                  className="w-12 py-3 rounded-2xl border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center disabled:opacity-40"
+                >
+                  <Share2 size={16} strokeWidth={2} />
+                </button>
                 <button
                   onClick={handleSave}
                   className="flex-1 py-3 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-1.5"
