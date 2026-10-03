@@ -3,8 +3,6 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { isFoodItem, type CartItem } from '@/types';
-import { getRemainingDays } from '@/lib/expirySelectors';
-import { classifyExpiry, EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
@@ -38,23 +36,15 @@ export default function ShoppingSuggestionsSection({
     const haveNames = new Set(foods.map((f) => f.name));
     const out: Suggestion[] = [];
 
-    // 1) 임박(today/soon) 식품 — 이미 있지만 곧 떨어질 것. 이미 지난(expired)
-    // 건 여기 안 넣는다 — SwipeFoodCard와 반대로 "아직 안 늦었다"고 말하던 버그(P0-30/40).
-    for (const f of foods) {
-      const d = getRemainingDays(f);
-      const bucket = classifyExpiry(d);
-      if (bucket === 'today' || bucket === 'soon') {
-        out.push({
-          name: f.name,
-          reason: d === 0 ? `${EXPIRY_LABEL.today} 소비` : `${d}일 뒤 기한 종료`,
-          badge: `⚠️ ${EXPIRY_LABEL.soon}`,
-          emoji: getFoodEmoji(f.name, f.foodCategory),
-          source: '임박 재구매',
-        });
-      }
-    }
+    // 임박(today/soon) 식품을 "곧 떨어질 것"으로 보고 여기 담았던 적이
+    // 있었다 — 그런데 유통기한 임박은 "재고가 줄고 있다"가 아니라 "이미
+    // 있는 걸 상하기 전에 먹어야 한다"는 뜻이라, "⚠️임박" 배지 + "담기"
+    // 버튼이 같은 카드에 붙어 "사라는 건지 먹으라는 건지" 혼란을 줬다
+    // (P2-37, C4 2회 독립 재확인). 수량 추적이 없어 "진짜 재고 부족"은
+    // 알 길이 없으므로, 임박=재구매 신호로 쓰는 걸 아예 뺀다 — 임박
+    // 안내는 "오늘 할 일"(UrgentAlert)·냉장고 카드가 이미 전담한다.
 
-    // 2) 구매 주기 기반 — 다음 소진이 예상되는 식품 (cycleDays - sinceLast ≤ 2일)
+    // 구매 주기 기반 — 다음 소진이 예상되는 식품 (cycleDays - sinceLast ≤ 2일)
     const cycles = estimateCycles(discardHistory, 2);
     const seenCycle = new Set<string>();
     for (const c of cycles) {
@@ -74,7 +64,7 @@ export default function ShoppingSuggestionsSection({
       if (seenCycle.size >= 3) break;
     }
 
-    // 3) 최근 소진한 것 (discardHistory) — 현재 없는 식품만
+    // 최근 소진한 것 (discardHistory) — 현재 없는 식품만
     const seenRebuy = new Set<string>();
     for (const h of discardHistory) {
       if (h.category !== '식품') continue;
@@ -92,7 +82,7 @@ export default function ShoppingSuggestionsSection({
       if (seenRebuy.size >= 4) break;
     }
 
-    // 3) 제철 재료 — 현재 없는 것
+    // 제철 재료 — 현재 없는 것
     const seasonal = currentSeasonalProduce(season, 8)
       .filter((p) => !haveNames.has(p.name))
       .slice(0, 3);
@@ -144,7 +134,7 @@ export default function ShoppingSuggestionsSection({
         <div className="flex items-center gap-2 min-w-0">
           <EmojiIcon emoji="🪄" size={16} className="text-brand-primary" />
           <span className="text-xs text-gray-400 font-medium whitespace-nowrap shrink-0">장볼 거 추천</span>
-          <span className="text-xs text-gray-300 whitespace-nowrap truncate min-w-0">· 임박·소진·제철</span>
+          <span className="text-xs text-gray-300 whitespace-nowrap truncate min-w-0">· 주기·소진·제철</span>
         </div>
         {suggestions.length >= 2 && (
           <button
