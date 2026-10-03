@@ -139,7 +139,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
               <p className="text-[15px] font-bold text-brand-ink truncate flex-1 leading-snug">{item.name}</p>
               <div className="flex items-center gap-1.5 shrink-0">
                 <p className={`text-sm font-bold tabular-nums ${
-                  isUrgent ? 'text-brand-warning' : 'text-gray-400'
+                  isUrgent ? 'text-[#DC2626]' : 'text-gray-500'
                 }`}>
                   {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
                 </p>
@@ -169,13 +169,21 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 추론값 그대로) 이 날짜는 앱의 추정이라 "쯤까지"로 톤을
                 낮춘다 — 사용자가 포장지 날짜로 확정하면 "까지"로
                 바뀐다(P0-33, 전문단 E1 설계). */}
-            <div className="flex items-center gap-2 text-xs text-gray-400 tabular-nums mb-3">
+            {/* 날짜줄 색 — 카드에서 가장 중요한 정보(언제까지 먹어야
+                하는가)인데 gray-400(2.54:1)이라 WCAG AA(4.5:1) 미달,
+                부차정보인 제품명(15.5:1)보다 훨씬 안 보여 위계가
+                거꾸로였다(P1-70, C8·E3 실측). gray-500(4.83:1)로 상향.
+                긴급 빨강도 텍스트용(#DC2626, 4.83:1)과 배경·바용
+                (brand-warning #EF4444, 비텍스트라 대비 기준 다름)을
+                분리 — 전체 brand-warning 토큰 재정의(66곳, P1-69)는
+                범위 밖이라 이 카드의 텍스트 2곳만 스코프로 고정. */}
+            <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-3">
               <span>
                 🗓 {expiryDateLabel(item)}
                 {dDay >= 0 ? (item.shelfLifeSource === 'user' ? '까지' : '쯤까지') : ' 지남'}
               </span>
               <span className="text-gray-200">·</span>
-              <span className={isUrgent ? 'text-brand-warning font-medium' : ''}>
+              <span className={isUrgent ? 'text-[#DC2626] font-medium' : ''}>
                 {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}
               </span>
             </div>
