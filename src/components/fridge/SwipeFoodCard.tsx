@@ -22,7 +22,7 @@ import { haptic } from '@/lib/haptics';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useCart } from '@/context/CartContext';
 import { expiryDateStr, expiryDateLabel, daysBetween, localMidnight, todayLocalStr } from '@/lib/dateMath';
-import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
+import { EXPIRY_LABEL, classifyExpiry } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 
 interface SwipeFoodCardProps {
@@ -56,6 +56,22 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
   const { discardHistory } = useCart();
   const cycle = estimateCycles(discardHistory, 2).find((c) => c.name === item.name);
   const isUrgent = dDay <= 3;
+  // 진행바가 baseShelfLifeDays(품목마다 다른 보관기간)로 정규화돼 있어
+  // 카드 간 비교가 성립하지 않았다 — D-3(서울우유, shelf 10일)이 30%인데
+  // D-1(생연어, shelf 10일)은 33.3%로 더 안 급한 품목의 바가 더 길게
+  // 그려졌다. 색(급할수록 진함)과 길이(급할수록 짧음)도 반대 방향이라
+  // 가장 급한 D-0이 화면에서 가장 작은 빨강 점이 됐다(P1-68, C1·E3
+  // 발견). 분모를 상수 7(일)로 고정한 "급함 게이지"로 전환 — D-0=100%,
+  // D-7+=0%(바 자체를 숨김). 분모가 상수라 P0-54(보관일수 오설정) 버그의
+  // 시각적 파급도 함께 차단된다. 색은 배지와 같은 classifyExpiry() 하나로
+  // 통일 — 예전엔 배지(dDay≤3)·바 빨강(≤2)·바 앰버(≤5) 임계값이 전부
+  // 달라 "빨간 숫자 위 앰버 바" 같은 자기모순 렌더가 났다.
+  const expiryBucket = classifyExpiry(dDay);
+  const urgencyFill = Math.max(0, Math.min(1, (7 - dDay) / 7));
+  const urgencyBarColor =
+    expiryBucket === 'expired' || expiryBucket === 'today' ? 'bg-brand-warning'
+      : expiryBucket === 'soon' ? 'bg-amber-400'
+      : 'bg-brand-success';
 
   const style = STORAGE_STYLE[item.storageType];
   const Icon  = STORAGE_ICON[item.storageType];
@@ -164,15 +180,15 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
               </span>
             </div>
 
-            {/* 진행바 */}
-            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${
-                  dDay <= 2 ? 'bg-brand-warning' : dDay <= 5 ? 'bg-amber-400' : 'bg-brand-success'
-                }`}
-                style={{ width: `${Math.max(4, Math.min(100, (dDay / item.baseShelfLifeDays) * 100))}%` }}
-              />
-            </div>
+            {/* 급함 게이지 — dDay 7일 이상이면 숨김(급할 게 없음) */}
+            {urgencyFill > 0 && (
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${urgencyBarColor}`}
+                  style={{ width: `${urgencyFill * 100}%` }}
+                />
+              </div>
+            )}
 
             {/* 칼로리·영양소 — 한 줄 (펼치면 자세히) */}
             {item.nutritionFacts ? (
