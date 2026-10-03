@@ -594,7 +594,14 @@ export default function MyPage() {
 
       {/* 사용자 교체 시트 — AnimatePresence 미사용: exit 애니메이션이 스톨(백그라운드·
           메인스레드 잼)되면 backdrop 이 DOM 에 남아 하단 내비를 영구히 덮는다.
-          닫기는 즉시 언마운트, 열기 애니메이션만. */}
+          닫기는 즉시 언마운트, 열기 애니메이션만.
+          이 시트는 "프로필 전환" 버튼(profiles.length>1일 때만 노출, 위
+          276행)에서만 열린다 — profiles.length===1이면 그 자리가 이미
+          "가족 추가"로 바뀌어(P1-50) #profiles 폼으로 바로 스크롤하므로
+          이 시트 자체가 안 열린다. 그래서 예전에 있던 "프로필 관리에서
+          가족을 추가하면 교체할 수 있어요"라는 막다른 안내문(P2-40,
+          C4 지적 — 시트 안에 '프로필 관리'로 가는 링크가 없었음)은 더
+          이상 그려질 일이 없는 죽은 코드라 제거했다. */}
       {showSwitcher && (
         <div
           className="fixed inset-0 z-50 flex items-end"
@@ -650,11 +657,6 @@ export default function MyPage() {
                 );
               })}
             </div>
-            {profiles.length === 1 && (
-              <p className="text-xs text-gray-400 text-center mt-4">
-                프로필 관리에서 가족을 추가하면 교체할 수 있어요.
-              </p>
-            )}
           </motion.div>
         </div>
       )}
