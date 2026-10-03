@@ -62,11 +62,18 @@ export default function QuickLinks({
     return total - triedNames.size;
   })();
 
+  // 타일 배경·아이콘 색은 전부 무채색 1종 공유 — 예전엔 타일마다 다른
+  // 색(제철=emerald 등)을 썼는데, 그 emerald-500이 brand-success(#10B981)와
+  // 완전히 같은 값이라 "제철 바로가기" 아이콘이 냉장고 카드의 "신선함"
+  // 상태색과 같은 색으로 보여 상태색의 의미를 희석시켰다(P1-79, E3 실측
+  // — 원래는 옷장 타일이 danger 빨강이던 게 문제였는데, P1-20의 8→4 축소
+  // 이후 같은 문제가 다른 색으로 재발). 색은 상태(임박·오류·추천 배지)
+  // 에만 예약하고 내비게이션 타일은 전부 중립색으로 통일.
   const categories: CategoryItem[] = [
-    { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-emerald-50', iconClass: 'text-emerald-500', dot: missedCount > 0 },
-    { href: '/mypage?tab=shopping',Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-sky-50',     iconClass: 'text-sky-500',     badge: shopping.length > 0 ? String(shopping.length) : undefined },
-    { href: '/mypage?tab=activity',Icon: BarChart3,    label: '활동',   bgClass: 'bg-violet-50',  iconClass: 'text-violet-500'   },
-    { href: '/settings',           Icon: Settings,     label: '설정',   bgClass: 'bg-gray-100',   iconClass: 'text-gray-600'     },
+    { href: '/seasonal',           Icon: Flower2,      label: '제철',   bgClass: 'bg-gray-50', iconClass: 'text-brand-ink', dot: missedCount > 0 },
+    { href: '/mypage?tab=shopping',Icon: ShoppingCart, label: '쇼핑',   bgClass: 'bg-gray-50', iconClass: 'text-brand-ink', badge: shopping.length > 0 ? String(shopping.length) : undefined },
+    { href: '/mypage?tab=activity',Icon: BarChart3,    label: '활동',   bgClass: 'bg-gray-50', iconClass: 'text-brand-ink' },
+    { href: '/settings',           Icon: Settings,     label: '설정',   bgClass: 'bg-gray-50', iconClass: 'text-brand-ink' },
   ];
 
   return (
