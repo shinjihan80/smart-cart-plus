@@ -78,6 +78,7 @@ const KEY_LABELS: Record<string, string> = {
   'nemoa-add-milestone-count':     '등록 마일스톤 기록',
   'nemoa-forced-ad-day':           '광고 노출 기록',
   'nemoa-forced-ad-last-ts':       '광고 노출 시각',
+  'nemoa-device-id':               '기기 식별자',
 };
 
 function formatBytes(n: number): string {

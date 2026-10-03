@@ -102,7 +102,13 @@ export default function StatsSection({
         className={CARD}
         style={CARD_SHADOW}
       >
-        <h3 className="text-xs text-gray-400 font-medium mb-3">카테고리 분포</h3>
+        <h3 className="text-xs text-gray-400 font-medium mb-0.5">카테고리 분포</h3>
+        {/* 식품·패션 막대가 서로 다른 정규화 기준(각자 자기 카테고리
+            내 비중)인데 축·범례 없이 나란히 배치돼 길이가 직접 비교
+            가능한 것처럼 보였다(P2-34, C6 실측 — "채소·과일 80%"
+            막대와 "상의 80%" 막대가 실제 개수는 달라도 똑같이 길어
+            보임). 숨겨진 정규화 기준을 캡션으로 드러낸다. */}
+        <p className="text-[11px] text-gray-300 mb-3">각 칸 안에서의 비중이에요 — 식품·패션 전체 수량은 서로 달라요</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="text-xs text-gray-400 mb-1.5">🥬 식품</p>
