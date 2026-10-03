@@ -17,6 +17,15 @@ export interface Partner {
   id:      string;
   label:   string;
   emoji:   string;
+  /**
+   * 원형 모노그램 배경색(hex) — PartnerChip이 emoji 대신 "브랜드 첫 글자 +
+   * 이 색" 원형 아이콘으로 렌더한다. 서로 다른 브랜드가 같은 이모지를
+   * 공유해(번개장터·지그재그 둘 다 ⚡, 무신사·옷캔 둘 다 👕) 구분이 안
+   * 됐던 문제(P1-74, E3 실측) — 실제 로고를 확보하기 전까지의 임시
+   * 대체재. "공식 브랜드 컬러"를 검증해 쓴 건 아니고, 18개 파트너를
+   * 서로 뚜렷이 구분할 목적의 지정 색이다.
+   */
+  mono:    string;
   domain:  PartnerDomain;
   /** 활성화 여부. Phase 7 출시 시점에 각 파트너별로 true 전환. */
   enabled: boolean;
@@ -28,66 +37,66 @@ export interface Partner {
 
 export const PARTNERS: Readonly<Record<string, Partner>> = {
   // 식품 쇼핑몰 — 검색 가능 / 메인 페이지 fallback
-  coupang:     { id: 'coupang',     label: '쿠팡',         emoji: '📦',  domain: 'groceries',  enabled: true,
+  coupang:     { id: 'coupang',     label: '쿠팡',         emoji: '📦',  mono: '#E84118', domain: 'groceries',  enabled: true,
                  buildUrl: (q) => q ? `https://www.coupang.com/np/search?q=${encodeURIComponent(q)}` : 'https://www.coupang.com',
                  comingSoon: '' },
-  kurly:       { id: 'kurly',       label: '마켓컬리',     emoji: '🌙',  domain: 'groceries',  enabled: true,
+  kurly:       { id: 'kurly',       label: '마켓컬리',     emoji: '🌙',  mono: '#5F0080', domain: 'groceries',  enabled: true,
                  buildUrl: (q) => q ? `https://www.kurly.com/search?sword=${encodeURIComponent(q)}` : 'https://www.kurly.com',
                  comingSoon: '' },
-  naver_shop:  { id: 'naver_shop',  label: '네이버 장보기', emoji: '🛍️', domain: 'groceries',  enabled: true,
+  naver_shop:  { id: 'naver_shop',  label: '네이버 장보기', emoji: '🛍️', mono: '#03C75A', domain: 'groceries',  enabled: true,
                  buildUrl: (q) => q ? `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(q)}` : 'https://shopping.naver.com',
                  comingSoon: '' },
-  ssg:         { id: 'ssg',         label: 'SSG·이마트몰',  emoji: '🏪', domain: 'groceries',  enabled: true,
+  ssg:         { id: 'ssg',         label: 'SSG·이마트몰',  emoji: '🏪', mono: '#FFD400', domain: 'groceries',  enabled: true,
                  buildUrl: (q) => q ? `https://emart.ssg.com/search.ssg?target=all&query=${encodeURIComponent(q)}` : 'https://emart.ssg.com',
                  comingSoon: '' },
-  homeplus:    { id: 'homeplus',    label: '홈플러스',      emoji: '🛒', domain: 'groceries',  enabled: true,
+  homeplus:    { id: 'homeplus',    label: '홈플러스',      emoji: '🛒', mono: '#EB1C24', domain: 'groceries',  enabled: true,
                  buildUrl: (q) => q ? `https://front.homeplus.co.kr/search?searchTerm=${encodeURIComponent(q)}` : 'https://front.homeplus.co.kr',
                  comingSoon: '' },
 
   // 의류 쇼핑몰 (Phase 7 신규)
-  musinsa:     { id: 'musinsa',     label: '무신사',        emoji: '👕', domain: 'fashion',    enabled: true,
+  musinsa:     { id: 'musinsa',     label: '무신사',        emoji: '👕', mono: '#000000', domain: 'fashion',    enabled: true,
                  buildUrl: (q) => q ? `https://www.musinsa.com/search/musinsa/goods?q=${encodeURIComponent(q)}` : 'https://www.musinsa.com',
                  comingSoon: '' },
-  twentynine:  { id: 'twentynine',  label: '29CM',         emoji: '✨', domain: 'fashion',    enabled: true,
+  twentynine:  { id: 'twentynine',  label: '29CM',         emoji: '✨', mono: '#222222', domain: 'fashion',    enabled: true,
                  buildUrl: (q) => q ? `https://search.29cm.co.kr/search?keyword=${encodeURIComponent(q)}` : 'https://www.29cm.co.kr',
                  comingSoon: '' },
-  wconcept:    { id: 'wconcept',    label: 'W컨셉',         emoji: '🎀', domain: 'fashion',    enabled: true,
+  wconcept:    { id: 'wconcept',    label: 'W컨셉',         emoji: '🎀', mono: '#111111', domain: 'fashion',    enabled: true,
                  buildUrl: (q) => q ? `https://www.wconcept.co.kr/Search?kwd=${encodeURIComponent(q)}` : 'https://www.wconcept.co.kr',
                  comingSoon: '' },
-  ably:        { id: 'ably',        label: '에이블리',      emoji: '💄', domain: 'fashion',    enabled: true,
+  ably:        { id: 'ably',        label: '에이블리',      emoji: '💄', mono: '#FF5252', domain: 'fashion',    enabled: true,
                  buildUrl: (q) => q ? `https://m.a-bly.com/search/${encodeURIComponent(q)}` : 'https://a-bly.com',
                  comingSoon: '' },
-  zigzag:      { id: 'zigzag',      label: '지그재그',      emoji: '⚡', domain: 'fashion',    enabled: true,
+  zigzag:      { id: 'zigzag',      label: '지그재그',      emoji: '⚡', mono: '#FFC700', domain: 'fashion',    enabled: true,
                  buildUrl: (q) => q ? `https://zigzag.kr/search?keyword=${encodeURIComponent(q)}` : 'https://zigzag.kr',
                  comingSoon: '' },
 
   // 중고 판매 (Phase 7 — 3개로 확장)
-  karrot:      { id: 'karrot',      label: '당근마켓',      emoji: '🥕', domain: 'secondhand', enabled: true,
+  karrot:      { id: 'karrot',      label: '당근마켓',      emoji: '🥕', mono: '#FF8A3D', domain: 'secondhand', enabled: true,
                  buildUrl: (q) => q ? `https://www.daangn.com/search/${encodeURIComponent(q)}` : 'https://www.daangn.com',
                  comingSoon: '' },
-  bunjang:     { id: 'bunjang',     label: '번개장터',      emoji: '⚡', domain: 'secondhand', enabled: true,
+  bunjang:     { id: 'bunjang',     label: '번개장터',      emoji: '⚡', mono: '#FF4500', domain: 'secondhand', enabled: true,
                  buildUrl: (q) => q ? `https://m.bunjang.co.kr/search/products?q=${encodeURIComponent(q)}` : 'https://m.bunjang.co.kr',
                  comingSoon: '' },
-  kream:       { id: 'kream',       label: 'KREAM',         emoji: '👟', domain: 'secondhand', enabled: true,
+  kream:       { id: 'kream',       label: 'KREAM',         emoji: '👟', mono: '#000000', domain: 'secondhand', enabled: true,
                  buildUrl: (q) => q ? `https://kream.co.kr/search?keyword=${encodeURIComponent(q)}` : 'https://kream.co.kr',
                  comingSoon: '' },
 
   // 기부 (Phase 7 — 실제 연결)
-  beautiful:   { id: 'beautiful',   label: '아름다운가게',  emoji: '🏪', domain: 'donation',   enabled: true,
+  beautiful:   { id: 'beautiful',   label: '아름다운가게',  emoji: '🏪', mono: '#2E7D32', domain: 'donation',   enabled: true,
                  buildUrl: ()  => 'https://www.beautifulstore.org/donation',
                  comingSoon: '' },
-  goodwill:    { id: 'goodwill',    label: '굿윌스토어',    emoji: '🤝', domain: 'donation',   enabled: true,
+  goodwill:    { id: 'goodwill',    label: '굿윌스토어',    emoji: '🤝', mono: '#1565C0', domain: 'donation',   enabled: true,
                  buildUrl: ()  => 'https://www.goodwillstore.org',
                  comingSoon: '' },
-  otcan:       { id: 'otcan',       label: '옷캔',          emoji: '👕', domain: 'donation',   enabled: true,
+  otcan:       { id: 'otcan',       label: '옷캔',          emoji: '👕', mono: '#00897B', domain: 'donation',   enabled: true,
                  buildUrl: ()  => 'https://otcan.org',
                  comingSoon: '' },
 
   // 짐 보관·세탁 (Phase 7 — 실제 연결)
-  thelaundry:  { id: 'thelaundry',  label: '세탁특공대',    emoji: '🧺', domain: 'storage',    enabled: true,
+  thelaundry:  { id: 'thelaundry',  label: '세탁특공대',    emoji: '🧺', mono: '#0288D1', domain: 'storage',    enabled: true,
                  buildUrl: ()  => 'https://www.getwashswat.com',
                  comingSoon: '' },
-  darak:       { id: 'darak',       label: '다락',          emoji: '📦', domain: 'storage',    enabled: true,
+  darak:       { id: 'darak',       label: '다락',          emoji: '📦', mono: '#6D4C41', domain: 'storage',    enabled: true,
                  buildUrl: ()  => 'https://www.dalock.kr/service/main',
                  comingSoon: '' },
 

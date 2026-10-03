@@ -10,6 +10,35 @@ interface PartnerChipProps {
   size?:   'sm' | 'md';
 }
 
+// 배경색 밝기에 따라 글자색을 흰/검 중 더 잘 읽히는 쪽으로 — mono 중
+// 밝은 색(SSG 노랑 등)에 흰 글자를 쓰면 대비가 안 나와서.
+function readableTextColor(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? '#1A1A1A' : '#FFFFFF';
+}
+
+/**
+ * 실제 브랜드 로고를 확보하기 전까지의 임시 식별 아이콘 — 브랜드 첫
+ * 글자 + 지정 색의 원형 모노그램. 번개장터·지그재그가 둘 다 ⚡, 무신사·
+ * 옷캔이 둘 다 👕로 같은 이모지를 공유해 구분이 안 됐던 문제(P1-74,
+ * E3 실측)의 즉시 교체재.
+ */
+export function PartnerMonogram({ partner, size }: { partner: Partner; size: 'sm' | 'md' | 'lg' }) {
+  const letter = Array.from(partner.label)[0] ?? '?';
+  const dim = size === 'sm' ? 'w-4 h-4 text-[9px]' : size === 'md' ? 'w-5 h-5 text-[10px]' : 'w-8 h-8 text-sm';
+  return (
+    <span
+      className={`inline-flex items-center justify-center rounded-full font-bold shrink-0 ${dim}`}
+      style={{ backgroundColor: partner.mono, color: readableTextColor(partner.mono) }}
+      aria-hidden
+    >
+      {letter}
+    </span>
+  );
+}
+
 /**
  * Phase 7 제휴 파트너 칩.
  *
@@ -26,8 +55,8 @@ export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChip
   if (!partner) return null;
 
   const base = size === 'sm'
-    ? 'text-sm px-2 py-1'
-    : 'text-xs px-2.5 py-1.5 font-medium';
+    ? 'text-sm px-2 py-1 inline-flex items-center gap-1'
+    : 'text-xs px-2.5 py-1.5 font-medium inline-flex items-center gap-1';
 
   if (partner.enabled && partner.buildUrl) {
     return (
@@ -38,7 +67,7 @@ export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChip
         onClick={() => logPartnerClick({ partnerId: partner.id, domain: partner.domain, query })}
         className={`${base} rounded-full bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors`}
       >
-        {partner.emoji} {partner.label}
+        <PartnerMonogram partner={partner} size={size} /> {partner.label}
       </a>
     );
   }
@@ -49,7 +78,7 @@ export default function PartnerChip({ partner, query, size = 'sm' }: PartnerChip
       title={partner.comingSoon}
       className={`${base} rounded-full bg-gray-50 border border-gray-100 text-gray-400 cursor-not-allowed`}
     >
-      {partner.emoji} {partner.label} <span className="text-xs text-gray-300">· 준비 중</span>
+      <PartnerMonogram partner={partner} size={size} /> {partner.label} <span className="text-xs text-gray-300">· 준비 중</span>
     </button>
   );
 }

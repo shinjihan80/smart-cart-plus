@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
 import { logPartnerClick } from '@/lib/partnerClickLog';
+import { PartnerMonogram } from '@/components/PartnerChip';
 
 interface ShoppingMallCardProps {
   /** 'groceries' | 'fashion' 등 도메인 */
@@ -53,7 +54,7 @@ export default function ShoppingMallCard({
               onClick={() => logPartnerClick({ partnerId: p.id, domain: p.domain })}
               className="group relative flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-brand-primary/5 hover:border-brand-primary/20 active:scale-95 transition-all"
             >
-              <span className="text-xl" aria-hidden>{p.emoji}</span>
+              <PartnerMonogram partner={p} size="lg" />
               <span className="text-xs font-medium text-gray-700 group-hover:text-brand-primary truncate w-full text-center">
                 {p.label}
               </span>
