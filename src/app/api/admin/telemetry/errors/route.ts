@@ -13,6 +13,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { catalogStore } from '@/lib/catalogStore';
+import { todayKstStr } from '@/lib/dateMath';
 
 export const runtime = 'nodejs';
 
@@ -46,7 +47,7 @@ function checkAdminAuth(req: NextRequest): NextResponse | null {
 }
 
 function todayStr(): string {
-  return new Date().toISOString().split('T')[0];
+  return todayKstStr();
 }
 
 export async function OPTIONS() {
@@ -105,7 +106,7 @@ export async function GET(req: NextRequest) {
   for (let i = 0; i < days; i += 1) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = todayKstStr(d);
     const dayEntries = await catalogStore.get<ErrorReport[]>(TELEMETRY_NAMESPACE, `${ERRORS_KEY}:${dateStr}`);
     if (dayEntries) all.push(...dayEntries);
   }

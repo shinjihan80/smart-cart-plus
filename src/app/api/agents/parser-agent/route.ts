@@ -20,8 +20,14 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { recordAgentUsage } from '@/lib/usageTelemetry';
 import { inferWeatherTagsFallback, sanitizeWeatherTags } from '@/lib/clothingInference';
 import { FASHION_GROUP, type FashionCategory, type Thickness, type WeatherTag } from '@/types';
+import { todayKstStr } from '@/lib/dateMath';
 
-const AGENT_INSTRUCTION = `
+// 이전엔 모듈 최상위 const로 오늘 날짜를 한 번만 박아뒀다 — 서버리스
+// 함수가 콜드스타트 없이 계속 따뜻하면 "오늘 날짜"가 요청마다 안 바뀌고
+// 박제된 채 남는다(UTC/KST 어긋남과 별개의 문제). 함수로 바꿔 요청마다
+// todayKstStr()로 다시 계산한다(P1-85, E2).
+function buildAgentInstruction(today: string): string {
+  return `
 당신은 NEMOA(네모아)의 **데이터 엔지니어 에이전트(parser-agent)**다.
 
 ## 역할
@@ -36,7 +42,7 @@ const AGENT_INSTRUCTION = `
    - 패션: category를 세분화, size/thickness/material 추출
      category: "상의" | "하의" | "아우터" | "원피스" | "신발" | "가방" | "모자" | "스카프" | "안경" | "선글라스" | "시계" | "주얼리" | "기타 액세서리"
 3. id는 "p" + 인덱스(1부터) 형식. 예: "p1", "p2"
-4. purchaseDate는 텍스트에서 없으면 오늘 날짜(${new Date().toISOString().split('T')[0]}) 사용
+4. purchaseDate는 텍스트에서 없으면 오늘 날짜(${today}) 사용
 5. 금지어: "유통기한", "소비기한" → "보관 가능 기한" 사용
 6. **패션 아이템은 weatherTags(["봄"|"여름"|"가을"|"겨울"|"우천"|"맑음"] 중 1~3개)를 반드시 부여한다:**
    - thickness "얇음" → ["봄","여름"] 또는 ["여름"]
@@ -70,6 +76,7 @@ const AGENT_INSTRUCTION = `
   ]
 }
 `.trim();
+}
 
 export async function POST(req: NextRequest) {
   const limited = await applyRateLimit(req, 'parser');
@@ -90,7 +97,7 @@ export async function POST(req: NextRequest) {
 
     const result = await runWithDualReview({
       agentType:        'parser',
-      agentInstruction: AGENT_INSTRUCTION,
+      agentInstruction: buildAgentInstruction(todayKstStr()),
       userContent,
     });
 

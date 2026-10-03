@@ -15,6 +15,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { usageStore } from '@/lib/usageStore';
+import { todayKstStr } from '@/lib/dateMath';
 
 export const runtime = 'nodejs';
 
@@ -56,7 +57,7 @@ export async function GET(req: NextRequest) {
   for (let i = 0; i < days; i += 1) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
-    dates.push(d.toISOString().split('T')[0]);
+    dates.push(todayKstStr(d));
   }
 
   const byDay: Record<string, { activeDevices: number; calls: Record<string, number>; totalCalls: number }> = {};

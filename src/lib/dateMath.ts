@@ -37,6 +37,22 @@ export function todayLocalStr(d: Date = new Date()): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+/**
+ * 서버(API 라우트) 전용 "오늘" — KST 고정 오프셋 기준.
+ *
+ * `todayLocalStr()`의 `getFullYear()`류 getter는 "실행 환경의 로컬 TZ"를
+ * 쓰는데, Vercel 함수는 보통 UTC로 실행돼 거기선 `todayLocalStr()`도
+ * `toISOString()`과 똑같이 KST 00~09시에 하루 전으로 찍힌다(P1-85, E2
+ * 실측) — 브라우저(클라이언트)에서만 의미가 있던 "로컬 TZ" 가정이 서버
+ * 에선 성립하지 않는다. 이 앱은 KST 전용이라 UTC+9를 고정 오프셋으로
+ * 더해 날짜만 뽑는다.
+ */
+export function todayKstStr(d: Date = new Date()): string {
+  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${kst.getUTCFullYear()}-${p(kst.getUTCMonth() + 1)}-${p(kst.getUTCDate())}`;
+}
+
 /** 이번 달을 "YYYY-MM" 으로 — 로컬 기준. */
 export function thisMonthLocalStr(d: Date = new Date()): string {
   const p = (n: number) => String(n).padStart(2, '0');

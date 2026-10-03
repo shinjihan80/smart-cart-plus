@@ -18,6 +18,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { catalogStore } from '@/lib/catalogStore';
+import { todayKstStr } from '@/lib/dateMath';
 
 export const runtime = 'nodejs';
 
@@ -110,7 +111,7 @@ export async function GET(req: NextRequest) {
   for (let i = 0; i < days; i += 1) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = todayKstStr(d);
     const key = `${PARTNER_CLICKS_KEY}:${dateStr}`;
     const dayCounts = await catalogStore.get<Record<string, number>>(TELEMETRY_NAMESPACE, key);
     if (!dayCounts) continue;

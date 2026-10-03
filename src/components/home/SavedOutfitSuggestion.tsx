@@ -5,6 +5,7 @@ import { ChevronRight, Bookmark } from 'lucide-react';
 import { isClothingItem, type CartItem } from '@/types';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
+import { todayLocalStr } from '@/lib/dateMath';
 import { Widget } from './shared';
 
 /**
@@ -16,7 +17,7 @@ export default function SavedOutfitSuggestion({ items }: { items: CartItem[] }) 
   if (outfits.length === 0) return null;
 
   // 날짜 시드로 "오늘의 코디" 선택 — 하루 동안 일관된 추천
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocalStr();
   const seedNum = [...today].reduce((s, c) => s + c.charCodeAt(0), 0);
   const pick = outfits[seedNum % outfits.length];
 

@@ -13,6 +13,7 @@ import { validateOutput } from '@/lib/harness';
 import { runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { recordAgentUsage } from '@/lib/usageTelemetry';
+import { todayKstStr } from '@/lib/dateMath';
 import {
   StorageType,
   Thickness,
@@ -208,7 +209,7 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
       foodCategory,
       storageType,
       baseShelfLifeDays: Number.isFinite(baseShelfLifeDays) ? Math.max(1, baseShelfLifeDays) : 7,
-      purchaseDate:      raw.purchaseDate || new Date().toISOString().split('T')[0],
+      purchaseDate:      raw.purchaseDate || todayKstStr(),
       nutritionFacts:    raw.nutritionFacts,
     };
     return item;

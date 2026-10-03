@@ -14,6 +14,7 @@ import { validateInput, validateOutput } from '@/lib/harness';
 import { routeData, runWithDualReview, classifyAgentError } from '@/lib/agentPipeline';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { recordAgentUsage } from '@/lib/usageTelemetry';
+import { todayKstStr } from '@/lib/dateMath';
 
 const AGENT_INSTRUCTION = `
 당신은 NEMOA(네모아)의 **영양사 에이전트(nutrition-agent)**다.
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     // Step 2: 데이터 라우터 — foodItems만 (clothingItems 차단)
     const foodData = routeData('nutrition');
-    const today    = (body.today as string | undefined) ?? new Date().toISOString().split('T')[0];
+    const today    = (body.today as string | undefined) ?? todayKstStr();
 
     const userContent =
       `오늘 날짜: ${today}\n\n` +

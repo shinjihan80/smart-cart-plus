@@ -47,6 +47,21 @@ const eslintConfig = defineConfig([
           ],
         },
       ],
+      // `new Date().toISOString().split('T')[0]`(또는 .slice(0,10))는 UTC
+      // 기준이라 KST(UTC+9)에서 00~09시 사이 "오늘"이 하루 전으로 찍힌다
+      // (P1-85, E2 실측 — 코디 전환이 자정 아닌 오전 9시, "오늘 입었어요"
+      // 버튼 상태 미반영, AI 일일 한도가 오전 9시에 풀림 등 6곳 재발).
+      // 클라이언트는 todayLocalStr(), 서버(API 라우트)는 todayKstStr()을
+      // 쓴다(@/lib/dateMath) — 둘 다 이 패턴을 안 쓰고 직접 계산한다.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.property.name=/^(split|slice)$/][callee.object.type='CallExpression'][callee.object.callee.property.name='toISOString']",
+          message:
+            "new Date().toISOString().split/slice로 날짜만 뽑지 마세요 — UTC라 KST 00~09시에 하루 밀립니다. 클라이언트는 todayLocalStr(), 서버는 todayKstStr()을 쓰세요 (@/lib/dateMath, P1-85).",
+        },
+      ],
     },
   },
   {
@@ -55,6 +70,15 @@ const eslintConfig = defineConfig([
     files: ["src/lib/expirySelectors.ts", "src/lib/expiryThresholds.ts"],
     rules: {
       "no-restricted-imports": "off",
+    },
+  },
+  {
+    // dateMath.ts 자신은 이 패턴을 금지 대상 삼을 수 없다 — todayLocalStr/
+    // todayKstStr의 구현 자체가 아니라 주석 속 "나쁜 예" 설명이라 실제 호출은
+    // 없지만, 미래에 성능 비교용 등으로 의도적으로 써야 할 유일한 예외 지점.
+    files: ["src/lib/dateMath.ts"],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
 ]);

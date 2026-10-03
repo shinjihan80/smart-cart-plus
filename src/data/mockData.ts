@@ -1,10 +1,11 @@
 import { FoodItem, ClothingItem, CartItem } from '@/types';
+import { todayLocalStr } from '@/lib/dateMath';
 
 // 오늘 기준 N일 전 날짜를 ISO 문자열로 반환
 function daysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split('T')[0];
+  return todayLocalStr(d);
 }
 
 // ────────────────────────────────────────────────

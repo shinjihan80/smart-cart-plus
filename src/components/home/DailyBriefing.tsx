@@ -9,6 +9,7 @@ import {
   type WeatherSnapshot,
 } from '@/lib/weather';
 import { useWearLog } from '@/lib/wearLog';
+import { todayLocalStr } from '@/lib/dateMath';
 import { useTodayOutfits } from '@/lib/useTodayOutfits';
 import { outfitItemList } from '@/lib/outfitMatcher';
 import { useToast } from '@/context/ToastContext';
@@ -112,8 +113,7 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
               <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
                 {outfitItems.map((item) => {
                   const ItemIcon = FASHION_ICON[item.category] ?? FASHION_ICON['기타 액세서리'];
-                  const today = new Date().toISOString().split('T')[0];
-                  const wornToday = getEntry(item.id).lastWorn === today;
+                  const wornToday = getEntry(item.id).lastWorn === todayLocalStr();
                   return (
                     <button
                       key={item.id}

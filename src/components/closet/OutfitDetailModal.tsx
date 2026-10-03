@@ -10,6 +10,7 @@ import { useToast } from '@/context/ToastContext';
 import { haptic } from '@/lib/haptics';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { logReasonsAction } from '@/lib/reasonsLog';
+import { todayLocalStr } from '@/lib/dateMath';
 
 interface OutfitDetailModalProps {
   outfit:  Outfit | null;
@@ -29,8 +30,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
       {outfit && (() => {
         const items = outfitItemList(outfit);
         const ids   = outfitItemIds(outfit);
-        const today = new Date().toISOString().split('T')[0];
-        const allWornToday = ids.every((id) => getEntry(id).lastWorn === today);
+        const allWornToday = ids.every((id) => getEntry(id).lastWorn === todayLocalStr());
 
         function handleWearAll() {
           for (const id of ids) markWorn(id);
@@ -103,7 +103,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
                 {items.map((item) => {
                   const tone = getFashionCategoryTone(item.category);
                   const wear = getEntry(item.id);
-                  const wornToday = wear.lastWorn === today;
+                  const wornToday = wear.lastWorn === todayLocalStr();
                   return (
                     <div
                       key={item.id}

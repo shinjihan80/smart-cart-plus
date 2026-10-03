@@ -13,13 +13,16 @@
  */
 import type { NextRequest } from 'next/server';
 import { usageStore } from './usageStore';
+import { todayKstStr } from './dateMath';
 
 export type UsageAgent = 'vision' | 'parser' | 'nutrition' | 'url' | 'image' | 'style' | 'fridgeSection';
 
 const RETENTION_SEC = 9 * 24 * 60 * 60; // 9일 — 관리자 콘솔 최근 7일 조회 여유분 포함
 
+// 서버(Vercel 함수, 보통 UTC)에서 UTC 기준 날짜를 쓰면 AI 일일 한도가
+// 자정이 아니라 KST 오전 9시에 풀린다(P1-85, E2 실측) — todayKstStr()로 교체.
 function todayStr(): string {
-  return new Date().toISOString().split('T')[0];
+  return todayKstStr();
 }
 
 function getDeviceIdFromReq(req: NextRequest): string | null {
