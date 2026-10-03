@@ -55,7 +55,10 @@ export default function ShoppingMallCard({
               className="group relative flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-brand-primary/5 hover:border-brand-primary/20 active:scale-95 transition-all"
             >
               <PartnerMonogram partner={p} size="lg" />
-              <span className="text-xs font-medium text-gray-700 group-hover:text-brand-primary truncate w-full text-center">
+              {/* "SSG·이마트몰"/"네이버 장보기"처럼 중간점이 포함된 이름이
+                  truncate로 "SSG·이…"/"네이버 장…"처럼 잘려 어느 몰인지
+                  식별이 안 됐다(P2-23, C2 실측) — 2줄까지 허용. */}
+              <span className="text-xs font-medium text-gray-700 group-hover:text-brand-primary line-clamp-2 w-full text-center leading-snug">
                 {p.label}
               </span>
               <ExternalLink
