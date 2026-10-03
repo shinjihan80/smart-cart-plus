@@ -61,7 +61,10 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
               </motion.span>
               <div className="flex-1 min-w-0 text-left">
                 <p className="text-xs text-gray-400 font-medium mb-1">오늘 한 그릇</p>
-                <p className="text-base font-bold text-brand-ink leading-tight truncate">{recipe.name}</p>
+                {/* 긴 레시피명이 단일행 truncate로 "토스트 & 스…"처럼
+                    식별 불가하게 잘렸다(P2-20, E2·E3 실측) — 제목처럼
+                    식별에 필요한 줄은 2줄까지 허용. */}
+                <p className="text-base font-bold text-brand-ink leading-tight line-clamp-2">{recipe.name}</p>
                 <p className="text-xs text-gray-500 mt-1 truncate">
                   {recipe.time} · {recipe.difficulty}
                   {matchedItems.length > 0 && (

@@ -55,7 +55,9 @@ export default function SeasonalHintWidget({
                   {ownedSeasonal.length}개
                 </span>
               </div>
-              <p className="text-sm font-bold text-gray-900 truncate">{sample}</p>
+              {/* 보유 제철 품목 이름이 단일행 truncate로 식별 불가하게
+                  잘렸다(P2-20, E2·E3 실측) — 2줄까지 허용. */}
+              <p className="text-sm font-bold text-gray-900 line-clamp-2">{sample}</p>
               <p className="text-xs text-gray-500 mt-0.5">
                 가장 맛있을 때예요 — 이번 주 안에 드셔보세요
               </p>
@@ -79,7 +81,7 @@ export default function SeasonalHintWidget({
             </span>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-xs text-gray-400 font-medium mb-0.5">이번 {season} 놓치지 마세요</p>
-              <p className="text-sm font-bold text-gray-900 truncate">{sample}</p>
+              <p className="text-sm font-bold text-gray-900 line-clamp-2">{sample}</p>
               <p className="text-xs text-gray-500 mt-0.5">
                 피크 제철 {peakMissing.length}종이 기다려요
               </p>
