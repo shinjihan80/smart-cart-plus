@@ -803,14 +803,29 @@ function StepConfirm({
                 )}
 
                 <div className="flex-1 min-w-0">
-                  <input
-                    type="text"
+                  {/* 긴 이름(37자+)이 단일행 input에서 가로 스크롤돼 앞부분이
+                      말줄임 없이 하드 클립되던 문제(P1-77, E3 실측) —
+                      textarea 자동높이(최대 2줄, 넘으면 내부 스크롤)로 전환해
+                      전체 이름을 줄바꿈으로 볼 수 있게 한다. 이름이 빈 칸이면
+                      밑줄을 danger색으로 — 바로 아래 전역 오류 문장과 같은
+                      타이밍에 떠서 "어느 칸이 비었는지" 바로 보이게 한다. */}
+                  <textarea
                     value={item.name}
-                    onChange={(e) => updateName(item.id, e.target.value)}
+                    onChange={(e) => updateName(item.id, e.target.value.replace(/\n/g, ''))}
+                    onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
                     aria-label="제품명"
                     autoFocus={items.length === 1 && !item.name}
                     placeholder={items.length === 1 && !item.name ? (isFoodItem(item) ? '이름 입력 (예: 계란)' : '이름 입력 (예: 반팔 티셔츠)') : undefined}
-                    className="w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b border-gray-200 focus:border-brand-primary pb-0.5"
+                    rows={1}
+                    ref={(el) => {
+                      if (el) {
+                        el.style.height = 'auto';
+                        el.style.height = `${el.scrollHeight}px`;
+                      }
+                    }}
+                    className={`w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b pb-0.5 resize-none break-words leading-snug max-h-12 overflow-y-auto ${
+                      !item.name.trim() ? 'border-rose-300 focus:border-rose-400' : 'border-gray-200 focus:border-brand-primary'
+                    }`}
                   />
                   <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                     <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
