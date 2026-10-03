@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { CartItem, isFoodItem, isClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
-import { useProfiles } from '@/lib/profile';
+import { useProfiles, type Relation } from '@/lib/profile';
 import { useAiQuota, type AiAgent } from '@/lib/aiQuota';
 import { useMonthlyVisionQuota } from '@/lib/monthlyVisionQuota';
 import { usePlan } from '@/lib/usePlan';
@@ -549,9 +549,13 @@ function StepConfirm({
   onConfirm: (tagged: CartItem[]) => void;
   onBack: () => void;
 }) {
-  const { profiles } = useProfiles();
+  const { profiles, add: addProfile } = useProfiles();
   // 모든 아이템 공통 소유자 — undefined = 공용
   const [ownerId, setOwnerId] = useState<string | undefined>(undefined);
+  // 가족 추가 미니폼 — profiles.length===1(본인만)일 때만 사용
+  const [showAddFamily, setShowAddFamily] = useState(false);
+  const [newFamilyRelation, setNewFamilyRelation] = useState<Relation>('자녀');
+  const [newFamilyName, setNewFamilyName] = useState('');
 
   // 펼친 아이템 id 추적 — 한 번에 하나만
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -663,37 +667,91 @@ function StepConfirm({
           : '네모아가 추출한 목록입니다. 각 카드를 탭하면 카테고리·보관·사이즈 등을 직접 수정할 수 있어요.'}
       </p>
 
-      {/* 소유자 선택 — 프로필 2명 이상일 때 */}
-      {profiles.length >= 2 && (
-        <div className="rounded-2xl bg-gray-50 px-3 py-2 mb-3">
-          <p className="text-sm text-gray-500 mb-1.5">누구 것으로 등록할까요?</p>
-          <div className="flex gap-1 flex-wrap">
+      {/* 소유자 선택 — 예전엔 profiles.length>=2일 때만 보여, 프로필이
+          기본 1개(본인만)인 상태에선 이 UI 자체가 영구히 숨겨져 있었다.
+          "본인·가족·공용 물품 분리"가 핵심 차별 기능인데 그걸 켤 유일한
+          진입점(가족 추가)이 닫힌 채 아무도 문을 안 열어준 셈이다
+          (P1-72①, C4·E1 발견 — "기능 부재"가 아니라 "발견 불가능한
+          게이팅"). 1명일 때도 숨기지 말고 "공용·나·+가족 추가"로 보여준다
+          — +가족 추가는 페이지 이동 없이 이 모달 안에서 바로 추가(등록
+          중이던 내용을 잃지 않음). */}
+      <div className="rounded-2xl bg-gray-50 px-3 py-2 mb-3">
+        <p className="text-sm text-gray-500 mb-1.5">누구 것으로 등록할까요?</p>
+        <div className="flex gap-1 flex-wrap">
+          <button
+            onClick={() => setOwnerId(undefined)}
+            className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+              !ownerId
+                ? 'bg-gray-500 text-white'
+                : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            공용
+          </button>
+          {profiles.map((p) => (
             <button
-              onClick={() => setOwnerId(undefined)}
+              key={p.id}
+              onClick={() => setOwnerId(p.id)}
               className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                !ownerId
-                  ? 'bg-gray-500 text-white'
+                ownerId === p.id
+                  ? 'bg-brand-primary text-white'
                   : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
               }`}
             >
-              공용
+              {p.name}
             </button>
-            {profiles.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setOwnerId(p.id)}
-                className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
-                  ownerId === p.id
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {p.name}
-              </button>
-            ))}
-          </div>
+          ))}
+          <button
+            onClick={() => setShowAddFamily((v) => !v)}
+            className="text-sm px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
+          >
+            + 가족 추가
+          </button>
         </div>
-      )}
+
+        {showAddFamily && (
+          <div className="mt-2 pt-2 border-t border-gray-200 flex flex-col gap-1.5">
+            <div className="flex gap-1 flex-wrap">
+              {(['배우자', '자녀', '부모', '기타'] as Relation[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setNewFamilyRelation(r)}
+                  className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+                    newFamilyRelation === r
+                      ? 'bg-brand-primary text-white'
+                      : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1.5">
+              <input
+                type="text"
+                value={newFamilyName}
+                onChange={(e) => setNewFamilyName(e.target.value)}
+                placeholder="이름(예: 엄마, 큰아이)"
+                className="flex-1 min-w-0 text-sm text-gray-800 bg-white border border-gray-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
+              />
+              <button
+                onClick={() => {
+                  const trimmed = newFamilyName.trim();
+                  if (!trimmed) return;
+                  const created = addProfile(trimmed, newFamilyRelation);
+                  setOwnerId(created.id);
+                  setNewFamilyName('');
+                  setShowAddFamily(false);
+                }}
+                disabled={!newFamilyName.trim()}
+                className="shrink-0 text-sm font-semibold px-3 py-1.5 rounded-xl bg-brand-primary text-white hover:opacity-90 disabled:opacity-40 disabled:hover:opacity-40 transition-opacity"
+              >
+                추가
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-col gap-y-2 max-h-[60vh] overflow-y-auto pr-0.5">
         {items.map((item) => {
