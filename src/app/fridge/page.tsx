@@ -202,7 +202,10 @@ export default function FridgePage() {
   function handleDiscard(id: string) {
     const name = allFood.find((i) => i.id === id)?.name ?? '';
     removeItem(id);
-    showToast(`"${name}" 소진 처리됐어요.`, undoRemove);
+    // 버튼 라벨("🍲 다 먹었어요")과 토스트 문구를 맞춘다(P2-38) — "소진
+    // 처리됐어요"는 일상어가 아니라 버튼을 눌러놓고도 뭘 했는지 다시
+    // 헷갈리게 했다.
+    showToast(`"${name}" 다 먹었어요.`, undoRemove);
   }
 
   function pickSection(input: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType }) {

@@ -451,11 +451,20 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                     >
                       ✏️ 정보 수정
                     </button>
+                    {/* "소진 처리"는 일상어가 아니고, 🗑️(휴지통) 아이콘은
+                        "먹어서 없앤 것"과 "상해서 버린 것"을 구분 못 하게
+                        만들었다(P2-38, C8·C9 각 독립 지적·9/27 밤 재지적).
+                        실제로 이 버튼이 호출하는 동작(removeItem)은 데이터
+                        상 "먹었든 버렸든" 구분이 없는 단일 제거 동작이지만,
+                        압도적으로 흔한 케이스("다 먹어서 없앰")를 기준으로
+                        자연스러운 구어체 라벨을 쓴다 — 🍲는 TodayDishCard의
+                        "조리 완료" 토스트와 같은 아이콘으로 "음식을 다
+                        먹었다" 맥락을 재사용. */}
                     <button
                       onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id); }}
                       className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100 hover:bg-rose-100 transition-colors"
                     >
-                      🗑️ 소진 처리
+                      🍲 다 먹었어요
                     </button>
                   </div>
                 )}
