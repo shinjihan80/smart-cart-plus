@@ -110,7 +110,7 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
         onClick={handleDismiss}
         aria-label={`${season} 알림 오늘 안 보기`}
         title="오늘 안 보기"
-        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-brand-primary/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
+        className="touch-target-44 absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-brand-primary/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
       >
         <X size={12} strokeWidth={2.4} />
       </button>

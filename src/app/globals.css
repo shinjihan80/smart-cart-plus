@@ -162,3 +162,19 @@ body {
 /* 스크롤바 숨김 (카루셀용) */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* WCAG 2.5.5 44×44px 터치 타깃 — 시각 크기(w-6 h-6 등)는 그대로 두고
+   히트 영역만 ::after로 확장한다. inset은 px 고정이라 OS/브라우저
+   확대 배율을 안 따라간다(실제 손가락 크기는 화면 확대와 무관하므로
+   의도된 동작, P2-36 E2·E3 실측 — 홈 카드 닫기(✕) 등 27px 버튼이
+   WCAG 미달이었음). position은 의도적으로 안 건드림 — 대상 버튼들은
+   이미 className="absolute ..."라 그 자체가 포지셔닝 컨텍스트다. 여기서
+   position:relative를 또 선언하면(레이어 밖 플레인 CSS라 캐스케이드
+   우선순위가 Tailwind 유틸리티보다 높아) absolute를 덮어써 버튼이
+   카드 구석에서 이탈한다 — static인 요소에 쓰려면 호출부에서 먼저
+   relative/absolute를 직접 줘야 한다. */
+.touch-target-44::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+}

@@ -88,7 +88,7 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
         onClick={handleDismiss}
         aria-label="오늘 안 보기"
         title="오늘 안 보기"
-        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-amber-700/60 hover:text-amber-900 hover:bg-amber-100/80 transition-colors"
+        className="touch-target-44 absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-amber-700/60 hover:text-amber-900 hover:bg-amber-100/80 transition-colors"
       >
         <X size={12} strokeWidth={2.4} />
       </button>
