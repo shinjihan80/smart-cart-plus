@@ -307,7 +307,13 @@ export default function ClosetPage() {
             <PaletteButton />
           </div>
         </div>
-        <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
+        {/* scrollWidth(349) > clientWidth(344)로 "쇼핑" 탭이 5px 잘리는데
+            scrollbar-hide가 스크롤 힌트까지 지워 "고장난 화면"으로 읽혔다
+            (P2-13, C9·E2 실측). 탭 좌우 패딩을 줄여 실측 여유분보다 훨씬
+            크게(16px+) 줄여 통상 폭에서 오버플로를 없애고, snap-x로 혹시
+            남는 경우에도 탭이 반쯤 걸치지 않게 하며, scrollbar-hide를 빼
+            넘칠 때는 최소한 네이티브 스크롤 힌트가 보이게 한다. */}
+        <div className="overflow-x-auto border-b border-gray-100 snap-x snap-mandatory">
           <div role="tablist" aria-label="옷장 탭" className="flex px-4">
             {CLOSET_TABS.map((t) => {
               const isActive = activeTab === t.id;
@@ -319,7 +325,7 @@ export default function ClosetPage() {
                   aria-selected={isActive}
                   onClick={() => selectTab(t.id)}
                   className={[
-                    'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
+                    'shrink-0 snap-start flex items-center gap-1 px-3 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
                       ? 'font-semibold text-brand-primary border-brand-primary'
                       : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
