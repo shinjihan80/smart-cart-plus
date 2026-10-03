@@ -312,7 +312,11 @@ export default function MyPage() {
               <p className="text-xs font-semibold text-gray-800">
                 {backup.lastBackupAt === null ? `등록한 ${items.length}개, 파일로 저장해두면 안전해요` : `마지막 백업 ${backup.daysSince}일 전`}
               </p>
-              <p className="text-sm text-gray-500 mt-0.5">백업 파일 하나면 기기를 바꿔도 그대로 옮길 수 있어요.</p>
+              {/* "수"(의존명사)가 뒷말과 떨어져 줄 끝에 혼자 남아
+                  "옮길 수 / 있어요"처럼 어색하게 줄바꿈됐다(P2-32, C4·C6
+                  실측) — "수"와 "있어요" 사이를 줄바꿈 없는 공백( )
+                  으로 묶어 항상 한 줄에 붙어 있게 한다. */}
+              <p className="text-sm text-gray-500 mt-0.5 break-keep">백업 파일 하나면 기기를 바꿔도 그대로 옮길 수{' '}있어요.</p>
               <p className="text-xs text-gray-400 mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
             </div>
             <button
