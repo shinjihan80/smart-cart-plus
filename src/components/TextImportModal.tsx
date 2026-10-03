@@ -16,7 +16,7 @@ import EmojiIcon from '@/components/EmojiIcon';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { todayLocalStr, expiryDateStr, daysBetween, localMidnight } from '@/lib/dateMath';
-import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
+import { EXPIRY_LABEL, classifyExpiry } from '@/lib/expiryThresholds';
 import { inferFoodCategory, inferFoodDefaults } from '@/lib/ingredientInference';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
@@ -391,15 +391,22 @@ interface FieldEditProps<T extends CartItem> {
 
 function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, { category: '식품' }>>) {
   const dDay    = getRemainingDays(item);
-  const isUrgent = dDay <= 2;
+  // 이 배지만 인라인 dDay<=2 임계값(2색: rose/emerald)을 따로 써서,
+  // 다른 화면(냉장고 카드)은 D-2를 빨강으로 보여주는데 여기 등록폼은
+  // D-2도 초록으로 렌더되는 모순이 났다(P1-76, E3 재실측 — "같은
+  // D-2가 화면마다 다른 색"). classifyExpiry() 단일 소스로 통일해
+  // 냉장고 카드(P1-68/P1-70)와 같은 3단(경고/앰버/녹색) 체계로 맞춘다.
+  const bucket = classifyExpiry(dDay);
+  const badgeClass =
+    bucket === 'expired' || bucket === 'today' ? 'bg-rose-50 text-rose-500'
+      : bucket === 'soon' ? 'bg-amber-50 text-amber-600'
+      : 'bg-emerald-50 text-emerald-600';
 
   return (
     <div className="mt-2 flex flex-col gap-2">
       {/* 미리보기 배지 */}
       <div className="flex flex-wrap gap-1">
-        <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-          isUrgent ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-600'
-        }`}>
+        <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${badgeClass}`}>
           {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
         </span>
       </div>
