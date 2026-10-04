@@ -63,7 +63,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               {toast.onUndo && (
                 <button
                   onClick={handleUndo}
-                  className="shrink-0 text-xs font-bold text-brand-primary bg-white/10 px-2.5 py-1 rounded-xl hover:bg-white/20 transition-colors"
+                  // text-brand-primary(#4F46E5)는 밝은 배경 전용 색이라
+                  // 이 어두운 토스트(bg-gray-900) 위에서 대비가 약
+                  // 2.1~2.2:1 — 배너 오탭·잘못 누른 "다 먹었어요" 등을
+                  // 되돌리는 유일한 수단인데 가장 안 보이는 버튼이었다
+                  // (P1-89, C8·E2·E3 실측). indigo-300은 같은 배경에서
+                  // 약 6.7~9:1로 WCAG AA(4.5:1)를 넉넉히 넘는다.
+                  className="shrink-0 text-xs font-bold text-indigo-300 bg-white/10 px-2.5 py-1 rounded-xl hover:bg-white/20 transition-colors"
                 >
                   되돌리기
                 </button>
