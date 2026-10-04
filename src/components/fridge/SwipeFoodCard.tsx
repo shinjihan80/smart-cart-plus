@@ -367,7 +367,16 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                           const v = e.target.value;
                           if (!v || v === expiryDateStr(item)) return;
                           const days = daysBetween(localMidnight(item.purchaseDate), localMidnight(v));
-                          if (days < 1) { showToast('유통기한이 구매일보다 앞설 수 없어요.'); return; }
+                          // 같은 날짜(days===0, 당일 소비 식품)는 "앞선" 게
+                          // 아닌데 거부됐었다(P0-67, C4·E1·E2 실측) — 구매일
+                          // "이전" 날짜일 때만 거부. 비제어 입력이라 거부
+                          // 후에도 칸에 입력값이 남아 카드 앞면(저장값)과
+                          // 다른 날짜가 동시에 보였다 — 저장된 값으로 되돌림.
+                          if (days < 0) {
+                            showToast('구매일보다 이전 날짜는 입력할 수 없어요.');
+                            e.target.value = expiryDateStr(item);
+                            return;
+                          }
                           onUpdate(item.id, { expiryDate: v, baseShelfLifeDays: days, shelfLifeSource: 'user' });
                         }}
                         className="w-full bg-white border border-brand-primary/30 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"

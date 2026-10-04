@@ -401,6 +401,12 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
     bucket === 'expired' || bucket === 'today' ? 'bg-rose-50 text-rose-500'
       : bucket === 'soon' ? 'bg-amber-50 text-amber-600'
       : 'bg-emerald-50 text-emerald-600';
+  // 유통기한=구매일 당일(days===0)을 "앞설 수 없다"며 거부하던 버그
+  // (P0-67, C4·E1·E2 실측) — 같은 날짜는 "이전"이 아니다. 마감할인·
+  // 당일소비 식품은 구매일=유통기한이 흔한데, 예전엔 이걸 말없이
+  // 거부하고 이전 값(열흘 뒤 추정치 등)으로 조용히 되돌렸다. 거부
+  // 기준을 "이전 날짜일 때만"으로 좁히고, 거부되면 인라인 안내를 띄운다.
+  const [expiryError, setExpiryError] = useState(false);
 
   return (
     <div className="mt-2 flex flex-col gap-2">
@@ -468,11 +474,15 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
               const v = e.target.value;
               if (!v) return;
               const days = daysBetween(localMidnight(item.purchaseDate), localMidnight(v));
-              if (days < 1) return;
+              if (days < 0) { setExpiryError(true); return; }
+              setExpiryError(false);
               onUpdate({ expiryDate: v, baseShelfLifeDays: days, shelfLifeSource: 'user' });
             }}
             className="text-xs px-2 py-1.5 rounded-lg bg-white border border-brand-primary/30 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
+          {expiryError && (
+            <span className="text-[10px] text-rose-500">구매일({item.purchaseDate})보다 이전 날짜는 입력할 수 없어요.</span>
+          )}
         </label>
         <FridgeSectionPicker
           itemName={item.name}

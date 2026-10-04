@@ -208,7 +208,9 @@ function mapVisionRawToCartItem(raw: VisionRawItem): CartItem {
       category:          '식품',
       foodCategory,
       storageType,
-      baseShelfLifeDays: Number.isFinite(baseShelfLifeDays) ? Math.max(1, baseShelfLifeDays) : 7,
+      // 0일(당일 소비, 예: 마감할인 초밥)도 유효한 보관기간이다 — "최소
+      // 1일" 가정은 더 이상 유지할 이유가 없다(P0-67, E1·E2 실측).
+      baseShelfLifeDays: Number.isFinite(baseShelfLifeDays) ? Math.max(0, baseShelfLifeDays) : 7,
       purchaseDate:      raw.purchaseDate || todayKstStr(),
       nutritionFacts:    raw.nutritionFacts,
     };
