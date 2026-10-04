@@ -581,6 +581,11 @@ function StepConfirm({
   const [newFamilyRelation, setNewFamilyRelation] = useState<Relation>('자녀');
   const [newFamilyName, setNewFamilyName] = useState('');
   const [familyLimitHit, setFamilyLimitHit] = useState(false);
+  // P2-45 — 등록 시트를 열자마자(이름 입력 전부터) "이름이 빈 항목이
+  // 있어요" 경고가 바로 떠 막 시작하려는 시점에 이미 틀렸다는 느낌을
+  // 줬다(C1 실측). 이름칸 중 하나라도 포커스를 뗀(blur) 뒤부터만
+  // 경고를 보여준다 — 최초 렌더(아직 아무도 안 건드림)에는 숨김.
+  const [nameBlurred, setNameBlurred] = useState(false);
 
   // 펼친 아이템 id 추적 — 한 번에 하나만
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -869,6 +874,7 @@ function StepConfirm({
                     value={item.name}
                     onChange={(e) => updateName(item.id, e.target.value.replace(/\n/g, ''))}
                     onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                    onBlur={() => setNameBlurred(true)}
                     aria-label="제품명"
                     autoFocus={items.length === 1 && !item.name}
                     placeholder={items.length === 1 && !item.name ? (isFoodItem(item) ? '이름 입력 (예: 계란)' : '이름 입력 (예: 반팔 티셔츠)') : undefined}
@@ -961,7 +967,7 @@ function StepConfirm({
         </p>
       )}
 
-      {items.length > 0 && items.some((it) => !it.name.trim()) && (
+      {items.length > 0 && nameBlurred && items.some((it) => !it.name.trim()) && (
         <p className="mt-2 text-xs text-brand-warning font-medium text-center">이름이 빈 항목이 있어요 — 위에서 입력해주세요.</p>
       )}
 
