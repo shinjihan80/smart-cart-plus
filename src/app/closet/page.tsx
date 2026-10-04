@@ -457,15 +457,22 @@ export default function ClosetPage() {
             >
               첫 옷 등록하기
             </button>
-            <button
-              onClick={() => {
-                const n = loadSampleData();
-                showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
-              }}
-              className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
-            >
-              샘플 데이터로 먼저 둘러보기
-            </button>
+            {/* 재검토(C1·E2) — P2-47로 이 버튼이 5번째 노출 위치가 됐는데,
+                이 탭이 비었다는 것만 보고 다른 쪽 실데이터와는 무관하게
+                떴다. 눌러도 확인 없이 샘플 41개가 기존 데이터에 합쳐지고,
+                되돌리려면 "전체 초기화"로 실데이터까지 다 날려야 했다.
+                전역(allItems)이 진짜 빈 상태일 때만 노출. */}
+            {allItems.length === 0 && (
+              <button
+                onClick={() => {
+                  const n = loadSampleData();
+                  showToast(`샘플 ${n}개 불러왔어요. 둘러본 뒤엔 설정 > 전체 초기화로 전부 지울 수 있어요.`);
+                }}
+                className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
+              >
+                샘플 데이터로 먼저 둘러보기
+              </button>
+            )}
           </div>
         )}
 
@@ -934,15 +941,22 @@ export default function ClosetPage() {
             >
               첫 옷 등록하기
             </button>
-            <button
-              onClick={() => {
-                const n = loadSampleData();
-                showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
-              }}
-              className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
-            >
-              샘플 데이터로 먼저 둘러보기
-            </button>
+            {/* 재검토(C1·E2) — P2-47로 이 버튼이 5번째 노출 위치가 됐는데,
+                이 탭이 비었다는 것만 보고 다른 쪽 실데이터와는 무관하게
+                떴다. 눌러도 확인 없이 샘플 41개가 기존 데이터에 합쳐지고,
+                되돌리려면 "전체 초기화"로 실데이터까지 다 날려야 했다.
+                전역(allItems)이 진짜 빈 상태일 때만 노출. */}
+            {allItems.length === 0 && (
+              <button
+                onClick={() => {
+                  const n = loadSampleData();
+                  showToast(`샘플 ${n}개 불러왔어요. 둘러본 뒤엔 설정 > 전체 초기화로 전부 지울 수 있어요.`);
+                }}
+                className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
+              >
+                샘플 데이터로 먼저 둘러보기
+              </button>
+            )}
           </div>
         )}
         </>)}

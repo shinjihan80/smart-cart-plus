@@ -544,15 +544,21 @@ export default function FridgePage() {
                 >
                   첫 식품 등록하기
                 </button>
-                <button
-                  onClick={() => {
-                    const n = loadSampleData();
-                    showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
-                  }}
-                  className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
-                >
-                  샘플 데이터로 먼저 둘러보기
-                </button>
+                {/* 재검토(E2) — 이 화면이 비었어도(allFood===0) 옷장에 실데이터가
+                    있으면 샘플 41개가 그 위에 합쳐지고, 되돌리려면 "전체
+                    초기화"로 실데이터까지 다 날려야 했다. 전역(allItems)이
+                    진짜 빈 상태일 때만 노출해 그 위험을 없앤다. */}
+                {allItems.length === 0 && (
+                  <button
+                    onClick={() => {
+                      const n = loadSampleData();
+                      showToast(`샘플 ${n}개 불러왔어요. 둘러본 뒤엔 설정 > 전체 초기화로 전부 지울 수 있어요.`);
+                    }}
+                    className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
+                  >
+                    샘플 데이터로 먼저 둘러보기
+                  </button>
+                )}
               </div>
             )}
           </>
@@ -769,15 +775,21 @@ export default function FridgePage() {
                 >
                   첫 식품 등록하기
                 </button>
-                <button
-                  onClick={() => {
-                    const n = loadSampleData();
-                    showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
-                  }}
-                  className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
-                >
-                  샘플 데이터로 먼저 둘러보기
-                </button>
+                {/* 재검토(E2) — 이 화면이 비었어도(allFood===0) 옷장에 실데이터가
+                    있으면 샘플 41개가 그 위에 합쳐지고, 되돌리려면 "전체
+                    초기화"로 실데이터까지 다 날려야 했다. 전역(allItems)이
+                    진짜 빈 상태일 때만 노출해 그 위험을 없앤다. */}
+                {allItems.length === 0 && (
+                  <button
+                    onClick={() => {
+                      const n = loadSampleData();
+                      showToast(`샘플 ${n}개 불러왔어요. 둘러본 뒤엔 설정 > 전체 초기화로 전부 지울 수 있어요.`);
+                    }}
+                    className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
+                  >
+                    샘플 데이터로 먼저 둘러보기
+                  </button>
+                )}
               </div>
             )}
           </>
