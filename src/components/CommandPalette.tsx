@@ -9,6 +9,7 @@ import { useToast } from '@/context/ToastContext';
 import { isFoodItem } from '@/types';
 import { RECIPES, countRecipesByIngredient } from '@/lib/recipes';
 import { SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
+import { sameFoodProduct } from '@/lib/ingredientInference';
 import { currentSeasonByMonth } from '@/lib/season';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useWearLog } from '@/lib/wearLog';
@@ -146,9 +147,10 @@ export default function CommandPalette() {
       },
     ];
     // 제철 피크 모두 담기 — 현재 계절의 미보유 피크 재료 일괄 쇼핑 담기
-    const haveNames = new Set(items.map((it) => it.name));
+    // P1-93 — 완전일치면 "제주 노지 딸기 500g"을 보유해도 피크 재료 "딸기"를
+    // 또 담으라고 권했다. 핵심 키워드 기준 비교로 전환.
     const peakToShop = SEASONAL_PRODUCE.filter(
-      (p) => p.peak === season && !haveNames.has(p.name) && !inShopping(p.name),
+      (p) => p.peak === season && !items.some((it) => sameFoodProduct(it.name, p.name)) && !inShopping(p.name),
     );
     if (peakToShop.length > 0) {
       actions.push({

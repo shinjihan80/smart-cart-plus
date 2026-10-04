@@ -24,6 +24,32 @@ export function inferFoodCategory(name: string): FoodCategory {
   return '기타 식품';
 }
 
+/** 긴 키워드 우선 — "닭가슴살"이 먼저 매칭되게(짧은 "닭"에 묻히지 않도록). */
+const ALL_FOOD_KEYWORDS = KEYWORD_MAP.flatMap((e) => e.keywords).sort((a, b) => b.length - a.length);
+
+/**
+ * "같은 품목"으로 볼 핵심 키워드 추출 — 매칭되는 키워드가 없으면 공백만
+ * 제거한 원문을 그대로 반환(기존 완전일치 동작 유지).
+ */
+export function canonicalFoodKeyword(name: string): string {
+  for (const kw of ALL_FOOD_KEYWORDS) {
+    if (name.includes(kw)) return kw;
+  }
+  return name.replace(/\s+/g, '');
+}
+
+/**
+ * 브랜드·용량이 섞인 상품명이 완전일치가 아니라서 "우유 보유 중"인데도
+ * "서울우유 1L 재구매"를 계속 추천하던 문제(P1-93, C4 실측 — 쿠팡 주문명이
+ * 매번 달라 실사용에서 거의 항상 재현). 품목 정규 사전(canonicalName)
+ * 전면 도입 전까지, 이미 있는 카테고리 추론 키워드를 재사용해 "같은 핵심
+ * 키워드를 포함하는가"로 근사 비교한다.
+ */
+export function sameFoodProduct(a: string, b: string): boolean {
+  if (a === b) return true;
+  return canonicalFoodKeyword(a) === canonicalFoodKeyword(b);
+}
+
 /**
  * 이름 기반 통일 이모지 — 제철 구체 이모지(🍓) 우선, 없으면 카테고리 이모지(🥬).
  * 쇼핑 리스트/장볼 거 추천/재구매 등에서 일관되게 쓰려면 이 헬퍼 호출.

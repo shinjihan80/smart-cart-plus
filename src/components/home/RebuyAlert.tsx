@@ -6,6 +6,7 @@ import { RotateCcw, X } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { estimateCycles } from '@/lib/purchaseCycle';
+import { sameFoodProduct } from '@/lib/ingredientInference';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { useToast } from '@/context/ToastContext';
 import { springTransition } from './shared';
@@ -31,15 +32,18 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
   if (isDismissedToday('rebuy')) return null;
 
   const cycles = estimateCycles(discardHistory, 2);
-  const haveNames = new Set(items.filter(isFoodItem).map((f) => f.name));
+  const foods = items.filter(isFoodItem);
 
   // 히어로가 이미 같은 품목을 headline으로 짚었다고 여기서도 빼던 적이
   // 있었는데(P1-51), 유일한 재구매 임박 품목이 히어로에 뽑히면 "오늘 할
   // 일" 액션 존에서 통째로 사라지는 더 심각한 문제였다(P1-67, UrgentAlert
   // 와 동일 사유) — 액션 존은 중복 노출을 감수하고 항상 전체를 보여준다.
+  // P1-93 — 완전일치 Set이었을 땐 "서울우유 1L"를 다 먹고 "상하목장 우유
+  // 900ml"를 새로 사도 다른 이름이라 "서울우유 재구매"를 계속 띄웠다
+  // (C4 실측, 라이브 재현). 핵심 키워드 기준 비교로 전환.
   const dueSoon = cycles
     .filter((c) => c.dueInDays <= 2)
-    .filter((c) => !haveNames.has(c.name))
+    .filter((c) => !foods.some((f) => sameFoodProduct(f.name, c.name)))
     .slice(0, 5);
 
   if (dueSoon.length === 0) return null;

@@ -6,6 +6,7 @@ import { isFoodItem, type CartItem } from '@/types';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce, isSeasonalProduce } from '@/lib/seasonalProduce';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
+import { sameFoodProduct } from '@/lib/ingredientInference';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { Widget } from './shared';
 
@@ -23,7 +24,6 @@ export default function SeasonalHintWidget({
   const season = currentSeasonByMonth();
   const { seasonal } = useMergedCatalog();
   const foods = items.filter(isFoodItem);
-  const haveNames = new Set(foods.map((f) => f.name));
 
   // 바로 위 긴급 알림(UrgentAlert)이 이미 "오늘까지 드세요"로 보여준 품목은
   // 여기서 "가장 맛있을 때예요, 이번 주 안에"로 다시 보여주면 같은 품목에
@@ -31,8 +31,10 @@ export default function SeasonalHintWidget({
   const ownedSeasonal = foods
     .filter((f) => isSeasonalProduce(f.name, season))
     .filter((f) => !excludeNames?.has(f.name));
+  // P1-93 — 완전일치면 "제주 노지 딸기 500g"을 보유해도 피크 재료 "딸기"를
+  // 미보유로 오판했다. 핵심 키워드 기준 비교로 전환.
   const peakMissing = currentSeasonalProduce(season, 10, seasonal)
-    .filter((p) => p.peak === season && !haveNames.has(p.name))
+    .filter((p) => p.peak === season && !foods.some((f) => sameFoodProduct(f.name, p.name)))
     .slice(0, 3);
 
   const SeasonIcon = SEASON_ICON[season];

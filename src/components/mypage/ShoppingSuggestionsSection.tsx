@@ -6,7 +6,7 @@ import { isFoodItem, type CartItem } from '@/types';
 import { useShoppingList } from '@/lib/shoppingList';
 import { currentSeasonByMonth } from '@/lib/season';
 import { currentSeasonalProduce } from '@/lib/seasonalProduce';
-import { getFoodEmoji } from '@/lib/ingredientInference';
+import { getFoodEmoji, sameFoodProduct } from '@/lib/ingredientInference';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
@@ -33,7 +33,10 @@ export default function ShoppingSuggestionsSection({
 
   const suggestions = useMemo<Suggestion[]>(() => {
     const foods = items.filter(isFoodItem);
-    const haveNames = new Set(foods.map((f) => f.name));
+    // P1-93 — 완전일치 Set이었을 땐 "우유 1L"을 보유 중인데도 "상하목장
+    // 우유 900ml"가 다른 이름이라 재구매 후보에서 안 빠졌다(C4 실측).
+    // 핵심 키워드 기준 비교로 전환.
+    const haveNames = { has: (name: string) => foods.some((f) => sameFoodProduct(f.name, name)) };
     const out: Suggestion[] = [];
 
     // 임박(today/soon) 식품을 "곧 떨어질 것"으로 보고 여기 담았던 적이

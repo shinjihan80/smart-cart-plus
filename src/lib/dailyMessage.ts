@@ -12,6 +12,7 @@ import { josa } from '@/lib/korean';
 import { getDaypart, greetingText } from '@/lib/daypart';
 import { classifyExpiry, expiryLabel, groupExpiryPhrase } from '@/lib/expiryThresholds';
 import { estimateCycles } from '@/lib/purchaseCycle';
+import { sameFoodProduct } from '@/lib/ingredientInference';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
 
@@ -121,8 +122,11 @@ export function pickDailyMessage(
   // 재구매 임박 — 2회 이상 소진 이력으로 주기 추정, 곧 떨어지는데 지금 없는 식품.
   // 우선순위 사다리(기한초과>임박>재구매>시즌옷장>제철, P1-51)에서 이 자리가
   // 빠져 있어 재구매 시점이 제철 마케팅 문구보다 항상 밀렸던 문제를 해소.
+  // P1-93 — 완전일치(f.name===c.name)는 "우유 1L"·"상하목장 우유 900ml"처럼
+  // 브랜드·용량만 다른 같은 품목을 다른 것으로 오인해, 이미 있는데도
+  // 재구매를 권했다. sameFoodProduct로 핵심 키워드 기준 비교.
   const dueSoon = estimateCycles(discardHistory, 2).filter(
-    (c) => c.dueInDays <= 2 && !foods.some((f) => f.name === c.name),
+    (c) => c.dueInDays <= 2 && !foods.some((f) => sameFoodProduct(f.name, c.name)),
   );
   if (dueSoon.length > 0) {
     const firstName = dueSoon[0].name;
