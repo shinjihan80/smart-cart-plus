@@ -702,7 +702,9 @@ export default function FridgePage() {
                                   <span className="text-3xl" aria-hidden>{tone.emoji}</span>
                                   <GridExpiryBadge dDay={item.dDay} />
                                 </div>
-                                <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                                {/* P1-92 — truncate 1줄 컷이 좁은 화면에서 이름을
+                                    통째로 지웠다(C1·C8 4회 지적). line-clamp-2로 전환. */}
+                                <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 line-clamp-2 break-keep">{item.name}</p>
                               </button>
                             );
                           })}
@@ -722,7 +724,7 @@ export default function FridgePage() {
                           <span className="text-3xl" aria-hidden>{tone.emoji}</span>
                           <GridExpiryBadge dDay={item.dDay} />
                         </div>
-                        <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                        <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 line-clamp-2 break-keep">{item.name}</p>
                       </button>
                     );
                   })}

@@ -143,7 +143,12 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
           <div className="flex-1 min-w-0">
             {/* 제목 줄: 제품명 | D-Day | 펼침 화살표 */}
             <div className="flex items-center justify-between gap-2 mb-2">
-              <p className="text-[15px] font-bold text-brand-ink truncate flex-1 leading-snug">{item.name}</p>
+              {/* truncate(1줄 고정폭 컷)는 150%/375px 같은 좁은 환경에서 이름이
+                  통째로 사라지는(빈칸+말줄임만 보임) 사고를 냈다(P1-92, C1·C8
+                  4회 반복 지적). line-clamp-2로 바꿔 좁아져도 2줄까지는 글자가
+                  남게 한다 — 사진(w-24)·여백을 rem화하는 컨테이너 쿼리 전면
+                  개편(E3 "full" 해법)은 범위 밖. */}
+              <p className="text-[15px] font-bold text-brand-ink line-clamp-2 break-keep flex-1 leading-snug">{item.name}</p>
               <div className="flex items-center gap-1.5 shrink-0">
                 <p className={`text-sm font-bold tabular-nums ${urgencyTextColor || 'text-gray-500'}`}>
                   {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}

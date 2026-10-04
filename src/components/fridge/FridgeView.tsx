@@ -98,7 +98,9 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             </div>
 
             <div className="mt-1.5">
-              <p className="text-[11px] font-bold text-gray-800 leading-tight truncate">{meta.label}</p>
+              {/* P1-92 — "도어 중간 포켓"처럼 긴 칸 이름이 truncate 1줄 컷으로
+                  잘렸다(C1·C8 실측). line-clamp-2로 2줄까지 허용. */}
+              <p className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 break-keep">{meta.label}</p>
               {list.length === 0 ? (
                 // 빈 칸의 예시 힌트("잼·소스·드레싱" 등)와 실제 보유 품목이
                 // 글자 크기·굵기·위치가 전부 같고 명도 차이(gray-400 vs
