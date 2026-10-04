@@ -55,7 +55,6 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
   const currentSection = item.fridgeSection ?? recommendFridgeSection(item);
   const { discardHistory } = useCart();
   const cycle = estimateCycles(discardHistory, 2).find((c) => c.name === item.name);
-  const isUrgent = dDay <= 3;
   // 진행바가 baseShelfLifeDays(품목마다 다른 보관기간)로 정규화돼 있어
   // 카드 간 비교가 성립하지 않았다 — D-3(서울우유, shelf 10일)이 30%인데
   // D-1(생연어, shelf 10일)은 33.3%로 더 안 급한 품목의 바가 더 길게
@@ -72,6 +71,14 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
     expiryBucket === 'expired' || expiryBucket === 'today' ? 'bg-brand-warning'
       : expiryBucket === 'soon' ? 'bg-amber-400'
       : 'bg-brand-success';
+  // D배지·"N일 남음" 텍스트가 자체 임계값(dDay<=3)으로 전부 빨강을 썼다
+  // — 같은 카드 안에서 soon(D-2·D-3) 품목이 "빨간 글자 + 노란 막대"로
+  // 모순됐다(P1-90, C8·E2·E3 실측). 막대와 같은 expiryBucket 하나로
+  // 텍스트 색도 통일.
+  const urgencyTextColor =
+    expiryBucket === 'expired' || expiryBucket === 'today' ? 'text-[#DC2626]'
+      : expiryBucket === 'soon' ? 'text-amber-600'
+      : '';
 
   const style = STORAGE_STYLE[item.storageType];
   const Icon  = STORAGE_ICON[item.storageType];
@@ -138,9 +145,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
             <div className="flex items-center justify-between gap-2 mb-2">
               <p className="text-[15px] font-bold text-brand-ink truncate flex-1 leading-snug">{item.name}</p>
               <div className="flex items-center gap-1.5 shrink-0">
-                <p className={`text-sm font-bold tabular-nums ${
-                  isUrgent ? 'text-[#DC2626]' : 'text-gray-500'
-                }`}>
+                <p className={`text-sm font-bold tabular-nums ${urgencyTextColor || 'text-gray-500'}`}>
                   {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
                 </p>
                 {!hideToggle && (
@@ -183,7 +188,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 {dDay >= 0 ? (item.shelfLifeSource === 'user' ? '까지' : '쯤까지') : ' 지남'}
               </span>
               <span className="text-gray-200">·</span>
-              <span className={isUrgent ? 'text-[#DC2626] font-medium' : ''}>
+              <span className={urgencyTextColor ? `${urgencyTextColor} font-medium` : ''}>
                 {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}
               </span>
             </div>
@@ -266,7 +271,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                     </div>
                     <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
                       <span className="text-xs text-gray-400">보관 기한</span>
-                      <span className={`font-medium tabular-nums ${dDay <= 3 ? 'text-brand-warning' : 'text-gray-700'}`}>
+                      <span className={`font-medium tabular-nums ${urgencyTextColor || 'text-gray-700'}`}>
                         {expiryDateStr(item)}
                         <span className="ml-1.5 text-xs text-gray-400">({dDay < 0 ? EXPIRY_LABEL.over : `${dDay}일`})</span>
                       </span>
