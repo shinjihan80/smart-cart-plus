@@ -81,7 +81,7 @@ export default function MyPage() {
   const { tier } = usePlan();
   const { main: mainProfile, profiles, setMain } = useProfiles();
   const [showSwitcher, setShowSwitcher] = useState(false);
-  const { items, archived, discardCount, discardHistory, addItems, restoreFromArchive } = useCart();
+  const { items, archived, discardHistory, addItems, restoreFromArchive } = useCart();
   const { showToast } = useToast();
   const { isFavorite, toggle } = useRecipeFavorites();
   const backup = useBackupStatus();
@@ -388,7 +388,7 @@ export default function MyPage() {
               foodItems={foodItemsList}
               clothingItems={clothingItemsList}
               urgentCount={urgentCount}
-              discardCount={discardCount}
+              discardHistory={discardHistory}
               coldCount={coldCount}
               frozenCount={frozenCount}
               roomCount={roomCount}
@@ -399,7 +399,7 @@ export default function MyPage() {
               <>
                 <div className="flex items-center gap-2">
                   <EmojiIcon emoji="🗑️" size={16} className="text-gray-600" />
-                  <h3 className="text-base font-bold text-gray-900 tracking-tight">최근 소진 내역</h3>
+                  <h3 className="text-base font-bold text-gray-900 tracking-tight">최근 정리 내역</h3>
                 </div>
                 <motion.div
                   initial={{ opacity: 0, y: 24 }}

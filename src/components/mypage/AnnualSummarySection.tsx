@@ -58,7 +58,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
   const stats = [
     { emoji: '🍳', label: '조리',      value: cookTotal,    months: countByMonth(cookDates, year),    tone: 'bg-amber-500'     },
     { emoji: '👕', label: '착용',      value: wearTotal,    months: countByMonth(wearDates, year),    tone: 'bg-brand-primary' },
-    { emoji: '♻️', label: '소진 식품', value: discardTotal, months: countByMonth(discardDates, year), tone: 'bg-emerald-500'   },
+    { emoji: '🍲', label: '다 먹은 식품', value: discardTotal, months: countByMonth(discardDates, year), tone: 'bg-emerald-500'   },
   ];
 
   // 모든 카테고리 합산해 가장 활동이 많은 달

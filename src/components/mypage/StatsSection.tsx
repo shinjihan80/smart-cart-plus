@@ -42,20 +42,27 @@ function StorageBar({ label, emoji, count, total }: { label: string; emoji: stri
 }
 
 interface StatsSectionProps {
-  items:          CartItem[];
-  foodItems:      FoodItem[];
-  clothingItems:  CartItem[];
-  urgentCount:    number;
-  discardCount:   number;
-  coldCount:      number;
-  frozenCount:    number;
-  roomCount:      number;
+  items:           CartItem[];
+  foodItems:       FoodItem[];
+  clothingItems:   CartItem[];
+  urgentCount:     number;
+  discardHistory:  { name: string; category: string; date: string }[];
+  coldCount:       number;
+  frozenCount:     number;
+  roomCount:       number;
 }
 
 export default function StatsSection({
   items, foodItems, clothingItems,
-  urgentCount, discardCount, coldCount, frozenCount, roomCount,
+  urgentCount, discardHistory, coldCount, frozenCount, roomCount,
 }: StatsSectionProps) {
+  // "소진 처리(누적)" 한 줄이 식품을 다 먹은 것과 옷을 치운 것을 같은
+  // removeItem 카운터로 합산해, "낭비 줄이기" 핵심 지표를 계산할 수
+  // 없게 만들었다(P1-91, C8 실측 + E1 "지표 자체가 계산 불가능"). 같은
+  // discardHistory를 category로 나눠 식품/패션을 각자 셀 수 있게 분리.
+  const eatenCount   = discardHistory.filter((h) => h.category === '식품').length;
+  const clearedCount = discardHistory.length - eatenCount;
+
   return (
     <>
       {/* 종합 통계 */}
@@ -72,7 +79,8 @@ export default function StatsSection({
           <StatRow emoji="🥦" label="식품"             value={`${foodItems.length}개`} />
           <StatRow emoji="👕" label="패션 전체"        value={`${clothingItems.length}개`} />
           <StatRow emoji="⚠️" label={EXPIRY_LABEL.soon} value={`${urgentCount}개`} accent={urgentCount > 0} />
-          <StatRow emoji="🗑️" label="소진 처리 (누적)"  value={`${discardCount}건`} />
+          <StatRow emoji="🍲" label="다 먹은 식품 (누적)" value={`${eatenCount}개`} />
+          <StatRow emoji="🧹" label="정리한 옷 (누적)"    value={`${clearedCount}개`} />
         </div>
       </motion.div>
 

@@ -306,7 +306,7 @@ export default function ManualPage() {
                 {[
                   ['🧊 냉장고', '등록된 식품 목록. 냉장/냉동/임박 카운트가 상단에 표시됩니다.'],
                   ['💡 추천', '보관 중인 식품 기반 레시피 24종 자동 추천. 탭별 상세 모달과 조리 타이머 제공.'],
-                  ['🛒 장보기', '소진된 재료 재구매 리스트. 쇼핑몰 바로 연결.'],
+                  ['🛒 장보기', '다 먹은 재료 재구매 리스트. 쇼핑몰 바로 연결.'],
                 ].map(([t, d]) => (
                   <div key={t} className="flex gap-3 border border-gray-100 rounded-xl p-3">
                     <span className="font-bold text-sm shrink-0 w-20">{t}</span>
@@ -319,7 +319,7 @@ export default function ManualPage() {
               <Step n={1}>카드를 탭하면 펼쳐집니다. (한 번에 하나만 열림)</Step>
               <Step n={2}>펼쳐진 카드 하단의 <strong>🗑 삭제</strong> 버튼으로 제거합니다.</Step>
               <Step n={3}>삭제 직후 하단에 <strong>&quot;되돌리기&quot;</strong> 버튼이 표시됩니다. 실수로 삭제했다면 바로 탭하세요.</Step>
-              <Step n={4}>&quot;소진&quot;으로 제거하면 마이 → 소진 이력에 기록됩니다.</Step>
+              <Step n={4}>&quot;다 먹었어요&quot;로 제거하면 마이 → 정리 내역에 기록됩니다.</Step>
 
               <SubTitle>AI 냉장고 위치 추천</SubTitle>
               <p className="text-gray-600 mb-2">식품 등록 시 AI가 냉장고 어느 칸에 넣을지 자동으로 추천합니다. 마이 → 내 정보 탭에서 보유한 냉장고 모델(양문형·4도어·1도어·김치냉장고)을 먼저 선택하면 더 정확한 추천을 받을 수 있습니다.</p>
@@ -515,7 +515,7 @@ export default function ManualPage() {
             </Row>
 
             <SubTitle>연간 활동 히스토그램</SubTitle>
-            <p className="text-gray-600 mb-3">요약 탭 하단에서 올해 1월~12월의 조리·착용·소진 활동을 월별 막대 그래프로 확인합니다. 연말 페이스 예측도 함께 표시됩니다.</p>
+            <p className="text-gray-600 mb-3">요약 탭 하단에서 올해 1월~12월의 조리·착용·다 먹은 활동을 월별 막대 그래프로 확인합니다. 연말 페이스 예측도 함께 표시됩니다.</p>
           </section>
 
           <Divider />

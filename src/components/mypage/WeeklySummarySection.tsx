@@ -64,9 +64,9 @@ export default function WeeklySummarySection({ discardHistory }: Props) {
           <span className="text-xs text-gray-400 font-medium whitespace-nowrap">착용 · {wearPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
-          <EmojiIcon emoji="♻️" size={18} className="text-gray-700" />
+          <EmojiIcon emoji="🍲" size={18} className="text-gray-700" />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{discardCount}</span>
-          <span className="text-xs text-gray-400 font-medium whitespace-nowrap">소진</span>
+          <span className="text-xs text-gray-400 font-medium whitespace-nowrap">다 먹음</span>
         </div>
       </div>
     </motion.div>

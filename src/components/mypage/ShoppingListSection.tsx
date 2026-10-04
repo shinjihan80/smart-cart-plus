@@ -178,7 +178,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
         const SOURCE_ORDER: { key: string; label: string; emoji: string }[] = [
           { key: '임박 재구매', label: '임박 재구매',   emoji: '⚠️' },
           { key: '구매 주기',   label: '주기 기반',     emoji: '🔁' },
-          { key: '소진 이력',   label: '소진 재구매',   emoji: '🔄' },
+          { key: '소진 이력',   label: '다 먹어서 재구매', emoji: '🔄' },
           { key: '제철 놓친 것', label: '놓친 제철',     emoji: '🫥' },
           { key: '제철 추천',   label: '제철 추천',     emoji: '🌸' },
           { key: '제철 재료',   label: '제철 재료',     emoji: '🌱' },

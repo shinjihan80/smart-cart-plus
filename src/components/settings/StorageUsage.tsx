@@ -17,7 +17,7 @@ interface UsageRow {
 const KEY_LABELS: Record<string, string> = {
   'nemoa-items':                   '식품·의류 아이템',
   'nemoa-archive':                 '아카이브',
-  'nemoa-history':                 '소진 이력',
+  'nemoa-history':                 '정리 내역',
   'nemoa-wear-log':                '착용 로그',
   'nemoa-cook-log':                '조리 로그',
   'nemoa-profiles':                '프로필',
@@ -47,7 +47,7 @@ const KEY_LABELS: Record<string, string> = {
   'nemoa-last-backup-at':          '마지막 백업 시각',
   'nemoa-backup-banner-dismissed-at': '백업 안내 닫기 기록',
   'nemoa-restore-just-completed':  '복원 완료 플래그',
-  'nemoa-discard-count':           '소진 처리 횟수',
+  'nemoa-discard-count':           '정리 처리 횟수',
   'nemoa-dismissed-alerts':        '닫은 알림 기록',
   'nemoa-home-recent-search':      '최근 검색어(홈)',
   'nemoa-search-recent':           '최근 검색어',

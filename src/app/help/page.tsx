@@ -154,7 +154,7 @@ export default function HelpPage() {
           <Bullet>AI 보관 위치 추천 — 등록 시 냉장고 어느 칸에 넣을지 자동 제안</Bullet>
           <Bullet>레시피 탭 — 보관 식품 기반 24종 추천 · 상세 모달 · 타이머</Bullet>
           <Bullet>즐겨찾기 레시피 · &quot;오늘 뭐 먹지?&quot; 랜덤 추천</Bullet>
-          <Bullet>쇼핑 탭 — 소진된 재료 재구매 링크 자동 생성</Bullet>
+          <Bullet>쇼핑 탭 — 다 먹은 재료 재구매 링크 자동 생성</Bullet>
         </MenuRow>
 
         <MenuRow
@@ -229,7 +229,7 @@ export default function HelpPage() {
           <Bullet><strong>사용자 교체</strong> — 상단 &quot;교체&quot; 버튼으로 가족 프로필 간 전환</Bullet>
           <Bullet>영양 위젯 — 보관 식품의 칼로리·영양소 vs 일일 목표</Bullet>
           <Bullet>월별 지출 추이 · 자주 구매하는 재료 + 재구매 주기</Bullet>
-          <Bullet><strong>연간 활동</strong> — 조리·착용·소진 12개월 히스토그램 + 연말 페이스 예측</Bullet>
+          <Bullet><strong>연간 활동</strong> — 조리·착용·다 먹음 12개월 히스토그램 + 연말 페이스 예측</Bullet>
           <Bullet>옷장 정리 추천 — 6개월 이상 미착용 아이템 하이라이트</Bullet>
           <Bullet>Pro 예고 카드 — 베이직 vs Pro 기능 비교 + 출시 알림 신청</Bullet>
         </MenuRow>

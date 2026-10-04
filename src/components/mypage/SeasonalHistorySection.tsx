@@ -134,7 +134,7 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
         })}
       </div>
       <p className="text-sm text-gray-400 mt-2.5 leading-relaxed">
-        냉장고에서 소진한 기록을 기반으로 집계해요. {season}이 지나면 다음 계절로 자동 교체돼요.
+        냉장고에서 다 먹은 기록을 기반으로 집계해요. {season}이 지나면 다음 계절로 자동 교체돼요.
       </p>
 
       {missed.length > 0 && (
