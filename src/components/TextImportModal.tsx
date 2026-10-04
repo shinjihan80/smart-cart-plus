@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { CartItem, isFoodItem, isClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
-import { useProfiles, type Relation } from '@/lib/profile';
+import { useProfiles, FREE_PROFILE_LIMIT, type Relation } from '@/lib/profile';
 import { useAiQuota, type AiAgent } from '@/lib/aiQuota';
 import { useMonthlyVisionQuota } from '@/lib/monthlyVisionQuota';
 import { usePlan } from '@/lib/usePlan';
@@ -569,10 +569,15 @@ function StepConfirm({
   const { profiles, add: addProfile } = useProfiles();
   // 모든 아이템 공통 소유자 — undefined = 공용
   const [ownerId, setOwnerId] = useState<string | undefined>(undefined);
-  // 가족 추가 미니폼 — profiles.length===1(본인만)일 때만 사용
+  // 가족 추가 미니폼 — 항상 노출(위 주석이 잘못돼 있었다: 실제론
+  // profiles.length와 무관하게 항상 렌더됨). 무료 3명 한도 검사가
+  // useProfiles().add() 쪽에만 있던 적이 없어서(P0-69), 이 진입점이
+  // 생기자 마이페이지 프로필 관리의 한도를 그대로 우회했다 — 이제
+  // add()가 직접 한도를 판정하므로, 여기선 실패 사유만 보여준다.
   const [showAddFamily, setShowAddFamily] = useState(false);
   const [newFamilyRelation, setNewFamilyRelation] = useState<Relation>('자녀');
   const [newFamilyName, setNewFamilyName] = useState('');
+  const [familyLimitHit, setFamilyLimitHit] = useState(false);
 
   // 펼친 아이템 id 추적 — 한 번에 하나만
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -719,7 +724,7 @@ function StepConfirm({
             </button>
           ))}
           <button
-            onClick={() => setShowAddFamily((v) => !v)}
+            onClick={() => { setShowAddFamily((v) => !v); setFamilyLimitHit(false); }}
             className="text-sm px-2 py-0.5 rounded-full bg-white border border-dashed border-brand-primary/40 text-brand-primary hover:bg-brand-primary/5 transition-colors"
           >
             + 가족 추가
@@ -755,9 +760,14 @@ function StepConfirm({
                 onClick={() => {
                   const trimmed = newFamilyName.trim();
                   if (!trimmed) return;
-                  const created = addProfile(trimmed, newFamilyRelation);
-                  setOwnerId(created.id);
+                  const result = addProfile(trimmed, newFamilyRelation);
+                  if (!result.ok) {
+                    setFamilyLimitHit(true);
+                    return;
+                  }
+                  setOwnerId(result.profile.id);
                   setNewFamilyName('');
+                  setFamilyLimitHit(false);
                   setShowAddFamily(false);
                 }}
                 disabled={!newFamilyName.trim()}
@@ -766,6 +776,11 @@ function StepConfirm({
                 추가
               </button>
             </div>
+            {familyLimitHit && (
+              <p className="text-xs text-rose-500">
+                무료는 가족 {FREE_PROFILE_LIMIT}명까지예요 — 지금은 &ldquo;공용&rdquo;으로 등록하고, 나중에 설정에서 바꿀 수 있어요.
+              </p>
+            )}
           </div>
         )}
       </div>

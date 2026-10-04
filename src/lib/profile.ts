@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { createSharedStore } from './sharedStore';
+import { usePlan } from './usePlan';
 
 const STORAGE_KEY = 'nemoa-profiles';
 
@@ -115,11 +116,24 @@ const store = createSharedStore<Profile[]>({
 });
 
 // ─── 훅 ──────────────────────────────────────────────────────────────────────
+export type AddProfileResult =
+  | { ok: true; profile: Profile }
+  | { ok: false; reason: 'free-limit' };
+
 export function useProfiles() {
   const profiles = store.useStore();
+  const { isFree } = usePlan();
   const main = profiles.find((p) => p.isMain) ?? profiles[0];
 
-  const add = useCallback((name: string, relation: Relation) => {
+  // 무료 3명 한도 검사가 화면(ProfilesSection)의 UI 가드에만 있고
+  // 저장 함수 자체에는 없어서, 진입점이 하나 더 생기자(TextImportModal
+  // 의 인라인 "+가족 추가") 한도가 그대로 우회됐다(P0-69, C4·E1·E2
+  // 실측). 한도 판정을 저장 함수 안으로 옮겨 호출부가 몇 곳이든
+  // 우회할 수 없게 한다.
+  const add = useCallback((name: string, relation: Relation): AddProfileResult => {
+    if (isFree && profiles.length >= FREE_PROFILE_LIMIT) {
+      return { ok: false, reason: 'free-limit' };
+    }
     const p: Profile = {
       id:        `p-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       name:      name.trim(),
@@ -128,8 +142,8 @@ export function useProfiles() {
       createdAt: Date.now(),
     };
     store.setState((prev) => [...prev, p]);
-    return p;
-  }, []);
+    return { ok: true, profile: p };
+  }, [isFree, profiles.length]);
 
   const remove = useCallback((id: string) => {
     store.setState((prev) => {

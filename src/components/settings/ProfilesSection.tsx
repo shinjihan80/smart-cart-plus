@@ -560,7 +560,13 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
       showToast('이름을 입력해주세요.');
       return;
     }
-    add(name, newRelation);
+    const result = add(name, newRelation);
+    if (!result.ok) {
+      // atFreeLimit 체크를 이미 거쳤지만, 저장 함수 쪽 한도 판정(P0-69)과
+      // 어긋날 수 있는 경합을 대비한 방어선.
+      setUpgradeOpen(true);
+      return;
+    }
     setNewName('');
     showToast(`"${name}" 프로필이 추가됐어요.`);
   }
