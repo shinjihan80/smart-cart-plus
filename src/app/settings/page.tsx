@@ -379,7 +379,7 @@ export default function SettingsPage() {
       />
 
       <LoginSheet open={loginOpen} onClose={() => setLoginOpen(false)} />
-      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="sync" />
     </div>
   );
 }

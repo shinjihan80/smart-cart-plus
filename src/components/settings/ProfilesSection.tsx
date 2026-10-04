@@ -670,7 +670,7 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
         </div>
       )}
 
-      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+      <UpgradeSheet open={upgradeOpen} onClose={() => setUpgradeOpen(false)} trigger="profile" />
     </motion.div>
   );
 });

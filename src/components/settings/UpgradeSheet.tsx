@@ -12,6 +12,12 @@ import type { PlanTier } from '@/types';
 
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
 
+// P1-95 — 혜택 목록에 가족 프로필 얘기가 한 줄도 없어, 프로필 한도에
+// 걸려 들어온 사용자는 정작 자기가 막힌 이유(가족 프로필 3명+)에 대한
+// 답을 못 봤다(C4 실측). ProPreviewCard 비교표 행("프로필(가족 구성원)")
+// 과 같은 사실을 여기 피처 목록에도 추가 — 혜택 정의를 한 곳(단일
+// 소스 lib/planEntitlements.ts)으로 합치는 전면 개편은 범위 밖, 우선
+// 빠진 사실만 채운다.
 const PLANS = [
   {
     id:        'pro_lite' as PlanTier,
@@ -19,7 +25,7 @@ const PLANS = [
     monthly:   4900,
     yearly:    49000,
     perMonth:  Math.round(49000 / 12),
-    features:  [`AI 사진 분석 ${VISION_MONTHLY_LIMITS.pro_lite}회/월`, 'AI 텍스트 60회/일', '레시피 142종+', '파트너 할인'],
+    features:  [`AI 사진 분석 ${VISION_MONTHLY_LIMITS.pro_lite}회/월`, 'AI 텍스트 60회/일', '가족 프로필 무제한', '레시피 142종+', '파트너 할인'],
   },
   {
     id:        'pro_max' as PlanTier,
@@ -27,16 +33,31 @@ const PLANS = [
     monthly:   9900,
     yearly:    99000,
     perMonth:  Math.round(99000 / 12),
-    features:  ['AI 전 기능 무제한', '자동 클라우드 동기화', '레시피 142종+', '파트너 VIP 할인'],
+    features:  ['AI 전 기능 무제한', '가족 프로필 무제한', '자동 클라우드 동기화', '레시피 142종+', '파트너 VIP 할인'],
   },
 ];
+
+/** 어떤 한도에서 들어왔는지에 따라 첫 줄에 보여줄 안내 + 해당 혜택을 목록 맨 위로. */
+const TRIGGER_INFO: Record<string, { banner: string; keyword: string }> = {
+  profile: { banner: '가족 프로필 한도에 닿으셨군요 — Pro는 가족 프로필을 무제한으로 추가할 수 있어요.', keyword: '가족 프로필' },
+  sync:    { banner: '클라우드 동기화는 Pro 전용이에요 — 기기를 바꿔도 데이터가 그대로 남아요.', keyword: '클라우드 동기화' },
+};
+
+function orderFeatures(features: string[], keyword?: string): string[] {
+  if (!keyword) return features;
+  const idx = features.findIndex((f) => f.includes(keyword));
+  if (idx <= 0) return features;
+  return [features[idx], ...features.slice(0, idx), ...features.slice(idx + 1)];
+}
 
 interface UpgradeSheetProps {
   open:    boolean;
   onClose: () => void;
+  /** 어느 한도에서 열렸는지 — 해당 혜택을 첫 줄에 강조(P1-95). */
+  trigger?: 'profile' | 'sync';
 }
 
-export default function UpgradeSheet({ open, onClose }: UpgradeSheetProps) {
+export default function UpgradeSheet({ open, onClose, trigger }: UpgradeSheetProps) {
   useModalA11y(onClose, open);
   const { setTier }  = usePlan();
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
@@ -110,6 +131,11 @@ export default function UpgradeSheet({ open, onClose }: UpgradeSheetProps) {
           <div className="mb-5">
             <h2 className="text-base font-bold text-gray-900">NEMOA Pro 업그레이드</h2>
             <p className="text-sm text-gray-400 mt-1">AI 한도 해제 · 클라우드 동기화 · 레시피 142종+</p>
+            {trigger && TRIGGER_INFO[trigger] && (
+              <p className="text-xs text-brand-primary bg-brand-primary/8 rounded-xl px-3 py-2 mt-3 leading-relaxed">
+                {TRIGGER_INFO[trigger].banner}
+              </p>
+            )}
           </div>
 
           {/* 결제 주기 토글 */}
@@ -147,7 +173,7 @@ export default function UpgradeSheet({ open, onClose }: UpgradeSheetProps) {
                   </div>
 
                   <ul className="flex flex-col gap-1 mb-4">
-                    {plan.features.map((f) => (
+                    {orderFeatures(plan.features, trigger ? TRIGGER_INFO[trigger]?.keyword : undefined).map((f) => (
                       <li key={f} className="flex items-center gap-2 text-xs text-gray-600">
                         <Check size={12} strokeWidth={3} className="text-brand-primary shrink-0" />
                         {f}
