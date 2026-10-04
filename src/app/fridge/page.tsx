@@ -7,6 +7,7 @@ import { isFoodItem, type StorageType, type FoodGroup, FOOD_GROUPS, type FridgeS
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { getRemainingDays } from '@/lib/expirySelectors';
+import { classifyExpiry, EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { todayLocalStr } from '@/lib/dateMath';
 import { LayoutGrid, List, SlidersHorizontal, X } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
@@ -131,6 +132,29 @@ function FoodSummaryStats({
   );
 }
 
+/**
+ * 격자뷰 D배지 — 그룹별 그리드·전체 그리드 두 곳에 똑같은 마크업이
+ * 복붙돼 있었는데(한쪽만 고칠 위험), 그중 `dDay<=0 ? 'D-day' : ...`가
+ * 기한 초과(expired)와 당일(today)을 하나로 묶어 상한 품목도 "D-day"
+ * (오늘까지 먹으면 됨)로 보여줬다 — 목록뷰는 같은 품목을 "기한 초과"로
+ * 정확히 보여주는 것과 모순됐다(P0-71, E2·E3 코드 확인, P0-30 계열
+ * 재발). classifyExpiry/EXPIRY_LABEL을 거치도록 교정 — 버킷→색 완전
+ * 통일(ExpiryBadge 공용 컴포넌트화)은 더 큰 범위의 별도 항목(P1-90)으로
+ * 남겨두고, 여기선 "기한 초과를 오늘까지로 오표시"하는 핵심 버그만
+ * 고친다.
+ */
+function GridExpiryBadge({ dDay }: { dDay: number }) {
+  const bucket = classifyExpiry(dDay);
+  if (bucket === 'fresh') return null;
+  const label = bucket === 'expired' ? EXPIRY_LABEL.over : dDay === 0 ? 'D-day' : `D-${dDay}`;
+  const bg = bucket === 'expired' || bucket === 'today' ? 'bg-red-500' : 'bg-orange-400';
+  return (
+    <span className={`absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${bg} text-white`}>
+      {label}
+    </span>
+  );
+}
+
 export default function FridgePage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
@@ -235,7 +259,11 @@ export default function FridgePage() {
     .filter((i) => storageFilter === '전체' || i.storageType === storageFilter)
     .filter((i) => groupFilter === '전체' || (FOOD_GROUP[i.foodCategory] ?? '기타') === groupFilter)
     .filter((i) => !seasonalOnly || isSeasonalProduce(i.name, season))
-    .filter((i) => !urgentOnly || i.dDay <= 3)
+    // 하한 없이 dDay<=3만 쓰면 기한 지난(expired, 음수 dDay) 품목까지
+    // "임박"에 섞여, 요약 카드 "임박 N"(today+soon만 셈)을 눌러도
+    // N+1개가 나왔다(P0-72, E2·E3 코드 확인 — P0-29·P0-30과 같은
+    // "하한 없는 임계값" 패턴 재발). today·soon 버킷만 임박으로 센다.
+    .filter((i) => !urgentOnly || classifyExpiry(i.dDay) === 'today' || classifyExpiry(i.dDay) === 'soon')
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === 'dDay') return a.dDay - b.dDay;
@@ -672,11 +700,7 @@ export default function FridgePage() {
                                 className="rounded-2xl overflow-hidden bg-white border border-gray-100 text-left active:scale-95 transition-transform">
                                 <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
                                   <span className="text-3xl" aria-hidden>{tone.emoji}</span>
-                                  {item.dDay <= 3 && (
-                                    <span className={`absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${item.dDay <= 0 ? 'bg-red-500 text-white' : 'bg-orange-400 text-white'}`}>
-                                      {item.dDay <= 0 ? 'D-day' : `D-${item.dDay}`}
-                                    </span>
-                                  )}
+                                  <GridExpiryBadge dDay={item.dDay} />
                                 </div>
                                 <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
                               </button>
@@ -696,11 +720,7 @@ export default function FridgePage() {
                         className="rounded-2xl overflow-hidden bg-white border border-gray-100 text-left active:scale-95 transition-transform">
                         <div className={`aspect-square relative flex items-center justify-center ${tone.bg}`}>
                           <span className="text-3xl" aria-hidden>{tone.emoji}</span>
-                          {item.dDay <= 3 && (
-                            <span className={`absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${item.dDay <= 0 ? 'bg-red-500 text-white' : 'bg-orange-400 text-white'}`}>
-                              {item.dDay <= 0 ? 'D-day' : `D-${item.dDay}`}
-                            </span>
-                          )}
+                          <GridExpiryBadge dDay={item.dDay} />
                         </div>
                         <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
                       </button>
