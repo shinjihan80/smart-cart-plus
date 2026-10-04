@@ -75,7 +75,16 @@ export function inferFoodDefaults(category: FoodCategory): { storageType: Storag
     case '양념·소스':   return { storageType: '실온', baseShelfLifeDays: 180 };
     case '간식·과자':   return { storageType: '실온', baseShelfLifeDays: 60 };
     case '건강식품':    return { storageType: '실온', baseShelfLifeDays: 90 };
-    default:            return { storageType: '실온', baseShelfLifeDays: 30 };
+    // 재검토(/nemoa-review quick, E1·E2 공동 P0) — 미분류("기타 식품")
+    // 폴백이 "실온 30일"이었다. 레시피 107종의 재료 키워드 155개를 실제
+    // KEYWORD_MAP으로 돌려보니 51%(79개)가 이 폴백에 걸렸고, 그 안에
+    // 삼겹살·차돌박이·회·두부·김치·생크림처럼 냉장이 필수인 품목이
+    // 섞여 있었다 — 레시피 상세 "장보기에 담기"→쇼핑 리스트→"냉장고에
+    // 담기" 경로(createFoodItemFromIngredient)를 그대로 따라가면 사용자
+    // 실수 없이도 생기는 문제라 P0. 안전한 쪽(냉장)으로 기본값을 옮긴다
+    // — 품목별 정밀 표(ITEM_DEFAULTS, 155개 닫힌 집합) 전면 도입은
+    // 범위 밖으로 이월, 이번엔 최소 안전장치만.
+    default:            return { storageType: '냉장', baseShelfLifeDays: 7 };
   }
 }
 

@@ -137,7 +137,13 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 }}
                 aria-label={item.imageUrl ? `${item.name} 사진 변경` : `${item.name} 사진 추가`}
                 title={item.imageUrl ? '탭해서 사진 변경' : '탭해서 사진 추가'}
-                className={`relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
+                // 재검토(E2 실측) — w-24(96px 고정)가 OS 텍스트 확대(150%)에는
+                // 반응 안 하면서 이름 글자만 커져, 이름 칸 가용 폭이 0까지
+                // 줄었다(line-clamp-2는 줄바꿈만 허용할 뿐 폭을 안 만든다 —
+                // P1-92 재오픈). 사진 폭을 rem 기반 비율(6rem 또는 카드폭의
+                // 36%, min)로 바꿔 글자와 함께 커지게 하고 이름 칸에 공간을
+                // 남긴다. 기본 크기에서는 기존 108px와 거의 같다(측정값).
+                className={`relative shrink-0 w-[min(6rem,36%)] aspect-square rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
               >
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -159,13 +165,15 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
           {/* 본문: 제목 + 메타 + 진행바 */}
           <div className="flex-1 min-w-0">
             {/* 제목 줄: 제품명 | D-Day | 펼침 화살표 */}
-            <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap gap-y-1">
               {/* truncate(1줄 고정폭 컷)는 150%/375px 같은 좁은 환경에서 이름이
                   통째로 사라지는(빈칸+말줄임만 보임) 사고를 냈다(P1-92, C1·C8
-                  4회 반복 지적). line-clamp-2로 바꿔 좁아져도 2줄까지는 글자가
-                  남게 한다 — 사진(w-24)·여백을 rem화하는 컨테이너 쿼리 전면
-                  개편(E3 "full" 해법)은 범위 밖. */}
-              <p className="text-[15px] font-bold text-brand-ink line-clamp-2 break-keep flex-1 leading-snug">{item.name}</p>
+                  5회 반복 지적). line-clamp-2만으로는 안 됐다 — overflow:hidden이
+                  flex 자식의 자동 최소폭을 0으로 풀어버려, 사진·여백이 글자와
+                  함께 커지는 150%에서 이름 칸 자체가 0px까지 줄었다(E2 실측
+                  재확인). min-w로 바닥을 깔고, 제목 줄 자체도 줄바꿈을 허용해
+                  D배지가 같이 밀려도 안 잘리게 한다. */}
+              <p className="text-[15px] font-bold text-brand-ink line-clamp-2 break-keep flex-1 min-w-[5em] leading-snug">{item.name}</p>
               <div className="flex items-center gap-1.5 shrink-0">
                 <p className={`text-sm font-bold tabular-nums ${urgencyTextColor || 'text-gray-500'}`}>
                   {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
