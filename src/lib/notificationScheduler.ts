@@ -66,9 +66,14 @@ async function showNotification(title: string, body: string, tag: string, kind: 
 export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
   if (!getNotiState().expiry) return;
 
+  // P2-49 — CHECKED_KEY를 권한 확인·대상 판정보다 먼저 기록했었다(E2
+  // 코드 확인). 그날 처음 열었을 때 임박 품목이 0개였거나 권한이
+  // 없었다면, 같은 날 나중에 품목을 등록하거나 알림을 켜도 이 가드에
+  // 막혀 다시 검사하지 않았다 — "알림이 고장났다"로 오인하게 됨.
+  // 실제로 알림을 성공적으로 띄운 뒤에만 기록해, 그 전까지는 호출될
+  // 때마다 다시 검사한다.
   const today = new Date().toDateString();
   if (localStorage.getItem(CHECKED_KEY) === today) return;
-  localStorage.setItem(CHECKED_KEY, today);
 
   if (!(await requestPermission())) return;
 
@@ -86,6 +91,7 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
     'nemoa-expiry',
     'expiry',
   );
+  localStorage.setItem(CHECKED_KEY, today);
 }
 
 /**

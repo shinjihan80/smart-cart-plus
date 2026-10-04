@@ -6,7 +6,7 @@ import { useToast } from '@/context/ToastContext';
 import EmojiIcon from '@/components/EmojiIcon';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
-import { requestPermission } from '@/lib/notificationScheduler';
+import { requestPermission, scheduleExpiryNotification } from '@/lib/notificationScheduler';
 import { isNative } from '@/lib/native';
 import {
   requestLocalNotificationPermission,
@@ -75,9 +75,16 @@ export default function NotificationSettings() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
     showToast(next[key] ? '알림이 켜졌어요.' : '알림이 꺼졌어요.');
 
-    if (key === 'expiry' && isNative()) {
-      if (next.expiry) void rescheduleExpiryNotifications(cartItems.filter(isFoodItem));
-      else void cancelAllExpiryNotifications();
+    if (key === 'expiry') {
+      if (isNative()) {
+        if (next.expiry) void rescheduleExpiryNotifications(cartItems.filter(isFoodItem));
+        else void cancelAllExpiryNotifications();
+      } else if (next.expiry) {
+        // P2-49 — 웹은 rescheduleExpiryNotifications가 no-op(네이티브
+        // 전용)이라, 알림을 꺼놨다가 다시 켠 그날은 다음 앱 재시작까지
+        // 전혀 재검사되지 않았다. 토글 켤 때 바로 한 번 검사.
+        void scheduleExpiryNotification(cartItems.filter(isFoodItem));
+      }
     }
   }
 
@@ -200,6 +207,15 @@ export default function NotificationSettings() {
           </div>
         ))}
       </div>
+      {/* P2-49 — 웹 알림은 앱이 열려 있을 때만 올 수 있다는 제약이 어디에도
+          안 적혀 있어, 앱을 닫아두면 못 받는 걸 "알림이 고장났다"로
+          오인하기 쉬웠다(리뷰 해결안 2번째 항목). 네이티브 앱은 OS가
+          꺼져 있어도 울려주므로 이 제약이 없어 네이티브에선 숨긴다. */}
+      {!isNative() && (
+        <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">
+          💡 웹에서는 네모아 앱(탭)이 열려 있을 때만 알림을 받을 수 있어요.
+        </p>
+      )}
       </motion.div>
     </>
   );

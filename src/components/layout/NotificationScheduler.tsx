@@ -14,19 +14,32 @@ import { rescheduleExpiryNotifications } from '@/lib/native/localNotifications';
 export default function NotificationScheduler() {
   const { items } = useCart();
   const lastNativeKey = useRef('');
+  const lastWebKey = useRef('');
+  const hasRunWebOnce = useRef(false);
 
+  // P2-49 — 마운트 시 1회만 실행하면, 그날 처음 열었을 때 임박 품목이
+  // 없거나 권한이 없어 발송이 안 됐을 경우 같은 세션에서 나중에 품목을
+  // 등록해도 다시 검사하지 않았다(E2 코드 확인, "알림이 고장났다"로
+  // 오인). scheduleExpiryNotification 자체가 이미 하루 1회 발송 성공
+  // 가드를 내부에 갖고 있으므로(CHECKED_KEY), items가 바뀔 때마다 다시
+  // 불러도 안전 — 네이티브 쪽과 동일한 key 비교로 같은 구성이면 재호출을
+  // 건너뛴다.
   useEffect(() => {
     if (typeof Notification === 'undefined') return;
     const foodItems = items.filter(isFoodItem);
     if (foodItems.length === 0) return;
-    // 마운트 후 3초 지연 — 앱 초기 렌더링 완료 후 실행
+    const key = foodItems.map((f) => `${f.id}:${f.purchaseDate}:${f.baseShelfLifeDays}`).sort().join('|');
+    if (key === lastWebKey.current) return;
+    lastWebKey.current = key;
+    // 마운트 직후 첫 실행만 3초 지연(초기 렌더링 완료 후) — 이후 품목
+    // 변경에 따른 재호출은 바로 실행.
+    const delay = hasRunWebOnce.current ? 0 : 3000;
+    hasRunWebOnce.current = true;
     const t = setTimeout(() => {
       void scheduleExpiryNotification(foodItems);
-    }, 3000);
+    }, delay);
     return () => clearTimeout(t);
-    // items가 hydrate되면 한 번만 실행 (하루 1회 체크는 scheduler 내부에서 처리)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [items]);
 
   // 네이티브 앱 — 아이템이 바뀔 때마다 기기 로컬 알림을 다시 예약(서버 없이
   // OS가 앱이 꺼져 있어도 울려줌). 웹은 대상 아님(위 useEffect가 담당).
