@@ -434,13 +434,39 @@ export default function ClosetPage() {
         </motion.div>
 
         {/* 옷장 시각화 */}
-        {allClothing.length > 0 && (
+        {allClothing.length > 0 ? (
           <WardrobeView
             config={wardrobeConfig}
             items={allItems}
             onSectionClick={handleWardrobeSectionClick}
             highlight={wardrobeHighlight}
           />
+        ) : (
+          // P2-47 — 옷장 첫 진입(옷 0개)은 "0 전체" 카드 하나만 있고
+          // 그 아래가 완전히 비어 스크롤도 없었다 — 같은 안내가 "의류"
+          // 탭에만 있어 발견 불가능했다(C1 실측, 냉장고는 첫 탭에서 칸
+          // 예시라도 보여주는 것과 대비). "의류" 탭(:905 부근)과 동일한
+          // CTA를 첫 탭에도 노출.
+          <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
+            <EmojiIcon emoji="👔" size={32} className="text-gray-400" />
+            <p className="text-sm font-medium text-gray-600">옷장이 비어있어요</p>
+            <p className="text-xs">옷 하나만 등록해보면 감이 와요.</p>
+            <button
+              onClick={() => window.dispatchEvent(new Event('nemoa:open-register'))}
+              className="mt-1 text-sm font-semibold px-4 py-2 rounded-full bg-brand-primary text-white hover:opacity-90 active:scale-95 transition-all"
+            >
+              첫 옷 등록하기
+            </button>
+            <button
+              onClick={() => {
+                const n = loadSampleData();
+                showToast(`샘플 ${n}개 불러왔어요. 설정에서 언제든 초기화할 수 있어요.`);
+              }}
+              className="text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600 mt-0.5"
+            >
+              샘플 데이터로 먼저 둘러보기
+            </button>
+          </div>
         )}
 
         {/* 이번 주 착용 요약 — 최근 7일 기록이 있으면 표시 */}
