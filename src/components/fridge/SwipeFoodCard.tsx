@@ -97,6 +97,23 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
       <div
         style={{ backgroundColor: 'rgb(255,255,255)', ...CARD_SHADOW }}
         onClick={toggleExpanded}
+        // P2-44 — 클릭 핸들러만 있는 div라 키보드·스크린리더로는 펼칠
+        // 방법이 없어 "다 먹었어요"·"정보 수정"에 닿지 못했다(C8 실측).
+        // 자식에 버튼·입력칸이 중첩돼 있어 카드 전체를 <button>으로
+        // 바꾸면 안 돼 role="button"+tabIndex로 전환 — 자식 클릭은
+        // 전부 이미 stopPropagation()을 쓰므로, 엔터/스페이스도 카드
+        // 자신을 눌렀을 때만(e.target===e.currentTarget) 반응한다.
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        aria-label={`${item.name} 상세 정보 ${expanded ? '접기' : '펼치기'}`}
+        onKeyDown={(e) => {
+          if (e.target !== e.currentTarget) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleExpanded();
+          }
+        }}
         className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
         <div className="flex items-start gap-4">

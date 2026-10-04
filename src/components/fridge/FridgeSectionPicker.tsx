@@ -108,6 +108,7 @@ export default function FridgeSectionPicker({
       <select
         value={current}
         onChange={(e) => onChange(e.target.value as FridgeSection)}
+        aria-label="보관 위치"
         className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
       >
         {options.map((id) => {

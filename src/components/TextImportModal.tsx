@@ -18,6 +18,7 @@ import { getRemainingDays } from '@/lib/expirySelectors';
 import { todayLocalStr, expiryDateStr, daysBetween, localMidnight } from '@/lib/dateMath';
 import { EXPIRY_LABEL, classifyExpiry } from '@/lib/expiryThresholds';
 import { inferFoodCategory, inferFoodDefaults } from '@/lib/ingredientInference';
+import { useModalA11y } from '@/lib/useModalA11y';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -443,6 +444,7 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
           <span className="text-[10px] text-gray-500 font-medium">구매일</span>
           <input
             type="date"
+            aria-label="구매일"
             value={item.purchaseDate}
             max={todayLocalStr()}
             onChange={(e) => {
@@ -468,6 +470,7 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
               현재 구매일 기준 참고값으로만 같이 갱신한다. */}
           <input
             type="date"
+            aria-label="유통기한"
             min={item.purchaseDate}
             value={expiryDateStr(item)}
             onChange={(e) => {
@@ -1148,11 +1151,23 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
     setError(null);
   }
 
+  // P2-44 — 등록 시트에 role="dialog"/aria-modal이 없어 열려 있는 동안에도
+  // 뒤 화면(마이페이지 탭·백업 버튼 등)이 접근성 트리에 그대로 남았다
+  // (C8 실측). 다른 시트(UpgradeSheet 등)와 같은 useModalA11y로 Esc 닫기·
+  // 스크롤 잠금·포커스 복원을 맞춘다.
+  useModalA11y(onClose);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] px-5 pt-5 pb-8" style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.1)' }}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="상품 정보 등록"
+        className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] px-5 pt-5 pb-8"
+        style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.1)' }}
+      >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200 sm:hidden" />
 
         {step === 'input' ? (

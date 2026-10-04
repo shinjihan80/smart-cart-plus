@@ -761,12 +761,14 @@ export default function ClosetPage() {
               <SlidersHorizontal size={12} strokeWidth={2.5} />
               <span className="text-xs font-medium">{SORT_LABEL[sortBy]}</span>
             </button>
+            {/* P2-44 — 아이콘만 있는 목록/격자 탭 버튼에 접근성 이름이
+                없었다(C8 실측, 냉장고와 동일 패턴). */}
             <div role="tablist" aria-label="보기 방식" className="flex bg-gray-100 rounded-full p-1 shrink-0">
-              <button type="button" role="tab" aria-selected={vm !== 'compact'} onClick={() => setViewMode('list')}
+              <button type="button" role="tab" aria-label="목록 보기" aria-selected={vm !== 'compact'} onClick={() => setViewMode('list')}
                 className={`flex items-center px-2.5 py-1.5 rounded-full transition-colors ${vm !== 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
                 <List size={16} strokeWidth={2.2} />
               </button>
-              <button type="button" role="tab" aria-selected={vm === 'compact'} onClick={() => setViewMode('compact')}
+              <button type="button" role="tab" aria-label="격자 보기" aria-selected={vm === 'compact'} onClick={() => setViewMode('compact')}
                 className={`flex items-center px-2.5 py-1.5 rounded-full transition-colors ${vm === 'compact' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
                 <LayoutGrid size={16} strokeWidth={2.2} />
               </button>
