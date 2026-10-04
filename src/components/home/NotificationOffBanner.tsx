@@ -6,6 +6,7 @@ import { BellOff, X } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { selectExpiring } from '@/lib/expirySelectors';
+import { groupExpiryPhrase } from '@/lib/expiryThresholds';
 import { useToast } from '@/context/ToastContext';
 import { requestPermission } from '@/lib/notificationScheduler';
 import { isNative } from '@/lib/native';
@@ -42,8 +43,12 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
   if (isDismissedToday('noti-off')) return null;
   if (permState === 'checking' || permState === 'unsupported' || permState === 'granted') return null;
 
-  const todayCount = selectExpiring(items).today.length;
+  const todayEntries = selectExpiring(items).today;
+  const todayCount = todayEntries.length;
   if (todayCount === 0) return null;
+  // P0-68(P0-53 재발) — "오늘 임박"을 고정 문구로 썼는데, 'today' 버킷은
+  // 실제로 D-0과 D-1을 함께 묶어 D-1만 있어도 "오늘"이라 말했다.
+  const phrase = groupExpiryPhrase(todayEntries.map((e) => e.dDay));
 
   async function handleEnable() {
     const granted = isNative() ? await requestLocalNotificationPermission() : await requestPermission();
@@ -75,7 +80,7 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
       <div className="flex-1 min-w-0 pr-6">
         <p className="text-sm font-bold text-gray-800">알림이 꺼져 있어요</p>
         <p className="text-sm text-gray-500 mt-0.5">
-          오늘 임박 식품 {todayCount}개를 못 알려드려요.
+          {phrase} 먹어야 할 식품 {todayCount}개를 못 알려드려요.
         </p>
       </div>
       <button

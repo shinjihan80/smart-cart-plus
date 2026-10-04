@@ -3,7 +3,7 @@
 import { isNative } from './index';
 import type { FoodItem } from '@/types';
 import { getRemainingDays } from '@/lib/expirySelectors';
-import { classifyExpiry } from '@/lib/expiryThresholds';
+import { classifyExpiry, expiryLabel } from '@/lib/expiryThresholds';
 
 const SCHEDULED_IDS_KEY = 'nemoa-local-noti-ids';
 
@@ -89,7 +89,8 @@ export async function rescheduleExpiryNotifications(foodItems: readonly FoodItem
       return {
         id:       hashId(item.id),
         title:    dDay <= 0 ? `⏰ "${item.name}" 보관 기한이 지났어요` : `⏰ "${item.name}" 보관 기한이 곧 끝나요`,
-        body:     dDay <= 0 ? '냉장고에서 확인해주세요.' : `D-${dDay} — 오늘 안에 확인해보세요.`,
+        // P0-68(P0-53 재발) — D-1(내일까지)도 "오늘 안에"라고 고정 출력했다.
+        body:     dDay <= 0 ? '냉장고에서 확인해주세요.' : `${expiryLabel(dDay)} 확인해보세요.`,
         schedule: { at: fireAt },
       };
     })

@@ -10,7 +10,7 @@ import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { SEASONAL_PRODUCE, isSeasonalProduce } from '@/lib/seasonalProduce';
 import { josa } from '@/lib/korean';
 import { getDaypart, greetingText } from '@/lib/daypart';
-import { classifyExpiry } from '@/lib/expiryThresholds';
+import { classifyExpiry, expiryLabel, groupExpiryPhrase } from '@/lib/expiryThresholds';
 import { estimateCycles } from '@/lib/purchaseCycle';
 
 export type MessagePriority = 'urgent' | 'insight' | 'gentle';
@@ -83,7 +83,10 @@ export function pickDailyMessage(
       // 섞여 "거짓 긴급성"으로 읽혔다(P1-63, 검토단 C1·C8·전문단 E3
       // 확정 카피안). 경고를 먼저 말하고 제철은 이유로만 종속시킨다.
       emoji:    SEASON_EMOJI[season],
-      text:     `${f.name}, 오늘까지 드세요. 지금이 ${season} 제철이라 맛이 가장 좋아요.`,
+      // P0-68(P0-53 재발) — "오늘까지"를 'today' 버킷 이름 그대로 고정
+      // 출력해, 실제론 D-1(내일까지)인 품목도 "오늘까지"라고 말했다.
+      // f 자신의 dDay로 문구를 만든다.
+      text:     `${f.name}, ${expiryLabel(getRemainingDays(f))} 드세요. 지금이 ${season} 제철이라 맛이 가장 좋아요.`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge?tab=suggest' },
       paletteQuery: f.name,
@@ -93,9 +96,11 @@ export function pickDailyMessage(
   if (expiringToday.length > 0) {
     const firstName = expiringToday[0].name;
     const extra = expiringToday.length > 1 ? ` 외 ${expiringToday.length - 1}개` : '';
+    // P0-68(P0-53 재발) — 집합 문구는 groupExpiryPhrase로만 만든다.
+    const phrase = groupExpiryPhrase(expiringToday.map((f) => getRemainingDays(f)));
     return {
       emoji:    '⚠️',
-      text:     `${josa(`${firstName}${extra}`, '이/가')} 오늘 내로 소비가 필요해요. 레시피로 활용해볼까요?`,
+      text:     `${josa(`${firstName}${extra}`, '이/가')} ${phrase} 소비가 필요해요. 레시피로 활용해볼까요?`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge?tab=suggest' },
       paletteQuery: firstName,

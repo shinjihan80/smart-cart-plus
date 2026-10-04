@@ -59,3 +59,24 @@ export function expiryLabel(dDay: number): string {
   if (dDay === 1) return '내일까지';
   return `${dDay}일 남음`;
 }
+
+/**
+ * 여러 품목(dDay 배열)을 아우르는 집합 문구 — 히어로·알림 배너·푸시
+ * 제목처럼 "이 중 가장 급한 게 언제까지인지"를 한 단어로 말해야 하는
+ * 곳에서 쓴다.
+ *
+ * P0-53(및 재발인 P0-68)의 근본 원인은 이 로직이 UrgentAlert.tsx
+ * 안에만 지역 구현돼 있어 재사용되지 않고, 다른 소비처(히어로·알림
+ * 꺼짐 배너·웹/네이티브 푸시 5곳)는 `EXPIRY_LABEL.today`('today' 버킷
+ * 이름, 실제로는 dDay 0과 1을 함께 묶은 값)를 그대로 "오늘"이라는
+ * 문장으로 썼던 것 — 버킷 이름이 의미와 달라 어디서든 쓰면 틀렸다.
+ * 품목 문장은 반드시 이 함수 또는 `expiryLabel(dDay)`로만 만들고,
+ * `EXPIRY_LABEL.today`를 사용자 문장에 직접 쓰지 않는다.
+ */
+export function groupExpiryPhrase(dDays: number[]): string {
+  if (dDays.length === 0) return '';
+  const maxDay = Math.max(...dDays);
+  if (maxDay === 0) return EXPIRY_LABEL.today;
+  if (dDays.every((d) => d === 1)) return '내일까지';
+  return '오늘·내일';
+}

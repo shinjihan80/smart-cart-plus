@@ -6,6 +6,7 @@ import { ChevronRight, AlertTriangle, X } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { selectExpiring } from '@/lib/expirySelectors';
+import { groupExpiryPhrase } from '@/lib/expiryThresholds';
 import { useToast } from '@/context/ToastContext';
 import { springTransition } from './shared';
 
@@ -27,13 +28,10 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
 
   if (urgent.length === 0) return null;
 
-  // 'today' 버킷은 dDay 0·1을 함께 묶는데(EXPIRY_TODAY_DAYS=1), 헤드라인을
-  // "오늘까지"로 고정해두면 히어로 dedup으로 진짜 D-0 품목이 빠졌을 때 남은
-  // 품목이 전부 D-1인데도 "오늘까지"라고 말하게 된다 — 냉장고 목록에선 같은
-  // 품목이 "1일 남음"으로 나와 모순돼 보인다(P0-53). 실제 남은 집합의 dDay로
-  // 헤드라인을 고른다.
-  const maxDay = Math.max(...urgent.map((u) => u.dDay));
-  const headline = maxDay === 0 ? '오늘까지' : urgent.every((u) => u.dDay === 1) ? '내일까지' : '오늘·내일';
+  // 집합 문구는 groupExpiryPhrase 하나로만 만든다 — 이 로직이 여기 안에만
+  // 지역 구현돼 있던 게 P0-68(P0-53 재발)의 원인이었다: 다른 소비처들은
+  // 이 로직을 몰라 EXPIRY_LABEL.today를 그대로 "오늘"로 썼다.
+  const headline = groupExpiryPhrase(urgent.map((u) => u.dDay));
 
   // X만 누르면 어떤 동작인지 글자 설명이 없고(aria-label만), 다시 보는
   // 방법(설정 > 알림 설정 > "오늘 안 보기")도 안내가 안 돼 영구히 사라진

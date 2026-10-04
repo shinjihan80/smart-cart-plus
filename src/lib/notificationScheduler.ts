@@ -1,7 +1,7 @@
 'use client';
 
 import { getRemainingDays } from '@/lib/expirySelectors';
-import { classifyExpiry } from '@/lib/expiryThresholds';
+import { classifyExpiry, groupExpiryPhrase } from '@/lib/expiryThresholds';
 import type { FoodItem } from '@/types';
 import { addNotificationLogEntry, type NotificationKind } from './notificationLog';
 
@@ -75,10 +75,13 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
   const urgent = foodItems.filter((item) => classifyExpiry(getRemainingDays(item)) === 'today');
   if (urgent.length === 0) return;
 
+  // P0-68(P0-53 재발) — "오늘 소비해야 할"을 고정 문구로 썼는데, 'today'
+  // 버킷은 D-0과 D-1을 함께 묶어 D-1만 있어도 "오늘"이라 보냈다.
+  const phrase = groupExpiryPhrase(urgent.map((i) => getRemainingDays(i)));
   const names = urgent.slice(0, 3).map((i) => i.name).join(', ');
   const more  = urgent.length > 3 ? ` 외 ${urgent.length - 3}개` : '';
   await showNotification(
-    `⏰ 오늘 소비해야 할 식품 ${urgent.length}개`,
+    `⏰ ${phrase} 먹어야 할 식품 ${urgent.length}개`,
     `${names}${more}`,
     'nemoa-expiry',
     'expiry',
