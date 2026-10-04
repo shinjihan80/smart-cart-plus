@@ -15,6 +15,7 @@ import EmojiIcon from '@/components/EmojiIcon';
 import { useBackupStatus, downloadBackup } from '@/lib/backup';
 import { useToast } from '@/context/ToastContext';
 import { usePersistedState } from '@/lib/usePersistedState';
+import { josa } from '@/lib/korean';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import StatsSection                              from '@/components/mypage/StatsSection';
@@ -273,12 +274,19 @@ export default function MyPage() {
                 안내문만 뜬다(P1-50, C4·E1 발견 — 가족 프로필 활성화·유료
                 전환 사다리의 첫 칸이 사실상 비어있던 문제). 그 자리에
                 바로 "가족 추가"로 아래 프로필 관리 폼까지 스크롤한다. */}
+            {/* P1-94 — "프로필 전환"이라는 라벨 때문에 사용자가 "이 사람
+                것만 보기"를 기대했지만(C4 실측), 실제 동작은 isMain(결제·
+                삭제 권한의 기준이 되는 대표 프로필) 재지정뿐이라 홈·냉장고
+                필터·등록 기본 소유자는 전혀 안 바뀐다. 소유자별 보기
+                필터(activeProfileId 신설)는 여러 화면에 걸친 설계 판단이
+                필요해 범위 밖 — 대신 라벨·안내 문구를 동작과 일치하게
+                고쳐 "안 되는 걸 되는 것처럼" 보이지 않게 한다(E1 축소안). */}
             {profiles.length > 1 ? (
               <button
                 onClick={() => setShowSwitcher(true)}
                 className="shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
               >
-                <Users size={12} /> 프로필 전환
+                <Users size={12} /> 대표 프로필 변경
               </button>
             ) : (
               <button
@@ -621,7 +629,10 @@ export default function MyPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
-            <h2 className="text-base font-bold text-gray-900 mb-4">사용자 선택</h2>
+            <h2 className="text-base font-bold text-gray-900 mb-1">대표 프로필 선택</h2>
+            <p className="text-xs text-gray-400 mb-4 leading-relaxed">
+              결제·삭제 권한 등 계정 설정의 기준이 바뀌어요. 냉장고·옷장 화면은 바뀌지 않아요.
+            </p>
             <div className="flex flex-col gap-2">
               {profiles.map((p) => {
                 const isSelected = p.isMain;
@@ -629,7 +640,7 @@ export default function MyPage() {
                 return (
                   <button
                     key={p.id}
-                    onClick={() => { setMain(p.id); setShowSwitcher(false); showToast(`"${p.name}"으로 전환됐어요.`); }}
+                    onClick={() => { setMain(p.id); setShowSwitcher(false); showToast(`${josa(`"${p.name}"`, '이/가')} 대표 프로필이 됐어요.`); }}
                     className={`flex items-center gap-3 w-full px-3 py-3 rounded-2xl transition-colors text-left ${
                       isSelected
                         ? 'bg-brand-primary/8 border border-brand-primary/20'
