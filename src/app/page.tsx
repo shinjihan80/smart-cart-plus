@@ -19,6 +19,7 @@ import SectionHeader   from '@/components/home/SectionHeader';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import UrgentAlert     from '@/components/home/UrgentAlert';
 import NotificationOffBanner from '@/components/home/NotificationOffBanner';
+import TodoEmptyState  from '@/components/home/TodoEmptyState';
 import RebuyAlert      from '@/components/home/RebuyAlert';
 import SeasonChangeAlert from '@/components/home/SeasonChangeAlert';
 import DailyBriefing   from '@/components/home/DailyBriefing';
@@ -152,22 +153,24 @@ export default function HomePage() {
       ) : (
         <div className="px-5 pb-2">
           <SectionHeader title="오늘 할 일" actionHref="/fridge" actionLabel="냉장고">
-            {/* 알림이 꺼진 채 오늘 임박 식품이 있으면 최상단에 — 알림함
-                안으로만 옮겨졌던 "권한 꺼짐" 신호가 정작 알림함에 들어갈
-                이유가 없는 사용자에게 전혀 닿지 않던 문제(P1-61①, C1·
-                C4·C9 3인 독립 지적 + E1 "리텐션 관점 단일 최대 누수 지점"). */}
-            <SectionErrorBoundary label="알림 꺼짐 안내">
-              <NotificationOffBanner items={items} />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="임박 식품">
-              <UrgentAlert items={items} />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="재구매 알림">
-              <RebuyAlert items={items} />
-            </SectionErrorBoundary>
-            <SectionErrorBoundary label="시즌 옷장 정리">
-              <SeasonChangeAlert items={items} />
-            </SectionErrorBoundary>
+            <TodoEmptyState>
+              {/* 알림이 꺼진 채 오늘 임박 식품이 있으면 최상단에 — 알림함
+                  안으로만 옮겨졌던 "권한 꺼짐" 신호가 정작 알림함에 들어갈
+                  이유가 없는 사용자에게 전혀 닿지 않던 문제(P1-61①, C1·
+                  C4·C9 3인 독립 지적 + E1 "리텐션 관점 단일 최대 누수 지점"). */}
+              <SectionErrorBoundary label="알림 꺼짐 안내">
+                <NotificationOffBanner items={items} />
+              </SectionErrorBoundary>
+              <SectionErrorBoundary label="임박 식품">
+                <UrgentAlert items={items} />
+              </SectionErrorBoundary>
+              <SectionErrorBoundary label="재구매 알림">
+                <RebuyAlert items={items} />
+              </SectionErrorBoundary>
+              <SectionErrorBoundary label="시즌 옷장 정리">
+                <SeasonChangeAlert items={items} />
+              </SectionErrorBoundary>
+            </TodoEmptyState>
           </SectionHeader>
         </div>
       )}
