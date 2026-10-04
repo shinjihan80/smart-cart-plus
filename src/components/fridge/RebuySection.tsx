@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
 import EmojiIcon from '@/components/EmojiIcon';
+import { sameFoodProduct } from '@/lib/ingredientInference';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface RebuySectionProps {
@@ -14,9 +15,12 @@ interface RebuySectionProps {
 
 export default function RebuySection({ history, currentNames, onQuickAdd }: RebuySectionProps) {
   // 소진된 식품 중 현재 보유하지 않은 것만 추천
+  // P1-93 재검토(C4) — 완전일치만 피하고 이 위치를 놓쳤다. "서울우유 1L"를
+  // 다 먹고 "상하목장 우유 900ml"를 사도 다른 이름이라 계속 재구매를
+  // 권했다 — 핵심 키워드 기준 비교로 전환(다른 5곳과 동일 패턴).
   const suggestions = history
     .filter((h) => h.category === '식품')
-    .filter((h) => !currentNames.includes(h.name))
+    .filter((h) => !currentNames.some((n) => sameFoodProduct(n, h.name)))
     .filter((h, i, arr) => arr.findIndex((a) => a.name === h.name) === i)
     .slice(0, 5);
 
