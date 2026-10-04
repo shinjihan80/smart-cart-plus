@@ -197,7 +197,9 @@ export default function SettingsPage() {
                 ? '브라우저 캐시가 비면 데이터가 사라질 수 있어요. 지금 백업해두세요.'
                 : '다운로드 폴더에서 백업 파일을 확인해보세요.'}
             </p>
-            <p className="text-xs text-gray-400 mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
+            {/* P2-43 — 개인정보 경고문이 text-gray-400(대비 ~2.4:1)로
+                카드에서 가장 안 보이는 글씨였다(C8·E3 실측). */}
+            <p className="text-[13px] font-medium text-caution mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
           </div>
           <button
             onClick={handleBackupNow}

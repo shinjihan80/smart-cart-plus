@@ -325,7 +325,11 @@ export default function MyPage() {
                   실측) — "수"와 "있어요" 사이를 줄바꿈 없는 공백( )
                   으로 묶어 항상 한 줄에 붙어 있게 한다. */}
               <p className="text-sm text-gray-500 mt-0.5 break-keep">백업 파일 하나면 기기를 바꿔도 그대로 옮길 수{' '}있어요.</p>
-              <p className="text-xs text-gray-400 mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
+              {/* P2-43 — 개인정보(가족 이름·신체 정보)가 그대로 담긴다는
+                  경고문이 text-gray-400(대비 ~2.4:1)로 카드에서 가장 안
+                  보이는 글씨였다(C8·E3 실측) — 위 안내 문구들보다 더
+                  진하게 바꿔 위계를 바로잡는다. */}
+              <p className="text-[13px] font-medium text-caution mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
             </div>
             <button
               onClick={handleBackupNow}
