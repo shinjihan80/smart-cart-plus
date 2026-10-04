@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { CartItem, isFoodItem, isClothingItem, ClothingItem } from '@/types';
 import { loggedFetch, agentIdFromEndpoint } from '@/lib/agentLogger';
@@ -581,6 +581,18 @@ function StepConfirm({
 
   // 펼친 아이템 id 추적 — 한 번에 하나만
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // P1-96③ — 카드 목록이 max-h-[60vh] overflow-y-auto 스크롤 영역이라,
+  // 카드를 펼쳐 목록 전체 높이가 늘어나도 scrollTop은 그대로라 방금 편집
+  // 연 카드나 그 아래 카드의 보관일수 칩 줄이 스크롤 경계에 반쯤 잘린
+  // 채로 남았다(C4 실측 — "저장 전 보관기한을 확인하는 유일한 화면인데
+  // 숫자가 안 보여 결국 확인 없이 저장"). 펼친 카드를 자동으로 보이는
+  // 위치까지 스크롤해 항상 전체가 보이게 한다.
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  useEffect(() => {
+    if (!expandedId) return;
+    const el = cardRefs.current.get(expandedId);
+    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [expandedId]);
 
   // 직접입력에서 카테고리/보관법/보관기한을 사용자가 손댄 아이템 — 한 번
   // 손대면 이름을 계속 고쳐도 그 값을 재추론으로 덮어쓰지 않는다(P0-54).
@@ -785,14 +797,30 @@ function StepConfirm({
         )}
       </div>
 
-      <div className="flex flex-col gap-y-2 max-h-[60vh] overflow-y-auto pr-0.5">
+      <div className="flex flex-col gap-y-2 max-h-[60vh] overflow-y-auto pr-0.5 snap-y snap-proximity">
         {items.map((item) => {
           const Icon = isFoodItem(item)
             ? (FOOD_ICON[(item as import('@/types').FoodItem).foodCategory] ?? FOOD_ICON['기타 식품'])
             : (FASHION_ICON[(item as ClothingItem).category] ?? FASHION_ICON['기타 액세서리']);
           const isExpanded = expandedId === item.id;
           return (
-            <div key={item.id} className="rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden">
+            <div
+              key={item.id}
+              ref={(el) => {
+                if (el) cardRefs.current.set(item.id, el);
+                else cardRefs.current.delete(item.id);
+              }}
+              // shrink-0 — 부모가 flex-col + overflow-y-auto라, 플렉스박스
+              // 스펙상 overflow가 visible이 아닌 flex 컨테이너의 자식은
+              // "콘텐츠 기준 자동 최소 높이"가 0으로 바뀌어 카드가 자기
+              // 내용(이미지+이름+칩 줄)보다 작게 짜부러들 수 있다 — 짜부러든
+              // 높이를 카드의 overflow-hidden이 그대로 잘라, 칩 줄이
+              // 카드 하단 경계에서 반쯤 잘려 보였다(P1-96③, C4 실측 라이브
+              // 재현 — mock 5개 카드로 모든 카드의 보관일수 칩이 잘림을
+              // 확인). shrink-0로 카드가 항상 콘텐츠 높이를 유지하게 하고,
+              // 넘치는 건 부모의 overflow-y-auto가 스크롤로 처리하게 한다.
+              className="rounded-2xl border border-gray-100 bg-gray-50 overflow-hidden shrink-0 snap-start"
+            >
               <div className="px-3 py-3 flex items-start gap-3">
                 {/* 이미지 영역 */}
                 <button
