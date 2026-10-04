@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { selectExpiring } from '@/lib/expirySelectors';
@@ -52,12 +52,21 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
-      <Link href="/fridge" className="block">
-        <div className="bg-brand-warning/10 border border-brand-warning/20 rounded-[24px] px-4 py-3 flex items-center gap-3 hover:bg-brand-warning/15 transition-colors">
+      {/* ✕ 히트 영역을 의사요소(::after inset)로 키우자 바로 옆 ›가
+          덮여 "들어가 보기"를 누르면 배너가 숨겨지는 오동작이 났다
+          (P1-88, C8 실측 — 오늘 가장 급한 알림을 놓침). ›는 카드 전체가
+          이미 Link라 중복 신호였으므로 제거하고, ✕는 flex 형제 칼럼으로
+          분리해 실제 44px 폭 레이아웃 공간을 갖게 한다 — 겹침이 구조적으로
+          불가능해진다(의사요소 확장 불필요). */}
+      <div className="bg-brand-warning/10 border border-brand-warning/20 rounded-[24px] flex items-stretch overflow-hidden">
+        <Link
+          href="/fridge"
+          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-brand-warning/15 transition-colors"
+        >
           <span className="w-9 h-9 rounded-xl bg-brand-warning/15 flex items-center justify-center shrink-0">
             <AlertTriangle size={18} strokeWidth={2.2} className="text-brand-warning" />
           </span>
-          <div className="flex-1 min-w-0 pr-6">
+          <div className="flex-1 min-w-0">
             {/* 헤드라인은 본문 줄(바로 아래, text-sm)보다 작으면 안 된다 —
                 본문을 text-sm으로 올린 과거 수정(C1·C4, 오늘 당장 처리할
                 유일한 항목이라 홈에서 가장 작은 글자가 되면 안 됨)이 정작
@@ -71,17 +80,16 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
               {urgent.map((u) => u.name).join(', ')}
             </p>
           </div>
-          <ChevronRight size={14} className="text-brand-warning/50 shrink-0" />
-        </div>
-      </Link>
-      <button
-        onClick={handleDismiss}
-        aria-label="임박 식품 알림 오늘 안 보기"
-        title="오늘 안 보기"
-        className="touch-target-44 absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-brand-warning/60 hover:text-brand-warning hover:bg-brand-warning/15 transition-colors"
-      >
-        <X size={12} strokeWidth={2.4} />
-      </button>
+        </Link>
+        <button
+          onClick={handleDismiss}
+          aria-label="임박 식품 알림 오늘 안 보기"
+          title="오늘 안 보기"
+          className="w-11 shrink-0 flex items-center justify-center text-brand-warning/60 hover:text-brand-warning hover:bg-brand-warning/15 transition-colors"
+        >
+          <X size={14} strokeWidth={2.4} />
+        </button>
+      </div>
     </motion.div>
   );
 }

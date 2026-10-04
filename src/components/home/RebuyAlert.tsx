@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, RotateCcw, X } from 'lucide-react';
+import { RotateCcw, X } from 'lucide-react';
 import { isFoodItem, type CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { estimateCycles } from '@/lib/purchaseCycle';
@@ -62,12 +62,18 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
-      <Link href="/mypage?tab=shopping" className="block">
-        <div className="bg-amber-50 border border-amber-100 rounded-[24px] px-4 py-3 flex items-center gap-3 hover:bg-amber-100/80 transition-colors">
+      {/* P1-88 — UrgentAlert와 동일한 수정: ›는 카드 전체가 이미 Link라
+          중복이라 제거, ✕는 flex 형제 칼럼으로 분리해 실제 44px 레이아웃
+          공간을 갖게 해 의사요소 확장 겹침 자체를 없앤다. */}
+      <div className="bg-amber-50 border border-amber-100 rounded-[24px] flex items-stretch overflow-hidden">
+        <Link
+          href="/mypage?tab=shopping"
+          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-amber-100/80 transition-colors"
+        >
           <span className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
             <RotateCcw size={18} strokeWidth={2.2} className="text-amber-700" />
           </span>
-          <div className="flex-1 min-w-0 pr-6">
+          <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-amber-700">
               {dueSoon.length}개 식품 곧 떨어질 때
               {overdueCount > 0 && (
@@ -81,17 +87,16 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
               {dueSoon.length > 3 && ` 외 ${dueSoon.length - 3}개`}
             </p>
           </div>
-          <ChevronRight size={16} strokeWidth={2.2} className="text-amber-700 shrink-0" />
-        </div>
-      </Link>
-      <button
-        onClick={handleDismiss}
-        aria-label="오늘 안 보기"
-        title="오늘 안 보기"
-        className="touch-target-44 absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-amber-700/60 hover:text-amber-900 hover:bg-amber-100/80 transition-colors"
-      >
-        <X size={12} strokeWidth={2.4} />
-      </button>
+        </Link>
+        <button
+          onClick={handleDismiss}
+          aria-label="오늘 안 보기"
+          title="오늘 안 보기"
+          className="w-11 shrink-0 flex items-center justify-center text-amber-700/60 hover:text-amber-900 hover:bg-amber-100/80 transition-colors"
+        >
+          <X size={14} strokeWidth={2.4} />
+        </button>
+      </div>
     </motion.div>
   );
 }

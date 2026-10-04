@@ -72,30 +72,37 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={springTransition}
-      className="relative bg-gray-900/5 border border-gray-900/10 rounded-[24px] px-4 py-3 flex items-center gap-3"
+      className="relative bg-gray-900/5 border border-gray-900/10 rounded-[24px] flex items-stretch overflow-hidden"
     >
-      <span className="w-9 h-9 rounded-xl bg-gray-900/10 flex items-center justify-center shrink-0">
-        <BellOff size={18} strokeWidth={2.2} className="text-gray-600" />
-      </span>
-      <div className="flex-1 min-w-0 pr-6">
-        <p className="text-sm font-bold text-gray-800">알림이 꺼져 있어요</p>
-        <p className="text-sm text-gray-500 mt-0.5">
-          {phrase} 먹어야 할 식품 {todayCount}개를 못 알려드려요.
-        </p>
+      {/* P1-88 — ✕를 absolute로 띄워 히트존만 키우자(touch-target-44)
+          "켜기" 버튼 상단 21%를 덮어, 알림을 켜려던 탭이 안내를 하루
+          숨기는 오동작이 났다(E2 실측). ✕를 다른 홈 배너와 같은 패턴
+          (flex 형제, 실제 44px 폭 칼럼)으로 분리해 겹침 자체를 없앤다 —
+          "켜기"는 그대로 본문 flex 행 안에 남는다. */}
+      <div className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3">
+        <span className="w-9 h-9 rounded-xl bg-gray-900/10 flex items-center justify-center shrink-0">
+          <BellOff size={18} strokeWidth={2.2} className="text-gray-600" />
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-gray-800">알림이 꺼져 있어요</p>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {phrase} 먹어야 할 식품 {todayCount}개를 못 알려드려요.
+          </p>
+        </div>
+        <button
+          onClick={handleEnable}
+          className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
+        >
+          켜기
+        </button>
       </div>
-      <button
-        onClick={handleEnable}
-        className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
-      >
-        켜기
-      </button>
       <button
         onClick={handleDismiss}
         aria-label="알림 꺼짐 안내 오늘 안 보기"
         title="오늘 안 보기"
-        className="touch-target-44 absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-900/10 transition-colors"
+        className="w-11 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-900/10 transition-colors"
       >
-        <X size={12} strokeWidth={2.4} />
+        <X size={14} strokeWidth={2.4} />
       </button>
     </motion.div>
   );

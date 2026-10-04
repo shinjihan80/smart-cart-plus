@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, Wind, X } from 'lucide-react';
+import { Wind, X } from 'lucide-react';
 import { isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
@@ -87,33 +87,38 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
-      <Link href="/mypage?tab=activity#seasonal" className="block">
-        <div className="bg-brand-primary/8 border border-brand-primary/15 rounded-[24px] px-4 py-3 flex items-center gap-3 hover:bg-brand-primary/10 transition-colors">
+      {/* P1-88 — 다른 홈 배너와 동일한 수정: ›는 카드 전체가 이미 Link라
+          중복이라 제거, ✕는 flex 형제 칼럼으로 분리해 실제 44px 레이아웃
+          공간을 갖게 해 의사요소 확장 겹침 자체를 없앤다. */}
+      <div className="bg-brand-primary/8 border border-brand-primary/15 rounded-[24px] flex items-stretch overflow-hidden">
+        <Link
+          href="/mypage?tab=activity#seasonal"
+          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-brand-primary/10 transition-colors"
+        >
           <span className="w-9 h-9 rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0 text-lg">
             {SEASON_EMOJI[season] ?? '🍃'}
           </span>
-          <div className="flex-1 min-w-0 pr-6">
+          <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-brand-primary">
               {season} 옷장 정리 시즌
             </p>
             {/* 총 개수(total)는 위 제목과 겹쳐 여기선 다시 안 쓴다 — 카드 전체가
-                이미 Link+chevron이라 "· 정리하기" 같은 동사 유도 문구도 중복 */}
+                이미 Link라 "· 정리하기" 같은 동사 유도 문구도 중복 */}
             <p className="text-xs text-gray-600 mt-0.5 flex items-center gap-1 min-w-0">
               <Wind size={11} strokeWidth={2} className="shrink-0" />
               <span className="truncate min-w-0">{message}</span>
             </p>
           </div>
-          <ChevronRight size={16} strokeWidth={2.2} className="text-brand-primary shrink-0" />
-        </div>
-      </Link>
-      <button
-        onClick={handleDismiss}
-        aria-label={`${season} 알림 오늘 안 보기`}
-        title="오늘 안 보기"
-        className="touch-target-44 absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-brand-primary/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
-      >
-        <X size={12} strokeWidth={2.4} />
-      </button>
+        </Link>
+        <button
+          onClick={handleDismiss}
+          aria-label={`${season} 알림 오늘 안 보기`}
+          title="오늘 안 보기"
+          className="w-11 shrink-0 flex items-center justify-center text-brand-primary/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
+        >
+          <X size={14} strokeWidth={2.4} />
+        </button>
+      </div>
     </motion.div>
   );
 }
