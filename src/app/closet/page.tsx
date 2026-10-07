@@ -888,7 +888,8 @@ export default function ClosetPage() {
                               <span className="text-3xl" aria-hidden>{tone.emoji}</span>
                             )}
                           </div>
-                          <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                          {/* P1-97 — fridge/page.tsx 격자뷰와 같은 쌍둥이 패턴. */}
+                          <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 line-clamp-2 break-keep">{item.name}</p>
                         </button>
                       );
                     })}
@@ -912,7 +913,7 @@ export default function ClosetPage() {
                       <span className="text-3xl" aria-hidden>{tone.emoji}</span>
                     )}
                   </div>
-                  <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 truncate">{item.name}</p>
+                  <p className="text-xs font-semibold text-gray-800 px-2 pt-1.5 pb-2 line-clamp-2 break-keep">{item.name}</p>
                 </button>
               );
             })}

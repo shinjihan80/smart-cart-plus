@@ -105,7 +105,12 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 }}
                 aria-label={item.imageUrl ? `${item.name} 사진 변경` : `${item.name} 사진 추가`}
                 title={item.imageUrl ? '탭해서 사진 변경' : '탭해서 사진 추가'}
-                className={`relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
+                // P1-97 — SwipeFoodCard와 같은 구조라 같은 문제를 똑같이
+                // 겪는다(E1·E2 "쌍둥이 파일 누락" 패턴, F4/P1-92에서
+                // 검증된 수정을 그대로 재적용). w-24(6rem 고정)가 OS
+                // 텍스트 확대에 함께 커지며 이름 칸을 잠식하던 것을
+                // rem 비율 상한(36%)으로 제동.
+                className={`relative shrink-0 w-[min(6rem,36%)] aspect-square rounded-2xl overflow-hidden flex items-center justify-center ${tone.bg} hover:ring-2 hover:ring-brand-primary/30 active:scale-95 transition-all`}
               >
                 {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -125,8 +130,8 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
 
           <div className="flex-1 min-w-0">
             {/* 제목 줄: 제품명 | 사이즈 | 펼침 화살표 */}
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <p className="text-[15px] font-bold text-brand-ink truncate flex-1 leading-snug">{item.name}</p>
+            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap gap-y-1">
+              <p className="text-[15px] font-bold text-brand-ink line-clamp-2 break-keep flex-1 min-w-[5em] leading-snug">{item.name}</p>
               <div className="flex items-center gap-1.5 shrink-0">
                 <p className={`text-sm font-bold tabular-nums ${daysAgo !== null && daysAgo > 30 ? 'text-brand-warning' : 'text-gray-400'}`}>
                   {item.size}
