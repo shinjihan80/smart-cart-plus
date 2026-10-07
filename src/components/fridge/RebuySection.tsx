@@ -53,7 +53,10 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
       </div>
       <div className="mt-2 pt-2 border-t border-gray-50 flex items-center gap-1.5 flex-wrap">
         <span className="text-sm text-gray-400">쇼핑몰 연결:</span>
-        <PartnerChip partner={PARTNERS.quick_mart} />
+        {/* P1-99 — 존재하지 않는 키 PARTNERS.quick_mart를 참조해 칩이
+            하나도 안 그려지고 "쇼핑몰 연결:" 뒤가 항상 빈 칸이었다
+            (C9 실측, 고장난 것처럼 보임). 실제 식품 파트너 키로 교체. */}
+        <PartnerChip partner={PARTNERS.coupang} />
       </div>
     </motion.div>
     </>
