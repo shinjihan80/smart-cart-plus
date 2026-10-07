@@ -56,7 +56,9 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
       setPermState('granted');
       showToast('알림이 켜졌어요.');
     } else {
-      showToast('알림 권한이 거부됐어요. 휴대폰 설정에서 변경해주세요.');
+      // P1-100 — 웹에서도 "휴대폰 설정에서"라고 안내해 브라우저 탭에서는
+      // 따라갈 곳이 없었다(C1·C9 실측).
+      showToast(isNative() ? '알림 권한이 거부됐어요. 휴대폰 설정에서 변경해주세요.' : '알림 권한이 거부됐어요. 주소창의 자물쇠 아이콘에서 변경해주세요.');
     }
   }
 

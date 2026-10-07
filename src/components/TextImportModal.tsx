@@ -121,7 +121,7 @@ function TabBar({ active, onChange, isPro }: {
 }
 
 // ── Pro 잠금 안내 (사진·URL 탭 — 무료 사용자) ────────────────────────────────
-function ProLockedTab({ feature }: { feature: string }) {
+function ProLockedTab({ feature, onClose }: { feature: string; onClose: () => void }) {
   return (
     <div className="flex flex-col items-center gap-3 py-10 text-center">
       <div className="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center">
@@ -131,8 +131,14 @@ function ProLockedTab({ feature }: { feature: string }) {
         <p className="text-sm font-bold text-gray-900">{feature}</p>
         <p className="text-xs text-gray-400 mt-1">Pro Lite 이상 플랜에서 이용할 수 있어요</p>
       </div>
+      {/* P1-100 — 예전엔 href="/settings"로 보냈는데 그 화면엔 요금제
+          비교가 없다("무료 요금제는 이 기기에만 저장돼요" 한 줄뿐) —
+          실제 요금 비교(ProPreviewCard)는 /mypage에 있다(C9 실측).
+          또한 Link만으로는 이 시트가 열린 채 그대로 남아 새 화면을
+          반쯤 덮었다 — 이동 전에 시트부터 닫는다. */}
       <Link
-        href="/settings"
+        href="/mypage?tab=profile"
+        onClick={onClose}
         className="text-xs font-semibold px-4 py-2 rounded-full bg-brand-primary text-white hover:opacity-90"
       >
         플랜 업그레이드 →
@@ -1211,7 +1217,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
             {activeTab === 'url' && (
               isPro
                 ? <UrlTab url={url} setUrl={setUrl} loading={loading} onSubmit={handleAnalyze} />
-                : <ProLockedTab feature="URL 분석 (AI)" />
+                : <ProLockedTab feature="URL 분석 (AI)" onClose={onClose} />
             )}
 
             {error && <p className="mt-2 text-xs text-red-500 font-medium">{error}</p>}

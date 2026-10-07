@@ -66,7 +66,10 @@ export default function NotificationSettings() {
   async function handlePermRequest() {
     const granted = isNative() ? await requestLocalNotificationPermission() : await requestPermission();
     setPermState(granted ? 'granted' : 'denied');
-    showToast(granted ? '알림 권한이 허용됐어요.' : '알림 권한이 거부됐어요. 휴대폰 설정에서 변경해주세요.');
+    // P1-100 — 웹에서 "휴대폰 설정에서 변경해주세요"라고 안내해도 브라우저
+    // 탭이라 휴대폰 앱 목록에 NEMOA가 없어 똑같이 막혔다(C1·C9 각자 독립
+    // 실측). 웹은 브라우저 자체 설정으로 안내.
+    showToast(granted ? '알림 권한이 허용됐어요.' : (isNative() ? '알림 권한이 거부됐어요. 휴대폰 설정에서 변경해주세요.' : '알림 권한이 거부됐어요. 주소창의 자물쇠 아이콘에서 변경해주세요.'));
   }
 
   function toggle(key: NotiKey) {
@@ -125,7 +128,19 @@ export default function NotificationSettings() {
       {permState === 'denied' && (
         <div className="mb-3 p-2.5 rounded-2xl bg-brand-warning/5 border border-brand-warning/15">
           <p className="text-xs text-brand-warning font-semibold">알림이 차단됐어요</p>
-          <p className="text-xs text-gray-400 mt-0.5">휴대폰 설정 → 앱 → NEMOA → 알림에서 허용으로 바꿔주세요.</p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {isNative()
+              ? '휴대폰 설정 → 앱 → NEMOA → 알림에서 허용으로 바꿔주세요.'
+              : '주소창 왼쪽 자물쇠(또는 ⓘ) 아이콘 → 알림에서 허용으로 바꿔주세요.'}
+          </p>
+          {/* P1-100 — 바로 아래 알림 종류 스위치들이 전부 "켜짐"으로
+              보여, "차단됐다"는 말과 "켜져 있다"는 말이 동시에 떠
+              모순처럼 읽혔다(C1·C9 실측). 스위치는 "어떤 알림을
+              원하는지"(선호도)이고 권한과는 별개 차원이라는 걸 한
+              줄로 연결. */}
+          <p className="text-xs text-gray-400 mt-1.5 pt-1.5 border-t border-brand-warning/10">
+            아래 스위치는 &ldquo;어떤 알림을 받고 싶은지&rdquo; 설정이에요 — 켜져 있어도 위 권한이 차단된 동안은 오지 않아요.
+          </p>
         </div>
       )}
 
