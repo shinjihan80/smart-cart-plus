@@ -85,6 +85,99 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
   const season  = currentSeasonByMonth();
   const inSeason = isSeasonalProduce(item.name, season);
 
+  // P2-50 — 제목·D배지·날짜·진행바·영양정보를 !hideToggle이면 <button>
+  // 안에, hideToggle이면 비인터랙티브 <div> 안에 똑같이 보여준다(아래).
+  // 컴포넌트를 새로 정의하는 대신 JSX 변수로 한 번만 만들어 두 분기가
+  // 복붙(F1·P1-97이 겪은 "쌍둥이 파일 누락"과 같은 위험)되지 않게 한다.
+  // <button> 내부는 phrasing content만 허용돼 <p> 대신 <span className="block">을 쓴다.
+  const cardBody = (
+    <>
+      {/* 제목 줄: 제품명 | D-Day | 펼침 화살표 */}
+      <div className="flex items-center justify-between gap-2 mb-2 flex-wrap gap-y-1">
+        {/* truncate(1줄 고정폭 컷)는 150%/375px 같은 좁은 환경에서 이름이
+            통째로 사라지는(빈칸+말줄임만 보임) 사고를 냈다(P1-92, C1·C8
+            5회 반복 지적). line-clamp-2만으로는 안 됐다 — overflow:hidden이
+            flex 자식의 자동 최소폭을 0으로 풀어버려, 사진·여백이 글자와
+            함께 커지는 150%에서 이름 칸 자체가 0px까지 줄었다(E2 실측
+            재확인). min-w로 바닥을 깔고, 제목 줄 자체도 줄바꿈을 허용해
+            D배지가 같이 밀려도 안 잘리게 한다. */}
+        <span className="block text-[15px] font-bold text-brand-ink line-clamp-2 break-keep flex-1 min-w-[5em] leading-snug">{item.name}</span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className={`block text-sm font-bold tabular-nums ${urgencyTextColor || 'text-gray-500'}`}>
+            {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
+          </span>
+          {!hideToggle && (
+            <ChevronDown
+              size={15}
+              strokeWidth={2.4}
+              className={`text-gray-300 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+            />
+          )}
+        </div>
+      </div>
+
+      {item.memo && <span className="block text-xs text-gray-400 truncate mb-2">{item.memo}</span>}
+
+      {/* 핵심 정보: 만료일 — 한 줄 (펼치면 구매일도 자세히)
+          예전엔 구매일(purchaseDate)을 라벨 없이 📅로만 보여줘 만료일로
+          오인됐다(P0-52) — "09/20 · 3일 남음"처럼 산술이 안 맞아 보여
+          D-day 전체를 못 믿게 만들었다(검토단 C1·C9·C8 독립 발견).
+          이 줄에서 실제로 궁금한 값(언제까지 먹어야 하는가)을 보여준다.
+          연도를 매번 지우면(구 slice(5)) baseShelfLifeDays가 1년을
+          넘는 품목(간장 730일 등)이 "07/27까지"처럼 이미 지난 날짜로
+          읽혔다(P0-55, 검토단 C4·C9 독립 발견) — expiryDateLabel()이
+          해가 바뀔 때만 연도를 붙인다. dDay<0(기한 지남)일 때도
+          "지남"을 붙여 무라벨 맨 날짜로 되돌아가지 않게 한다.
+          shelfLifeSource가 'user'가 아니면(등록 시 기본값/이름
+          추론값 그대로) 이 날짜는 앱의 추정이라 "쯤까지"로 톤을
+          낮춘다 — 사용자가 포장지 날짜로 확정하면 "까지"로
+          바뀐다(P0-33, 전문단 E1 설계). */}
+      {/* 날짜줄 색 — 카드에서 가장 중요한 정보(언제까지 먹어야
+          하는가)인데 gray-400(2.54:1)이라 WCAG AA(4.5:1) 미달,
+          부차정보인 제품명(15.5:1)보다 훨씬 안 보여 위계가
+          거꾸로였다(P1-70, C8·E3 실측). gray-500(4.83:1)로 상향.
+          긴급 빨강도 텍스트용(#DC2626, 4.83:1)과 배경·바용
+          (brand-warning #EF4444, 비텍스트라 대비 기준 다름)을
+          분리 — 전체 brand-warning 토큰 재정의(66곳, P1-69)는
+          범위 밖이라 이 카드의 텍스트 2곳만 스코프로 고정. */}
+      <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-3">
+        <span>
+          🗓 {expiryDateLabel(item)}
+          {dDay >= 0 ? (item.shelfLifeSource === 'user' ? '까지' : '쯤까지') : ' 지남'}
+        </span>
+        <span className="text-gray-200">·</span>
+        <span className={urgencyTextColor ? `${urgencyTextColor} font-medium` : ''}>
+          {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}
+        </span>
+      </div>
+
+      {/* 급함 게이지 — dDay 7일 이상이면 숨김(급할 게 없음) */}
+      {urgencyFill > 0 && (
+        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${urgencyBarColor}`}
+            style={{ width: `${urgencyFill * 100}%` }}
+          />
+        </div>
+      )}
+
+      {/* 칼로리·영양소 — 한 줄 (펼치면 자세히) */}
+      {item.nutritionFacts ? (
+        <span className="block text-xs text-gray-500 tabular-nums mt-2.5">
+          🔥 <span className="font-semibold">{item.nutritionFacts.calories}</span>kcal
+          <span className="text-gray-300"> · </span>
+          단 {item.nutritionFacts.protein}g
+          <span className="text-gray-300"> · </span>
+          지 {item.nutritionFacts.fat}g
+          <span className="text-gray-300"> · </span>
+          탄 {item.nutritionFacts.carbs}g
+        </span>
+      ) : (
+        <span className="block text-[11px] text-gray-300 mt-2.5">영양 정보 없음</span>
+      )}
+    </>
+  );
+
   return (
     <motion.div
       layout
@@ -96,25 +189,15 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
     >
       <div
         style={{ backgroundColor: 'rgb(255,255,255)', ...CARD_SHADOW }}
-        onClick={toggleExpanded}
-        // P2-44 — 클릭 핸들러만 있는 div라 키보드·스크린리더로는 펼칠
-        // 방법이 없어 "다 먹었어요"·"정보 수정"에 닿지 못했다(C8 실측).
-        // 자식에 버튼·입력칸이 중첩돼 있어 카드 전체를 <button>으로
-        // 바꾸면 안 돼 role="button"+tabIndex로 전환 — 자식 클릭은
-        // 전부 이미 stopPropagation()을 쓰므로, 엔터/스페이스도 카드
-        // 자신을 눌렀을 때만(e.target===e.currentTarget) 반응한다.
-        role="button"
-        tabIndex={0}
-        aria-expanded={expanded}
-        aria-label={`${item.name} 상세 정보 ${expanded ? '접기' : '펼치기'}`}
-        onKeyDown={(e) => {
-          if (e.target !== e.currentTarget) return;
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleExpanded();
-          }
-        }}
-        className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
+        // P2-50 재검토(E2) — 카드 전체를 role="button"으로 감싼 채 그
+        // 안에 "레시피"·"정보 수정"·"다 먹었어요" 같은 실제 버튼을
+        // 중첩시킨 P2-44 수정이 axe nested-interactive(WCAG 4.1.2)
+        // 위반이었다 — aria-label이 카드 내용을 덮어써 D-day·날짜가
+        // 안 읽히고, hideToggle(항상 펼침 바텀시트) 모드에선 Enter가
+        // 시트를 닫아버리는 버그도 있었다. 카드 레벨 클릭/role/tabIndex를
+        // 전부 빼고, 토글이 실제로 필요한 "본문" 열만 진짜 <button>으로
+        // 감싼다(아래) — 내용에서 접근성 이름이 자동으로 생성된다.
+        className="rounded-[32px] border border-gray-50 p-5 flex flex-col"
       >
         <div className="flex items-start gap-4">
           {/* 좌측: 큰 사진 — 탭하면 변경/추가. 사진이 배경처럼 영역 꽉 채움. */}
@@ -162,93 +245,26 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
             );
           })()}
 
-          {/* 본문: 제목 + 메타 + 진행바 */}
-          <div className="flex-1 min-w-0">
-            {/* 제목 줄: 제품명 | D-Day | 펼침 화살표 */}
-            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap gap-y-1">
-              {/* truncate(1줄 고정폭 컷)는 150%/375px 같은 좁은 환경에서 이름이
-                  통째로 사라지는(빈칸+말줄임만 보임) 사고를 냈다(P1-92, C1·C8
-                  5회 반복 지적). line-clamp-2만으로는 안 됐다 — overflow:hidden이
-                  flex 자식의 자동 최소폭을 0으로 풀어버려, 사진·여백이 글자와
-                  함께 커지는 150%에서 이름 칸 자체가 0px까지 줄었다(E2 실측
-                  재확인). min-w로 바닥을 깔고, 제목 줄 자체도 줄바꿈을 허용해
-                  D배지가 같이 밀려도 안 잘리게 한다. */}
-              <p className="text-[15px] font-bold text-brand-ink line-clamp-2 break-keep flex-1 min-w-[5em] leading-snug">{item.name}</p>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <p className={`text-sm font-bold tabular-nums ${urgencyTextColor || 'text-gray-500'}`}>
-                  {dDay < 0 ? EXPIRY_LABEL.over : `D-${dDay}`}
-                </p>
-                {!hideToggle && (
-                  <ChevronDown
-                    size={15}
-                    strokeWidth={2.4}
-                    className={`text-gray-300 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-                  />
-                )}
-              </div>
+          {/* 본문: 제목 + 메타 + 진행바 — hideToggle이 아니면 진짜
+              <button>으로 감싸 키보드·스크린리더가 펼침 토글에 닿게
+              한다(P2-50). 자식은 전부 phrasing content여야 해서
+              <p>를 <span className="block">로 바꿨다. hideToggle(바텀
+              시트, 항상 펼침)일 땐 토글할 게 없어 비인터랙티브 div로 둔다 —
+              전에는 이 경우에도 Enter가 토글을 호출해 시트를 닫아버렸다. */}
+          {!hideToggle ? (
+            <button
+              type="button"
+              onClick={toggleExpanded}
+              aria-expanded={expanded}
+              className="flex-1 min-w-0 text-left"
+            >
+              {cardBody}
+            </button>
+          ) : (
+            <div className="flex-1 min-w-0">
+              {cardBody}
             </div>
-
-            {item.memo && <p className="text-xs text-gray-400 truncate mb-2">{item.memo}</p>}
-
-            {/* 핵심 정보: 만료일 — 한 줄 (펼치면 구매일도 자세히)
-                예전엔 구매일(purchaseDate)을 라벨 없이 📅로만 보여줘 만료일로
-                오인됐다(P0-52) — "09/20 · 3일 남음"처럼 산술이 안 맞아 보여
-                D-day 전체를 못 믿게 만들었다(검토단 C1·C9·C8 독립 발견).
-                이 줄에서 실제로 궁금한 값(언제까지 먹어야 하는가)을 보여준다.
-                연도를 매번 지우면(구 slice(5)) baseShelfLifeDays가 1년을
-                넘는 품목(간장 730일 등)이 "07/27까지"처럼 이미 지난 날짜로
-                읽혔다(P0-55, 검토단 C4·C9 독립 발견) — expiryDateLabel()이
-                해가 바뀔 때만 연도를 붙인다. dDay<0(기한 지남)일 때도
-                "지남"을 붙여 무라벨 맨 날짜로 되돌아가지 않게 한다.
-                shelfLifeSource가 'user'가 아니면(등록 시 기본값/이름
-                추론값 그대로) 이 날짜는 앱의 추정이라 "쯤까지"로 톤을
-                낮춘다 — 사용자가 포장지 날짜로 확정하면 "까지"로
-                바뀐다(P0-33, 전문단 E1 설계). */}
-            {/* 날짜줄 색 — 카드에서 가장 중요한 정보(언제까지 먹어야
-                하는가)인데 gray-400(2.54:1)이라 WCAG AA(4.5:1) 미달,
-                부차정보인 제품명(15.5:1)보다 훨씬 안 보여 위계가
-                거꾸로였다(P1-70, C8·E3 실측). gray-500(4.83:1)로 상향.
-                긴급 빨강도 텍스트용(#DC2626, 4.83:1)과 배경·바용
-                (brand-warning #EF4444, 비텍스트라 대비 기준 다름)을
-                분리 — 전체 brand-warning 토큰 재정의(66곳, P1-69)는
-                범위 밖이라 이 카드의 텍스트 2곳만 스코프로 고정. */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-3">
-              <span>
-                🗓 {expiryDateLabel(item)}
-                {dDay >= 0 ? (item.shelfLifeSource === 'user' ? '까지' : '쯤까지') : ' 지남'}
-              </span>
-              <span className="text-gray-200">·</span>
-              <span className={urgencyTextColor ? `${urgencyTextColor} font-medium` : ''}>
-                {dDay < 0 ? EXPIRY_LABEL.over : dDay === 0 ? EXPIRY_LABEL.today : `${dDay}일 남음`}
-              </span>
-            </div>
-
-            {/* 급함 게이지 — dDay 7일 이상이면 숨김(급할 게 없음) */}
-            {urgencyFill > 0 && (
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${urgencyBarColor}`}
-                  style={{ width: `${urgencyFill * 100}%` }}
-                />
-              </div>
-            )}
-
-            {/* 칼로리·영양소 — 한 줄 (펼치면 자세히) */}
-            {item.nutritionFacts ? (
-              <p className="text-xs text-gray-500 tabular-nums mt-2.5">
-                🔥 <span className="font-semibold">{item.nutritionFacts.calories}</span>kcal
-                <span className="text-gray-300"> · </span>
-                단 {item.nutritionFacts.protein}g
-                <span className="text-gray-300"> · </span>
-                지 {item.nutritionFacts.fat}g
-                <span className="text-gray-300"> · </span>
-                탄 {item.nutritionFacts.carbs}g
-              </p>
-            ) : (
-              <p className="text-[11px] text-gray-300 mt-2.5">영양 정보 없음</p>
-            )}
-
-          </div>
+          )}
         </div>
 
 
