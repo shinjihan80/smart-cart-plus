@@ -458,7 +458,12 @@ export default function RecipeDetailModal({
             }}
             className="w-full mt-6 rounded-2xl bg-brand-primary text-white text-sm font-semibold py-3 hover:opacity-90 active:scale-95 transition-all"
           >
-            {cook.count > 0 ? `만들었어요 (${cook.count + 1}회차)` : '좋아요, 만들어볼게요'}
+            {/* P1-98 — "좋아요, 만들어볼게요"(미래형 의향 표현)를 누르면
+                클릭 즉시 markCooked가 호출돼 "1번째 조리 기록 완료"로
+                바로 기록되고 모달이 닫혔다(C9 실측) — 라벨은 "해볼게요"
+                인데 동작은 "했다"였다. 바로 아래 "어제 만들었어요"와
+                같은 과거형으로 통일해 라벨-동작을 일치시킨다. */}
+            {cook.count > 0 ? `만들었어요 (${cook.count + 1}회차)` : '오늘 만들었어요'}
           </button>
 
           <div className="flex items-center gap-1.5 justify-center mt-2">
