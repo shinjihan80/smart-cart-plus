@@ -28,14 +28,40 @@ export function inferFoodCategory(name: string): FoodCategory {
 const ALL_FOOD_KEYWORDS = KEYWORD_MAP.flatMap((e) => e.keywords).sort((a, b) => b.length - a.length);
 
 /**
+ * 같은 식재료를 가리키는 동의어 — sameFoodProduct 기준으로만 하나로
+ * 묶는다(재검토 P2-51, E2 코드 확인: "계란"과 "달걀"이 KEYWORD_MAP에
+ * 별개 키워드로 들어 있어 서로 다른 품목으로 오판했다). 실제로 P0-74
+ * 에서 계란 보관일수를 "달걀"에도 적용해야 했던 것과 같은 뿌리.
+ */
+const KEYWORD_SYNONYMS: Record<string, string> = {
+  '달걀': '계란',
+};
+
+/**
  * "같은 품목"으로 볼 핵심 키워드 추출 — 매칭되는 키워드가 없으면 공백만
  * 제거한 원문을 그대로 반환(기존 완전일치 동작 유지).
+ *
+ * 재검토(P2-51, E2 코드 확인) 2가지 보완:
+ * 1. 1글자 키워드("파"·"닭"·"빵" 등)는 매칭 후보에서 제외한다 — 짧을수록
+ *    엉뚱한 합성어에 우연히 걸릴 위험이 크다("파프리카"와 "쪽파"가 둘 다
+ *    "파"를 포함해 같은 품목으로 오판됐다). inferFoodCategory(카테고리
+ *    추정만, 오분류 리스크가 더 낮음)는 KEYWORD_MAP을 그대로 써 영향 없음.
+ * 2. 길이가 같은 후보가 여러 개면 이름 안에서 더 뒤쪽(= 한국어 합성명사의
+ *    핵심어에 가까운 쪽)에 나오는 키워드를 우선한다 — "사과주스"가
+ *    "사과"(앞)보다 "주스"(뒤, 실제 품목)를 가리키게 한다.
  */
 export function canonicalFoodKeyword(name: string): string {
+  let best: { kw: string; pos: number } | null = null;
   for (const kw of ALL_FOOD_KEYWORDS) {
-    if (name.includes(kw)) return kw;
+    if (kw.length <= 1) continue;
+    const pos = name.indexOf(kw);
+    if (pos === -1) continue;
+    if (!best || kw.length > best.kw.length || (kw.length === best.kw.length && pos > best.pos)) {
+      best = { kw, pos };
+    }
   }
-  return name.replace(/\s+/g, '');
+  const resolved = best ? best.kw : name.replace(/\s+/g, '');
+  return KEYWORD_SYNONYMS[resolved] ?? resolved;
 }
 
 /**
