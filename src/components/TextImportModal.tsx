@@ -632,7 +632,7 @@ function StepConfirm({
         if (!inferred.has(id)) return next;
         return { ...next, foodCategory: '기타 식품', storageType: '냉장', baseShelfLifeDays: 7 };
       }
-      const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory!);
+      const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory!, name);
       return { ...next, foodCategory: foodCategory!, storageType, baseShelfLifeDays };
     }));
 

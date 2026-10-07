@@ -37,6 +37,7 @@ import { InstanceMetaEditor } from '@/components/InstanceMetaEditor';
 import { effectiveFridgeSection } from '@/lib/fridgeSection';
 import { FRIDGE_MODELS } from '@/lib/fridgeModel';
 import { getFoodCategoryTone } from '@/lib/categoryImages';
+import { inferFoodCategory, inferFoodDefaults } from '@/lib/ingredientInference';
 import { summarizeFoods } from '@/lib/foodStats';
 
 type StorageFilter = '전체' | StorageType;
@@ -358,14 +359,21 @@ export default function FridgePage() {
   }
 
   function handleRebuy(name: string) {
-    const input = { name, foodCategory: '기타 식품' as const, storageType: '냉장' as const };
+    // P0-74 — 재구매는 품목과 무관하게 전부 "기타 식품·냉장·7일"로
+    // 하드코딩돼 있었다(E1 코드 확인) — "서울우유 1L"를 재구매해도
+    // 유제품/10일이 아니라 기타식품/7일로 등록돼, 직접입력·빠른 추가와
+    // 또 다른 세 번째 보관일을 만들었다. 다른 경로와 같은 추론 함수로
+    // 통일.
+    const foodCategory = inferFoodCategory(name);
+    const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory, name);
+    const input = { name, foodCategory, storageType };
     const { added } = addItems([{
       id: `rb-${Date.now()}`,
       name,
       category: '식품',
-      foodCategory: '기타 식품',
-      storageType: '냉장',
-      baseShelfLifeDays: 7,
+      foodCategory,
+      storageType,
+      baseShelfLifeDays,
       purchaseDate: todayLocalStr(),
       fridgeSection: pickSection(input),
       fridgeInstanceId: activeFridgeId,

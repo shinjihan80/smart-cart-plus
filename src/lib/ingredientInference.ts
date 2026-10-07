@@ -62,8 +62,27 @@ export function getFoodEmoji(name: string, category?: FoodCategory): string {
   );
 }
 
-/** 카테고리별 합리적 기본 보관 방식과 기한 */
-export function inferFoodDefaults(category: FoodCategory): { storageType: StorageType; baseShelfLifeDays: number } {
+/**
+ * 카테고리 기본값보다 실제 보관 기준에 더 가까운 개별 품목 예외 —
+ * 재검토(P0-74, C1 실측 + E1·E2 코드 확인)에서 발견된 "같은 식재료가
+ * 입력 경로마다 보관일이 다르다" 문제의 가장 직접적인 사례부터 등록.
+ * 계란은 '정육·계란' 카테고리(생고기 기준 냉장 5일)에 묶여 있었지만
+ * 실제로는 냉장 3~5주가 통상 기준이라, 냉장고 '장보기' 빠른 추가 칩은
+ * 이미 21일로 손으로 맞춰 놓은 상태였다 — 그 값을 카테고리 기본값에도
+ * 반영해 입력 경로(직접입력/빠른 추가/재구매/쇼핑 리스트)에 상관없이
+ * 같은 값이 나오게 한다. 155개 재료 전체를 덮는 품목표 전면 도입은
+ * 범위 밖(M) — 이번엔 리뷰에서 지목된 사례만 닫는다.
+ */
+const ITEM_SHELF_LIFE_OVERRIDES: { keywords: string[]; storageType: StorageType; baseShelfLifeDays: number }[] = [
+  { keywords: ['계란', '달걀'], storageType: '냉장', baseShelfLifeDays: 21 },
+];
+
+/** 카테고리별 합리적 기본 보관 방식과 기한 — name을 주면 품목별 예외를 먼저 본다. */
+export function inferFoodDefaults(category: FoodCategory, name?: string): { storageType: StorageType; baseShelfLifeDays: number } {
+  if (name) {
+    const override = ITEM_SHELF_LIFE_OVERRIDES.find((o) => o.keywords.some((kw) => name.includes(kw)));
+    if (override) return { storageType: override.storageType, baseShelfLifeDays: override.baseShelfLifeDays };
+  }
   switch (category) {
     case '정육·계란':   return { storageType: '냉장', baseShelfLifeDays: 5 };
     case '수산·해산':   return { storageType: '냉장', baseShelfLifeDays: 3 };
@@ -91,7 +110,7 @@ export function inferFoodDefaults(category: FoodCategory): { storageType: Storag
 /** 이름 하나로 FoodItem 생성 — 오늘 구매 가정, 스키마 v2 안전. */
 export function createFoodItemFromIngredient(name: string): FoodItem {
   const foodCategory = inferFoodCategory(name);
-  const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory);
+  const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory, name);
   return {
     id:           `shop-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     name,
