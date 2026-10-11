@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { BellOff, X } from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
@@ -86,17 +87,40 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
           <BellOff size={18} strokeWidth={2.2} className="text-gray-600" />
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-gray-800">알림이 꺼져 있어요</p>
+          {/* 재검토(C1·C3) — "꺼져 있어요"+[켜기]를 권한이 '차단'된
+              상태(denied)에도 똑같이 보여줬다. denied는 브라우저가 재
+              요청 자체를 막아 [켜기]를 눌러도 항상 실패하는데(매번
+              같은 실패 토스트만 반복), 라벨은 "아직 안 물어본"
+              기본 상태(default)와 구분이 안 됐다. 설정 화면과 같은
+              "차단됐어요" 문구로 통일하고, 거기서만 고칠 수 있는 걸
+              알려주는 링크로 바꾼다. */}
+          <p className="text-sm font-bold text-gray-800">
+            {permState === 'denied' ? '알림이 차단됐어요' : '알림이 꺼져 있어요'}
+          </p>
           <p className="text-sm text-gray-500 mt-0.5">
             {phrase} 먹어야 할 식품 {todayCount}개를 못 알려드려요.
+            {/* 재검토(C1) — "켜면 알려드려요"로 읽히지만, 웹은 앱(탭)이
+                열려 있을 때만 알림이 온다(설정 화면엔 이미 고지돼
+                있었음, P1-100) — 하루 1~2번만 들어오는 사용자에겐
+                "켜도 못 받을 수 있다"는 뜻이라 약속이 과장돼 있었다. */}
+            {!isNative() && <span className="text-gray-400"> (웹은 앱이 열려 있을 때만)</span>}
           </p>
         </div>
-        <button
-          onClick={handleEnable}
-          className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
-        >
-          켜기
-        </button>
+        {permState === 'denied' ? (
+          <Link
+            href="/settings#notifications"
+            className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
+          >
+            바꾸기
+          </Link>
+        ) : (
+          <button
+            onClick={handleEnable}
+            className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
+          >
+            켜기
+          </button>
+        )}
       </div>
       <button
         onClick={handleDismiss}
