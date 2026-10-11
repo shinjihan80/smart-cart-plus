@@ -327,10 +327,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setDiscardCount(0);
     setDiscardHistory([]);
     lastRemovedRef.current = null;
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(DISCARD_KEY);
-    localStorage.removeItem(ARCHIVE_KEY);
-    localStorage.removeItem(HISTORY_KEY);
+    // 재검토(/nemoa-review 비판 모드, C3·C5 교차 확인) — CartContext가
+    // 아는 4개 키만 지워, 가족 프로필·착용/조리 로그·쇼핑 리스트·저장된
+    // 코디·냉장고/옷장 구성 등 60여 개 다른 저장소는 "전체 초기화" 후에도
+    // 그대로 남았다. 그런데 동의 시트·개인정보처리방침·설정 화면·초기화
+    // 확인창 네 곳 모두 "완전 삭제"를 약속해 실제 동작과 어긋났다.
+    // 키를 하나씩 나열하면 새 저장소가 생길 때마다 같은 버그가 재발하므로
+    // (이게 바로 지금까지의 원인), nemoa- 접두사를 가진 모든 키를 지운다 —
+    // 마이그레이션 버전 마커(스키마 버전)만 예외.
+    if (typeof window !== 'undefined') {
+      try {
+        for (const key of Object.keys(localStorage)) {
+          if (key.startsWith('nemoa-') && key !== SCHEMA_VERSION_KEY) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch { /* quota/권한 오류 — 이미 지운 4개 키만으로도 핵심은 비워짐 */ }
+    }
   }, []);
 
   const restoreAll = useCallback((snapshot: {

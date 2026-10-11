@@ -132,6 +132,12 @@ export default function SettingsPage() {
       }
       resetData();
       showToast(`백업(${filename}) 확인 후 초기화됐어요.`);
+      // 재검토(C5) — resetData()가 nemoa- 전체 키를 지워도, 프로필·
+      // 착용/조리 로그·요금제 상태 등은 각자 다른 훅이 메모리에 들고
+      // 있어 localStorage만 비우면 화면은 그대로 남는다(새로고침 전까지
+      // 거짓 상태). 전체 초기화 직후에는 모든 훅을 빈 저장소로 다시
+      // 읽게 전체 새로고침한다.
+      setTimeout(() => window.location.reload(), 600);
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류';
       showToast(`백업 실패 — 초기화 중단: ${msg}`);
