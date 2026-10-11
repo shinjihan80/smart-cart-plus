@@ -75,6 +75,20 @@ export function isAnalyticsEnabled(): boolean {
   return store.getState().enabled;
 }
 
+/**
+ * 재검토(/nemoa-review 비판 모드, C3 코드 확인) — AnalyticsGate.tsx가
+ * 이 스토어를 안 쓰고 자체 useState+'storage' 이벤트 리스너로 따로
+ * 구현돼 있었다. Web Storage API의 storage 이벤트는 "다른 탭"에서만
+ * 발생해 같은 탭에서 설정을 끄면 AnalyticsGate는 전혀 모른 채
+ * <Analytics>가 계속 마운트 상태로 남아 추적이 이어졌다(실측: 끈 뒤
+ * 같은 탭에서 요청 2건 추가 발생). store는 이미 같은 탭 반응형
+ * 구독(subscribe/useSyncExternalStore)을 지원하므로, 그 훅을 그대로
+ * 노출해 AnalyticsGate가 직접 구독하게 한다.
+ */
+export function useAnalyticsEnabled(): boolean {
+  return store.useStore().enabled;
+}
+
 /** 하루 1회 세션 핑 — 홈 진입 시 호출. 중복은 자동 무시. */
 export function pingSession(event: string = 'session_start', meta?: Record<string, unknown>): void {
   if (typeof window === 'undefined') return;
