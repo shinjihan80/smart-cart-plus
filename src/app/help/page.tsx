@@ -186,7 +186,7 @@ export default function HelpPage() {
           <Bullet>🥗 <strong>영양 분석</strong> — 식품 등록 시 칼로리·단백질·탄수화물 자동 추출</Bullet>
           <Bullet>📦 <strong>보관 위치 추천</strong> — 냉장고 어느 칸에 넣을지 AI 추천</Bullet>
           <Bullet>결과 화면에서 수정 후 [등록 완료] 탭</Bullet>
-          <Bullet>무료 일일 한도 — 사진 5 · 텍스트 10 · URL 2 · 영양 2 · 위치 5 (자정 초기화)</Bullet>
+          <Bullet>무료 한도 — 사진 월 10회 · 텍스트 5회/일(+광고 최대 3회) · 영양 2회/일 · 위치 추천 5회/일(+광고 최대 3회) · URL 분석은 Pro 전용 (사진은 매달 1일, 나머지는 매일 자정 초기화)</Bullet>
         </MenuRow>
 
         <MenuRow
