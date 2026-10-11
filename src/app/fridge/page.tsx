@@ -63,14 +63,23 @@ const FOOD_GROUP_EMOJI: Record<string, string> = {
   신선식품: '🥬', 가공식품: '🍜', '음료·간식': '🧃', 기타: '📦',
 };
 
-const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType; days: number }[] = [
-  { name: '우유 1L',    foodCategory: '유제품',      storageType: '냉장', days: 10 },
-  { name: '달걀 10구',  foodCategory: '정육·계란',   storageType: '냉장', days: 21 },
-  { name: '식빵',       foodCategory: '빵·베이커리', storageType: '실온', days: 4  },
-  { name: '바나나',     foodCategory: '채소·과일',   storageType: '실온', days: 5  },
-  { name: '닭가슴살',   foodCategory: '정육·계란',   storageType: '냉동', days: 60 },
-  { name: '요거트',     foodCategory: '유제품',      storageType: '냉장', days: 14 },
+// 재검토(C1 실측, P0-74 잔여) — storageType/days를 여기 또 하드코딩하면
+// ingredientInference.ts의 추론값과 다시 어긋난다(직접입력 "식빵"은
+// 냉장 5일인데 이 프리셋은 실온 4일이었던 식). 이름·카테고리만 정의하고
+// 보관법·기한은 inferFoodDefaults() 하나에서만 받아 — 직접입력·빠른
+// 추가·재구매가 전부 같은 값을 보게 한다.
+const QUICK_ADD_PRESETS: { name: string; foodCategory: import('@/types').FoodCategory }[] = [
+  { name: '우유 1L',   foodCategory: '유제품' },
+  { name: '달걀 10구', foodCategory: '정육·계란' },
+  { name: '식빵',      foodCategory: '빵·베이커리' },
+  { name: '바나나',    foodCategory: '채소·과일' },
+  { name: '닭가슴살',  foodCategory: '정육·계란' },
+  { name: '요거트',    foodCategory: '유제품' },
 ];
+const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType; days: number }[] = QUICK_ADD_PRESETS.map((p) => {
+  const { storageType, baseShelfLifeDays } = inferFoodDefaults(p.foodCategory, p.name);
+  return { ...p, storageType, days: baseShelfLifeDays };
+});
 
 /**
  * 냉장고 요약 카드 — 냉장고 탭·음식 탭 둘 다 같은 인스턴스를 쓴다.

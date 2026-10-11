@@ -101,11 +101,27 @@ export function getFoodEmoji(name: string, category?: FoodCategory): string {
  */
 const ITEM_SHELF_LIFE_OVERRIDES: { keywords: string[]; storageType: StorageType; baseShelfLifeDays: number }[] = [
   { keywords: ['계란', '달걀'], storageType: '냉장', baseShelfLifeDays: 21 },
+  // 재검토(C1 실측) — QUICK_ADD_FOODS 프리셋과 값을 맞춘 4건. 식빵·
+  // 바나나는 생물 특성상 카테고리 기본값(냉장)보다 실온이 더 현실적이고,
+  // 닭가슴살은 대량구매 시 냉동 보관이 흔한 실사용 패턴이라 카테고리
+  // 기본(냉장)과 다른 storageType을 일부러 쓴다.
+  { keywords: ['식빵'],   storageType: '실온', baseShelfLifeDays: 4  },
+  { keywords: ['바나나'], storageType: '실온', baseShelfLifeDays: 5  },
+  { keywords: ['닭가슴살'], storageType: '냉동', baseShelfLifeDays: 60 },
+  { keywords: ['요거트', '요구르트'], storageType: '냉장', baseShelfLifeDays: 14 },
 ];
+
+/**
+ * 계란/달걀이 "완성 요리" 이름에 들어간 경우(계란말이·계란빵·달걀샐러드
+ * 등)까지 생란 보관 기준(21일)을 적용하면 안 된다(재검토 C1 실측 —
+ * "계란말이"가 21일로 저장됨). 합성어를 제대로 가르려면 형태소
+ * 분석기가 필요하지만, 여기선 리뷰에서 실제로 지목된 사례부터 닫는다.
+ */
+const EGG_DISH_EXCLUSIONS = ['계란말이', '계란빵', '계란찜', '계란국', '계란장', '계란볶음밥', '계란샐러드', '달걀샐러드', '계란 샌드위치', '달걀 샌드위치', '구운계란', '훈제계란', '계란과자'];
 
 /** 카테고리별 합리적 기본 보관 방식과 기한 — name을 주면 품목별 예외를 먼저 본다. */
 export function inferFoodDefaults(category: FoodCategory, name?: string): { storageType: StorageType; baseShelfLifeDays: number } {
-  if (name) {
+  if (name && !EGG_DISH_EXCLUSIONS.some((dish) => name.includes(dish))) {
     const override = ITEM_SHELF_LIFE_OVERRIDES.find((o) => o.keywords.some((kw) => name.includes(kw)));
     if (override) return { storageType: override.storageType, baseShelfLifeDays: override.baseShelfLifeDays };
   }
