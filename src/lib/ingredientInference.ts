@@ -109,7 +109,33 @@ const ITEM_SHELF_LIFE_OVERRIDES: { keywords: string[]; storageType: StorageType;
   { keywords: ['바나나'], storageType: '실온', baseShelfLifeDays: 5  },
   { keywords: ['닭가슴살'], storageType: '냉동', baseShelfLifeDays: 60 },
   { keywords: ['요거트', '요구르트'], storageType: '냉장', baseShelfLifeDays: 14 },
+  // 재검토(C1 실측) — 편의점/즉석 식품은 "기타 식품" 안전 기본값(냉장
+  // 7일)에 걸리면 실제 보관 기준보다 너무 길어 상한 걸 먹을 위험이
+  // 있다(삼각김밥·초밥은 당일 소비가 원칙). 아이스크림은 '면·즉석'
+  // 어디에도 안 걸려 냉장 7일로 잡혔는데 애초에 냉동 보관 품목이다.
+  { keywords: ['아이스크림'], storageType: '냉동', baseShelfLifeDays: 180 },
+  { keywords: ['삼각김밥'],   storageType: '냉장', baseShelfLifeDays: 1   },
+  { keywords: ['초밥'],       storageType: '냉장', baseShelfLifeDays: 1   },
 ];
+
+/**
+ * 이름에 보관 위치가 이미 적혀 있으면(예: "냉동만두") 그 정보가
+ * 카테고리 기본값보다 우선해야 한다(재검토 C1 실측 — "냉동만두"가
+ * '면·즉석' 카테고리 기본값을 그대로 받아 "실온 보관"으로 떨어졌다.
+ * 바로 위 칸 설명이 "냉동실 아래칸"인데도 그랬다). 사용자가 이름에
+ * 이미 써 둔 정보를 시스템이 무시하면 안 된다 — baseShelfLifeDays는
+ * 그대로 두고 storageType만 이 힌트로 덮어쓴다.
+ */
+const STORAGE_HINT_KEYWORDS: { keywords: string[]; storageType: StorageType }[] = [
+  { keywords: ['냉동'], storageType: '냉동' },
+  { keywords: ['냉장'], storageType: '냉장' },
+  { keywords: ['실온', '상온'], storageType: '실온' },
+];
+
+function detectStorageHint(name: string): StorageType | null {
+  const hit = STORAGE_HINT_KEYWORDS.find((h) => h.keywords.some((kw) => name.includes(kw)));
+  return hit ? hit.storageType : null;
+}
 
 /**
  * 계란/달걀이 "완성 요리" 이름에 들어간 경우(계란말이·계란빵·달걀샐러드
@@ -121,10 +147,17 @@ const EGG_DISH_EXCLUSIONS = ['계란말이', '계란빵', '계란찜', '계란�
 
 /** 카테고리별 합리적 기본 보관 방식과 기한 — name을 주면 품목별 예외를 먼저 본다. */
 export function inferFoodDefaults(category: FoodCategory, name?: string): { storageType: StorageType; baseShelfLifeDays: number } {
+  const hint = name ? detectStorageHint(name) : null;
+
   if (name && !EGG_DISH_EXCLUSIONS.some((dish) => name.includes(dish))) {
     const override = ITEM_SHELF_LIFE_OVERRIDES.find((o) => o.keywords.some((kw) => name.includes(kw)));
-    if (override) return { storageType: override.storageType, baseShelfLifeDays: override.baseShelfLifeDays };
+    if (override) return { storageType: hint ?? override.storageType, baseShelfLifeDays: override.baseShelfLifeDays };
   }
+  const base = inferCategoryDefaults(category);
+  return hint ? { ...base, storageType: hint } : base;
+}
+
+function inferCategoryDefaults(category: FoodCategory): { storageType: StorageType; baseShelfLifeDays: number } {
   switch (category) {
     case '정육·계란':   return { storageType: '냉장', baseShelfLifeDays: 5 };
     case '수산·해산':   return { storageType: '냉장', baseShelfLifeDays: 3 };

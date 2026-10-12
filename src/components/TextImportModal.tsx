@@ -611,10 +611,6 @@ function StepConfirm({
   // 직접입력에서 카테고리/보관법/보관기한을 사용자가 손댄 아이템 — 한 번
   // 손대면 이름을 계속 고쳐도 그 값을 재추론으로 덮어쓰지 않는다(P0-54).
   const [touched, setTouched] = useState<Set<string>>(new Set());
-  // 현재 카테고리/보관법/보관기한이 "이름 기반 추론 성공"으로 채워진
-  // 아이템 — 매칭 실패로 바뀔 때 이걸 봐야 "원래도 미추론"과 "직전엔
-  // 추론 성공했었음"을 구분해 후자만 보수 기본값으로 되돌릴 수 있다.
-  const [inferred, setInferred] = useState<Set<string>>(new Set());
 
   function updateName(id: string, name: string) {
     const current = items.find((it) => it.id === id);
@@ -630,25 +626,21 @@ function StepConfirm({
       const next = { ...item, name } as CartItem;
       if (!eligible) return next;
       if (foodCategory === '기타 식품') {
-        // 원래부터 미추론 상태였으면 손댈 것 없음(보수값 그대로).
-        // 직전에 추론이 성공했다가(예: "서울우유") 매칭 실패하는 이름
-        // (예: "김치")으로 바뀐 경우는 그 성공값이 신호 없이 남던 부분
-        // 회귀였다(P0-54 부분 회귀, 검토단 E2 라이브 재현) — 보수
-        // 기본값(기타 식품/냉장/7일)으로 되돌린다.
-        if (!inferred.has(id)) return next;
-        return { ...next, foodCategory: '기타 식품', storageType: '냉장', baseShelfLifeDays: 7 };
+        // 재검토(C1 실측) — "원래부터 미추론 상태면 손대지 않는다"는
+        // 예전 가드가 inferFoodDefaults 호출 자체를 건너뛰어, 카테고리는
+        // 못 잡지만 이름 기반 예외는 있는 품목("아이스크림"·"삼각김밥"·
+        // "초밥" 등 ITEM_SHELF_LIFE_OVERRIDES엔 있는데 KEYWORD_MAP엔
+        // 없는 이름)이 ITEM_SHELF_LIFE_OVERRIDES를 영영 못 거쳤다 —
+        // "아이스크림"이 냉동 보관 품목인데도 냉장 7일로 고정됐던 원인.
+        // inferFoodDefaults는 순수 함수라 항상 다시 불러도 안전하다(매칭
+        // 실패 시 반환값은 기존과 동일한 냉장·7일이라 "매칭 실패로 바뀐
+        // 경우 보수값 복귀"라는 원래 의도도 그대로 유지됨).
+        const fallback = inferFoodDefaults('기타 식품', name);
+        return { ...next, foodCategory: '기타 식품', ...fallback };
       }
       const { storageType, baseShelfLifeDays } = inferFoodDefaults(foodCategory!, name);
       return { ...next, foodCategory: foodCategory!, storageType, baseShelfLifeDays };
     }));
-
-    if (eligible) {
-      setInferred((s) => {
-        const next = new Set(s);
-        if (foodCategory === '기타 식품') next.delete(id); else next.add(id);
-        return next;
-      });
-    }
   }
   function updateItem(id: string, patch: Partial<CartItem>) {
     if ('foodCategory' in patch || 'storageType' in patch || 'baseShelfLifeDays' in patch) {
