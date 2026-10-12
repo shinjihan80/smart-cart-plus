@@ -167,7 +167,10 @@ function FoodSummaryStats({
 function GridExpiryBadge({ dDay }: { dDay: number }) {
   const bucket = classifyExpiry(dDay);
   if (bucket === 'fresh') return null;
-  const label = bucket === 'expired' ? EXPIRY_LABEL.over : dDay === 0 ? 'D-day' : `D-${dDay}`;
+  // 재검토(C1 실측) P2 — 같은 "오늘까지" 품목을 목록뷰는 "D-0"(SwipeFoodCard:
+  // `D-${dDay}`)로, 격자뷰는 여기서만 "D-day"로 따로 불러 같은 값이
+  // 보기 모드마다 다르게 표기됐다. 목록뷰와 같은 숫자 표기로 통일.
+  const label = bucket === 'expired' ? EXPIRY_LABEL.over : `D-${dDay}`;
   const bg = bucket === 'expired' || bucket === 'today' ? 'bg-red-500' : 'bg-orange-400';
   return (
     <span className={`absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${bg} text-white`}>
