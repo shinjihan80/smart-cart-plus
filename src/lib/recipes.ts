@@ -979,10 +979,18 @@ export function matchRecipes(
 
   // urgent = today/soon 버킷만 — 예전엔 dDay <= 3을 하한 없이 비교해 이미
   // 기한이 지난(expired, 음수 dDay) 재료까지 "임박 재료"로 매칭에 가산했다(P0-30류).
-  const nameIndex = foods.map((f) => {
-    const bucket = classifyExpiry(getRemainingDays(f));
-    return { name: f.name, urgent: bucket === 'today' || bucket === 'soon' };
-  });
+  //
+  // 재검토(/nemoa-review 비판 모드, C5 코드 확인) P0-30 계열 재발(다른
+  // 경로) — 위 수정은 "임박 가산"에서만 expired를 뺐을 뿐, 매칭 풀
+  // 자체에는 그대로 남아 "오늘 한 그릇"·냉장고 추천 탭이 6일 전에 상한
+  // 재료를 "보유 중 ✓"로 표시하며 레시피를 추천했다. expired는 매칭
+  // 풀에서 완전히 제외한다 — 더 이상 식재료로 쓸 수 없는 상태이므로.
+  const nameIndex = foods
+    .filter((f) => classifyExpiry(getRemainingDays(f)) !== 'expired')
+    .map((f) => {
+      const bucket = classifyExpiry(getRemainingDays(f));
+      return { name: f.name, urgent: bucket === 'today' || bucket === 'soon' };
+    });
 
   const difficultyOrder = { 간단: 0, 보통: 1, 도전: 2 } as const;
 

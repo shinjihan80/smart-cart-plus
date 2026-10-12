@@ -71,9 +71,15 @@ export default function HomePage() {
   // 확정). dedup은 "오늘까지 vs 여유있게"처럼 실제 모순이 생기는 하위 추천
   // 존(SeasonalHintWidget)에만 남기고, 액션 존에는 적용하지 않는다.
   const urgentTodayNames = new Set(selectExpiring(items).today.map((e) => e.item.name));
+  // 재검토(C5 코드 확인) P0-30 계열 재발 — expired(이미 기한 지난) 품목은
+  // "오늘까지" 중복 방지 목적과 무관하게 애초에 "가장 맛있을 때예요"로
+  // 추천되면 안 된다. 6일 전 기한이 지난 감귤 주스가 제철 식탁에 그대로
+  // 떴던 원인(SeasonalHintWidget은 이 exclude set 밖의 expiry 판정을
+  // 모른다) — 여기서 통째로 제외.
+  const expiredNames = new Set(selectExpiring(items).expired.map((e) => e.item.name));
   const seasonalExcludeNames = heroDriverName
-    ? new Set([...urgentTodayNames, heroDriverName])
-    : urgentTodayNames;
+    ? new Set([...urgentTodayNames, ...expiredNames, heroDriverName])
+    : new Set([...urgentTodayNames, ...expiredNames]);
 
   return (
     <div>
