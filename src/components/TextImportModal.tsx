@@ -800,7 +800,13 @@ function StepConfirm({
             </div>
             {familyLimitHit && (
               <p className="text-xs text-rose-500">
-                무료는 가족 {FREE_PROFILE_LIMIT}명까지예요 — 지금은 &ldquo;공용&rdquo;으로 등록하고, 나중에 설정에서 바꿀 수 있어요.
+                {/* 재검토(C5 실측) P1 — FREE_PROFILE_LIMIT은 본인을 포함한
+                    한도인데 "가족 N명까지"라고 하면 "가족"이 본인을 뺀
+                    말처럼 읽혀, 실제 가족이 2명뿐인 상태에서도 한도에
+                    걸려 버그처럼 보였다. 본인 포함임을 숨기지 않는
+                    ProfilesSection.tsx(마이페이지)의 "프로필 N명까지"로
+                    통일. */}
+                무료는 프로필 {FREE_PROFILE_LIMIT}명까지예요(본인 포함) — 지금은 &ldquo;공용&rdquo;으로 등록하고, 나중에 설정에서 바꿀 수 있어요.
               </p>
             )}
           </div>

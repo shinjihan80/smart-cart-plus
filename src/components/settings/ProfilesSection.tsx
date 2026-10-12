@@ -619,7 +619,7 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
       {/* 가족 추가 폼 — 무료 등급은 3명까지만, 초과 시 업그레이드 유도 */}
       {atFreeLimit ? (
         <div className="mt-4 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 p-3">
-          <p className="text-xs font-semibold text-brand-primary mb-1">무료 등급은 프로필 {FREE_PROFILE_LIMIT}명까지예요</p>
+          <p className="text-xs font-semibold text-brand-primary mb-1">무료 등급은 프로필 {FREE_PROFILE_LIMIT}명까지예요(본인 포함)</p>
           <p className="text-sm text-gray-500 mb-2">Pro로 업그레이드하면 가족 구성원을 제한 없이 추가할 수 있어요.</p>
           <button
             onClick={() => setUpgradeOpen(true)}
