@@ -60,8 +60,13 @@ export default function DailyBriefing({ items }: { items: CartItem[] }) {
   const fallback = fallbackBriefing();
   const Icon: LucideIcon = useLive ? weatherIcon(weather.condition, weather.isDay) : fallback.Icon;
   const iconColor = useLive ? WEATHER_COLOR[weather.condition] : { text: 'text-gray-600', bg: 'bg-gray-100' };
+  // 재검토(C3 실측) P1 — 위치 권한을 거부해도 "LIVE"가 뜨고 헤드라인
+  // 어디에도 "서울"이 없어 "IP로 내 위치를 알아낸 건가?"라는 의심을
+  // 샀다. 실제로는 위치 요청 자체를 안 하고 서울 고정 좌표로만
+  // 조회한다(/legal 3조에 이미 고지돼 있음) — 그 사실을 화면에도
+  // 그대로 적는다.
   const headline = useLive
-    ? `현재 ${weather.tempC}°, ${weather.condition}`
+    ? `서울 현재 ${weather.tempC}°, ${weather.condition}`
     : fallback.headline;
   const tip      = useLive
     ? dressingTip(weather.tempC, weather.condition)
