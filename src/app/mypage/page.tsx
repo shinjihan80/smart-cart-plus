@@ -104,6 +104,18 @@ export default function MyPage() {
   );
 
   // ?tab=... 쿼리 또는 legacy 해시(#shopping 등)로 탭 초기화 — 외부 진입용
+  //
+  // 재검토(C3 실측) P1-50 재발 — usePersistedState(위 101행)도 마운트 시
+  // 자기 내부 useEffect로 localStorage 저장값을 읽어 setActiveTab을
+  // 부른다. 두 effect 모두 "SSR 기본값 'profile'인 첫 렌더"를 클로저로
+  // 캡처해 같은 플러시에서 실행되는데, 이 effect가 `resolved !==
+  // activeTab`으로 비교하면 그 activeTab은 아직 하이드레이션 전 'profile'
+  // 이라 "?tab=profile"이 "이미 같다"고 오판돼 스킵됐다 — 그 직후
+  // usePersistedState가 저장돼 있던 다른 탭(예: 'activity')으로 덮어써,
+  // 설정 > "내 정보 >" 링크를 눌러도 요약 탭이 열렸다. 쿼리로 명시적
+  // 요청이 온 경우엔 현재 state와 무관하게 무조건 반영해야 한다 — 같은
+  // 값이면 React가 알아서 리렌더를 생략하므로 무조건 호출해도 비용이
+  // 없다.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -111,7 +123,7 @@ export default function MyPage() {
     if (requested) {
       const resolved = isMyTab(requested) ? requested : LEGACY_TAB_MAP[requested];
       if (resolved) {
-        if (resolved !== activeTab) setActiveTab(resolved);
+        setActiveTab(resolved);
         return;
       }
     }
@@ -128,7 +140,7 @@ export default function MyPage() {
     // 복원해둔 마지막 탭을 여기서 'profile'로 강제 리셋하면 탭 기억 기능 자체가
     // 무효화된다 (검토단 E1 발견: 일반 링크로 들어오면 매번 '내 정보' 탭으로 초기화됨).
     const mapped = HASH_TO_TAB[hash];
-    if (mapped && mapped !== activeTab) setActiveTab(mapped);
+    if (mapped) setActiveTab(mapped);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
