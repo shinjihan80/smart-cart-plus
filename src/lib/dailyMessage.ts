@@ -160,7 +160,15 @@ export function pickDailyMessage(
   }
 
   // ── 2. 인사이트 — 발견/제안 ──────────────────────────────────────────────
-  if (foods.length > 0) {
+  // 재검토(C1 실측) P0 — 영양 구성 단정 메시지에는 NutritionBalanceSection
+  // (P0-59, "식품≥5개 AND 소진기록≥3건" 게이팅)과 같은 최소 데이터
+  // 임계치를 적용해야 하는데, 이 히어로 메시지는 그 게이팅 없이
+  // foods.length > 0만으로 판정했다 — 우유·계란 2개만 등록한(소진
+  // 기록 0건) 사용자에게도 "단백질이 부족해 보여요"라고 단정했다.
+  // 데이터가 부족하면 이 insight 블록 자체를 건너뛰어 아래 우선순위
+  // (gentle 메시지)로 넘어간다.
+  const hasEnoughDataForInsight = foods.length >= 5 && discardHistory.length >= 3;
+  if (hasEnoughDataForInsight) {
     const balance = analyzeBalance(foods);
     if (balance.coverage.protein < 0.3 && balance.proteinCount < 2) {
       return {
