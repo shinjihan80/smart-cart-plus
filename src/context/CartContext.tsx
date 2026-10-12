@@ -48,6 +48,36 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+/**
+ * 저장된 items JSON → 마이그레이션 + 유효성 검증. 최초 하이드레이션과
+ * cross-tab storage 이벤트 동기화(아래) 둘 다 이 함수 하나만 거친다 —
+ * 두 군데서 따로 구현하면 한쪽만 고친 회귀가 재발하기 쉽다.
+ */
+function parseStoredItems(raw: string): { items: CartItem[]; droppedCount: number } {
+  const parsed = JSON.parse(raw) as CartItem[];
+  // 마이그레이션: 구 버전 데이터 보정
+  const migrated = parsed.map((item) => {
+    const cat = item.category as string;
+    if (cat === '식품' && !('foodCategory' in item)) {
+      return Object.assign({}, item, { foodCategory: '기타 식품' }) as CartItem;
+    }
+    if (cat === '의류') return Object.assign({}, item, { category: '상의' }) as CartItem;
+    if (cat === '액세서리') return Object.assign({}, item, { category: '주얼리' }) as CartItem;
+    return item;
+  });
+  // 유효성 검증 — 예전엔 `every()`로 전부-아니면-전무라 아이템 50개 중
+  // 하나만 손상돼도(예: 백업 파일 일부 훼손) 카트 전체가 통째로
+  // 삭제됐다(P0-62, 전문단 E2 발견) — `filter()`로 바꿔 불량 아이템만
+  // 걸러내고 나머지는 살린다.
+  const isValidItem = (item: CartItem) => {
+    if (!item.id || !item.name || !item.category) return false;
+    if (item.category === '식품' && !('foodCategory' in item)) return false;
+    return true;
+  };
+  const validItems = migrated.filter(isValidItem);
+  return { items: validItems, droppedCount: migrated.length - validItems.length };
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   // 신규 사용자는 빈 카트로 시작 — 원하면 설정·온보딩에서 샘플 데이터 불러오기
   const [items, setItems]               = useState<CartItem[]>([]);
@@ -107,37 +137,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       const storedItems = localStorage.getItem(STORAGE_KEY);
       if (storedItems) {
-        const parsed = JSON.parse(storedItems) as CartItem[];
-        // 마이그레이션: 구 버전 데이터 보정
-        const migrated = parsed.map((item) => {
-          const cat = item.category as string;
-          if (cat === '식품' && !('foodCategory' in item)) {
-            return Object.assign({}, item, { foodCategory: '기타 식품' }) as CartItem;
-          }
-          if (cat === '의류') return Object.assign({}, item, { category: '상의' }) as CartItem;
-          if (cat === '액세서리') return Object.assign({}, item, { category: '주얼리' }) as CartItem;
-          return item;
-        });
-        // 유효성 검증 — 예전엔 `every()`로 전부-아니면-전무라 아이템 50개 중
-        // 하나만 손상돼도(예: 백업 파일 일부 훼손) 카트 전체가 통째로
-        // 삭제됐다(P0-62, 전문단 E2 발견) — `filter()`로 바꿔 불량 아이템만
-        // 걸러내고 나머지는 살린다.
-        const isValidItem = (item: CartItem) => {
-          if (!item.id || !item.name || !item.category) return false;
-          if (item.category === '식품' && !('foodCategory' in item)) return false;
-          return true;
-        };
-        const validItems = migrated.filter(isValidItem);
+        const { items: validItems, droppedCount } = parseStoredItems(storedItems);
         if (validItems.length > 0) {
           setItems(validItems);
-          if (validItems.length < migrated.length) {
-            const droppedCount = migrated.length - validItems.length;
+          if (droppedCount > 0) {
             logError(`카트 복원 중 손상된 항목 ${droppedCount}개를 건너뜀`, 'manual');
             window.dispatchEvent(new CustomEvent('nemoa:storage-write-failed', {
               detail: { key: STORAGE_KEY, isQuota: false, message: `손상된 항목 ${droppedCount}개를 제외하고 불러왔어요.` },
             }));
           }
-        } else if (migrated.length > 0) {
+        } else if (droppedCount > 0) {
           // 전부 손상 — 살릴 게 없을 때만 초기화
           localStorage.removeItem(STORAGE_KEY);
         }
@@ -182,6 +191,45 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!hydrated) return;
     safeSetItem(HISTORY_KEY, JSON.stringify(discardHistory));
   }, [discardHistory, hydrated]);
+
+  /**
+   * 재검토(/nemoa-review 비판 모드, C5 코드 확인) P0 — 탭 2개(설치 PWA +
+   * 브라우저 탭 등)를 같은 origin에서 동시에 열고 각각 "다 먹었어요"를
+   * 누르면, 나중에 쓰는 탭은 상대 탭의 변경을 전혀 모른 채 자기가 마운트
+   * 시점에 읽은 스냅샷을 기준으로 배열 전체를 덮어써 먼저 지운 품목이
+   * 되살아나는 lost update가 있었다(실측: A에서 지운 품목이 B의 쓰기로
+   * 부활, nemoa-history도 B의 기록 1건만 남고 A의 기록은 사라짐).
+   *
+   * `storage` 이벤트는 스펙상 "그 변경을 일으킨 탭 자신"에는 안 오고
+   * 다른 탭에서만 발생한다 — 그래서 이 리스너는 자기 탭이 쓴 변경에는
+   * 안 걸리고(무한 루프 방지), 정확히 "내가 모르는 사이 다른 탭이
+   * 바꿨다"는 경우에만 로컬 상태를 디스크 최신값으로 재동기화한다.
+   * 완전한 충돌 해소(동시 편집 병합)는 아니지만, 이 앱의 실사용 패턴
+   * (같은 사람이 탭을 오가며 하나씩 처리)에서 가장 흔한 사고인 "최근
+   * 변경이 조용히 사라짐"은 막는다.
+   */
+  useEffect(() => {
+    if (!hydrated) return;
+    function onStorage(e: StorageEvent) {
+      if (e.storageArea !== localStorage) return;
+      try {
+        if (e.key === STORAGE_KEY) {
+          if (e.newValue === null) { setItems([]); return; }
+          setItems(parseStoredItems(e.newValue).items);
+        } else if (e.key === ARCHIVE_KEY) {
+          setArchived(e.newValue ? JSON.parse(e.newValue) : []);
+        } else if (e.key === DISCARD_KEY) {
+          setDiscardCount(e.newValue ? parseInt(e.newValue, 10) : 0);
+        } else if (e.key === HISTORY_KEY) {
+          setDiscardHistory(e.newValue ? JSON.parse(e.newValue) : []);
+        }
+      } catch (err) {
+        logError(err, 'manual');
+      }
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [hydrated]);
 
   // 중복 방지 addItems — 같은 이름+카테고리면 스킵
   // added/skipped를 setItems 업데이터 안에서 세고 호출 직후 반환하던 예전
