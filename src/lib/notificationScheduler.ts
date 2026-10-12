@@ -75,10 +75,18 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
   const today = new Date().toDateString();
   if (localStorage.getItem(CHECKED_KEY) === today) return;
 
-  if (!(await requestPermission())) return;
-
+  // 재검토(C3 실측) P2-49 회귀 — requestPermission()을 "보낼 게 있는지"
+  // 확인하기도 전에 불렀다. CHECKED_KEY는 "실제로 알림을 띄운 뒤에만"
+  // 기록되므로(바로 위 가드), 임박 품목이 하나도 없는 날은 이 가드를
+  // 영원히 못 거쳐 품목을 등록·수정할 때마다(NotificationScheduler가
+  // items 변경마다 재호출) 맥락 없는 네이티브 권한 팝업이 반복됐다 —
+  // 특히 권한이 'default'(아직 응답 안 함)인 동안은 Notification.
+  // requestPermission()이 실제 팝업을 매번 다시 띄운다. 보낼 알림이
+  // 있을 때만 권한을 물어야 "왜 뜨는지" 맥락이 있다.
   const urgent = foodItems.filter((item) => classifyExpiry(getRemainingDays(item)) === 'today');
   if (urgent.length === 0) return;
+
+  if (!(await requestPermission())) return;
 
   // P0-68(P0-53 재발) — "오늘 소비해야 할"을 고정 문구로 썼는데, 'today'
   // 버킷은 D-0과 D-1을 함께 묶어 D-1만 있어도 "오늘"이라 보냈다.
