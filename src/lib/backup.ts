@@ -164,6 +164,15 @@ export interface BackupStatus {
   lastBackupAt: number | null;
   daysSince:    number | null;  // null if never backed up
   isStale:      boolean;         // 7일 초과 or never
+  /**
+   * 재검토(C3 실측) P1 — 하이드레이션 전엔 isStale이 임시로 false라,
+   * 한 번도 백업한 적 없는 사용자에게도 SSR 첫 렌더가 "✅ 백업
+   * 했음"처럼 보이는 초록 성공 배지를 몇 초간 보여줬다(curl로도 확인,
+   * 느린 폰·오프라인 캐시에서는 더 오래 노출). 소비처는 이 값이
+   * false인 동안 성공/경고 어느 쪽도 단정하지 말고 중립 상태를
+   * 보여줘야 한다.
+   */
+  hydrated:     boolean;
 }
 
 /** 마지막 백업 시점을 관찰하고 화면 갱신에 사용. */
@@ -185,5 +194,5 @@ export function useBackupStatus(): BackupStatus & { refresh: () => void } {
 
   const isStale = now > 0 && (lastBackupAt === null || (now - lastBackupAt) > STALE_AFTER_MS);
 
-  return { lastBackupAt, daysSince, isStale, refresh };
+  return { lastBackupAt, daysSince, isStale, hydrated: now > 0, refresh };
 }

@@ -194,22 +194,33 @@ export default function SettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...springTransition, delay: 0.05 }}
           className={`rounded-[28px] border px-4 py-3 flex items-center gap-3 ${
-            backup.isStale
-              ? 'bg-brand-warning/5 border-brand-warning/15'
-              : 'bg-brand-success/5 border-brand-success/15'
+            !backup.hydrated
+              ? 'bg-gray-50 border-gray-100'
+              : backup.isStale
+                ? 'bg-brand-warning/5 border-brand-warning/15'
+                : 'bg-brand-success/5 border-brand-success/15'
           }`}
         >
-          <EmojiIcon emoji={backup.isStale ? '💾' : '✅'} size={20} className={backup.isStale ? 'text-brand-warning shrink-0' : 'text-brand-success shrink-0'} />
+          {/* 재검토(C3 실측) P1 — 하이드레이션 전엔 isStale이 임시로
+              false라, 한 번도 백업한 적 없는 사용자에게도 SSR 첫
+              렌더가 "✅ 백업 null일 전"(curl로 확인) 같은 거짓 성공
+              배지를 보여줬다. hydrated로 분기해 "확인 중" 중립 상태를
+              먼저 보여주고, 실제 값을 안 뒤에만 성공/경고를 단정한다. */}
+          <EmojiIcon emoji={!backup.hydrated ? '⏳' : backup.isStale ? '💾' : '✅'} size={20} className={!backup.hydrated ? 'text-gray-400 shrink-0' : backup.isStale ? 'text-brand-warning shrink-0' : 'text-brand-success shrink-0'} />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-800">
-              {backup.isStale
-                ? (backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${daysAgoLabel(backup.daysSince)}`)
-                : `백업 ${daysAgoLabel(backup.daysSince)}`}
+              {!backup.hydrated
+                ? '백업 상태 확인 중…'
+                : backup.isStale
+                  ? (backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${daysAgoLabel(backup.daysSince)}`)
+                  : `백업 ${daysAgoLabel(backup.daysSince)}`}
             </p>
             <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
-              {backup.isStale
-                ? '브라우저 캐시가 비면 데이터가 사라질 수 있어요. 지금 백업해두세요.'
-                : '다운로드 폴더에서 백업 파일을 확인해보세요.'}
+              {!backup.hydrated
+                ? '잠시만 기다려주세요.'
+                : backup.isStale
+                  ? '브라우저 캐시가 비면 데이터가 사라질 수 있어요. 지금 백업해두세요.'
+                  : '다운로드 폴더에서 백업 파일을 확인해보세요.'}
             </p>
             {/* P2-43 — 개인정보 경고문이 text-gray-400(대비 ~2.4:1)로
                 카드에서 가장 안 보이는 글씨였다(C8·E3 실측). */}
