@@ -150,6 +150,16 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
   writeTimestamp(Date.now());
 }
 
+/**
+ * 재검토(C5 코드 확인) — "백업 0일 전"은 "방금 했는데 전이라고?"로
+ * 읽혀 어색하다는 지적(0일차 특수 케이스). daysSince가 쓰이는 모든
+ * 화면(설정·마이)이 이 함수 하나로만 문구를 만들어야 한 곳만 고치는
+ * 회귀를 막는다.
+ */
+export function daysAgoLabel(daysSince: number | null): string {
+  return !daysSince ? '오늘' : `${daysSince}일 전`;
+}
+
 export interface BackupStatus {
   lastBackupAt: number | null;
   daysSince:    number | null;  // null if never backed up

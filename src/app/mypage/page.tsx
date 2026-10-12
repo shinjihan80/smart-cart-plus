@@ -12,7 +12,7 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeBrowserModal from '@/components/RecipeBrowserModal';
 import EmojiIcon from '@/components/EmojiIcon';
-import { useBackupStatus, downloadBackup } from '@/lib/backup';
+import { useBackupStatus, downloadBackup, daysAgoLabel } from '@/lib/backup';
 import { useToast } from '@/context/ToastContext';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { josa } from '@/lib/korean';
@@ -318,7 +318,7 @@ export default function MyPage() {
             <EmojiIcon emoji="💾" size={20} className="text-caution shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-800">
-                {backup.lastBackupAt === null ? `등록한 ${items.length}개, 파일로 저장해두면 안전해요` : `마지막 백업 ${backup.daysSince}일 전`}
+                {backup.lastBackupAt === null ? `등록한 ${items.length}개, 파일로 저장해두면 안전해요` : `마지막 백업 ${daysAgoLabel(backup.daysSince)}`}
               </p>
               {/* "수"(의존명사)가 뒷말과 떨어져 줄 끝에 혼자 남아
                   "옮길 수 / 있어요"처럼 어색하게 줄바꿈됐다(P2-32, C4·C6

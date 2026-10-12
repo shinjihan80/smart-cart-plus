@@ -11,7 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { isSupabaseEnabled } from '@/lib/supabase';
 import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import {
-  useBackupStatus, downloadBackup, readBackupFile, applyNonCartFromSnapshot,
+  useBackupStatus, downloadBackup, readBackupFile, applyNonCartFromSnapshot, daysAgoLabel,
 } from '@/lib/backup';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -120,11 +120,19 @@ export default function SettingsPage() {
    * 그대로 진행되는 최악의 경우가 가능했다(P0-36). 대신 "다운로드가
    * 실제로 시작됐는지" 사용자에게 직접 확인받는 두 번째 확인 단계를 둔다.
    */
-  function handleReset() {
+  async function handleReset() {
     if (!confirm('모든 데이터를 초기화할까요?\n\n1) 먼저 현재 상태를 JSON 파일로 다운로드합니다.\n2) 다운로드를 확인한 뒤에만 초기화가 진행됩니다.')) return;
     try {
       const filename = downloadBackup();
       backup.refresh();
+      // 재검토(C5 코드 확인) P0 — a.click() 직후는 브라우저가 실제
+      // 저장 UI(다운로드 알림·"다른 이름으로 저장" 창 등)를 띄우기도
+      // 전이라, 바로 다음 줄에서 confirm()을 동기로 열면 사용자가
+      // 폴더를 열어볼 틈도 없이 "확인했냐"고 묻는 셈이었다. <a
+      // download> API는 "실제 저장 완료" 신호를 안 줘 완전한 보장은
+      // 불가능하지만(이미 이 함수 docstring에 기록된 제약), 최소한
+      // 브라우저가 다운로드를 처리할 짧은 틈은 보장한다.
+      await new Promise((resolve) => setTimeout(resolve, 800));
       const saved = confirm(`"${filename}" 다운로드를 시작했어요.\n\n다운로드 폴더(또는 방금 뜬 저장 위치)에서 파일이 실제로 저장된 걸 확인하셨나요?\n\n확인을 누르면 바로 초기화가 진행되고 되돌릴 수 없어요.`);
       if (!saved) {
         showToast('초기화를 취소했어요. 백업 파일을 확인한 뒤 다시 시도해주세요.');
@@ -195,8 +203,8 @@ export default function SettingsPage() {
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-800">
               {backup.isStale
-                ? (backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${backup.daysSince}일 전`)
-                : `백업 ${backup.daysSince}일 전`}
+                ? (backup.lastBackupAt === null ? '아직 백업한 적 없어요' : `마지막 백업 ${daysAgoLabel(backup.daysSince)}`)
+                : `백업 ${daysAgoLabel(backup.daysSince)}`}
             </p>
             <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
               {backup.isStale
