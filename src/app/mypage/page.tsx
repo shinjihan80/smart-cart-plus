@@ -388,7 +388,14 @@ export default function MyPage() {
                 </div>
                 <div className="flex flex-col items-center gap-0.5 p-2.5 rounded-2xl bg-gray-50">
                   <span className="text-base font-bold text-brand-primary tabular-nums">{clothingItemsList.length}</span>
-                  <span className="text-xs text-gray-400 whitespace-nowrap">의류</span>
+                  {/* 재검토(C5 실측) P1 — 이 칸은 의류·신발·가방·액세서리를
+                      전부 합친 수(21)인데, 옷장 요약은 "의류"를 그중
+                      FASHION_GROUP==='의류'만(10)으로 더 좁게 쓴다. 같은
+                      단어가 화면마다 다른 수를 가리켜 "한쪽이 틀렸다"로
+                      읽혔다(closet/page.tsx 561행 주석도 이미 이 스코프
+                      차이를 인지하고 있었음) — 여기서 쓰는 더 넓은 범위를
+                      "패션"으로 불러 구분한다. */}
+                  <span className="text-xs text-gray-400 whitespace-nowrap">패션</span>
                 </div>
               </div>
               {urgentCount > 0 && (
