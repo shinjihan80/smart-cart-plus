@@ -55,12 +55,25 @@ export function recipeGradient(recipe: Recipe): string {
  */
 const AMBIGUOUS_INGREDIENT_KEYWORDS: ReadonlySet<string> = new Set(['감', '김', '쌀']);
 
+/**
+ * 재검토(C1 실측) — "밥"을 AMBIGUOUS_INGREDIENT_KEYWORDS에 넣어
+ * hasWordMatch로 바꾸면 "흰쌀밥"·"즉석밥"처럼 공백 없이 붙은 정상
+ * 쌀밥 표기가 전부 매칭에서 빠진다(hasWordMatch는 완전히 분리된
+ * 단어만 인정) — 레시피 8종이 쓰는 핵심 키워드라 영향이 더 크다.
+ * 문제는 "밥"이 모호한 게 아니라, 초밥·김밥·비빔밥·덮밥처럼 이미
+ * 조리된 완성 음식 이름에 우연히 "밥"이 들어 있어 원재료인 양
+ * 걸리는 것 — EGG_DISH_EXCLUSIONS(ingredientInference.ts)와 같은
+ * 패턴으로, "밥" 키워드에서만 이 이름들을 제외한다.
+ */
+const RICE_DISH_EXCLUSIONS = ['초밥', '김밥', '비빔밥', '덮밥'];
+
 /** name 안에서 keyword가 (부분 일치가 아니라) 독립된 단어로 등장하는지. */
 function hasWordMatch(name: string, keyword: string): boolean {
   return name.split(/\s+/).includes(keyword);
 }
 
 function keywordMatchesName(keyword: string, name: string): boolean {
+  if (keyword === '밥' && RICE_DISH_EXCLUSIONS.some((dish) => name.includes(dish))) return false;
   return AMBIGUOUS_INGREDIENT_KEYWORDS.has(keyword)
     ? hasWordMatch(name, keyword)
     : name.includes(keyword) || keyword.includes(name);
@@ -1004,9 +1017,10 @@ export function matchRecipes(
     const matchedItems: string[] = [];
     let urgentBoost = 0;
     for (const kw of recipe.keywords) {
-      const hit = nameIndex.find((n) =>
-        AMBIGUOUS_INGREDIENT_KEYWORDS.has(kw) ? hasWordMatch(n.name, kw) : n.name.includes(kw),
-      );
+      const hit = nameIndex.find((n) => {
+        if (kw === '밥' && RICE_DISH_EXCLUSIONS.some((dish) => n.name.includes(dish))) return false;
+        return AMBIGUOUS_INGREDIENT_KEYWORDS.has(kw) ? hasWordMatch(n.name, kw) : n.name.includes(kw);
+      });
       if (hit) {
         matchedItems.push(hit.name);
         if (hit.urgent) urgentBoost += 2;
