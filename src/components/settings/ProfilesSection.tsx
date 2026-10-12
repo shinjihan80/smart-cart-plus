@@ -635,6 +635,12 @@ const ProfilesSection = forwardRef<ProfilesSectionHandle>(function ProfilesSecti
             <p className="text-xs font-semibold text-brand-primary">가족 · 다른 구성원 추가</p>
           </div>
           <p className="text-sm text-gray-500 mb-2">관계를 고르고 이름을 입력하세요.</p>
+          {/* 재검토(C3 실측) P2 — "이름·신체 정보는 이 기기에만
+              저장돼요" 안내가 추가 '뒤' 편집 패널(아래 193행)에만
+              있어, 아이 이름을 처음 입력하는 가장 망설이는 순간에는
+              아무 안내가 없었다(P1-9 부분 해소). 이름 입력칸 바로
+              위로 끌어올린다. */}
+          <p className="text-xs text-gray-400 mb-2">이름·신체 정보는 이 기기에만 저장돼요.</p>
           <div className="flex gap-1.5 mb-2 flex-wrap">
             {RELATIONS.filter((r) => r !== '본인').map((r) => (
               <button
