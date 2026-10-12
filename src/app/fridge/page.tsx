@@ -31,6 +31,7 @@ import { currentSeasonByMonth } from '@/lib/season';
 import { SEASON_ICON }          from '@/lib/iconMap';
 import { useProfiles }         from '@/lib/profile';
 import { usePersistedState }   from '@/lib/usePersistedState';
+import { useMidnightRefresh }  from '@/lib/useMidnightRefresh';
 import { useFridgeInstances, DEFAULT_FRIDGE_INSTANCE } from '@/lib/useFridgeInstances';
 import { maybeShowInstanceCreateAd } from '@/lib/instanceMilestone';
 import { InstanceMetaEditor } from '@/components/InstanceMetaEditor';
@@ -180,6 +181,11 @@ function GridExpiryBadge({ dDay }: { dDay: number }) {
 }
 
 export default function FridgePage() {
+  // 재검토(C5 실측) P1 — 자정이 지나도 이 탭이 계속 열려 있으면(새 품목
+  // 등록 등으로 items가 안 바뀌는 한) D-day가 어제 기준으로 그대로
+  // 남았다. 리렌더만 강제해 getRemainingDays가 그 시점 실제 시각으로
+  // 다시 계산되게 한다.
+  useMidnightRefresh();
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
   const { profiles } = useProfiles();
