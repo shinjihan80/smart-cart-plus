@@ -251,7 +251,14 @@ export default function ProPreviewCard() {
           disabled={interestSaved}
           className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all disabled:opacity-60"
         >
-          {interestSaved ? '알림 신청 완료 ✓' : '출시 알림 받기'}
+          {/* 재검토(C3 실측) P1 — handleInterest는 localStorage 플래그 하나만
+              남길 뿐, 이메일·푸시·서버 어디에도 연락처를 남기지 않는다
+              (nemoa-pro-interest를 실제로 읽어 알림을 보내는 코드는 0건).
+              "알림 신청 완료"는 나중에 뭔가 연락이 온다는 약속인데 지킬
+              방법이 없다 — "아무것도 안 받았는데 왜 완료라고 하지?"라는
+              의심을 산다. 실제로 하는 일(이 기기에 관심 표시 저장)과
+              정확히 같은 말로 바꾼다. */}
+          {interestSaved ? '관심 표시 완료 ✓' : '관심 있어요'}
         </button>
       ) : currentTier === 'free' ? (
         <button
