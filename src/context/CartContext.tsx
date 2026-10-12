@@ -92,6 +92,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // 실패). ref는 setItems와 무관하게 동기로 최신값을 유지해 undoRemove를
   // 의존성 없는 안정 함수로 만들 수 있다.
   const lastRemovedRef = useRef<{ item: CartItem; index: number } | null>(null);
+  // 재검토(C5 실측) P1 — 더블클릭처럼 같은 틱 안에서 removeItem(id)가
+  // 두 번 연달아 불리면, 두 호출 다 아직 리렌더 전이라 같은 stale
+  // `items` 클로저를 보고 "아직 있다"고 똑같이 판단해 discardHistory·
+  // discardCount가 2번 늘었다(실제 items 배열은 filter라 멱등이라
+  // 아이템 자체는 1개만 빠지는데 기록만 중복). 리렌더를 기다리지 않는
+  // 동기 Set으로 "이미 처리 시작한 id"를 즉시 막는다 — id는 한 번
+  // 소진되면 재사용되지 않으니 영구 보관해도 안전하고, undoRemove에서만
+  // 명시적으로 지운다(되돌린 뒤 같은 id를 다시 지울 수 있어야 하므로).
+  const removingIdsRef = useRef<Set<string>>(new Set());
   const [discardHistory, setDiscardHistory] = useState<DiscardRecord[]>([]);
 
   // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
@@ -278,8 +287,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // discardHistory에 같은 소진 기록이 2건씩 쌓였다(P1-34 조사 중 발견,
     // "되돌리기"가 기록 1건만 지워 1건이 그대로 남는 원인). index/item
     // 조회와 side effect를 updater 밖으로 빼 setItems는 순수 필터만 하게.
+    if (removingIdsRef.current.has(id)) return;
     const index = items.findIndex((i) => i.id === id);
     if (index === -1) return;
+    removingIdsRef.current.add(id);
     const item = items[index];
     lastRemovedRef.current = { item, index };
     setDiscardHistory((h) => [
@@ -305,6 +316,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // removeItem에서 매번 맨 앞(index 0)에 넣으므로, 되돌리기 시점의
     // 최신 기록 1건을 지우면 항상 방금 그 소진 기록과 일치한다.
     setDiscardHistory((h) => h.slice(1));
+    removingIdsRef.current.delete(removed.item.id);
     lastRemovedRef.current = null;
   }, []);
 
