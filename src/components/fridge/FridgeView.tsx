@@ -53,6 +53,15 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
           return bucket === 'today' || bucket === 'soon';
         }).length;
         const urgent      = urgentCount > 0;
+        // 재검토(C1 실측) P1 — urgent 배지가 today/soon만 세는 건
+        // 의도된 설계(위 주석)지만, 그 결과 기한이 이미 지난 품목만
+        // 있는 칸은 ⏱ 배지도 안 뜨고 전체 개수 배지만 중립색으로
+        // 남아 칸 그림 어디에도 "여기 상한 게 있다"는 신호가 없었다
+        // — "냉장실 아래칸 3개"만 보고는 그중 전부가 상했는지 전혀
+        // 알 수 없었다. G8에서 전역 요약에 추가한 "기한초과" 칸과
+        // 같은 언어로 칸별 배지도 분리한다.
+        const expiredCount = list.filter((i) => classifyExpiry(i.dDay) === 'expired').length;
+        const expired      = expiredCount > 0;
         const isActive    = highlight === cell.section;
 
         return (
@@ -69,18 +78,26 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
               'relative flex flex-col justify-between text-left rounded-2xl p-2.5',
               'bg-white ring-1',
               isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
-              urgent && !isActive ? 'ring-rose-200 bg-rose-50/40' : '',
+              expired && !isActive ? 'ring-red-300 bg-red-50/50' : urgent && !isActive ? 'ring-rose-200 bg-rose-50/40' : '',
             ].join(' ')}
             style={{
               gridColumn: `${cell.col} / span ${cell.colSpan}`,
               gridRow:    `${cell.row} / span ${cell.rowSpan}`,
               boxShadow:  '0 2px 6px -3px rgba(31, 31, 46, 0.08)',
             }}
-            aria-label={`${meta.label} — ${list.length}개`}
+            aria-label={`${meta.label} — ${list.length}개${expired ? `, 기한초과 ${expiredCount}개` : ''}`}
           >
             <div className="flex items-start justify-between gap-1">
               <span className="emoji text-base" aria-hidden>{meta.emoji}</span>
               <div className="flex items-center gap-1">
+                {expired && (
+                  <span
+                    className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-red-700 text-white"
+                    aria-label={`기한초과 ${expiredCount}개`}
+                  >
+                    🚫{expiredCount}
+                  </span>
+                )}
                 {urgent && (
                   <span
                     className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-rose-500 text-white"
