@@ -164,7 +164,13 @@ export default function SettingsPage() {
       action: handleBackupNow,
     },
     { label: '백업에서 복원',  emoji: '📥', desc: '이전 백업 파일로 데이터 복구',     action: handlePickRestoreFile },
-    { label: 'JSON 내보내기', emoji: '📄', desc: '현재 아이템 목록을 JSON으로 내보내기', action: handleExportJSON },
+    // 재검토(C5 실측) P1 — "JSON 내보내기"로 받은 파일을 "백업에서
+    // 복원"에 넣으면 "네모아 백업 파일이 아닙니다"로 거부된다(아이템
+    // 배열만 담아 프로필·로그 등이 없는 다른 포맷 — readBackupFile이
+    // version/app 필드를 검증함). 두 버튼이 똑같이 "JSON"이라 백업으로
+    // 착각하기 쉬운데, 기기를 바꾼 뒤에야 복원이 안 된다는 걸 알게 되면
+    // 그땐 원본 기기가 없을 수 있다 — 지금 이 자리에서 바로 안내한다.
+    { label: 'JSON 내보내기', emoji: '📄', desc: '현재 아이템 목록을 JSON으로 내보내기 (복원용 아님 — 복원은 위 "지금 백업하기" 파일로)', action: handleExportJSON },
     { label: 'CSV 내보내기',  emoji: '📊', desc: '현재 아이템 목록을 CSV로 내보내기',  action: handleExportCSV },
   ];
 
