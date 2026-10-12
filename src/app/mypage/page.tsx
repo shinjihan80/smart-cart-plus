@@ -341,7 +341,9 @@ export default function MyPage() {
                   경고문이 text-gray-400(대비 ~2.4:1)로 카드에서 가장 안
                   보이는 글씨였다(C8·E3 실측) — 위 안내 문구들보다 더
                   진하게 바꿔 위계를 바로잡는다. */}
-              <p className="text-[13px] font-medium text-caution mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
+              {/* 재검토(C3 실측) P1 — settings/page.tsx와 같은 경고문
+                  과소 서술 수정(알레르기·얼굴 사진·등록 사진 명시). */}
+              <p className="text-[13px] font-medium text-caution mt-1">가족 이름·나이·알레르기·얼굴 사진과 등록한 사진까지 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
             </div>
             <button
               onClick={handleBackupNow}

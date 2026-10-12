@@ -224,7 +224,14 @@ export default function SettingsPage() {
             </p>
             {/* P2-43 — 개인정보 경고문이 text-gray-400(대비 ~2.4:1)로
                 카드에서 가장 안 보이는 글씨였다(C8·E3 실측). */}
-            <p className="text-[13px] font-medium text-caution mt-1">가족 이름·신체 정보가 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
+            {/* 재검토(C3 실측) P1 — 경고문이 "이름·신체 정보"로만 적혀
+                있었는데, buildSnapshot()이 실제로 담는 건 그보다 훨씬
+                민감하다: 프로필의 알레르기·나이·성별, 아바타로 올린
+                얼굴 사진, 식품/의류에 등록한 사진까지 전부 암호화 안 된
+                평문 JSON에 들어간다. "이름하고 키 몸무게 정도"로 믿고
+                카톡으로 보냈다가 그 안에 아이 알레르기·얼굴 사진까지
+                있다는 걸 알면 경고가 경고 역할을 못 한 셈이다. */}
+            <p className="text-[13px] font-medium text-caution mt-1">가족 이름·나이·알레르기·얼굴 사진과 등록한 사진까지 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
           </div>
           <button
             onClick={handleBackupNow}
