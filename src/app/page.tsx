@@ -23,6 +23,7 @@ import NotificationOffBanner from '@/components/home/NotificationOffBanner';
 import TodoEmptyState  from '@/components/home/TodoEmptyState';
 import RebuyAlert      from '@/components/home/RebuyAlert';
 import SeasonChangeAlert from '@/components/home/SeasonChangeAlert';
+import BackupReminderBanner from '@/components/home/BackupReminderBanner';
 import DailyBriefing   from '@/components/home/DailyBriefing';
 import TodayDishCard   from '@/components/home/TodayDishCard';
 import WeeklyInsight   from '@/components/home/WeeklyInsight';
@@ -183,6 +184,13 @@ export default function HomePage() {
               </SectionErrorBoundary>
               <SectionErrorBoundary label="시즌 옷장 정리">
                 <SeasonChangeAlert items={items} />
+              </SectionErrorBoundary>
+              {/* 재검토(C5 코드 확인) P0 — /manual·/help가 "홈 화면에
+                  백업 권장 배너가 표시됩니다"라고 약속했지만 실제로는
+                  마이·설정 안에만 있었다. 가장 급하지 않은 housekeeping
+                  성격이라 액션 존 맨 끝에 둔다. */}
+              <SectionErrorBoundary label="백업 권장 안내">
+                <BackupReminderBanner items={items} />
               </SectionErrorBoundary>
             </TodoEmptyState>
           </SectionHeader>
