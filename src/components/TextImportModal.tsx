@@ -135,9 +135,13 @@ function ProLockedTab({ feature, onClose }: { feature: string; onClose: () => vo
           비교가 없다("무료 요금제는 이 기기에만 저장돼요" 한 줄뿐) —
           실제 요금 비교(ProPreviewCard)는 /mypage에 있다(C9 실측).
           또한 Link만으로는 이 시트가 열린 채 그대로 남아 새 화면을
-          반쯤 덮었다 — 이동 전에 시트부터 닫는다. */}
+          반쯤 덮었다 — 이동 전에 시트부터 닫는다.
+          재검토(C1 실측) P1 — PlanGate.tsx는 이미 "#plan" 해시로
+          ProPreviewCard(id="plan") 위치까지 스크롤하는데, 이 URL 탭
+          잠금 화면만 해시 없이 보내 화면 높이 611px 기준 두 화면
+          넘게 내려야 요금 비교표가 보였다. 같은 패턴으로 통일. */}
       <Link
-        href="/mypage?tab=profile"
+        href="/mypage?tab=profile#plan"
         onClick={onClose}
         className="text-xs font-semibold px-4 py-2 rounded-full bg-brand-primary text-white hover:opacity-90"
       >

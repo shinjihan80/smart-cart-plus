@@ -219,10 +219,17 @@ export default function ProPreviewCard() {
           transition={{ duration: 0.2 }}
           className="overflow-hidden mb-3"
         >
+          {/* 재검토(C1 실측) P1 — 왼쪽 라벨 칸이 1fr(나머지 3칸이 먼저
+              차지하고 남는 공간)+truncate라 "클라우드 동기화"·
+              "프로필(가족 구성원)" 같은 긴 라벨이 "클라우드 …"·
+              "프로필(가…"로 잘렸다. 고정 너비(8rem)로 바꿔 한 줄에
+              들어가게 하고, 그래도 넘치는 화면은 이미 있던
+              overflow-x-auto로 가로 스크롤하면 된다(스크롤 자체는
+              원래도 있었는데 truncate가 넘치기도 전에 먼저 잘랐음). */}
           <div className="rounded-2xl bg-white border border-gray-100 overflow-x-auto">
-            <div className="min-w-[280px]">
+            <div className="min-w-[340px]">
               {/* column header */}
-              <div className="grid grid-cols-[1fr_2.8rem_3.2rem_3.2rem] gap-x-2 px-3 py-2 border-b border-gray-50 bg-gray-50/60">
+              <div className="grid grid-cols-[8rem_2.8rem_3.2rem_3.2rem] gap-x-2 px-3 py-2 border-b border-gray-50 bg-gray-50/60">
                 <span className="text-[10px] text-gray-400 font-medium">기능</span>
                 <span className="text-[10px] text-gray-400 font-medium text-center">무료</span>
                 <span className="text-[10px] text-brand-primary font-medium text-center">Lite</span>
@@ -231,9 +238,9 @@ export default function ProPreviewCard() {
               {ROWS.map((row, i) => (
                 <div
                   key={row.label}
-                  className={`grid grid-cols-[1fr_2.8rem_3.2rem_3.2rem] gap-x-2 items-center px-3 py-1.5 ${i < ROWS.length - 1 ? 'border-b border-gray-50' : ''}`}
+                  className={`grid grid-cols-[8rem_2.8rem_3.2rem_3.2rem] gap-x-2 items-center px-3 py-1.5 ${i < ROWS.length - 1 ? 'border-b border-gray-50' : ''}`}
                 >
-                  <span className="text-xs text-gray-500 truncate min-w-0">{row.label}</span>
+                  <span className="text-xs text-gray-500">{row.label}</span>
                   <span className="text-[10px] text-gray-400 tabular-nums text-center flex justify-center min-w-0">{row.free}</span>
                   <span className="text-[10px] text-brand-primary tabular-nums text-center flex justify-center min-w-0">{row.pro_lite}</span>
                   <span className="text-[10px] text-brand-primary font-semibold tabular-nums text-center flex justify-center min-w-0">{row.pro_max}</span>
