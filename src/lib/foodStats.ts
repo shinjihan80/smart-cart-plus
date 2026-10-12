@@ -3,11 +3,12 @@ import { getRemainingDays } from './expirySelectors';
 import { classifyExpiry } from './expiryThresholds';
 
 export interface FoodStats {
-  total:  number;
-  cold:   number;
-  frozen: number;
-  room:   number;
-  soon:   number;
+  total:   number;
+  cold:    number;
+  frozen:  number;
+  room:    number;
+  soon:    number;
+  expired: number;
 }
 
 /**
@@ -21,6 +22,7 @@ export function summarizeFoods(foods: readonly FoodItem[]): FoodStats {
   let frozen = 0;
   let room = 0;
   let soon = 0;
+  let expired = 0;
   for (const f of foods) {
     if (f.storageType === '냉장') cold += 1;
     else if (f.storageType === '냉동') frozen += 1;
@@ -28,6 +30,7 @@ export function summarizeFoods(foods: readonly FoodItem[]): FoodStats {
 
     const bucket = classifyExpiry(getRemainingDays(f));
     if (bucket === 'today' || bucket === 'soon') soon += 1;
+    else if (bucket === 'expired') expired += 1;
   }
-  return { total: foods.length, cold, frozen, room, soon };
+  return { total: foods.length, cold, frozen, room, soon, expired };
 }

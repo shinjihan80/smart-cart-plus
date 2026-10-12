@@ -90,12 +90,12 @@ const QUICK_ADD_FOODS: { name: string; foodCategory: import('@/types').FoodCateg
  * 음식 탭만 보면 설명이 안 됐다(P2-42, E2 실측). 5칸으로 통일.
  */
 function FoodSummaryStats({
-  total, cold, frozen, room, urgent, groupCounts,
-  onAll, onCold, onFrozen, onRoom, onUrgent,
+  total, cold, frozen, room, urgent, expired, groupCounts,
+  onAll, onCold, onFrozen, onRoom, onUrgent, onExpired,
 }: {
-  total: number; cold: number; frozen: number; room: number; urgent: number;
+  total: number; cold: number; frozen: number; room: number; urgent: number; expired: number;
   groupCounts: { group: string; count: number }[];
-  onAll: () => void; onCold: () => void; onFrozen: () => void; onRoom: () => void; onUrgent: () => void;
+  onAll: () => void; onCold: () => void; onFrozen: () => void; onRoom: () => void; onUrgent: () => void; onExpired: () => void;
 }) {
   return (
     <motion.div
@@ -127,6 +127,17 @@ function FoodSummaryStats({
             {urgent}
           </p>
           <p className="text-xs text-gray-400 mt-0.5">임박</p>
+        </button>
+        {/* 재검토(C5 코드 확인) P0 — 요약 5칸 중 어디에도 기한 초과(expired)
+            개수가 없어 "임박 0"이면 전부 괜찮다고 읽혔다. 홈 히어로는
+            기한 지난 품목 수를 말하는데, "확인하기"로 도착하는 이 요약은
+            0이라 모순이었다. 6번째 칸으로 단일 소스(foodStats.expired)를
+            그대로 노출. */}
+        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onExpired}>
+          <p className={`text-base font-bold tabular-nums ${expired > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+            {expired}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">기한초과</p>
         </button>
       </div>
       {groupCounts.length > 0 && (
@@ -194,6 +205,10 @@ export default function FridgePage() {
   // "임박" 요약 수치를 눌렀을 때 그 개수만큼 실제로 걸러 보여주기 위한 토글.
   // 예전엔 정렬만 바뀌고 필터가 안 걸려서 "6 임박" 눌러도 전체(21개)가 그대로 나왔다.
   const [urgentOnly, setUrgentOnly] = useState(false);
+  // 기한초과 요약 칸(C5 P0) 전용 필터 토글 — urgentOnly(today/soon)와
+  // 상호 배타적으로 동작해야 "임박만 보기"를 누르면 기한초과 필터가
+  // 그대로 남아 둘 다 걸리는 혼선이 없다.
+  const [expiredOnly, setExpiredOnly] = useState(false);
   const [viewMode, setViewMode] = usePersistedState<'visual' | 'list' | 'compact'>(
     'nemoa-fridge-view', 'visual',
     (raw) => (raw === 'visual' || raw === 'list' || raw === 'compact') ? raw : null,
@@ -274,6 +289,7 @@ export default function FridgePage() {
     // N+1개가 나왔다(P0-72, E2·E3 코드 확인 — P0-29·P0-30과 같은
     // "하한 없는 임계값" 패턴 재발). today·soon 버킷만 임박으로 센다.
     .filter((i) => !urgentOnly || classifyExpiry(i.dDay) === 'today' || classifyExpiry(i.dDay) === 'soon')
+    .filter((i) => !expiredOnly || classifyExpiry(i.dDay) === 'expired')
     .filter((i) => !search || i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === 'dDay') return a.dDay - b.dDay;
@@ -288,10 +304,11 @@ export default function FridgePage() {
   const seasonalCount = ownerFood.filter((i) => isSeasonalProduce(i.name, season)).length;
 
   const foodStats   = summarizeFoods(ownerFood);
-  const urgentCount = foodStats.soon;
-  const coldCount   = foodStats.cold;
-  const frozenCount = foodStats.frozen;
-  const roomCount   = foodStats.room;
+  const urgentCount  = foodStats.soon;
+  const coldCount    = foodStats.cold;
+  const frozenCount  = foodStats.frozen;
+  const roomCount    = foodStats.room;
+  const expiredCount = foodStats.expired;
 
   const foodGroupCounts = FOOD_GROUPS.map((g) => ({
     group: g,
@@ -518,13 +535,14 @@ export default function FridgePage() {
 
             {/* 요약 5수치 — 음식 탭과 공유하는 FoodSummaryStats(P2-42) */}
             <FoodSummaryStats
-              total={ownerFood.length} cold={coldCount} frozen={frozenCount} room={roomCount} urgent={urgentCount}
+              total={ownerFood.length} cold={coldCount} frozen={frozenCount} room={roomCount} urgent={urgentCount} expired={expiredCount}
               groupCounts={foodGroupCounts}
-              onAll={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              onCold={() => { setUrgentOnly(false); scrollToStorage('냉장'); }}
-              onFrozen={() => { setUrgentOnly(false); scrollToStorage('냉동'); }}
-              onRoom={() => { setUrgentOnly(false); scrollToStorage('실온'); }}
-              onUrgent={() => { setActiveTab('food'); setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}
+              onAll={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); setExpiredOnly(false); setActiveTab('food'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onCold={() => { setUrgentOnly(false); setExpiredOnly(false); scrollToStorage('냉장'); }}
+              onFrozen={() => { setUrgentOnly(false); setExpiredOnly(false); scrollToStorage('냉동'); }}
+              onRoom={() => { setUrgentOnly(false); setExpiredOnly(false); scrollToStorage('실온'); }}
+              onUrgent={() => { setActiveTab('food'); setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); setExpiredOnly(false); scrollToFridgeItems(); }}
+              onExpired={() => { setActiveTab('food'); setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setExpiredOnly(true); setUrgentOnly(false); scrollToFridgeItems(); }}
             />
 
             {/* 시각화 */}
@@ -588,13 +606,14 @@ export default function FridgePage() {
                 예전엔 여기만 "실온" 칸과 카테고리 분포 줄이 빠져 있어
                 전체 20-냉장12-냉동2=6개가 어디 있는지 설명이 안 됐다. */}
             <FoodSummaryStats
-              total={ownerFood.length} cold={coldCount} frozen={frozenCount} room={roomCount} urgent={urgentCount}
+              total={ownerFood.length} cold={coldCount} frozen={frozenCount} room={roomCount} urgent={urgentCount} expired={expiredCount}
               groupCounts={foodGroupCounts}
-              onAll={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              onCold={() => { setStorageFilter('냉장'); setUrgentOnly(false); scrollToFridgeItems(); }}
-              onFrozen={() => { setStorageFilter('냉동'); setUrgentOnly(false); scrollToFridgeItems(); }}
-              onRoom={() => { setStorageFilter('실온'); setUrgentOnly(false); scrollToFridgeItems(); }}
-              onUrgent={() => { setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); scrollToFridgeItems(); }}
+              onAll={() => { setStorageFilter('전체'); setGroupFilter('전체'); setUrgentOnly(false); setExpiredOnly(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onCold={() => { setStorageFilter('냉장'); setUrgentOnly(false); setExpiredOnly(false); scrollToFridgeItems(); }}
+              onFrozen={() => { setStorageFilter('냉동'); setUrgentOnly(false); setExpiredOnly(false); scrollToFridgeItems(); }}
+              onRoom={() => { setStorageFilter('실온'); setUrgentOnly(false); setExpiredOnly(false); scrollToFridgeItems(); }}
+              onUrgent={() => { setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setUrgentOnly(true); setExpiredOnly(false); scrollToFridgeItems(); }}
+              onExpired={() => { setStorageFilter('전체'); setGroupFilter('전체'); setSortBy('dDay'); setExpiredOnly(true); setUrgentOnly(false); scrollToFridgeItems(); }}
             />
 
             {/* 프로필 필터 (2명 이상일 때만) */}
@@ -630,6 +649,12 @@ export default function FridgePage() {
                 <button onClick={() => setUrgentOnly(false)}
                   className="shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium bg-brand-warning text-white flex items-center gap-1">
                   ⚠️ 임박만 <X size={11} strokeWidth={2.5} />
+                </button>
+              )}
+              {expiredOnly && (
+                <button onClick={() => setExpiredOnly(false)}
+                  className="shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium bg-red-600 text-white flex items-center gap-1">
+                  🚫 기한초과만 <X size={11} strokeWidth={2.5} />
                 </button>
               )}
               {seasonalCount > 0 && (

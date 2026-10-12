@@ -18,6 +18,7 @@ import HeroMessage     from '@/components/home/HeroMessage';
 import SectionHeader   from '@/components/home/SectionHeader';
 import SectionErrorBoundary from '@/components/SectionErrorBoundary';
 import UrgentAlert     from '@/components/home/UrgentAlert';
+import ExpiredReminder from '@/components/home/ExpiredReminder';
 import NotificationOffBanner from '@/components/home/NotificationOffBanner';
 import TodoEmptyState  from '@/components/home/TodoEmptyState';
 import RebuyAlert      from '@/components/home/RebuyAlert';
@@ -160,6 +161,13 @@ export default function HomePage() {
                   C4·C9 3인 독립 지적 + E1 "리텐션 관점 단일 최대 누수 지점"). */}
               <SectionErrorBoundary label="알림 꺼짐 안내">
                 <NotificationOffBanner items={items} />
+              </SectionErrorBoundary>
+              {/* 재검토(C5 코드 확인) P0 — 히어로 "N개 지났어요" ↔ 바로
+                  아래 "할 일 없음 🎉" 모순. UrgentAlert는 expired를
+                  의도적으로 안 그려(P0-30 방지) 여기 혼자서는 안 메워지던
+                  구멍이라 별도 배너로 채운다. */}
+              <SectionErrorBoundary label="기한 초과 식품">
+                <ExpiredReminder items={items} />
               </SectionErrorBoundary>
               <SectionErrorBoundary label="임박 식품">
                 <UrgentAlert items={items} />
