@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { createSharedStore } from './sharedStore';
-import { todayLocalStr } from './dateMath';
+import { createSharedStore } from './sharedStore.ts';
+import { todayLocalStr } from './dateMath.ts';
 
 /**
  * 익명 사용 통계 — 프라이버시 기본값.

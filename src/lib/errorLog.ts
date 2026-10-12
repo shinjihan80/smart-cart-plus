@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { createSharedStore } from './sharedStore';
-import { isAnalyticsEnabled } from './analytics';
+import { createSharedStore } from './sharedStore.ts';
+import { isAnalyticsEnabled } from './analytics.ts';
 
 /**
  * 가벼운 클라이언트 에러 로깅 — Sentry 없이 로컬 스토리지에 최근 50건 저장.

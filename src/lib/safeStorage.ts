@@ -1,4 +1,4 @@
-import { logError } from './errorLog';
+import { logError } from './errorLog.ts';
 
 /**
  * `localStorage.setItem`을 그대로 부르면 용량 초과(`QuotaExceededError`,
