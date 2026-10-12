@@ -8,7 +8,7 @@ import { springTransition, CARD, CARD_SHADOW } from './shared';
 import { todayLocalStr } from '@/lib/dateMath';
 
 interface Props {
-  discardHistory: { name: string; category: string; date: string }[];
+  discardHistory: { name: string; category: string; date: string; kind?: 'eaten' | 'discarded' }[];
 }
 
 /**
@@ -29,7 +29,9 @@ export default function WeeklySummarySection({ discardHistory }: Props) {
 
   const cookCount    = Object.values(cookLog).flat().filter(inWeek).length;
   const wearCount    = Object.values(wearLog).flat().filter(inWeek).length;
-  const discardCount = discardHistory.filter((h) => h.category === '식품' && h.date && inWeek(h.date)).length;
+  // 재검토(C5 실측) P1 — "다 먹음"에 상해서 버린 것까지 섞이지 않게
+  // kind==='discarded'는 제외(안B). undefined(과거 기록)는 '다 먹음'.
+  const discardCount = discardHistory.filter((h) => h.category === '식품' && h.date && inWeek(h.date) && h.kind !== 'discarded').length;
 
   if (cookCount === 0 && wearCount === 0 && discardCount === 0) return null;
 

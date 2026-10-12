@@ -20,6 +20,7 @@ interface DiscardRecord {
   name:     string;
   category: string;
   date:     string;
+  kind?:    'eaten' | 'discarded';
 }
 
 export default function SeasonalHistorySection({ history }: { history: DiscardRecord[] }) {
@@ -34,6 +35,10 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
     const counts = new Map<string, number>();
     for (const h of history) {
       if (h.category !== '식품') continue;
+      // 재검토(C5 실측) P1 — "드신 제철 재료"에 상해서 버린 것까지
+      // 섞이지 않게 kind==='discarded'는 제외(안B). undefined(과거
+      // 기록)는 '다 먹음'으로 간주.
+      if (h.kind === 'discarded') continue;
       if (!h.date || h.date < winStart) continue;
       if (!isSeasonalProduce(h.name, season)) continue;
       counts.set(h.name, (counts.get(h.name) ?? 0) + 1);

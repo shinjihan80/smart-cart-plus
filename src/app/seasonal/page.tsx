@@ -82,8 +82,10 @@ function SeasonalPageInner() {
       }
     }
     // 올해 해당 계절 월에 소진한 기록
+    // 재검토(C5 실측) P1 — "드셔본" 재료 목록에 상해서 버린 것까지
+    // 섞이지 않게 kind==='discarded'는 제외(안B).
     for (const h of discardHistory) {
-      if (h.category !== '식품' || !h.date) continue;
+      if (h.category !== '식품' || !h.date || h.kind === 'discarded') continue;
       const m = new Date(h.date).getMonth() + 1;
       if (!monthList.includes(m)) continue;
       for (const p of SEASONAL_PRODUCE) {

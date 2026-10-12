@@ -46,7 +46,7 @@ interface StatsSectionProps {
   foodItems:       FoodItem[];
   clothingItems:   CartItem[];
   urgentCount:     number;
-  discardHistory:  { name: string; category: string; date: string }[];
+  discardHistory:  { name: string; category: string; date: string; kind?: 'eaten' | 'discarded' }[];
   coldCount:       number;
   frozenCount:     number;
   roomCount:       number;
@@ -60,8 +60,14 @@ export default function StatsSection({
   // removeItem 카운터로 합산해, "낭비 줄이기" 핵심 지표를 계산할 수
   // 없게 만들었다(P1-91, C8 실측 + E1 "지표 자체가 계산 불가능"). 같은
   // discardHistory를 category로 나눠 식품/패션을 각자 셀 수 있게 분리.
-  const eatenCount   = discardHistory.filter((h) => h.category === '식품').length;
-  const clearedCount = discardHistory.length - eatenCount;
+  // 재검토(C5 실측) P1 — "다 먹은 식품"에 상해서 버린 것까지 섞여
+  // 수치가 부풀려졌다(안B 채택) — kind==='discarded'는 제외.
+  // undefined(과거 기록)는 기존처럼 '다 먹음'으로 간주해 소급 변경 없음.
+  // clearedCount(옷 정리)는 food와 무관하므로 빼기가 아니라 카테고리로
+  // 직접 센다 — eatenCount에서 discarded를 빼면서 "total - eatenCount"
+  // 뺄셈식을 쓰면 상한 식품(discarded)이 옷 정리 수치로 잘못 흘러든다.
+  const eatenCount   = discardHistory.filter((h) => h.category === '식품' && h.kind !== 'discarded').length;
+  const clearedCount = discardHistory.filter((h) => h.category !== '식품').length;
 
   return (
     <>

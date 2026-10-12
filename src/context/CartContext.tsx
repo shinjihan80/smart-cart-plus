@@ -20,6 +20,16 @@ export interface DiscardRecord {
   name:      string;
   category:  string;
   date:      string;
+  /**
+   * 재검토(/nemoa-review 비판 모드, C5 실측) — "다 먹었어요"가 상한
+   * 식품을 치우는 유일한 수단이라, 버린 것도 전부 "먹었다" 통계(마이
+   * 페이지 누적·주간/월간/연간 요약·제철 기록)에 섞여 "안 버리고 다
+   * 먹은 수치"가 구조적으로 부풀려졌다(P1-91 "완료(안A)"는 용어만
+   * 정리했을 뿐 이 구분 자체는 없었음, 재검토에서 "안B" 채택). 기존
+   * 저장된 기록엔 이 필드가 없으므로 undefined는 'eaten'과 동일하게
+   * 취급해 과거 통계가 조용히 바뀌지 않게 한다.
+   */
+  kind?:     'eaten' | 'discarded';
 }
 
 interface CartContextValue {
@@ -27,7 +37,8 @@ interface CartContextValue {
   archived:        CartItem[];
   addItems:        (newItems: CartItem[]) => { added: number; skipped: number };
   updateItem:      (id: string, updates: Partial<CartItem>) => void;
-  removeItem:      (id: string) => void;
+  /** kind 생략 시 'eaten'(다 먹음) — 상한 걸 버릴 땐 'discarded'를 명시. */
+  removeItem:      (id: string, kind?: 'eaten' | 'discarded') => void;
   undoRemove:      () => void;
   resetData:       () => void;
   /** 샘플(mockData 22개)로 초기화 — 처음 체험용. resetData와 구분 (resetData는 샘플 복원이기도 함). */
@@ -280,7 +291,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     ));
   }, []);
 
-  const removeItem = useCallback((id: string) => {
+  const removeItem = useCallback((id: string, kind: 'eaten' | 'discarded' = 'eaten') => {
     // setItems 업데이터 함수 안에서 setLastRemoved·setDiscardHistory를 같이
     // 호출하던 예전 코드는 비순수 업데이터였다 — React가 개발 모드
     // StrictMode에서 업데이터를 순수성 검사 목적으로 두 번 호출하면서
@@ -294,7 +305,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const item = items[index];
     lastRemovedRef.current = { item, index };
     setDiscardHistory((h) => [
-      { name: item.name, category: item.category, date: todayLocalStr() },
+      { name: item.name, category: item.category, date: todayLocalStr(), kind },
       ...h,
     ].slice(0, 30));
     setItems((prev) => prev.filter((i) => i.id !== id));

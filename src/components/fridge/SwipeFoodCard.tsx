@@ -30,7 +30,7 @@ interface SwipeFoodCardProps {
   dDay:         number;
   index:        number;
   fridgeModelId: FridgeModelId;
-  onDiscard: (id: string) => void;
+  onDiscard: (id: string, kind?: 'eaten' | 'discarded') => void;
   onUpdate:  (id: string, updates: Partial<FoodItem>) => void;
   /** 부모가 관리하는 펼침 상태 — 한 번에 하나만 펼치게 */
   expanded?: boolean;
@@ -514,19 +514,37 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                     {/* "소진 처리"는 일상어가 아니고, 🗑️(휴지통) 아이콘은
                         "먹어서 없앤 것"과 "상해서 버린 것"을 구분 못 하게
                         만들었다(P2-38, C8·C9 각 독립 지적·9/27 밤 재지적).
-                        실제로 이 버튼이 호출하는 동작(removeItem)은 데이터
-                        상 "먹었든 버렸든" 구분이 없는 단일 제거 동작이지만,
                         압도적으로 흔한 케이스("다 먹어서 없앰")를 기준으로
                         자연스러운 구어체 라벨을 쓴다 — 🍲는 TodayDishCard의
                         "조리 완료" 토스트와 같은 아이콘으로 "음식을 다
-                        먹었다" 맥락을 재사용. */}
+                        먹었다" 맥락을 재사용. (재검토 C5 — 이 버튼이
+                        호출하는 removeItem은 이제 kind='eaten'/'discarded'
+                        를 구분해 통계에 반영한다. 아래 "상해서 버렸어요"가
+                        kind='discarded' 전용 보조 동작.) */}
                     <button
-                      onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id); }}
+                      onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id, 'eaten'); }}
                       className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100 hover:bg-rose-100 transition-colors"
                     >
                       🍲 다 먹었어요
                     </button>
                   </div>
+                )}
+                {/* 재검토(/nemoa-review 비판 모드, C5 실측) P1 — "다
+                    먹었어요"가 상한 식품을 치우는 유일한 수단이라
+                    버린 것도 "먹었다" 통계(마이 누적·주간/월간/연간
+                    요약·제철 기록)에 섞여 들어갔다(P1-91 "안A"는 라벨
+                    정리뿐, "안B" 채택). 압도적으로 흔한 "다 먹음"
+                    플로우는 위 버튼 그대로 1탭 유지하고, 상한 걸
+                    버릴 때만 쓰는 보조 동작을 작고 수수하게 따로
+                    둔다 — 두 버튼을 나란히 같은 비중으로 두면 오히려
+                    "보통은 뭘 눌러야 하지?"가 헷갈린다. */}
+                {!editing && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id, 'discarded'); }}
+                    className="w-full mt-1.5 py-1 text-[11px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    🗑️ 상해서 버렸어요
+                  </button>
                 )}
 
               </div>

@@ -7,7 +7,7 @@ import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface Props {
-  discardHistory: { name: string; category: string; date: string }[];
+  discardHistory: { name: string; category: string; date: string; kind?: 'eaten' | 'discarded' }[];
 }
 
 /**
@@ -24,7 +24,9 @@ export default function MonthlySummarySection({ discardHistory }: Props) {
 
   const cookCount = Object.values(cookLog).flat().filter(inMonth).length;
   const wearCount = Object.values(wearLog).flat().filter(inMonth).length;
-  const discardCount = discardHistory.filter((h) => h.category === '식품' && h.date && inMonth(h.date)).length;
+  // 재검토(C5 실측) P1 — "다 먹음"에 상해서 버린 것까지 섞이지 않게
+  // kind==='discarded'는 제외(안B). undefined(과거 기록)는 '다 먹음'.
+  const discardCount = discardHistory.filter((h) => h.category === '식품' && h.date && inMonth(h.date) && h.kind !== 'discarded').length;
 
   if (cookCount === 0 && wearCount === 0 && discardCount === 0) return null;
 

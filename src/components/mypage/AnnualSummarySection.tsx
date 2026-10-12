@@ -12,7 +12,7 @@ import { localMidnight, todayMidnight, daysBetween } from '@/lib/dateMath';
  * discardHistory를 prop으로 받아 식재료 소진 횟수 표시.
  */
 interface Props {
-  discardHistory: { name: string; category: string; date: string }[];
+  discardHistory: { name: string; category: string; date: string; kind?: 'eaten' | 'discarded' }[];
 }
 
 const MONTH_LABEL = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
@@ -38,8 +38,10 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
 
   const cookDates    = Object.values(cookLog).flat().filter(inYear);
   const wearDates    = Object.values(wearLog).flat().filter(inYear);
+  // 재검토(C5 실측) P1 — "다 먹은 식품"에 상해서 버린 것까지 섞이지
+  // 않게 kind==='discarded'는 제외(안B). undefined(과거 기록)는 '다 먹음'.
   const discardDates = discardHistory
-    .filter((h) => h.category === '식품' && h.date && inYear(h.date))
+    .filter((h) => h.category === '식품' && h.date && inYear(h.date) && h.kind !== 'discarded')
     .map((h) => h.date);
 
   const cookTotal    = cookDates.length;

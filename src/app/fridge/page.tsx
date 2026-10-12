@@ -324,13 +324,18 @@ export default function FridgePage() {
     count: ownerFood.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length,
   })).filter((g) => g.count > 0);
 
-  function handleDiscard(id: string) {
+  // 재검토(C5 실측) P1 — "다 먹었어요"가 상한 식품을 치우는 유일한
+  // 수단이라, 버린 것도 "먹었다" 통계(마이페이지 누적·주간/월간/연간
+  // 요약·제철 기록)에 섞여 들어갔다(P1-91 "안A"는 라벨만 정리, "안B"
+  // 채택). kind를 받아 DiscardRecord에 남기고, 토스트 문구도 실제
+  // 누른 버튼과 맞춘다.
+  function handleDiscard(id: string, kind: 'eaten' | 'discarded' = 'eaten') {
     const name = allFood.find((i) => i.id === id)?.name ?? '';
-    removeItem(id);
-    // 버튼 라벨("🍲 다 먹었어요")과 토스트 문구를 맞춘다(P2-38) — "소진
-    // 처리됐어요"는 일상어가 아니라 버튼을 눌러놓고도 뭘 했는지 다시
-    // 헷갈리게 했다.
-    showToast(`"${name}" 다 먹었어요.`, undoRemove);
+    removeItem(id, kind);
+    // 버튼 라벨("🍲 다 먹었어요"/"🗑️ 버렸어요")과 토스트 문구를 맞춘다
+    // (P2-38) — "소진 처리됐어요"는 일상어가 아니라 버튼을 눌러놓고도
+    // 뭘 했는지 다시 헷갈리게 했다.
+    showToast(`"${name}" ${kind === 'discarded' ? '버렸어요.' : '다 먹었어요.'}`, undoRemove);
   }
 
   function pickSection(input: { name: string; foodCategory: import('@/types').FoodCategory; storageType: StorageType }) {
@@ -965,7 +970,7 @@ export default function FridgePage() {
               <div className="px-4 pt-1">
                 <SwipeFoodCard item={compactDetailItem} dDay={compactDetailDDay} index={0}
                   fridgeModelId={fridgeModelId}
-                  onDiscard={(id) => { handleDiscard(id); setCompactDetailId(null); }}
+                  onDiscard={(id, kind) => { handleDiscard(id, kind); setCompactDetailId(null); }}
                   onUpdate={updateItem}
                   expanded={true}
                   onToggle={() => setCompactDetailId(null)}
