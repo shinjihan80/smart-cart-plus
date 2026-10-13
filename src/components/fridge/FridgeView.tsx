@@ -126,7 +126,7 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             <div className="mt-[6px]">
               {/* P1-92 — "도어 중간 포켓"처럼 긴 칸 이름이 truncate 1줄 컷으로
                   잘렸다(C1·C8 실측). line-clamp-2로 2줄까지 허용. */}
-              <p className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 break-keep">{meta.label}</p>
+              <p title={meta.label} className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 break-keep">{meta.label}</p>
               {list.length === 0 ? (
                 // 빈 칸의 예시 힌트("잼·소스·드레싱" 등)와 실제 보유 품목이
                 // 글자 크기·굵기·위치가 전부 같고 명도 차이(gray-400 vs
@@ -134,9 +134,15 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
                 // 있는 것으로 오인하게 했다(P0-25, 전문단 E3 발견).
                 // "예: " 접두 + 기울임으로 "이건 예시일 뿐 실제 보유품이
                 // 아니다"를 명시적으로 표시한다.
-                <p className="text-[10px] text-gray-400 italic mt-0.5 leading-tight line-clamp-1">예: {meta.hint}</p>
+                <p title={`예: ${meta.hint}`} className="text-[10px] text-gray-400 italic mt-0.5 leading-tight line-clamp-1">예: {meta.hint}</p>
               ) : (
-                <p className="text-[10px] text-gray-500 mt-0.5 leading-tight line-clamp-1">
+                // 재검토(비판 모드) P1-83 — line-clamp-1로 잘리는 품목
+                // 목록에 title 속성이 없어, 잘린 이름 전체를 확인할
+                // 방법이(호버 툴팁조차) 없었다(전문단 E2 실측).
+                <p
+                  title={list.map((i) => i.name).join(', ')}
+                  className="text-[10px] text-gray-500 mt-0.5 leading-tight line-clamp-1"
+                >
                   {list.slice(0, 3).map((i) => i.name).join(', ')}
                   {list.length > 3 ? ` 외 ${list.length - 3}` : ''}
                 </p>
