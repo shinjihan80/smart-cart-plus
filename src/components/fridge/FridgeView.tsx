@@ -33,8 +33,17 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
   const bySection = groupByEffectiveSection(items, modelId);
 
   return (
+    // 재검토(비판 모드, 현재 라운드 실측) P0-51 — gap-2/p-3(그리드)와
+    // 셀 내부 p-2.5·emoji text-base·배지 gap-1/px-1.5 py-0.5가 전부
+    // rem이라, 루트 폰트가 커지면(OS 글자 확대) 열 너비(1fr)는 안
+    // 바뀌는데 그 안의 여백·아이콘·배지가 같이 커져 셀 자체가 트랙
+    // 밖으로 넘쳤다(루트 27px 실측: 셀 scrollWidth 77 vs clientWidth
+    // 60, 배지 줄은 60 vs 26 — 폭의 절반 이상 넘침). 장식 치수(그리드
+    // 틈·셀 안쪽 여백·이모지·배지)만 고정 px로 바꿔 더는 커지지 않게
+    // 한다 — 칸 이름·배지 숫자(이미 text-[11px]/text-[10px]로 고정
+    // px)는 원래도 안 바뀌던 값이라 그대로 둠.
     <div
-      className="grid gap-2 bg-gradient-to-br from-slate-50 to-gray-100 rounded-[28px] p-3"
+      className="grid gap-[8px] bg-gradient-to-br from-slate-50 to-gray-100 rounded-[28px] p-[12px]"
       style={{
         gridTemplateColumns: `repeat(${model.cols}, minmax(0, 1fr))`,
         gridTemplateRows:    `repeat(${model.rows}, minmax(64px, auto))`,
@@ -75,7 +84,7 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             className={[
-              'relative flex flex-col justify-between text-left rounded-2xl p-2.5',
+              'relative flex flex-col justify-between text-left rounded-2xl p-[10px]',
               'bg-white ring-1',
               isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
               expired && !isActive ? 'ring-red-300 bg-red-50/50' : urgent && !isActive ? 'ring-rose-200 bg-rose-50/40' : '',
@@ -87,12 +96,12 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             }}
             aria-label={`${meta.label} — ${list.length}개${expired ? `, 기한초과 ${expiredCount}개` : ''}`}
           >
-            <div className="flex items-start justify-between gap-1">
-              <span className="emoji text-base" aria-hidden>{meta.emoji}</span>
-              <div className="flex items-center gap-1">
+            <div className="flex items-start justify-between gap-[4px]">
+              <span className="emoji text-[16px]" aria-hidden>{meta.emoji}</span>
+              <div className="flex items-center gap-[4px]">
                 {expired && (
                   <span
-                    className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-red-700 text-white"
+                    className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-red-700 text-white"
                     aria-label={`기한초과 ${expiredCount}개`}
                   >
                     🚫{expiredCount}
@@ -100,21 +109,21 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
                 )}
                 {urgent && (
                   <span
-                    className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-rose-500 text-white"
+                    className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-rose-500 text-white"
                     aria-label={`임박 ${urgentCount}개`}
                   >
                     ⏱{urgentCount}
                   </span>
                 )}
                 {list.length > 0 && (
-                  <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-gray-900 text-white">
+                  <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white">
                     {list.length}
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="mt-1.5">
+            <div className="mt-[6px]">
               {/* P1-92 — "도어 중간 포켓"처럼 긴 칸 이름이 truncate 1줄 컷으로
                   잘렸다(C1·C8 실측). line-clamp-2로 2줄까지 허용. */}
               <p className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 break-keep">{meta.label}</p>

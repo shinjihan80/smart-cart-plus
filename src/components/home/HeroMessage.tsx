@@ -119,22 +119,35 @@ export default function HeroMessage({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-      className={`rounded-[28px] ${tone.cardBg} px-6 py-6 relative overflow-hidden`}
+      className={`rounded-[28px] ${tone.cardBg} px-[27px] py-[27px] relative overflow-hidden`}
       style={{ boxShadow: '0 8px 24px -12px rgba(31, 31, 46, 0.12), 0 2px 6px -2px rgba(31, 31, 46, 0.04)' }}
     >
-      {/* 우측 상단 큰 아이콘 — 워터마크처럼 */}
-      <div className={`absolute -right-3 -top-3 w-24 h-24 rounded-3xl ${tone.iconBg} opacity-40 flex items-center justify-center`}>
+      {/*
+       * 재검토(비판 모드, 현재 라운드 실측) P0-51 — 워터마크 크기(w-24
+       * h-24)·카드 패딩(px-6 py-6)·배지 여백(pr-12)이 전부 rem 기반이라
+       * 루트 폰트가 커지면(OS 글자 확대, P1-48 이후 112.5% 기준에서 더
+       * 확대) 375px 고정 뷰포트 안에서 비례 없이 다 같이 커졌다 — 루트
+       * 27px 실측에서 워터마크가 162px까지 부풀어 헤드라인 영역을
+       * 침범하고, 패딩만으로 폭의 1/3을 먹어 "제주 감귤 주스..." 같은
+       * 평범한 문장이 7~8줄로 깨지며 카드가 첫 화면을 거의 다 차지했다.
+       * 장식 치수(워터마크·아이콘 배지·카드 여백·배지 예약폭·버튼
+       * 패딩)만 고정 px로 바꿔 확대를 따라가지 않게 하고, 실제 읽는
+       * 텍스트(헤드라인·인사말·CTA 라벨)는 그대로 rem으로 둬 OS 글자
+       * 확대 자체는 계속 작동하게 한다(완전한 해소가 아니라 가장 심한
+       * 이 배너만 — 같은 패턴이 전역 151곳에 더 있다는 건 P2-28 소관).
+       */}
+      <div className={`absolute -right-[13.5px] -top-[13.5px] w-[108px] h-[108px] rounded-3xl ${tone.iconBg} opacity-40 flex items-center justify-center`}>
         <HeroIcon size={56} strokeWidth={1.5} aria-hidden />
       </div>
 
       <div className="relative">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-[8px] mb-[8px]">
           <motion.span
             key={msg.priority}
             initial={{ scale: 0.85 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-            className={`w-9 h-9 rounded-2xl shrink-0 flex items-center justify-center ${tone.iconBg}`}
+            className={`w-[40.5px] h-[40.5px] rounded-2xl shrink-0 flex items-center justify-center ${tone.iconBg}`}
           >
             <HeroIcon size={18} strokeWidth={2.2} aria-hidden />
           </motion.span>
@@ -145,7 +158,7 @@ export default function HeroMessage({
           )}
           {/* '주의' 배지 제거 — 인사말 옆 위협 배지는 노이즈. 급함은 본문·색으로 전달 (P2-4) */}
         </div>
-        <p className="text-base font-bold text-brand-ink leading-snug pr-12 mb-5">
+        <p className="text-base font-bold text-brand-ink leading-snug pr-[54px] mb-[22.5px]">
           {msg.text}
         </p>
 
@@ -153,7 +166,7 @@ export default function HeroMessage({
           msg.paletteQuery ? (
             <button
               onClick={handleCtaClick}
-              className={`flex items-center gap-1.5 ${tone.cta} rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
+              className={`flex items-center gap-[6px] ${tone.cta} rounded-full pl-[22.5px] pr-[18px] py-[11.25px] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
             >
               <span>{msg.cta.label}</span>
               <ArrowRight size={14} strokeWidth={2.4} />
@@ -161,7 +174,7 @@ export default function HeroMessage({
           ) : (
             <Link
               href={msg.cta.href}
-              className={`inline-flex items-center gap-1.5 ${tone.cta} rounded-full pl-5 pr-4 py-2.5 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
+              className={`inline-flex items-center gap-[6px] ${tone.cta} rounded-full pl-[22.5px] pr-[18px] py-[11.25px] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
             >
               <span>{msg.cta.label}</span>
               <ArrowRight size={14} strokeWidth={2.4} />
