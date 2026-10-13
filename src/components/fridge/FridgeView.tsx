@@ -98,29 +98,25 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
           >
             <div className="flex items-start justify-between gap-[4px]">
               <span className="emoji text-[16px]" aria-hidden>{meta.emoji}</span>
-              <div className="flex items-center gap-[4px]">
-                {expired && (
-                  <span
-                    className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-red-700 text-white"
-                    aria-label={`기한초과 ${expiredCount}개`}
-                  >
-                    🚫{expiredCount}
-                  </span>
-                )}
-                {urgent && (
-                  <span
-                    className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-rose-500 text-white"
-                    aria-label={`임박 ${urgentCount}개`}
-                  >
-                    ⏱{urgentCount}
-                  </span>
-                )}
-                {list.length > 0 && (
-                  <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white">
-                    {list.length}
-                  </span>
-                )}
-              </div>
+              {/*
+               * 재검토(비판 모드) P1-75 — 배지가 최대 3개(기한초과·임박·
+               * 총개수)까지 나란히 떴는데, 좁은 칸에서 "⏱1"+"1"처럼
+               * 붙으면 "11"로 잘못 읽혔다(E3 실측). 총개수 배지 하나로
+               * 통합하고, 상태는 배지 색+접두 이모지로만 구분 — 숫자가
+               * 항상 하나만 보이니 붙어 읽힐 자리 자체가 없어진다.
+               * 셀 테두리(expired/urgent 링) 색이 이미 긴급도를 알려주고
+               * 있어 정보 손실도 없다.
+               */}
+              {list.length > 0 && (
+                <span
+                  className={`text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums text-white ${
+                    expired ? 'bg-red-700' : urgent ? 'bg-rose-500' : 'bg-gray-900'
+                  }`}
+                  aria-label={`${list.length}개${expired ? `, 기한초과 ${expiredCount}개` : urgent ? `, 임박 ${urgentCount}개` : ''}`}
+                >
+                  {expired ? '🚫' : urgent ? '⏱' : ''}{list.length}
+                </span>
+              )}
             </div>
 
             <div className="mt-[6px]">
