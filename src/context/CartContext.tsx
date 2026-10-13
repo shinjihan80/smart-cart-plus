@@ -317,10 +317,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     removingIdsRef.current.add(id);
     const item = items[index];
     lastRemovedRef.current = { item, index };
-    setDiscardHistory((h) => [
-      { name: item.name, category: item.category, date: todayLocalStr(), kind },
-      ...h,
-    ].slice(0, 30));
+    // 재검토(비판 모드) P1-84 — 30건 하드캡이라 하루 3개만 소진해도
+    // 열흘이면 로그가 전부 밀려났다. 이 기록이 연간 히스토그램·재구매
+    // 주기·자주쓰는재료 등 마이페이지 통계 전부의 유일한 소스라, 활동이
+    // 많은 사용자일수록 "올해 소진" 집계가 구조적으로 더 일찍·더 많이
+    // 깨지는 역설이 있었다(E2). 건수 대신 날짜(최근 400일 — 연간
+    // 히스토그램에 한 해 전체 + 여유분)로 캡을 바꾸고, 혹시 모를 극단적
+    // 다량 기록(일부 손상·버그로 인한 폭증 등)에 대비해 건수 상한도
+    // 넉넉하게 같이 둔다(localStorage 용량 보호, P0-7과 같은 맥락).
+    setDiscardHistory((h) => {
+      const cutoff = todayLocalStr(new Date(Date.now() - 400 * 24 * 60 * 60 * 1000));
+      const next = [
+        { name: item.name, category: item.category, date: todayLocalStr(), kind },
+        ...h,
+      ];
+      return next.filter((r) => r.date >= cutoff).slice(0, 2000);
+    });
     setItems((prev) => prev.filter((i) => i.id !== id));
     setDiscardCount((prev) => prev + 1);
   }, [items]);
