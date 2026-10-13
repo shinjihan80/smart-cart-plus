@@ -24,11 +24,13 @@ import PaletteButton        from '@/components/PaletteButton';
 import EmojiIcon            from '@/components/EmojiIcon';
 import LoginSheet           from '@/components/auth/LoginSheet';
 import UpgradeSheet         from '@/components/settings/UpgradeSheet';
+import ResetConfirmSheet    from '@/components/settings/ResetConfirmSheet';
 import { usePlan }          from '@/lib/usePlan';
 
 export default function SettingsPage() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const { user } = useAuth();
   const { isPro } = usePlan();
   const { items, resetData, restoreAll } = useCart();
@@ -113,43 +115,35 @@ export default function SettingsPage() {
   }
 
   /**
-   * 항상 백업을 먼저 받은 뒤 전체 초기화 — 복원 가능한 지점 확보.
-   * 브라우저 다운로드 API는 "파일이 실제로 저장됐는지" 알려주는 신호가
-   * 없어(<a download> 클릭 직후엔 성공 여부를 코드로 확인할 방법이 없음)
-   * 예전엔 300ms만 기다리고 바로 지웠다 — 백업이 실패했어도 삭제는
-   * 그대로 진행되는 최악의 경우가 가능했다(P0-36). 대신 "다운로드가
-   * 실제로 시작됐는지" 사용자에게 직접 확인받는 두 번째 확인 단계를 둔다.
+   * ResetConfirmSheet이 "백업 후 초기화"를 고르면 호출 — 백업만 받고
+   * 실패하면 null을 돌려줘 시트가 초기화를 진행하지 않게 막는다.
    */
-  async function handleReset() {
-    if (!confirm('모든 데이터를 초기화할까요?\n\n1) 먼저 현재 상태를 JSON 파일로 다운로드합니다.\n2) 다운로드를 확인한 뒤에만 초기화가 진행됩니다.')) return;
+  function handleDownloadBackupForReset(): string | null {
     try {
       const filename = downloadBackup();
       backup.refresh();
-      // 재검토(C5 코드 확인) P0 — a.click() 직후는 브라우저가 실제
-      // 저장 UI(다운로드 알림·"다른 이름으로 저장" 창 등)를 띄우기도
-      // 전이라, 바로 다음 줄에서 confirm()을 동기로 열면 사용자가
-      // 폴더를 열어볼 틈도 없이 "확인했냐"고 묻는 셈이었다. <a
-      // download> API는 "실제 저장 완료" 신호를 안 줘 완전한 보장은
-      // 불가능하지만(이미 이 함수 docstring에 기록된 제약), 최소한
-      // 브라우저가 다운로드를 처리할 짧은 틈은 보장한다.
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      const saved = confirm(`"${filename}" 다운로드를 시작했어요.\n\n다운로드 폴더(또는 방금 뜬 저장 위치)에서 파일이 실제로 저장된 걸 확인하셨나요?\n\n확인을 누르면 바로 초기화가 진행되고 되돌릴 수 없어요.`);
-      if (!saved) {
-        showToast('초기화를 취소했어요. 백업 파일을 확인한 뒤 다시 시도해주세요.');
-        return;
-      }
-      resetData();
-      showToast(`백업(${filename}) 확인 후 초기화됐어요.`);
-      // 재검토(C5) — resetData()가 nemoa- 전체 키를 지워도, 프로필·
-      // 착용/조리 로그·요금제 상태 등은 각자 다른 훅이 메모리에 들고
-      // 있어 localStorage만 비우면 화면은 그대로 남는다(새로고침 전까지
-      // 거짓 상태). 전체 초기화 직후에는 모든 훅을 빈 저장소로 다시
-      // 읽게 전체 새로고침한다.
-      setTimeout(() => window.location.reload(), 600);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : '알 수 없는 오류';
-      showToast(`백업 실패 — 초기화 중단: ${msg}`);
+      return filename;
+    } catch {
+      return null;
     }
+  }
+
+  /**
+   * 재검토(C3 실측) P1 — "전체 초기화"가 confirm() 두 번뿐이라 백업
+   * 없이 지우는 선택지가 없었다. 가족 정보가 담긴 평문 파일을 공용
+   * 기기에 새로 남기고 싶지 않은 사용자(C3)를 위해 ResetConfirmSheet가
+   * "백업 후"/"백업 없이" 두 경로를 모두 제공하고, 실제 삭제는 이
+   * 함수가 수행한다.
+   */
+  function handleResetConfirmed(backedUp: boolean, filename: string | null) {
+    resetData();
+    showToast(backedUp ? `백업(${filename}) 확인 후 초기화됐어요.` : '백업 없이 초기화했어요.');
+    // 재검토(C5) — resetData()가 nemoa- 전체 키를 지워도, 프로필·
+    // 착용/조리 로그·요금제 상태 등은 각자 다른 훅이 메모리에 들고
+    // 있어 localStorage만 비우면 화면은 그대로 남는다(새로고침 전까지
+    // 거짓 상태). 전체 초기화 직후에는 모든 훅을 빈 저장소로 다시
+    // 읽게 전체 새로고침한다.
+    setTimeout(() => window.location.reload(), 600);
   }
 
   const dataItems = [
@@ -396,16 +390,23 @@ export default function SettingsPage() {
           </div>
           <p className="text-xs text-gray-400 mb-3">아래 작업은 되돌리기 어려워요. 백업 후 진행을 권장합니다.</p>
           <button
-            onClick={handleReset}
+            onClick={() => setResetOpen(true)}
             className="flex items-center gap-3 w-full py-2.5 text-left hover:bg-brand-warning/5 -mx-2 px-2 rounded-2xl transition-colors"
           >
             <EmojiIcon emoji="🔄" size={16} className="text-brand-warning" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-brand-warning">전체 초기화</p>
-              <p className="text-sm text-gray-400">자동 백업 후 모든 데이터 삭제</p>
+              <p className="text-sm text-gray-400">백업 후 삭제 또는 백업 없이 바로 삭제</p>
             </div>
           </button>
         </motion.div>
+
+        <ResetConfirmSheet
+          open={resetOpen}
+          onClose={() => setResetOpen(false)}
+          onDownloadBackup={handleDownloadBackupForReset}
+          onConfirmReset={handleResetConfirmed}
+        />
 
         <AppInfo />
       </div>
