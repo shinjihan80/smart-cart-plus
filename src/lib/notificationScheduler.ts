@@ -4,6 +4,7 @@ import { getRemainingDays } from '@/lib/expirySelectors';
 import { classifyExpiry, groupExpiryPhrase } from '@/lib/expiryThresholds';
 import type { FoodItem } from '@/types';
 import { addNotificationLogEntry, type NotificationKind } from './notificationLog';
+import { safeSetItem } from './safeStorage';
 
 export interface NotiState { expiry: boolean; codi: boolean; deal: boolean }
 
@@ -29,7 +30,7 @@ export async function requestPermission(): Promise<boolean> {
   if (Notification.permission === 'granted') return true;
   if (Notification.permission === 'denied')  return false;
   const result = await Notification.requestPermission();
-  localStorage.setItem(PERM_KEY, result);
+  safeSetItem(PERM_KEY, result);
   return result === 'granted';
 }
 
@@ -99,7 +100,7 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
     'nemoa-expiry',
     'expiry',
   );
-  localStorage.setItem(CHECKED_KEY, today);
+  safeSetItem(CHECKED_KEY, today);
 }
 
 /**

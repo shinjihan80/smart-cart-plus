@@ -114,6 +114,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removingIdsRef = useRef<Set<string>>(new Set());
   const [discardHistory, setDiscardHistory] = useState<DiscardRecord[]>([]);
 
+  // 재검토(비판 모드 C5·전문단 E2) P0-7 — 브라우저가 디스크 압박 시
+  // 저장소를 "제거 가능"으로 분류해두면(기본값) 다른 사이트가 쌓이기만
+  // 해도 이 앱의 localStorage/IndexedDB가 사용자 모르게 비워질 수 있다.
+  // `persist()`는 사용자 상호작용·북마크 등 브라우저 자체 휴리스틱에
+  // 따라 자동 허용되거나 무시되며, 실패해도 조용히 알림이 없는 API라
+  // 결과를 기다리거나 재시도할 필요가 없다 — 켜두면 이득, 안 켜져도
+  // 손해는 없는 "요청만 해두는" 성격.
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && navigator.storage?.persist) {
+      navigator.storage.persist().catch(() => { /* 지원 안 함 또는 거부 — 조용히 무시 */ });
+    }
+  }, []);
+
   // 클라이언트 마운트 후 localStorage 복원 (+ 데이터 마이그레이션)
   useEffect(() => {
     try {

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download } from 'lucide-react';
 import { isNative, IS_IOS } from '@/lib/native';
+import { safeSetItem } from '@/lib/safeStorage';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -59,7 +60,7 @@ export default function InstallBanner() {
   };
 
   const dismiss = () => {
-    localStorage.setItem(DISMISSED_KEY, '1');
+    safeSetItem(DISMISSED_KEY, '1');
     setDismissed(true);
   };
 

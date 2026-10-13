@@ -25,6 +25,7 @@ import EmojiIcon            from '@/components/EmojiIcon';
 import LoginSheet           from '@/components/auth/LoginSheet';
 import UpgradeSheet         from '@/components/settings/UpgradeSheet';
 import ResetConfirmSheet    from '@/components/settings/ResetConfirmSheet';
+import AutoSnapshotRecoveryCard from '@/components/settings/AutoSnapshotRecoveryCard';
 import { usePlan }          from '@/lib/usePlan';
 
 export default function SettingsPage() {
@@ -107,6 +108,15 @@ export default function SettingsPage() {
       // 사라졌다(P0-62, 전문단 E2 발견) — 기기 교체 시 유일한 이전
       // 경로라 영향이 크다. 새로고침으로 모든 스토어를 새로 hydrate시킨다.
       sessionStorage.setItem('nemoa-restore-just-completed', '1');
+      // 재검토(P0-7 작업 중 실측) — restoreAll()은 setItems 등 React
+      // 상태만 바꾸고, items/archived/discardCount/history의 실제
+      // localStorage 기록은 CartContext의 persist useEffect(비동기)가
+      // 다음 렌더 이후에 수행한다. 바로 reload()하면 그 effect가
+      // flush되기 전에 페이지가 내려가, "복원됐다"는 토스트만 뜨고
+      // 카트 데이터는 실제로 복원 전 상태로 남는 경우가 있었다(아이템
+      // 41개 스냅샷 복원 직후 새로고침해도 0개로 되돌아옴, 직접 재현
+      // 확인). effect가 흐를 시간을 확보한 뒤 새로고침한다.
+      await new Promise((resolve) => setTimeout(resolve, 300));
       window.location.reload();
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류';
@@ -188,6 +198,8 @@ export default function SettingsPage() {
       </header>
 
       <div className="px-4 py-5 flex flex-col gap-4">
+        <AutoSnapshotRecoveryCard />
+
         {/* 백업 상태 배너 */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
