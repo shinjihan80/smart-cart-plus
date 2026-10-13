@@ -6,7 +6,13 @@ import { createSharedStore } from './sharedStore';
 const STORAGE_KEY  = 'nemoa-notification-log';
 const MAX_ENTRIES  = 30;
 
-export type NotificationKind = 'expiry' | 'codi';
+// 재검토(비판 모드) P1-81 — OS 푸시(expiry/codi)만 이 로그에 쌓여서
+// /notifications가 항상 "받은 알림 없음"이었는데, 같은 시점 홈에는
+// 인앱 배너 4종(임박·재구매·시즌전환·기한초과)이 떠 있었다(E1 지적) —
+// 알림함이 항상 0으로 보이면 "이 앱은 알림을 안 주는구나"로 결론짓게
+// 된다. 4개 배너도 같은 로그에 적재되도록 kind를 확장한다(푸시 권한과
+// 무관하게 알림함이 채워짐).
+export type NotificationKind = 'expiry' | 'codi' | 'urgent' | 'rebuy' | 'season' | 'expired';
 
 export interface NotificationLogEntry {
   id:        string;

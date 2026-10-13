@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Trash2, X } from 'lucide-react';
@@ -7,6 +8,8 @@ import type { CartItem } from '@/types';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { selectExpiring } from '@/lib/expirySelectors';
 import { useToast } from '@/context/ToastContext';
+import { addNotificationLogEntry } from '@/lib/notificationLog';
+import { todayLocalStr } from '@/lib/dateMath';
 import { springTransition } from './shared';
 
 /**
@@ -27,9 +30,22 @@ export default function ExpiredReminder({ items }: { items: CartItem[] }) {
   const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
   const { showToast } = useToast();
 
-  if (isDismissedToday('expired')) return null;
-
   const expired = selectExpiring(items).expired.map((e) => e.item.name);
+
+  // 재검토(비판 모드) P1-81 — UrgentAlert와 같은 이유로 알림함에도 기록.
+  // 훅은 이른 반환보다 위에서 호출해야 해 조건은 effect 안에서 확인한다.
+  useEffect(() => {
+    if (expired.length === 0) return;
+    addNotificationLogEntry({
+      kind: 'expired',
+      title: `기한이 지난 식품 ${expired.length}개`,
+      body: expired.join(', '),
+      dedupeKey: `expired:${todayLocalStr()}`,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expired.length]);
+
+  if (isDismissedToday('expired')) return null;
   if (expired.length === 0) return null;
 
   function handleDismiss(e: React.MouseEvent) {

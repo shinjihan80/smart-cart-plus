@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
@@ -8,13 +9,13 @@ import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { selectExpiring } from '@/lib/expirySelectors';
 import { groupExpiryPhrase } from '@/lib/expiryThresholds';
 import { useToast } from '@/context/ToastContext';
+import { addNotificationLogEntry } from '@/lib/notificationLog';
+import { todayLocalStr } from '@/lib/dateMath';
 import { springTransition } from './shared';
 
 export default function UrgentAlert({ items }: { items: CartItem[] }) {
   const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
   const { showToast } = useToast();
-
-  if (isDismissedToday('urgent')) return null;
 
   // 이미 기한이 지난 항목은 "오늘까지 먹어야 할"에서 제외 — 상한 걸 먹으라고
   // 권하던 버그(P0-30). 지난 항목은 히어로 메시지(dailyMessage.ts)가 별도 문구로
@@ -26,12 +27,31 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
   const urgent = selectExpiring(items).today
     .map((e) => ({ name: e.item.name, dDay: e.dDay }));
 
-  if (urgent.length === 0) return null;
-
   // 집합 문구는 groupExpiryPhrase 하나로만 만든다 — 이 로직이 여기 안에만
   // 지역 구현돼 있던 게 P0-68(P0-53 재발)의 원인이었다: 다른 소비처들은
   // 이 로직을 몰라 EXPIRY_LABEL.today를 그대로 "오늘"로 썼다.
-  const headline = groupExpiryPhrase(urgent.map((u) => u.dDay));
+  const headline = urgent.length > 0 ? groupExpiryPhrase(urgent.map((u) => u.dDay)) : '';
+
+  // 재검토(비판 모드) P1-81 — 이 배너가 떴다는 건 "알림함에 남겨둘
+  // 가치가 있는 일"이라는 뜻인데, OS 푸시를 안 받은(또는 꺼둔)
+  // 사용자는 이 사실이 화면 밖으로 넘어가면 다시 찾을 방법이 없었다.
+  // dedupeKey가 날짜를 포함해 하루 1건으로 자동 묶인다(addNotificationLogEntry).
+  // 훅은 이른 반환보다 위에서 조건 없이 호출해야 하므로, "오늘 안 보기"로
+  // 숨긴 경우에도 알림함 기록 자체는 남긴다(배너를 숨긴 것과 "오늘 실제로
+  // 임박 식품이 있었다"는 사실은 별개).
+  useEffect(() => {
+    if (urgent.length === 0) return;
+    addNotificationLogEntry({
+      kind: 'urgent',
+      title: `${headline} 먹어야 할 식품 ${urgent.length}개`,
+      body: urgent.map((u) => u.name).join(', '),
+      dedupeKey: `urgent:${todayLocalStr()}`,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [headline, urgent.length]);
+
+  if (isDismissedToday('urgent')) return null;
+  if (urgent.length === 0) return null;
 
   // X만 누르면 어떤 동작인지 글자 설명이 없고(aria-label만), 다시 보는
   // 방법(설정 > 알림 설정 > "오늘 안 보기")도 안내가 안 돼 영구히 사라진

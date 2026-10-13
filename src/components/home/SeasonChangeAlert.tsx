@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Wind, X } from 'lucide-react';
@@ -7,6 +8,8 @@ import { isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { useToast } from '@/context/ToastContext';
+import { addNotificationLogEntry } from '@/lib/notificationLog';
+import { todayLocalStr } from '@/lib/dateMath';
 import { springTransition } from './shared';
 
 const SEASON_EMOJI: Record<string, string> = {
@@ -36,7 +39,6 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
 
   // 시즌별 dismiss 키 — 다음 시즌이 되면 자동 노출
   const dismissKey = `season-${season}`;
-  if (isDismissedToday(dismissKey)) return null;
 
   // 시즌 전환 직후 21일 동안만 — 진입한 첫 달 1-31, 두 번째 달 1-7
   // 봄: 3월, 여름: 6월, 가을: 9월, 겨울: 12월 진입
@@ -45,23 +47,20 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
     seasonStartMonth !== undefined &&
     (month === seasonStartMonth || (month === (seasonStartMonth % 12) + 1 && day <= 7));
 
-  if (!isJustChanged) return null;
-
   const clothes = items.filter(isClothingItem).filter((c) => FASHION_GROUP[c.category] === '의류');
 
   // 보관해야 할 옷 — 현재 시즌에 안 맞는데 활성 상태
-  const toStow = clothes.filter((c) => {
+  const toStow = isJustChanged ? clothes.filter((c) => {
     if (c.hibernating) return false;
     return matchesSeason(c.weatherTags, season) === false;
-  }).length;
+  }).length : 0;
 
   // 꺼내야 할 옷 — 보관 중인데 현재 시즌에 맞음
-  const toUnstow = clothes.filter(
+  const toUnstow = isJustChanged ? clothes.filter(
     (c) => c.hibernating && matchesSeason(c.weatherTags, season) === true,
-  ).length;
+  ).length : 0;
 
   const total = toStow + toUnstow;
-  if (total === 0) return null;
 
   // 예전엔 "N벌 보관할 때"처럼 술어 없는 조각을 join해, 한쪽 조각만 남으면
   // "3벌 보관할 때 · 정리하기"처럼 문장이 끝나지 않은 채 렌더됐다(P2-35,
@@ -71,6 +70,23 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
   if (toStow > 0)   messageParts.push(`보관할 옷 ${toStow}벌`);
   if (toUnstow > 0) messageParts.push(`꺼낼 옷 ${toUnstow}벌`);
   const message = messageParts.join(' · ');
+
+  // 재검토(비판 모드) P1-81 — UrgentAlert와 같은 이유로 알림함에도 기록.
+  // 훅은 이른 반환보다 위에서 호출해야 해 조건은 effect 안에서 확인한다.
+  useEffect(() => {
+    if (total === 0) return;
+    addNotificationLogEntry({
+      kind: 'season',
+      title: `${season} 옷장 정리 시즌`,
+      body: message,
+      dedupeKey: `${dismissKey}:${todayLocalStr()}`,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dismissKey, message, total]);
+
+  if (isDismissedToday(dismissKey)) return null;
+  if (!isJustChanged) return null;
+  if (total === 0) return null;
 
   // UrgentAlert와 동일한 사유(P1-42) — 토스트+되돌리기로 안내.
   function handleDismiss(e: React.MouseEvent) {

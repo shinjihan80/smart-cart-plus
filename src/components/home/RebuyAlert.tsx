@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { RotateCcw, X } from 'lucide-react';
@@ -9,6 +10,8 @@ import { estimateCycles } from '@/lib/purchaseCycle';
 import { sameFoodProduct } from '@/lib/ingredientInference';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { useToast } from '@/context/ToastContext';
+import { addNotificationLogEntry } from '@/lib/notificationLog';
+import { todayLocalStr } from '@/lib/dateMath';
 import { springTransition } from './shared';
 
 /**
@@ -29,8 +32,6 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
   const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
   const { showToast } = useToast();
 
-  if (isDismissedToday('rebuy')) return null;
-
   const cycles = estimateCycles(discardHistory, 2);
   const foods = items.filter(isFoodItem);
 
@@ -46,10 +47,24 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
     .filter((c) => !foods.some((f) => sameFoodProduct(f.name, c.name)))
     .slice(0, 5);
 
-  if (dueSoon.length === 0) return null;
-
   const overdueCount = dueSoon.filter((c) => c.dueInDays < 0).length;
   const top3 = dueSoon.slice(0, 3).map((c) => c.name).join(' · ');
+
+  // 재검토(비판 모드) P1-81 — UrgentAlert와 같은 이유로 알림함에도 기록.
+  // 훅은 이른 반환보다 위에서 호출해야 해 조건은 effect 안에서 확인한다.
+  useEffect(() => {
+    if (dueSoon.length === 0) return;
+    addNotificationLogEntry({
+      kind: 'rebuy',
+      title: `${dueSoon.length}개 식품 곧 떨어질 때`,
+      body: dueSoon.map((c) => c.name).join(', '),
+      dedupeKey: `rebuy:${todayLocalStr()}`,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dueSoon.length]);
+
+  if (isDismissedToday('rebuy')) return null;
+  if (dueSoon.length === 0) return null;
 
   // UrgentAlert와 동일한 사유(P1-42) — 토스트+되돌리기로 안내.
   function handleDismiss(e: React.MouseEvent) {
