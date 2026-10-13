@@ -273,13 +273,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // 완성된 배열만 넘기도록 바꿔 updater를 순수하게 유지한다.
   const addItems = useCallback((newItems: CartItem[]): { added: number; skipped: number } => {
     const seenIds = new Set(items.map((i) => i.id));
+    // 재검토(비판 모드) P1-36 — 기존엔 newItems 각 항목을 "현재 카트(items)"
+    // 하고만 비교해, AI(사진/텍스트) 일괄 등록이 한 영수증 안에서 같은
+    // 이름+카테고리를 2건 넣어도 (카트엔 아직 없으니) 둘 다 통과했다 —
+    // 손으로 하나씩 등록할 땐 매번 비교 대상(items)이 갱신되니 자연스럽게
+    // 막히던 경우가, 배치 등록에선 "같은 배치 안의 형제 항목"이 비교
+    // 대상에서 빠져 재발했다(C5 실측). 이미 받아들인 배치 내 항목도
+    // 누적해 같이 비교한다.
     let added = 0;
     let skipped = 0;
+    const acceptedKeys = new Set(items.map((i) => `${i.name}::${i.category}`));
     const unique = newItems.filter((ni) => {
-      const isDuplicate = items.some(
-        (existing) => existing.name === ni.name && existing.category === ni.category,
-      );
-      if (isDuplicate) { skipped++; return false; }
+      const key = `${ni.name}::${ni.category}`;
+      if (acceptedKeys.has(key)) { skipped++; return false; }
+      acceptedKeys.add(key);
       added++;
       return true;
     // id 충돌 방어(P0-61) — removeItem/updateItem이 id 매칭이라 중복 id
