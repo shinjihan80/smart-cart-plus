@@ -71,8 +71,14 @@ self.addEventListener('fetch', (event) => {
 async function networkFirst(req) {
   try {
     const fresh = await fetch(req);
-    const cache = await caches.open(SHELL);
-    cache.put(req, fresh.clone()).catch(() => {});
+    // 재검토(비판 모드) P1-82 — 에러 응답(500 등)도 그대로 캐시에
+    // 들어가, 다음 오프라인 진입 시 "방금 전 에러 화면"이 캐시에서
+    // 재생됐다. staleWhileRevalidate는 이미 status===200 체크가
+    // 있었는데 networkFirst만 빠져있었다.
+    if (fresh.ok) {
+      const cache = await caches.open(SHELL);
+      cache.put(req, fresh.clone()).catch(() => {});
+    }
     return fresh;
   } catch {
     const cached = await caches.match(req);

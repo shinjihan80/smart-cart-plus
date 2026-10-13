@@ -103,6 +103,34 @@ export function useErrorLog() {
   return { entries, clear: clearErrorLog, log: logError };
 }
 
+const CHUNK_RELOAD_KEY = 'nemoa-chunk-reload-at';
+
+/**
+ * 재검토(비판 모드) P1-82 — 배포마다 청크 파일명이 바뀌는데, 배포 직후
+ * 탭을 열어둔 사용자가 옛 HTML에서 네비게이션하면 브라우저가 이미
+ * 사라진 청크를 요청해 `ChunkLoadError`가 뜬다(자동 복구 없음, E2
+ * 지적). SW 버전은 이번 라운드에서 커밋 SHA 기반으로 이미 고쳤지만
+ * (src/app/sw.js/route.ts), 그건 "다음 로드부터 최신"을 보장할 뿐
+ * "지금 이 탭"은 구해주지 못한다 — 딱 한 번 자동 새로고침으로 복구.
+ * 무한 루프 방지: 같은 분 안에 또 터지면(실제로 배포가 깨졌거나
+ * 네트워크 문제) 더는 자동 재시도하지 않고 조용히 로그만 남긴다.
+ */
+function isChunkLoadError(err: unknown): boolean {
+  if (!err) return false;
+  const name = (err as { name?: string }).name ?? '';
+  const message = (err as { message?: string }).message ?? String(err);
+  return name === 'ChunkLoadError' || /loading chunk|failed to fetch dynamically imported module/i.test(message);
+}
+
+function maybeRecoverFromChunkError(err: unknown): boolean {
+  if (typeof window === 'undefined' || !isChunkLoadError(err)) return false;
+  const lastAttempt = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY) ?? 0);
+  if (Date.now() - lastAttempt < 60_000) return false; // 1분 내 재시도 이력 — 루프 방지
+  try { sessionStorage.setItem(CHUNK_RELOAD_KEY, String(Date.now())); } catch { /* quota */ }
+  window.location.reload();
+  return true;
+}
+
 /** window.onerror + onunhandledrejection 훅을 한 번만 설치. */
 let installed = false;
 export function installGlobalErrorHandlers(): void {
@@ -112,10 +140,12 @@ export function installGlobalErrorHandlers(): void {
   window.addEventListener('error', (e) => {
     // 외부 리소스 로딩 실패는 메시지가 비어있을 수 있음
     const msg = e.message || e.error?.message || 'window.error';
+    if (maybeRecoverFromChunkError(e.error ?? msg)) return;
     logError(e.error ?? msg, 'error');
   });
 
   window.addEventListener('unhandledrejection', (e) => {
+    if (maybeRecoverFromChunkError(e.reason)) return;
     logError(e.reason ?? 'unhandledrejection', 'unhandledrejection');
   });
 }
