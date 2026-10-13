@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
@@ -102,6 +103,21 @@ export default function MyPage() {
     'nemoa-mypage-tab', 'profile',
     (raw) => (isMyTab(raw) ? raw : (typeof raw === 'string' && LEGACY_TAB_MAP[raw]) || null),
   );
+  const router = useRouter();
+  /**
+   * 재검토(비판 모드, 현재 라운드) P1-58 — `useRouter`가 이 페이지에
+   * 아예 없어 탭을 바꿔도 주소가 `?tab=profile` 등 처음 값에 고정돼
+   * 있었다(단독 세션 100% 재현) — 다른 탭을 보고 있는 중 링크를
+   * 복사하거나 새로고침하면 의도와 다른 탭(마지막 저장값 또는
+   * profile)로 돌아갔다. closet(`router.replace`로 이미 동기화 중)과
+   * 같은 규칙으로 맞춘다 — usePersistedState는 그대로 두고(이미
+   * P1-50에서 하이드레이션 경쟁을 고친 민감한 로직), 사용자가 직접
+   * 탭을 고르는 지점에서만 이 래퍼로 URL도 같이 갱신한다.
+   */
+  function selectTab(tab: MyTab) {
+    setActiveTab(tab);
+    router.replace(`/mypage?tab=${tab}`, { scroll: false });
+  }
 
   // ?tab=... 쿼리 또는 legacy 해시(#shopping 등)로 탭 초기화 — 외부 진입용
   //
@@ -226,7 +242,7 @@ export default function MyPage() {
                     // 탭 전환 시 스크롤을 맨 위로 — 안 그러면 직전 스크롤 위치 그대로
                     // 새 탭 콘텐츠가 중간부터 보인다 (탭마다 길이가 크게 다름, 특히
                     // '요약' 탭 통합 이후 두드러짐)
-                    setActiveTab(t.id);
+                    selectTab(t.id);
                     window.scrollTo(0, 0);
                   }}
                   className={[
@@ -306,7 +322,7 @@ export default function MyPage() {
                   // 프로필 카드는 모든 탭에서 보이지만 #profiles(폼)는
                   // '내 정보' 탭에만 렌더되므로, 다른 탭에서 눌렀으면
                   // 먼저 탭을 전환한 뒤 다음 프레임에 스크롤한다.
-                  setActiveTab('profile');
+                  selectTab('profile');
                   requestAnimationFrame(() => {
                     document.getElementById('profiles')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   });
