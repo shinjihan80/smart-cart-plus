@@ -122,7 +122,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
             <button
               onClick={onClose}
               aria-label="닫기"
-              className="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-primary transition-colors"
+              className="touch-target-44 relative w-10 h-10 flex items-center justify-center text-gray-700 hover:text-brand-primary transition-colors"
             >
               <X size={22} strokeWidth={2} />
             </button>

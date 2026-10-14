@@ -1192,7 +1192,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
           <>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-bold text-gray-900">상품 정보 등록</h2>
-              <button aria-label="닫기" onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
+              <button aria-label="닫기" onClick={onClose} className="touch-target-44 relative text-gray-400 hover:text-gray-600 p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>

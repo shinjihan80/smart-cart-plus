@@ -64,7 +64,7 @@ export default function RewardedAdModal({ agentLabel, onClose, onGranted }: Rewa
       <div className="w-full max-w-xs rounded-2xl bg-white p-5 shadow-xl">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-bold text-gray-900">광고 보고 1회 더 쓰기</h2>
-          <button aria-label="닫기" onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
+          <button aria-label="닫기" onClick={onClose} className="touch-target-44 relative text-gray-400 hover:text-gray-600 p-1">
             <XIcon size={18} />
           </button>
         </div>

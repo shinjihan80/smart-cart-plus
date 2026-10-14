@@ -994,7 +994,7 @@ export default function FridgePage() {
               <div className="flex items-center justify-between px-4 pb-1">
                 <span className="text-sm font-bold text-gray-900 truncate">{compactDetailItem.name}</span>
                 <button onClick={() => setCompactDetailId(null)}
-                  className="shrink-0 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors" aria-label="닫기">
+                  className="touch-target-44 relative shrink-0 w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors" aria-label="닫기">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                 </button>
               </div>
