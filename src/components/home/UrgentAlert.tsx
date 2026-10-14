@@ -12,6 +12,7 @@ import { useToast } from '@/context/ToastContext';
 import { addNotificationLogEntry } from '@/lib/notificationLog';
 import { todayLocalStr } from '@/lib/dateMath';
 import { springTransition } from './shared';
+import { NameChips } from '@/components/ui/NameChips';
 
 export default function UrgentAlert({ items }: { items: CartItem[] }) {
   const { isDismissedToday, dismiss, restore } = useDismissedAlerts();
@@ -96,8 +97,11 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
             <p className="text-sm font-bold text-caution">
               {headline} 먹어야 할 식품 {urgent.length}개
             </p>
+            {/* P1-66 — 개수 제한 없이 .join(', ')+truncate(1줄)로 자르면
+                긴 목록에서 단어 중간이 잘리고 몇 개가 더 있는지도 안 보였다.
+                NameChips는 항목 3개까지 그대로 보여주고 나머지는 "+N"으로. */}
             <p className="text-sm text-gray-500 truncate mt-0.5">
-              {urgent.map((u) => u.name).join(', ')}
+              <NameChips names={urgent.map((u) => u.name)} max={3} />
             </p>
           </div>
         </Link>
