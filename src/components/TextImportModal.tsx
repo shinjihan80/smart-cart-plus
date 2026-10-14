@@ -1179,7 +1179,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
         role="dialog"
         aria-modal="true"
         aria-label="상품 정보 등록"
-        className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] px-5 pt-5 pb-8"
+        className="relative w-full max-w-md bg-white rounded-t-card sm:rounded-card px-5 pt-5 pb-8"
         style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.1)' }}
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-gray-200 sm:hidden" />

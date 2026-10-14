@@ -44,7 +44,7 @@ export default function BackupReminderBanner({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
-      <div className="bg-gray-900/5 border border-gray-900/10 rounded-[24px] flex items-stretch overflow-hidden">
+      <div className="bg-gray-900/5 border border-gray-900/10 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/settings"
           className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-gray-900/10 transition-colors"

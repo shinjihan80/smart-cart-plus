@@ -119,7 +119,7 @@ export default function HeroMessage({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-      className={`rounded-[28px] ${tone.cardBg} px-[27px] py-[27px] relative overflow-hidden`}
+      className={`rounded-card ${tone.cardBg} px-[27px] py-[27px] relative overflow-hidden`}
       style={{ boxShadow: '0 8px 24px -12px rgba(31, 31, 46, 0.12), 0 2px 6px -2px rgba(31, 31, 46, 0.04)' }}
     >
       {/*

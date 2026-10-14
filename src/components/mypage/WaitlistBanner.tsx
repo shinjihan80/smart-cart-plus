@@ -58,7 +58,7 @@ export default function WaitlistBanner() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.3 }}
-      className="rounded-[28px] bg-gradient-to-br from-brand-primary/8 to-brand-primary/5 border border-brand-primary/15 px-4 py-4 relative"
+      className="rounded-card bg-gradient-to-br from-brand-primary/8 to-brand-primary/5 border border-brand-primary/15 px-4 py-4 relative"
       style={CARD_SHADOW}
     >
       <button

@@ -205,7 +205,7 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...springTransition, delay: 0.05 }}
-          className={`rounded-[28px] border px-4 py-3 flex items-center gap-3 ${
+          className={`rounded-card border px-4 py-3 flex items-center gap-3 ${
             !backup.hydrated
               ? 'bg-gray-50 border-gray-100'
               : backup.isStale
@@ -394,7 +394,7 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...springTransition, delay: 0.14 }}
-          className="rounded-[28px] border border-danger/20 bg-danger/3 px-4 py-4"
+          className="rounded-card border border-danger/20 bg-danger/3 px-4 py-4"
         >
           <div className="flex items-center gap-1.5 mb-1">
             <AlertTriangle size={12} className="text-danger" />

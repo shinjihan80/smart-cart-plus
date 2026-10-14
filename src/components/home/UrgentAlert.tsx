@@ -78,7 +78,7 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
           이미 Link라 중복 신호였으므로 제거하고, ✕는 flex 형제 칼럼으로
           분리해 실제 44px 폭 레이아웃 공간을 갖게 한다 — 겹침이 구조적으로
           불가능해진다(의사요소 확장 불필요). */}
-      <div className="bg-caution/10 border border-caution/20 rounded-[24px] flex items-stretch overflow-hidden">
+      <div className="bg-caution/10 border border-caution/20 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/fridge"
           className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-caution/15 transition-colors"

@@ -80,7 +80,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-              className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] p-6 max-h-[90dvh] overflow-y-auto"
+              className="relative w-full max-w-md bg-white rounded-t-card sm:rounded-card p-6 max-h-[90dvh] overflow-y-auto"
               style={{
                 boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)',
                 // 제스처 내비게이션 바에 마지막 버튼이 잘리는 문제 (갤S26U 등).

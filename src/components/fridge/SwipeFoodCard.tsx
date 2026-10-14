@@ -193,7 +193,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -200, transition: { duration: 0.18 } }}
       transition={{ ...springTransition, delay: Math.min(index, 6) * 0.03 }}
-      className="relative overflow-hidden rounded-[32px]"
+      className="relative overflow-hidden rounded-card"
     >
       <div
         style={{ backgroundColor: 'rgb(255,255,255)', ...CARD_SHADOW }}
@@ -205,7 +205,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
         // 시트를 닫아버리는 버그도 있었다. 카드 레벨 클릭/role/tabIndex를
         // 전부 빼고, 토글이 실제로 필요한 "본문" 열만 진짜 <button>으로
         // 감싼다(아래) — 내용에서 접근성 이름이 자동으로 생성된다.
-        className="rounded-[32px] border border-gray-50 p-5 flex flex-col"
+        className="rounded-card border border-gray-50 p-5 flex flex-col"
       >
         <div className="flex items-start gap-4">
           {/* 좌측: 큰 사진 — 탭하면 변경/추가. 사진이 배경처럼 영역 꽉 채움. */}

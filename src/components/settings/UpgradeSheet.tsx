@@ -119,7 +119,7 @@ export default function UpgradeSheet({ open, onClose, trigger }: UpgradeSheetPro
           animate={{ y: 0,  opacity: 1 }}
           exit={{ y: 80,    opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-          className="relative w-full max-w-md bg-white rounded-t-[32px] px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto"
+          className="relative w-full max-w-md bg-white rounded-t-card px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto"
           style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)' }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -158,7 +158,7 @@ export default function UpgradeSheet({ open, onClose, trigger }: UpgradeSheetPro
             {PLANS.map((plan) => {
               const price = billing === 'yearly' ? plan.perMonth : plan.monthly;
               return (
-                <div key={plan.id} className="rounded-[24px] border border-brand-primary/20 bg-brand-primary/3 p-4">
+                <div key={plan.id} className="rounded-panel border border-brand-primary/20 bg-brand-primary/3 p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <p className="text-sm font-bold text-gray-900">{plan.name}</p>

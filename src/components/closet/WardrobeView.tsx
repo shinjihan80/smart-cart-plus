@@ -63,7 +63,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
 
   return (
     <div
-      className="grid gap-3 bg-gradient-to-br from-slate-50 to-gray-100 rounded-[28px] p-3"
+      className="grid gap-3 bg-gradient-to-br from-slate-50 to-gray-100 rounded-card p-3"
       style={{
         gridTemplateColumns: `repeat(${model.cols}, minmax(0, 1fr))`,
         gridTemplateRows:    `repeat(${model.rows}, minmax(128px, auto))`,

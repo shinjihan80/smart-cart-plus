@@ -38,7 +38,7 @@ export default function SeasonalUnstowBanner({ items }: { items: CartItem[] }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.06 }}
-      className="rounded-[28px] bg-gradient-to-br from-brand-success/10 to-brand-primary/10 border border-brand-success/20 px-4 py-3.5 flex items-center gap-3"
+      className="rounded-card bg-gradient-to-br from-brand-success/10 to-brand-primary/10 border border-brand-success/20 px-4 py-3.5 flex items-center gap-3"
     >
       {(() => {
         const Icon = SEASON_ICON[season];

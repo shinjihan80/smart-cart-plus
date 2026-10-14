@@ -82,7 +82,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
               animate={{ y: 0,  opacity: 1, scale: 1 }}
               exit={{ y: 40,    opacity: 0, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-              className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] px-5 pt-6 pb-8 max-h-[85vh] overflow-y-auto"
+              className="relative w-full max-w-md bg-white rounded-t-card sm:rounded-card px-5 pt-6 pb-8 max-h-[85vh] overflow-y-auto"
               style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)' }}
               onClick={(e) => e.stopPropagation()}
             >

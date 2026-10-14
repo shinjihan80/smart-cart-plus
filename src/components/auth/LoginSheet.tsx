@@ -68,7 +68,7 @@ export default function LoginSheet({ open, onClose }: LoginSheetProps) {
           animate={{ y: 0,  opacity: 1 }}
           exit={{ y: 60,    opacity: 0 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative w-full max-w-md bg-white rounded-t-[32px] px-6 pt-6 pb-10"
+          className="relative w-full max-w-md bg-white rounded-t-card px-6 pt-6 pb-10"
           style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)' }}
           onClick={(e) => e.stopPropagation()}
         >

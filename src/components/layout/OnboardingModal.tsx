@@ -70,7 +70,7 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="relative bg-white rounded-[32px] py-10 text-center w-[320px] px-8"
+        className="relative bg-white rounded-card py-10 text-center w-[320px] px-8"
         style={{ boxShadow: '0 20px 60px -15px rgba(0,0,0,0.15)' }}
       >
         <AnimatePresence mode="wait">

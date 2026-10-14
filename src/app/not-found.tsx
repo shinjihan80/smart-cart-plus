@@ -5,11 +5,11 @@ export default function NotFound() {
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
       <div className="relative mb-6 flex items-center">
         <div
-          className="w-16 h-16 rounded-[18px] bg-brand-primary/20 absolute -translate-x-4 -rotate-6"
+          className="w-16 h-16 rounded-chip bg-brand-primary/20 absolute -translate-x-4 -rotate-6"
           aria-hidden
         />
         <div
-          className="w-16 h-16 rounded-[20px] bg-brand-primary relative"
+          className="w-16 h-16 rounded-chip bg-brand-primary relative"
           aria-hidden
         />
       </div>

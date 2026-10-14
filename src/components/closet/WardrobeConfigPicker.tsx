@@ -57,7 +57,7 @@ export function WardrobeConfigPicker({ config, onSelect }: WardrobeConfigPickerP
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   className={[
-                    'relative flex flex-col items-start gap-1 text-left p-3 rounded-[18px]',
+                    'relative flex flex-col items-start gap-1 text-left p-3 rounded-chip',
                     isActive
                       ? 'bg-indigo-50 ring-2 ring-indigo-500'
                       : 'bg-white ring-1 ring-gray-100',

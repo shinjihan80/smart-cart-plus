@@ -17,11 +17,11 @@ import type { ReactNode } from 'react';
 export type CardVariant = 'primary' | 'accent' | 'warning' | 'ghost' | 'compact';
 
 export const CARD_VARIANTS: Record<CardVariant, string> = {
-  primary: 'bg-white rounded-[24px] p-5',
-  compact: 'bg-white rounded-[20px] p-4',
-  accent:  'bg-white rounded-[24px] p-5',
-  warning: 'bg-white rounded-[24px] p-5',
-  ghost:   'bg-white rounded-[24px] p-5',
+  primary: 'bg-white rounded-panel p-5',
+  compact: 'bg-white rounded-chip p-4',
+  accent:  'bg-white rounded-panel p-5',
+  warning: 'bg-white rounded-panel p-5',
+  ghost:   'bg-white rounded-panel p-5',
 };
 
 // MG·우리페이 스타일 — 부드럽고 짧은 그림자로 카드 부유감
@@ -85,10 +85,10 @@ export function Widget({
 export function HomeSkeleton() {
   return (
     <div className="px-5 py-6 flex flex-col gap-4">
-      <div className="h-[180px] rounded-[32px] bg-gray-100 animate-pulse" />
-      <div className="h-[120px] rounded-[28px] bg-gray-100 animate-pulse" />
-      <div className="h-[160px] rounded-[28px] bg-gray-100 animate-pulse" />
-      <div className="h-[140px] rounded-[28px] bg-gray-100 animate-pulse" />
+      <div className="h-[180px] rounded-card bg-gray-100 animate-pulse" />
+      <div className="h-[120px] rounded-card bg-gray-100 animate-pulse" />
+      <div className="h-[160px] rounded-card bg-gray-100 animate-pulse" />
+      <div className="h-[140px] rounded-card bg-gray-100 animate-pulse" />
     </div>
   );
 }

@@ -116,7 +116,7 @@ export default function HomePage() {
       {/* 빈 상태 CTA — 식품·옷 모두 0일 때만 노출 */}
       {items.length === 0 && (
         <div className="px-5 pt-5">
-          <div className="rounded-[24px] bg-gradient-to-br from-brand-primary/5 to-amber-50 border border-brand-primary/15 p-5 text-center flex flex-col items-center gap-2">
+          <div className="rounded-panel bg-gradient-to-br from-brand-primary/5 to-amber-50 border border-brand-primary/15 p-5 text-center flex flex-col items-center gap-2">
             <EmojiIcon emoji="👋" size={28} className="text-brand-primary" />
             <p className="text-sm font-bold text-gray-900">처음이신가요?</p>
             <p className="text-xs text-gray-500 leading-relaxed">

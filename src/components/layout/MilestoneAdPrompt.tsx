@@ -43,7 +43,7 @@ export default function MilestoneAdPrompt() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
-            className="w-full max-w-sm rounded-[28px] bg-white p-6 flex flex-col items-center gap-3 text-center"
+            className="w-full max-w-sm rounded-card bg-white p-6 flex flex-col items-center gap-3 text-center"
           >
             <span className="text-4xl" aria-hidden>🎬</span>
             <p className="text-base font-bold text-gray-900">짧은 광고 하나 보고 계속할까요?</p>

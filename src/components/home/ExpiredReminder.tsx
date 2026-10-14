@@ -62,7 +62,7 @@ export default function ExpiredReminder({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
-      <div className="bg-red-50 border border-red-100 rounded-[24px] flex items-stretch overflow-hidden">
+      <div className="bg-red-50 border border-red-100 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/fridge?tab=food"
           className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-red-100/60 transition-colors"

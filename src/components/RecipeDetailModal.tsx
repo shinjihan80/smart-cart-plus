@@ -137,7 +137,7 @@ export default function RecipeDetailModal({
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 40, opacity: 0, scale: 0.96 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-          className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] px-6 py-7 max-h-[85vh] overflow-y-auto"
+          className="relative w-full max-w-md bg-white rounded-t-card sm:rounded-card px-6 py-7 max-h-[85vh] overflow-y-auto"
           style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.15)' }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -160,7 +160,7 @@ export default function RecipeDetailModal({
             </button>
           </div>
 
-          <div className={`rounded-[28px] bg-gradient-to-br ${recipeGradient(recipe)} px-5 py-5 mb-4 flex items-center gap-4 pr-20 overflow-hidden`}>
+          <div className={`rounded-card bg-gradient-to-br ${recipeGradient(recipe)} px-5 py-5 mb-4 flex items-center gap-4 pr-20 overflow-hidden`}>
             <motion.div
               key={recipe.id}
               initial={{ scale: 0.7, rotate: -8, opacity: 0 }}

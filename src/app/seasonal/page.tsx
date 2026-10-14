@@ -289,7 +289,7 @@ function SeasonalPageInner() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-            className="rounded-[28px] bg-gradient-to-br from-brand-primary/5 to-brand-success/5 border border-brand-primary/10 p-4"
+            className="rounded-card bg-gradient-to-br from-brand-primary/5 to-brand-success/5 border border-brand-primary/10 p-4"
           >
             <div className="flex items-center gap-3">
               {(() => {

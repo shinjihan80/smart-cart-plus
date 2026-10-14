@@ -12,7 +12,7 @@ export function InstanceMetaEditor({
   name, emoji, emojis, onNameChange, onEmojiChange,
 }: InstanceMetaEditorProps) {
   return (
-    <div className="flex flex-col gap-2.5 p-3 bg-white rounded-[18px] ring-1 ring-gray-100"
+    <div className="flex flex-col gap-2.5 p-3 bg-white rounded-chip ring-1 ring-gray-100"
       style={{ boxShadow: '0 1px 4px -2px rgba(31,31,46,0.10)' }}>
       {/* 이름 입력 */}
       <div className="flex items-center gap-2">

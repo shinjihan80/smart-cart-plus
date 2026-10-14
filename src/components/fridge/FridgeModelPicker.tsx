@@ -33,7 +33,7 @@ export function FridgeModelPicker({ selected, onSelect, compact }: FridgeModelPi
             whileTap={{ scale: 0.97 }}
             className={[
               'relative flex flex-col items-start gap-1.5 text-left',
-              compact ? 'p-3 rounded-[18px]' : 'p-4 rounded-[22px]',
+              compact ? 'p-3 rounded-chip' : 'p-4 rounded-chip',
               isActive
                 ? 'bg-indigo-50 ring-2 ring-indigo-500'
                 : 'bg-white ring-1 ring-gray-100',

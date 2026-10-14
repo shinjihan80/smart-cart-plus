@@ -75,7 +75,7 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={springTransition}
-      className="relative bg-gray-900/5 border border-gray-900/10 rounded-[24px] flex items-stretch overflow-hidden"
+      className="relative bg-gray-900/5 border border-gray-900/10 rounded-panel flex items-stretch overflow-hidden"
     >
       {/* P1-88 — ✕를 absolute로 띄워 히트존만 키우자(touch-target-44)
           "켜기" 버튼 상단 21%를 덮어, 알림을 켜려던 탭이 안내를 하루

@@ -84,7 +84,7 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
       {/* P1-88 — UrgentAlert와 동일한 수정: ›는 카드 전체가 이미 Link라
           중복이라 제거, ✕는 flex 형제 칼럼으로 분리해 실제 44px 레이아웃
           공간을 갖게 해 의사요소 확장 겹침 자체를 없앤다. */}
-      <div className="bg-amber-50 border border-amber-100 rounded-[24px] flex items-stretch overflow-hidden">
+      <div className="bg-amber-50 border border-amber-100 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/mypage?tab=shopping"
           className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-amber-100/80 transition-colors"

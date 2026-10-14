@@ -341,7 +341,7 @@ export default function MyPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springTransition, delay: 0.05 }}
-            className="rounded-[28px] border px-4 py-3 flex items-center gap-3 bg-caution/5 border-caution/20"
+            className="rounded-card border px-4 py-3 flex items-center gap-3 bg-caution/5 border-caution/20"
           >
             <EmojiIcon emoji="💾" size={20} className="text-caution shrink-0" />
             <div className="flex-1 min-w-0">
@@ -666,7 +666,7 @@ export default function MyPage() {
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="relative w-full bg-white rounded-t-[28px] px-4 pt-5 pb-10 z-10"
+            className="relative w-full bg-white rounded-t-card px-4 pt-5 pb-10 z-10"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />

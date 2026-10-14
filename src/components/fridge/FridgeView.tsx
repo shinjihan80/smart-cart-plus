@@ -43,7 +43,7 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
     // 한다 — 칸 이름·배지 숫자(이미 text-[11px]/text-[10px]로 고정
     // px)는 원래도 안 바뀌던 값이라 그대로 둠.
     <div
-      className="grid gap-[8px] bg-gradient-to-br from-slate-50 to-gray-100 rounded-[28px] p-[12px]"
+      className="grid gap-[8px] bg-gradient-to-br from-slate-50 to-gray-100 rounded-card p-[12px]"
       style={{
         gridTemplateColumns: `repeat(${model.cols}, minmax(0, 1fr))`,
         gridTemplateRows:    `repeat(${model.rows}, minmax(64px, auto))`,

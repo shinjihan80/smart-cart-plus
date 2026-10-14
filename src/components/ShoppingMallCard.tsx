@@ -41,7 +41,7 @@ export default function ShoppingMallCard({
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-        className="bg-white rounded-[24px] p-5"
+        className="bg-white rounded-panel p-5"
         style={{ boxShadow: '0 6px 16px -8px rgba(31, 31, 46, 0.08)' }}
       >
         <div className="grid grid-cols-3 gap-2">

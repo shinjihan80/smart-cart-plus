@@ -68,14 +68,19 @@
   --color-ink-secondary: #4B5563; /* gray-600 — 보조 설명, 대비 여유 있음 → text-ink-secondary */
   --color-ink-muted:     #6B7280; /* gray-500 — 가장 옅은 허용 텍스트, 4.83:1 하한 → text-ink-muted */
 
-  /* 역할 기반 radius 3단(P2-5/P2-16/P1-64②) — rounded-[Npx] 리터럴 6종
-     68곳(32px×29·28px×17·24px×13·20px×4·18px×4·22px×1, 실측)과
-     CARD 상수 4곳(fridge/closet 32px+border, mypage 24px, home
-     24px/20px)이 전부 제각각이던 걸 하나로 모으는 목표 토큰. 값은
-     현재 가장 많이 쓰이는 값을 채택 — 실제 컴포넌트 치환(Surface
-     단일화)은 적용 단계에서, 이번엔 선언만. */
-  --radius-card:    2rem;      /* 32px — 페이지 레벨 카드(냉장고·옷장·설정 등), 현재 최다 사용값 */
-  --radius-chip:    1.125rem;  /* 18px — 카드보다 작은 중간 요소(시트 헤더, 작은 패널) */
+  /* 역할 기반 radius 4단(P2-5/P2-16/P1-64②) — rounded-[Npx] 리터럴 6종
+     67곳(32px×29·28px×17·24px×13·20px×4·18px×4·22px×1, 실측)과
+     CARD 상수 4곳(fridge/closet 32px+border, mypage/home 24px)이
+     전부 제각각이던 걸 모으는 목표 토큰. Step 1에서는 3단으로
+     시작했는데, Step 3(전역 치환) 착수 시 24px가 13곳(mypage/home
+     CARD 상수 본체)으로 32px·18px 사이 빈 자리를 메우는 실질적인
+     4번째 군집이라는 게 드러나 panel을 추가 — card/chip 양쪽으로
+     욱여넣으면 mypage/home 카드가 전부 눈에 띄게 커지거나 작아져
+     불필요한 시각 변화가 생겼을 것. 28px(card로 흡수)·20px/22px
+     (chip으로 흡수)는 기존값과 4px 이내 차이라 그대로 합침. */
+  --radius-card:    2rem;      /* 32px — 페이지 레벨 카드(냉장고·옷장 등), 28px 포함 흡수 */
+  --radius-panel:   1.5rem;    /* 24px — mypage/home 카드, 시트 섹션 */
+  --radius-chip:    1.125rem;  /* 18px — 칩·작은 패널, 20px/22px 흡수 */
   --radius-control: 0.875rem;  /* 14px — 버튼·입력 필드 등 상호작용 요소 */
 }
 

@@ -64,7 +64,7 @@ function Warn({ children }: { children: React.ReactNode }) {
 function PhoneFrame({ src, alt, caption }: { src: string; alt: string; caption: string }) {
   return (
     <figure className="flex flex-col items-center gap-2">
-      <div className="relative w-[200px] h-[400px] bg-gray-900 rounded-[28px] shadow-2xl overflow-hidden ring-4 ring-gray-800 shrink-0">
+      <div className="relative w-[200px] h-[400px] bg-gray-900 rounded-card shadow-2xl overflow-hidden ring-4 ring-gray-800 shrink-0">
         <Image src={src} alt={alt} fill className="object-cover object-top" />
       </div>
       <figcaption className="text-xs text-gray-400 text-center">{caption}</figcaption>

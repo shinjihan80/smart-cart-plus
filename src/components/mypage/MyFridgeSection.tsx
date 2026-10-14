@@ -145,7 +145,7 @@ function MigrationConfirmModal({
         animate={{ y: 0,  opacity: 1 }}
         exit={{ y: 40,    opacity: 0 }}
         transition={{ type: 'spring', damping: 24, stiffness: 280 }}
-        className="relative w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] px-5 pt-5 pb-6"
+        className="relative w-full max-w-md bg-white rounded-t-card sm:rounded-card px-5 pt-5 pb-6"
         style={{ boxShadow: '0 -10px 40px -10px rgba(0,0,0,0.1)' }}
       >
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-gray-200 sm:hidden" />

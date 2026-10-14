@@ -77,12 +77,12 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -200, transition: { duration: 0.18 } }}
       transition={{ ...springTransition, delay: Math.min(index, 6) * 0.03 }}
-      className="relative overflow-hidden rounded-[32px]"
+      className="relative overflow-hidden rounded-card"
     >
       <div
         style={{ backgroundColor: 'rgb(255,255,255)', ...CARD_SHADOW }}
         onClick={toggleExpanded}
-        className="rounded-[32px] border border-gray-50 p-5 flex flex-col cursor-pointer"
+        className="rounded-card border border-gray-50 p-5 flex flex-col cursor-pointer"
       >
         <div className="flex items-start gap-4">
           {/* 좌측: 큰 사진 — 탭하면 변경/추가. 사진이 배경처럼 영역 꽉 채움. */}

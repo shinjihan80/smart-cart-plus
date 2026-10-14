@@ -25,7 +25,7 @@ export default function PlanGate({ minTier = 'pro_lite', feature, children }: Pr
 
   return (
     <div
-      className="rounded-[28px] bg-white border border-gray-100 px-4 py-5 flex flex-col items-center gap-3 text-center"
+      className="rounded-card bg-white border border-gray-100 px-4 py-5 flex flex-col items-center gap-3 text-center"
       style={{ boxShadow: '0 1px 4px 0 rgba(0,0,0,0.04)' }}
     >
       <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center">

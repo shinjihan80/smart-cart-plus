@@ -91,7 +91,7 @@ export default function NotificationsPage() {
           // 카드: bg-white+ring). 카드와 같은 표면 스타일로 통일(검토단 C6).
           <Link
             href="/settings#notifications"
-            className="flex items-center gap-3 rounded-[20px] px-4 py-3.5 mb-2 bg-white ring-1 ring-gray-100 active:scale-[0.99] transition-transform"
+            className="flex items-center gap-3 rounded-chip px-4 py-3.5 mb-2 bg-white ring-1 ring-gray-100 active:scale-[0.99] transition-transform"
           >
             <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
               <BellOff size={16} className="text-gray-500" />
@@ -122,7 +122,7 @@ export default function NotificationsPage() {
               <Link
                 key={entry.id}
                 href={meta.href}
-                className="flex items-start gap-3 rounded-[20px] px-4 py-3.5 bg-white ring-1 ring-gray-100 active:scale-[0.99] transition-transform"
+                className="flex items-start gap-3 rounded-chip px-4 py-3.5 bg-white ring-1 ring-gray-100 active:scale-[0.99] transition-transform"
               >
                 <span className={`w-9 h-9 rounded-full ${meta.bg} flex items-center justify-center shrink-0 text-base`} aria-hidden>
                   {meta.emoji}
