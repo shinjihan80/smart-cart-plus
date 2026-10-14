@@ -113,48 +113,57 @@ function FoodSummaryStats({
       className={CARD}
       style={CARD_SHADOW}
     >
-      <div className="flex justify-between text-center">
-        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onAll}>
-          <p className="text-base font-bold text-gray-900 tabular-nums">{total}</p>
-          <p className="text-xs text-gray-400 mt-0.5">전체</p>
-        </button>
-        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onCold}>
-          <p className="text-base font-bold text-sky-600 tabular-nums">{cold}</p>
-          <p className="text-xs text-gray-400 mt-0.5">냉장</p>
-        </button>
-        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onFrozen}>
-          <p className="text-base font-bold text-indigo-600 tabular-nums">{frozen}</p>
-          <p className="text-xs text-gray-400 mt-0.5">냉동</p>
-        </button>
-        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onRoom}>
-          <p className="text-base font-bold text-amber-600 tabular-nums">{room}</p>
-          <p className="text-xs text-gray-400 mt-0.5">실온</p>
-        </button>
-        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onUrgent}>
-          <p className={`text-base font-bold tabular-nums ${urgent > 0 ? 'text-caution' : 'text-gray-900'}`}>
-            {urgent}
-          </p>
-          <p className="text-xs text-gray-400 mt-0.5">임박</p>
-        </button>
-        {/* 재검토(C5 코드 확인) P0 — 요약 5칸 중 어디에도 기한 초과(expired)
-            개수가 없어 "임박 0"이면 전부 괜찮다고 읽혔다. 홈 히어로는
-            기한 지난 품목 수를 말하는데, "확인하기"로 도착하는 이 요약은
-            0이라 모순이었다. 6번째 칸으로 단일 소스(foodStats.expired)를
-            그대로 노출. */}
-        <button className="flex-1 active:opacity-70 transition-opacity" onClick={onExpired}>
-          <p className={`text-base font-bold tabular-nums ${expired > 0 ? 'text-red-600' : 'text-gray-900'}`}>
-            {expired}
-          </p>
-          <p className="text-xs text-gray-400 mt-0.5">기한초과</p>
-        </button>
+      {/* P1-108 — 6칸이 전부 flex-1/justify-between이라 OS·브라우저 글자 확대
+          (역방향 스케일링, 112.5% 베이스)에서 라벨·숫자 텍스트가 커지면 카드
+          폭을 넘는데도 overflow-x 처리가 없어 오른쪽 칸이 그냥 잘려 안
+          보였다(32px 루트 실측 63px 클리핑). overflow-x-auto로 감싸 평소엔
+          시각 변화 없이(scrollW===clientW) 극단적 확대에서만 스크롤되게. */}
+      <div className="overflow-x-auto scrollbar-hide">
+        <div className="flex justify-between text-center">
+          <button className="flex-1 active:opacity-70 transition-opacity" onClick={onAll}>
+            <p className="text-base font-bold text-gray-900 tabular-nums">{total}</p>
+            <p className="text-xs text-gray-400 mt-0.5">전체</p>
+          </button>
+          <button className="flex-1 active:opacity-70 transition-opacity" onClick={onCold}>
+            <p className="text-base font-bold text-sky-600 tabular-nums">{cold}</p>
+            <p className="text-xs text-gray-400 mt-0.5">냉장</p>
+          </button>
+          <button className="flex-1 active:opacity-70 transition-opacity" onClick={onFrozen}>
+            <p className="text-base font-bold text-indigo-600 tabular-nums">{frozen}</p>
+            <p className="text-xs text-gray-400 mt-0.5">냉동</p>
+          </button>
+          <button className="flex-1 active:opacity-70 transition-opacity" onClick={onRoom}>
+            <p className="text-base font-bold text-amber-600 tabular-nums">{room}</p>
+            <p className="text-xs text-gray-400 mt-0.5">실온</p>
+          </button>
+          <button className="flex-1 active:opacity-70 transition-opacity" onClick={onUrgent}>
+            <p className={`text-base font-bold tabular-nums ${urgent > 0 ? 'text-caution' : 'text-gray-900'}`}>
+              {urgent}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">임박</p>
+          </button>
+          {/* 재검토(C5 코드 확인) P0 — 요약 5칸 중 어디에도 기한 초과(expired)
+              개수가 없어 "임박 0"이면 전부 괜찮다고 읽혔다. 홈 히어로는
+              기한 지난 품목 수를 말하는데, "확인하기"로 도착하는 이 요약은
+              0이라 모순이었다. 6번째 칸으로 단일 소스(foodStats.expired)를
+              그대로 노출. */}
+          <button className="flex-1 active:opacity-70 transition-opacity" onClick={onExpired}>
+            <p className={`text-base font-bold tabular-nums ${expired > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+              {expired}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">기한초과</p>
+          </button>
+        </div>
       </div>
       {groupCounts.length > 0 && (
-        <div className="flex gap-3 mt-3 pt-3 border-t border-gray-50">
-          {groupCounts.map(({ group, count }) => (
-            <span key={group} className="text-xs text-gray-400">
-              {group} <strong className="font-semibold text-gray-600 tabular-nums">{count}</strong>
-            </span>
-          ))}
+        <div className="overflow-x-auto scrollbar-hide mt-3 pt-3 border-t border-gray-50">
+          <div className="flex gap-3 w-max">
+            {groupCounts.map(({ group, count }) => (
+              <span key={group} className="text-xs text-gray-400 whitespace-nowrap">
+                {group} <strong className="font-semibold text-gray-600 tabular-nums">{count}</strong>
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </motion.div>
