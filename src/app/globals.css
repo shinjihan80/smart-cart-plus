@@ -55,6 +55,28 @@
   --color-mall-zigzag: #FF147A;
   --color-mall-oliveyoung: #9FC93C;
   --color-mall-bmart: #2AC1BC;
+
+  /* 디자인 시스템 Step 1 — 토큰 선언만, 아직 전역 치환 없음
+     (docs/design-system-scope.md 참고). 역할 기반 텍스트 색 3단(P2-3) —
+     gray-400(#99a1af, 대비 2.6:1)은 본문 텍스트로 쓰면 WCAG AA(4.5:1)
+     미달인데 카드 제목·버튼에까지 쓰이고 있었다(전문단 E2/C8/C9 실측).
+     gray-400은 이제부터 텍스트 색 용도로 신규 사용 금지 — 가장 옅은
+     허용 텍스트 색은 아래 ink-muted(gray-500, 4.83:1)부터. 가장
+     진한 단계는 이미 있는 --color-brand-ink(#1F1F2E)를 그대로 쓰면
+     돼 새로 선언하지 않는다. "text-" 접두사 중복(Tailwind가
+     --color-X → text-X 유틸을 자동 생성)을 피하려 ink- 접두사 사용. */
+  --color-ink-secondary: #4B5563; /* gray-600 — 보조 설명, 대비 여유 있음 → text-ink-secondary */
+  --color-ink-muted:     #6B7280; /* gray-500 — 가장 옅은 허용 텍스트, 4.83:1 하한 → text-ink-muted */
+
+  /* 역할 기반 radius 3단(P2-5/P2-16/P1-64②) — rounded-[Npx] 리터럴 6종
+     68곳(32px×29·28px×17·24px×13·20px×4·18px×4·22px×1, 실측)과
+     CARD 상수 4곳(fridge/closet 32px+border, mypage 24px, home
+     24px/20px)이 전부 제각각이던 걸 하나로 모으는 목표 토큰. 값은
+     현재 가장 많이 쓰이는 값을 채택 — 실제 컴포넌트 치환(Surface
+     단일화)은 적용 단계에서, 이번엔 선언만. */
+  --radius-card:    2rem;      /* 32px — 페이지 레벨 카드(냉장고·옷장·설정 등), 현재 최다 사용값 */
+  --radius-chip:    1.125rem;  /* 18px — 카드보다 작은 중간 요소(시트 헤더, 작은 패널) */
+  --radius-control: 0.875rem;  /* 14px — 버튼·입력 필드 등 상호작용 요소 */
 }
 
 /* SUIT 한국어 본문 가독성 — 모바일 표준 (토스·컬리·당근 스타일) */
@@ -72,6 +94,27 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
+
+/*
+ * 디자인 시스템 Step 1 — 공식 타입 스케일 정책(P2-3/P2-28 토큰화
+ * 목표). Tailwind 기본 5단(text-xs~xl)이 이미 rem 기반이라 그대로
+ * 공식 스케일로 채택한다 — 새 변수를 또 만들지 않는다:
+ *
+ *   text-xs   0.75rem  → 13.5px (기본 16px 환경 기준) — 하한
+ *   text-sm   0.875rem → 15.75px
+ *   text-base 1rem     → 18px
+ *   text-lg   1.125rem → 20.25px
+ *   text-xl   1.25rem  → 22.5px
+ *
+ * 정책: text-xs(13.5px)보다 작은 텍스트는 새로 만들지 않는다. 현재
+ * text-[10px]/[11px]/[9px]/[8px] 등 rem 스케일 하한 아래 리터럴이
+ * 10종 97곳에 쓰이고 있는데(전문단 E2/E3 실측), 이들은 단순히
+ * text-xs로 글자만 키우면 끝나는 게 아니라 — 배지·칩처럼 공간이
+ * 빠듯한 곳(냉장고/옷장 그리드 셀 등)은 글자를 키우면 레이아웃이
+ * 깨질 수 있어(이번 라운드 P0-51/P1-75에서 실제로 겪은 종류의 문제)
+ * 치환 시 사례별로 "글자만 키우기"와 "배지 통합 같은 재설계"를
+ * 구분해야 한다 — 치환은 Step 3(docs/design-system-scope.md)에서.
+ */
 
 body {
   background: var(--background);
