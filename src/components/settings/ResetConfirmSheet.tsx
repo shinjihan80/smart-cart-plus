@@ -94,7 +94,7 @@ export default function ResetConfirmSheet({ open, onClose, onDownloadBackup, onC
           <button
             onClick={close}
             aria-label="닫기"
-            className="absolute top-5 right-5 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-700"
+            className="touch-target-44 absolute top-5 right-5 w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-700"
           >
             <X size={20} />
           </button>

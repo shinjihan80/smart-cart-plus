@@ -124,7 +124,7 @@ export default function UpgradeSheet({ open, onClose, trigger }: UpgradeSheetPro
           onClick={(e) => e.stopPropagation()}
         >
           <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
-          <button onClick={onClose} aria-label="닫기" className="absolute top-5 right-5 w-9 h-9 flex items-center justify-center text-gray-400">
+          <button onClick={onClose} aria-label="닫기" className="touch-target-44 absolute top-5 right-5 w-9 h-9 flex items-center justify-center text-gray-400">
             <X size={20} />
           </button>
 

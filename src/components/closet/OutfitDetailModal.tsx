@@ -91,7 +91,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
               <button
                 onClick={onClose}
                 aria-label="닫기"
-                className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                className="touch-target-44 absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
               >
                 <X size={20} strokeWidth={2} />
               </button>
