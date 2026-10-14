@@ -62,8 +62,17 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
   }
 
   return (
+    // 디자인 시스템 Step 5(docs/design-system-scope.md, P1-27) —
+    // FridgeView는 P0-51(G37)에서 그리드 틈·셀 여백·이모지·배지를
+    // 고정 px로 바꿔 역방향 스케일링(OS 글자 확대) 내성을 얻었는데,
+    // 같은 "모델 그리드 + 칸 셀" 구조를 따로 구현한 이 컴포넌트는
+    // 그 수정이 안 닿아 같은 class의 overflow 버그에 여전히 노출돼
+    // 있었다(P1-27이 지목한 "한쪽만 고쳐지는" 패턴 그대로). 완전한
+    // 컴포넌트 통합은 두 칸 디자인(텍스트 목록 vs 이모지 썸네일)이
+    // 달라 시각 변경 위험이 커 보류하고, FridgeView에서 이미 검증된
+    // 고정 px 전환 기법만 동일하게 적용.
     <div
-      className="grid gap-3 bg-gradient-to-br from-slate-50 to-gray-100 rounded-card p-3"
+      className="grid gap-[12px] bg-gradient-to-br from-slate-50 to-gray-100 rounded-card p-[12px]"
       style={{
         gridTemplateColumns: `repeat(${model.cols}, minmax(0, 1fr))`,
         gridTemplateRows:    `repeat(${model.rows}, minmax(128px, auto))`,
@@ -89,7 +98,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
               // justify-between이었을 때, 같은 행의 옆 칸이 아이템이 많아 카드가
               // 커지면 이 칸의 본문(라벨)이 아래로 밀려 옆 칸과 라벨 높이가
               // 어긋나 보였다(C2·C8 발견). 본문을 헤더 바로 아래 고정.
-              'relative flex flex-col gap-2 text-left rounded-2xl p-4 overflow-hidden',
+              'relative flex flex-col gap-[8px] text-left rounded-2xl p-[16px] overflow-hidden',
               'bg-white ring-1',
               isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
             ].join(' ')}
@@ -102,15 +111,15 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
           >
             {/* 헤더: 섹션 이모지(배지)가 이 카드의 유일한 강조점 — 나머지는 한 단계씩 낮춰
                 크기 위계를 준다(배지 큼 > 라벨 중간 > 썸네일·카운트·힌트 작음). */}
-            <div className="flex items-start justify-between gap-1">
+            <div className="flex items-start justify-between gap-[4px]">
               <span
-                className="emoji w-11 h-11 flex items-center justify-center rounded-2xl bg-gray-50 text-2xl shrink-0"
+                className="emoji w-[48px] h-[48px] flex items-center justify-center rounded-2xl bg-gray-50 text-[24px] shrink-0"
                 aria-hidden
               >
                 {meta.emoji}
               </span>
               {count > 0 && (
-                <span className="text-[10px] font-bold rounded-full px-1.5 py-0.5 tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
+                <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
                   {count}
                 </span>
               )}
@@ -118,16 +127,16 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
 
             {/* 바디: 섹션명 + 의류 이모지 썸네일. 썸네일은 좁은 1열 칸에서도
                 줄바꿈 없이 나란히 들어가도록 헤더 배지보다 확연히 작게. */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-[6px]">
               <p className="text-sm font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
               {count === 0 ? (
                 <p className="text-xs text-gray-400 leading-tight truncate">{meta.hint}</p>
               ) : (
-                <div className="flex flex-wrap gap-1 leading-none">
+                <div className="flex flex-wrap gap-[4px] leading-none">
                   {cellItems.slice(0, 3).map((item, i) => (
                     <span
                       key={i}
-                      className="emoji text-lg"
+                      className="emoji text-[18px]"
                       aria-hidden
                       title={item.name}
                     >
