@@ -20,7 +20,7 @@
 | 2. B 전역 치환(`brand-warning`/`brand-accent` 재배치) | ✅ 완료 | 2026-10-14 | (아래 참고) |
 | 3. A+D 전역 치환(text/radius 리터럴) | ✅ radius 완료 · text 부분 완료(28/89, 나머지는 Step 5로 이월) | 2026-10-14 | (아래 참고) |
 | 4. C 아이콘 언어 통일 | ✅ 탭 스트립 3개 완료 · 전체 앱 전수 감사는 미착수 | 2026-10-14 | (아래 참고) |
-| 5. D+E 컴포넌트화 | 대기 | | |
+| 5. D+E 컴포넌트화 | 🔶 진행 중 — WardrobeView P0-51 기법 적용 완료, Surface/AppHeader/Field.tsx/EmptyState는 미착수 | 2026-10-14 | (아래 참고) |
 | 6. F 레이아웃 보강 | 대기 | | |
 | 7. B 다크모드 | 대기 | | |
 
@@ -83,6 +83,8 @@
 - 산출물: `Surface`(card/panel/sheet 3 variant) + `AppHeader`(액션 슬롯 순서 고정) + `--radius-card/chip/control` 3단 토큰 + 공용 그리드 셀 컴포넌트, arbitrary-value lint 차단(재발 방지)
 
 **완료 메모(radius 토큰 선언+전역 치환, 2026-10-14)**: `rounded-[Npx]` 리터럴 80곳(방향 변형 포함, 재실측) 전수 치환 완료 — 3단 설계로 시작했다가 치환 착수 시 24px(mypage/home 카드 본체, 13곳)가 32px/18px 사이에서 실질적인 4번째 군집이라는 게 드러나 `--radius-panel`(24px)을 추가해 4단으로 확정. text 리터럴과 달리 radius는 레이아웃 overflow를 일으키지 않아 사례별 판단 없이 일괄 치환(32px+28px→card, 24px→panel, 22px/20px/18px→chip). `Surface`/`AppHeader`/공용 그리드 셀 컴포넌트는 아직(Step 5).
+
+**완료 메모(P1-27 그리드 셀 버그, 2026-10-14)**: 완전한 공용 그리드 셀 컴포넌트 통합 대신, FridgeView(P0-51/G37에서 이미 검증된)의 고정px 전환 기법을 WardrobeView에도 동일 적용 — 역방향 스케일링 overflow 버그 자체는 해소(라이브로 루트 27px·32px에서 두 컴포넌트 모두 overflow 0 확인). 하나의 `.tsx` 파일로 합치는 완전한 통합은 두 칸의 바디 디자인(텍스트 목록 vs 이모지 썸네일)이 달라 강제 통일 시 시각 변경 위험이 있다고 판단해 보류 — `Surface`/`AppHeader`/`Field.tsx`/`FoodAttributeFields.tsx`/`EmptyState`는 전부 미착수로 남음.
 
 ### E. 공용 폼/빈 상태 컴포넌트
 **대상:** P1-73 + P2-39(**사실상 동일한 발견 — 서로 다른 라운드에서 중복 등록됨**, 하나로 처리), P2-41, P2-9, P2-31
