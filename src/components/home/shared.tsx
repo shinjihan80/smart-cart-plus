@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
+import { SURFACE_CLASS, SURFACE_SHADOW } from '@/components/ui/Surface';
 
 /**
  * Card 시스템 — 커머스 앱 스타일 (롯데면세점·SSG·인터파크 참고)
@@ -13,28 +14,28 @@ import type { ReactNode } from 'react';
  *   primary  → 기본 (p-5)
  *   compact  → 작은 padding (p-4, 그리드용)
  *   (accent·warning·ghost variant는 폐지 — 모두 primary로 흡수)
+ *
+ * 디자인 시스템 Step 5(P2-16) — 값 자체는 src/components/ui/Surface.tsx
+ * 한 곳에서만 관리(이 파일의 'plain'='panel', 'compact'='chip'에 대응).
+ * `Widget`/`CardVariant` API는 home/ 전역에서 이미 널리 쓰여 그대로
+ * 유지 — 재노출만 Surface 기준으로 바꿔 복제를 없앤다.
  */
 export type CardVariant = 'primary' | 'accent' | 'warning' | 'ghost' | 'compact';
 
 export const CARD_VARIANTS: Record<CardVariant, string> = {
-  primary: 'bg-white rounded-panel p-5',
-  compact: 'bg-white rounded-chip p-4',
-  accent:  'bg-white rounded-panel p-5',
-  warning: 'bg-white rounded-panel p-5',
-  ghost:   'bg-white rounded-panel p-5',
-};
-
-// MG·우리페이 스타일 — 부드럽고 짧은 그림자로 카드 부유감
-const CARD_SHADOW_COMMON: React.CSSProperties = {
-  boxShadow: '0 6px 16px -8px rgba(31, 31, 46, 0.08), 0 2px 4px -2px rgba(31, 31, 46, 0.04)',
+  primary: SURFACE_CLASS.plain,
+  compact: SURFACE_CLASS.compact,
+  accent:  SURFACE_CLASS.plain,
+  warning: SURFACE_CLASS.plain,
+  ghost:   SURFACE_CLASS.plain,
 };
 
 export const CARD_SHADOWS: Record<CardVariant, React.CSSProperties> = {
-  primary: CARD_SHADOW_COMMON,
-  compact: CARD_SHADOW_COMMON,
-  accent:  CARD_SHADOW_COMMON,
-  warning: CARD_SHADOW_COMMON,
-  ghost:   CARD_SHADOW_COMMON,
+  primary: SURFACE_SHADOW.plain,
+  compact: SURFACE_SHADOW.compact,
+  accent:  SURFACE_SHADOW.plain,
+  warning: SURFACE_SHADOW.plain,
+  ghost:   SURFACE_SHADOW.plain,
 };
 
 // 하위 호환 — 기존 직접 사용처가 있을 수 있음 (primary와 동일)

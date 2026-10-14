@@ -1,9 +1,13 @@
 import { Wind, Thermometer, Droplets } from 'lucide-react';
 import { SEASON_COLOR } from '@/lib/iconMap';
+import { SURFACE_CLASS, SURFACE_SHADOW } from '@/components/ui/Surface';
 
 export const springTransition = { type: 'spring' as const, stiffness: 360, damping: 28 };
-export const CARD = 'bg-white rounded-[32px] border border-gray-50 p-5';
-export const CARD_SHADOW = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
+// 디자인 시스템 Step 5(P2-16) — 값 자체는 src/components/ui/Surface.tsx
+// 한 곳에서만 관리. 이 재노출은 기존 호출부(`CARD`/`CARD_SHADOW` import)를
+// 하나도 안 건드리려고 남겨둠.
+export const CARD = SURFACE_CLASS.bordered;
+export const CARD_SHADOW = SURFACE_SHADOW.bordered;
 
 export const THICKNESS_STYLE = {
   얇음:   { bg: 'bg-sky-50',    text: 'text-sky-600',    icon: Wind },
