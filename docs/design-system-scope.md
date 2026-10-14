@@ -20,7 +20,7 @@
 | 2. B 전역 치환(`brand-warning`/`brand-accent` 재배치) | ✅ 완료 | 2026-10-14 | (아래 참고) |
 | 3. A+D 전역 치환(text/radius 리터럴) | ✅ radius 완료 · text 부분 완료(28/89, 나머지는 Step 5로 이월) | 2026-10-14 | (아래 참고) |
 | 4. C 아이콘 언어 통일 | ✅ 탭 스트립 3개 완료 · 전체 앱 전수 감사는 미착수 | 2026-10-14 | (아래 참고) |
-| 5. D+E 컴포넌트화 | 🔶 진행 중 — WardrobeView 버그 해소·Field.tsx·Surface.tsx(CARD 중복 제거) 완료, AppHeader/EmptyState/카드 variant는 미착수 | 2026-10-14 | (아래 참고) |
+| 5. D+E 컴포넌트화 | 🔶 진행 중 — WardrobeView 버그 해소·Field.tsx·Surface.tsx·AppHeader(헤더 래퍼 중복 제거) 완료, EmptyState/카드 variant는 미착수 | 2026-10-14 | (아래 참고) |
 | 6. F 레이아웃 보강 | 대기 | | |
 | 7. B 다크모드 | 대기 | | |
 
@@ -87,6 +87,8 @@
 **완료 메모(P1-27 그리드 셀 버그, 2026-10-14)**: 완전한 공용 그리드 셀 컴포넌트 통합 대신, FridgeView(P0-51/G37에서 이미 검증된)의 고정px 전환 기법을 WardrobeView에도 동일 적용 — 역방향 스케일링 overflow 버그 자체는 해소(라이브로 루트 27px·32px에서 두 컴포넌트 모두 overflow 0 확인). 하나의 `.tsx` 파일로 합치는 완전한 통합은 두 칸의 바디 디자인(텍스트 목록 vs 이모지 썸네일)이 달라 강제 통일 시 시각 변경 위험이 있다고 판단해 보류 — `Surface`/`AppHeader`/`Field.tsx`/`FoodAttributeFields.tsx`/`EmptyState`는 전부 미착수로 남음.
 
 **완료 메모(Surface.tsx, P2-16, 2026-10-14)**: fridge/closet/mypage/home 4개 `shared.ts`(.tsx)에 각각 복제돼 있던 `CARD`/`CARD_SHADOW` 리터럴 정의를 `src/components/ui/Surface.tsx` 한 곳(`SURFACE_CLASS`/`SURFACE_SHADOW`, `bordered`/`plain`/`compact` 3 variant)으로 모으고, 4개 `shared` 파일은 그 값을 재노출만 하도록 변경 — 기존 `CARD`/`CARD_SHADOW` import 경로를 쓰는 호출부는 단 한 곳도 안 건드림(API 동일 유지). 실측상 fridge/closet는 `bordered`(큰 모서리+옅은 테두리), mypage/home은 `plain`(작은 모서리, 테두리 없음)으로 이미 갈라져 있던 두 스타일을 하나로 합칠지는 디자인 판단이라 이번엔 보류하고 "복제 제거"만 처리. 새 코드에서 카드를 만들 때 쓸 `<Surface>` 컴포넌트도 함께 추가(기존 `Widget`/`CARD` 상수는 그대로 유지, 강제 마이그레이션 없음). `AppHeader`/`EmptyState`/`WardrobeView` wide·narrow 카드 variant는 전부 미착수로 남음.
+
+**완료 메모(AppHeader.tsx, P2-16, 2026-10-14)**: home/fridge/closet/mypage 4곳에 토씨 하나 안 틀리고 복제돼 있던 sticky 헤더 바깥 래퍼(`sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50` + max-width 컨테이너)를 `src/components/ui/AppHeader.tsx` 한 곳으로 통합 — `left`(제목 블록/로고)·`actions`(오른쪽 아이콘들)·`below`(탭 스트립) prop으로 각 화면이 기존 콘텐츠를 그대로 넘겨받아 렌더. 스코프 메모에서 지적했던 "헤더 액션 배치가 화면마다 다름"(홈: 종+아바타 / 옷장: 토글+돋보기 / 마이: 돋보기+톱니) 자체는 그대로 남겨둠 — 각 아이콘이 실제로 다른 기능이라 순서를 강제로 맞추는 건 디자인 판단이고, 이번엔 "래퍼 복제 제거"만 처리. 4개 화면 전부 라이브 스크린샷으로 레이아웃 무변경 확인. `EmptyState`/`WardrobeView` wide·narrow 카드 variant는 미착수로 남음.
 
 ### E. 공용 폼/빈 상태 컴포넌트
 **대상:** P1-73 + P2-39(**사실상 동일한 발견 — 서로 다른 라운드에서 중복 등록됨**, 하나로 처리), P2-41, P2-9, P2-31
