@@ -83,6 +83,14 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
         const cellItems = itemsBySection.get(cell.section) ?? [];
         const count     = cellItems.length;
         const isActive  = highlight === cell.section;
+        // P2-31 — 큰 칸(293×133)과 작은 칸(89×156)이 같은 세로 쌓임
+        // 레이아웃을 써서 큰 칸은 라벨+썸네일 3개 아래로 빈 공간이
+        // 크게 남고, 작은 칸은 라벨이 빠듯했다(실측). colSpan>1(2칸
+        // 이상 차지하는 넓은 셀)만 가로 레이아웃으로 전환해 여유
+        // 폭을 썸네일 더 보여주는 데 쓰고, 좁은 1칸은 기존 세로
+        // 레이아웃(이미 잘 맞음)을 그대로 유지한다.
+        const isWide    = cell.colSpan > 1;
+        const thumbLimit = isWide ? 8 : 3;
 
         return (
           <motion.button
@@ -95,12 +103,13 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             className={[
-              // justify-between이었을 때, 같은 행의 옆 칸이 아이템이 많아 카드가
-              // 커지면 이 칸의 본문(라벨)이 아래로 밀려 옆 칸과 라벨 높이가
-              // 어긋나 보였다(C2·C8 발견). 본문을 헤더 바로 아래 고정.
-              'relative flex flex-col gap-[8px] text-left rounded-2xl p-[16px] overflow-hidden',
+              'relative text-left rounded-2xl p-[16px] overflow-hidden',
               'bg-white ring-1',
               isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
+              // justify-between이었을 때, 같은 행의 옆 칸이 아이템이 많아 카드가
+              // 커지면 이 칸의 본문(라벨)이 아래로 밀려 옆 칸과 라벨 높이가
+              // 어긋나 보였다(C2·C8 발견). 세로형은 본문을 헤더 바로 아래 고정.
+              isWide ? 'flex items-center gap-[14px]' : 'flex flex-col gap-[8px]',
             ].join(' ')}
             style={{
               gridColumn: `${cell.col} / span ${cell.colSpan}`,
@@ -109,48 +118,82 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             }}
             aria-label={`${meta.label} — ${count}개`}
           >
-            {/* 헤더: 섹션 이모지(배지)가 이 카드의 유일한 강조점 — 나머지는 한 단계씩 낮춰
-                크기 위계를 준다(배지 큼 > 라벨 중간 > 썸네일·카운트·힌트 작음). */}
-            <div className="flex items-start justify-between gap-[4px]">
-              <span
-                className="emoji w-[48px] h-[48px] flex items-center justify-center rounded-2xl bg-gray-50 text-[24px] shrink-0"
-                aria-hidden
-              >
-                {meta.emoji}
-              </span>
-              {count > 0 && (
-                <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
-                  {count}
+            {isWide ? (
+              <>
+                {/* 넓은 칸(2칸 이상) — 아이콘·라벨+카운트·썸네일을 한 행에 가로로
+                    배치해 남는 폭을 썸네일 더 보여주는 데 쓴다. */}
+                <span
+                  className="emoji flex items-center justify-center rounded-2xl bg-gray-50 shrink-0 w-[56px] h-[56px] text-[28px]"
+                  aria-hidden
+                >
+                  {meta.emoji}
                 </span>
-              )}
-            </div>
-
-            {/* 바디: 섹션명 + 의류 이모지 썸네일. 썸네일은 좁은 1열 칸에서도
-                줄바꿈 없이 나란히 들어가도록 헤더 배지보다 확연히 작게. */}
-            <div className="flex flex-col gap-[6px]">
-              <p className="text-sm font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
-              {count === 0 ? (
-                <p className="text-xs text-gray-400 leading-tight truncate">{meta.hint}</p>
-              ) : (
-                <div className="flex flex-wrap gap-[4px] leading-none">
-                  {cellItems.slice(0, 3).map((item, i) => (
-                    <span
-                      key={i}
-                      className="emoji text-[18px]"
-                      aria-hidden
-                      title={item.name}
-                    >
-                      {FASHION_EMOJI[item.category] ?? '👕'}
-                    </span>
-                  ))}
-                  {count > 3 && (
-                    <span className="text-xs text-gray-400 font-semibold self-center leading-none">
-                      +{count - 3}
+                <div className="flex-1 min-w-0 flex flex-col gap-[6px]">
+                  <div className="flex items-center justify-between gap-[8px]">
+                    <p className="text-sm font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
+                    {count > 0 && (
+                      <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white leading-tight shrink-0">
+                        {count}
+                      </span>
+                    )}
+                  </div>
+                  {count === 0 ? (
+                    <p className="text-xs text-gray-400 leading-tight truncate">{meta.hint}</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-[4px] leading-none">
+                      {cellItems.slice(0, thumbLimit).map((item, i) => (
+                        <span key={i} className="emoji text-[18px]" aria-hidden title={item.name}>
+                          {FASHION_EMOJI[item.category] ?? '👕'}
+                        </span>
+                      ))}
+                      {count > thumbLimit && (
+                        <span className="text-xs text-gray-400 font-semibold self-center leading-none">
+                          +{count - thumbLimit}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 좁은 1칸 — 카운트 배지를 라벨과 한 줄에 같이 두면 "액세서리"
+                    4글자가 좁은 폭(89px)에서 잘렸다(실측, 회귀). 배지는 아이콘
+                    옆 헤더 행에 두고, 라벨은 그 아래 줄에서 폭을 전부 쓴다. */}
+                <div className="flex items-start justify-between gap-[4px]">
+                  <span
+                    className="emoji flex items-center justify-center rounded-2xl bg-gray-50 shrink-0 w-[48px] h-[48px] text-[24px]"
+                    aria-hidden
+                  >
+                    {meta.emoji}
+                  </span>
+                  {count > 0 && (
+                    <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
+                      {count}
                     </span>
                   )}
                 </div>
-              )}
-            </div>
+                <div className="flex flex-col gap-[6px]">
+                  <p className="text-sm font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
+                  {count === 0 ? (
+                    <p className="text-xs text-gray-400 leading-tight truncate">{meta.hint}</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-[4px] leading-none">
+                      {cellItems.slice(0, thumbLimit).map((item, i) => (
+                        <span key={i} className="emoji text-[18px]" aria-hidden title={item.name}>
+                          {FASHION_EMOJI[item.category] ?? '👕'}
+                        </span>
+                      ))}
+                      {count > thumbLimit && (
+                        <span className="text-xs text-gray-400 font-semibold self-center leading-none">
+                          +{count - thumbLimit}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </motion.button>
         );
       })}
