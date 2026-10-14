@@ -21,7 +21,7 @@
 | 3. A+D 전역 치환(text/radius 리터럴) | ✅ radius 완료 · text 부분 완료(28/89, 나머지는 Step 5로 이월) | 2026-10-14 | (아래 참고) |
 | 4. C 아이콘 언어 통일 | ✅ 탭 스트립 3개 완료 · 전체 앱 전수 감사는 미착수 | 2026-10-14 | (아래 참고) |
 | 5. D+E 컴포넌트화 | ✅ Field.tsx·Surface.tsx·AppHeader·EmptyState·WardrobeView(버그 해소+wide/narrow variant) 완료 — `FoodAttributeFields.tsx` 완전 통합·공용 그리드 셀 컴포넌트는 제품 판단 필요해 의도적 보류 | 2026-10-14 | (아래 참고) |
-| 6. F 레이아웃 보강 | 대기 | | |
+| 6. F 레이아웃 보강 | 🔶 진행 중 — FoodSummaryStats 역방향 스케일링 클리핑(P1-108) 완료, 44px 터치타깃 공용 클래스·useScrollHint()·NameChips·그리드→리스트 자동전환은 미착수 | 2026-10-14 | (아래 참고) |
 | 7. B 다크모드 | 대기 | | |
 
 ## 이번 트랙에 포함되지 않는 것
@@ -113,6 +113,8 @@
 - 홈 위젯 6곳(`UrgentAlert`/`SeasonalHintWidget`/`RebuyAlert`/`FridgeView`/`RecipeSection`/`OutfitCard`)이 "배열→join→truncate" 동일 패턴을 반복해 항목 수가 늘면 구조적으로 한 줄에 못 들어감(P1-66)
 - 칸 폭이 임계 이하로 좁아지는 경우(극단적 확대) 그리드 대신 리스트 뷰로 자동 전환하는 안(P1-27 후반부)
 - 산출물: 인터랙티브 공용 클래스(44px + 히트슬롭), `useScrollHint()` 훅, P1-108 고정px 전환(P0-51과 동일 기법, 이미 검증된 패턴이라 저위험), `<NameChips names max={2}/>` 컴포넌트
+
+**완료 메모(FoodSummaryStats, P1-108, 2026-10-14)**: 착수 전 재실측 결과 당초 가설(rem 패딩·gap이 P0-51과 같은 뿌리)과 실제 원인이 달랐다 — 6칸 요약 행엔 애초에 decorative gap이 없고(flex-1만), overflow-x 처리 없는 고정폭 flex 행이 OS 글자 확대 시 라벨·숫자 텍스트 자체의 min-content 폭을 못 당해 그냥 잘렸다(32px 루트 63px, 그룹 보조 행은 94px). P0-51처럼 decorative 치수를 고정px로 바꾸는 대신, 두 행을 각각 `overflow-x-auto scrollbar-hide`로 감싸 평소엔 무변화·극단적 확대에서만 스크롤로 전환 — 라이브로 32px 루트에서 스크롤해 "기한초과" 칸 도달 가능 확인. `/fridge` 탭 스트립 자체는 이미 `overflow-x-auto`라 페이지 레벨 붕괴가 없었음(실측 `bodyOverflowX` 항상 0) — 탭 스트립의 진짜 문제는 "깨짐"이 아니라 `scrollbar-hide`로 인한 어포던스 부재였고, 이건 아래 `useScrollHint()` 항목과 중복이라 거기서 같이 처리. 44px 터치타깃 공용 클래스·`useScrollHint()`·`NameChips`·그리드→리스트 자동전환은 미착수로 남음.
 
 ## 제안 순서
 
