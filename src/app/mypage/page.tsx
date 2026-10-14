@@ -16,6 +16,7 @@ import EmojiIcon from '@/components/EmojiIcon';
 import { useBackupStatus, downloadBackup, daysAgoLabel } from '@/lib/backup';
 import { useToast } from '@/context/ToastContext';
 import { usePersistedState } from '@/lib/usePersistedState';
+import { useScrollHint } from '@/lib/useScrollHint';
 import { josa } from '@/lib/korean';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -87,6 +88,9 @@ function formatDiscardDate(date: string): string {
 }
 
 export default function MyPage() {
+  // P1-59 — 메인 탭 스트립이 scrollbar-hide라 더 있다는 걸 알 길이
+  // 없었다. 스크롤 가능한 쪽에만 엣지 페이드를 켠다.
+  const tabScroll = useScrollHint<HTMLDivElement>();
   const { tier } = usePlan();
   const { main: mainProfile, profiles, setMain } = useProfiles();
   const [showSwitcher, setShowSwitcher] = useState(false);
@@ -238,7 +242,14 @@ export default function MyPage() {
           </>
         }
         below={
-          <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
+          <div className="relative border-b border-gray-100">
+            {tabScroll.canScrollLeft && (
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-white to-transparent z-10" aria-hidden />
+            )}
+            {tabScroll.canScrollRight && (
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent z-10" aria-hidden />
+            )}
+            <div ref={tabScroll.ref} className="overflow-x-auto scrollbar-hide">
             <div role="tablist" aria-label="내 정보 탭" className="flex px-4">
               {TABS.map((t) => {
                 const isActive = activeTab === t.id;
@@ -268,6 +279,7 @@ export default function MyPage() {
                   </button>
                 );
               })}
+            </div>
             </div>
           </div>
         }

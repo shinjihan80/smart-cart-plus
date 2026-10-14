@@ -11,6 +11,7 @@ import { classifyExpiry, EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { todayLocalStr } from '@/lib/dateMath';
 import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, type LucideIcon } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
+import { useScrollHint } from '@/lib/useScrollHint';
 import PaletteButton from '@/components/PaletteButton';
 import { AppHeader } from '@/components/ui/AppHeader';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -202,6 +203,9 @@ export default function FridgePage() {
   // 남았다. 리렌더만 강제해 getRemainingDays가 그 시점 실제 시각으로
   // 다시 계산되게 한다.
   useMidnightRefresh();
+  // P1-59 — 메인 탭 스트립이 scrollbar-hide라 더 있다는 걸 알 길이
+  // 없었다. 스크롤 가능한 쪽에만 엣지 페이드를 켠다.
+  const tabScroll = useScrollHint<HTMLDivElement>();
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
   const { profiles } = useProfiles();
@@ -471,7 +475,14 @@ export default function FridgePage() {
         }
         actions={<PaletteButton />}
         below={
-        <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
+        <div className="relative border-b border-gray-100">
+          {tabScroll.canScrollLeft && (
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-white to-transparent z-10" aria-hidden />
+          )}
+          {tabScroll.canScrollRight && (
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent z-10" aria-hidden />
+          )}
+          <div ref={tabScroll.ref} className="overflow-x-auto scrollbar-hide">
           <div role="tablist" aria-label="냉장고 탭" className="flex px-4">
             {FRIDGE_TABS.map((t) => {
               const isActive = activeTab === t.id;
@@ -495,6 +506,7 @@ export default function FridgePage() {
                 </button>
               );
             })}
+          </div>
           </div>
         </div>
         }
