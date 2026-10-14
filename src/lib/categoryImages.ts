@@ -36,22 +36,27 @@ const FOOD_TONE: Record<FoodCategory, CategoryTone> = {
   '기타 식품':   { bg: 'bg-gray-100',   text: 'text-gray-600',    emoji: '📦' },
 };
 
+// P2-30 — OutfitCard 2x2 콜라주에서 카드끼리 테두리 없이 맞붙는데, 전부
+// Tailwind `-50` 틴트를 썼더니 인접 카테고리 간 CIELAB ΔE*ab가 최소 1.78
+// (JND 2.3 미만 = 인지 불가)로 사실상 흰 평면으로 수렴했다(C6·E3 실측).
+// 콜라주처럼 색이 맞붙는 곳엔 한 단계 더 진한 `-100`이 필요하다는 제안대로
+// 배경을 전부 한 단계 올림 — text(-700/-800)는 대비가 이미 충분해 그대로.
 const FASHION_TONE: Record<FashionCategory, CategoryTone> = {
-  '상의':         { bg: 'bg-sky-50',     text: 'text-sky-700',     emoji: '👕' },
-  '하의':         { bg: 'bg-indigo-50',  text: 'text-indigo-700',  emoji: '👖' },
+  '상의':         { bg: 'bg-sky-100',     text: 'text-sky-700',     emoji: '👕' },
+  '하의':         { bg: 'bg-indigo-100',  text: 'text-indigo-700',  emoji: '👖' },
   // 아우터·안경·선글라스·시계가 전부 stone/slate/zinc/gray로 사실상 같은
   // 회색이라 구분이 안 됐다(C6) — 서로 확실히 갈리는 색으로 재배정.
-  '아우터':       { bg: 'bg-emerald-50', text: 'text-emerald-700', emoji: '🧥' },
-  '원피스':       { bg: 'bg-rose-50',    text: 'text-rose-700',    emoji: '👗' },
-  '신발':         { bg: 'bg-blue-50',    text: 'text-blue-700',    emoji: '👟' },
-  '가방':         { bg: 'bg-orange-50',  text: 'text-orange-700',  emoji: '👜' },
-  '모자':         { bg: 'bg-cyan-50',    text: 'text-cyan-700',    emoji: '🧢' },
-  '스카프':       { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', emoji: '🧣' },
-  '안경':         { bg: 'bg-teal-50',    text: 'text-teal-700',    emoji: '👓' },
-  '선글라스':     { bg: 'bg-purple-50',  text: 'text-purple-700',  emoji: '🕶️' },
-  '시계':         { bg: 'bg-yellow-50',  text: 'text-yellow-800',  emoji: '⌚' },
-  '주얼리':       { bg: 'bg-pink-50',    text: 'text-pink-700',    emoji: '💍' },
-  '기타 액세서리': { bg: 'bg-violet-50',  text: 'text-violet-700',  emoji: '✨' },
+  '아우터':       { bg: 'bg-emerald-100', text: 'text-emerald-700', emoji: '🧥' },
+  '원피스':       { bg: 'bg-rose-100',    text: 'text-rose-700',    emoji: '👗' },
+  '신발':         { bg: 'bg-blue-100',    text: 'text-blue-700',    emoji: '👟' },
+  '가방':         { bg: 'bg-orange-100',  text: 'text-orange-700',  emoji: '👜' },
+  '모자':         { bg: 'bg-cyan-100',    text: 'text-cyan-700',    emoji: '🧢' },
+  '스카프':       { bg: 'bg-fuchsia-100', text: 'text-fuchsia-700', emoji: '🧣' },
+  '안경':         { bg: 'bg-teal-100',    text: 'text-teal-700',    emoji: '👓' },
+  '선글라스':     { bg: 'bg-purple-100',  text: 'text-purple-700',  emoji: '🕶️' },
+  '시계':         { bg: 'bg-yellow-100',  text: 'text-yellow-800',  emoji: '⌚' },
+  '주얼리':       { bg: 'bg-pink-100',    text: 'text-pink-700',    emoji: '💍' },
+  '기타 액세서리': { bg: 'bg-violet-100',  text: 'text-violet-700',  emoji: '✨' },
 };
 
 // ─────────────────────────────────────────────
