@@ -20,7 +20,7 @@
 | 2. B 전역 치환(`brand-warning`/`brand-accent` 재배치) | ✅ 완료 | 2026-10-14 | (아래 참고) |
 | 3. A+D 전역 치환(text/radius 리터럴) | ✅ radius 완료 · text 부분 완료(28/89, 나머지는 Step 5로 이월) | 2026-10-14 | (아래 참고) |
 | 4. C 아이콘 언어 통일 | ✅ 탭 스트립 3개 완료 · 전체 앱 전수 감사는 미착수 | 2026-10-14 | (아래 참고) |
-| 5. D+E 컴포넌트화 | 🔶 진행 중 — WardrobeView 버그 해소·Field.tsx·Surface.tsx·AppHeader·EmptyState(칸 상세 시트 적용) 완료, 카드 wide/narrow variant는 미착수 | 2026-10-14 | (아래 참고) |
+| 5. D+E 컴포넌트화 | ✅ Field.tsx·Surface.tsx·AppHeader·EmptyState·WardrobeView(버그 해소+wide/narrow variant) 완료 — `FoodAttributeFields.tsx` 완전 통합·공용 그리드 셀 컴포넌트는 제품 판단 필요해 의도적 보류 | 2026-10-14 | (아래 참고) |
 | 6. F 레이아웃 보강 | 대기 | | |
 | 7. B 다크모드 | 대기 | | |
 
@@ -101,6 +101,8 @@
 **완료 메모(Field.tsx, 2026-10-14)**: `src/components/ui/Field.tsx`(label+helper 슬롯) + `FIELD_INPUT_CLASS`(44px 터치타깃 충족 공용 input/select 스타일) 신설, 등록·편집 폼 둘 다 적용 — 라벨 13.5px 하한 충족, 입력 높이 46~47px로 통일, 유통기한 칸의 상시 brand-primary 테두리(포커스 관용구 오용)도 제거. **필드 구성 자체(`FoodAttributeFields.tsx`로 완전 통합)는 보류** — 등록 폼은 카테고리·보관방법을 갖고 소유자·메모가 없고, 편집 폼은 반대인 데다 저장 방식도 다르다(등록=상태 객체에 모아 확정, 편집=`onBlur` 즉시 저장) — 이건 "어떤 필드를 어디서 편집 가능하게 할지"의 제품 결정이라 시각 통일과 분리해서 판단 필요. `EmptyState`·`WardrobeView` 카드 variant는 미착수.
 
 **완료 메모(EmptyState.tsx, P2-41/P2-9, 2026-10-14)**: `src/components/ui/EmptyState.tsx`(제목+선택 설명+선택 CTA 버튼) 신설, 냉장고·옷장 칸 상세 시트(`SectionDetailSheet.tsx`/`WardrobeSectionSheet.tsx`)에 적용 — 두 시트 다 헤더 부제(`meta.hint`)를 빈 상태 문구에서 그대로(냉장고) 또는 "{hint} 의류를 추가해보세요"로 어색하게 이어붙여(옷장) 중복 노출하면서도 누를 수 있는 CTA가 없었다(실측 확인). 중복 문구를 제거하고 "식품/의류 등록하기" CTA로 교체 — 기존 `nemoa:open-register` 전역 이벤트(BottomNav/CommandPalette와 동일 패턴)를 재사용. 라이브 테스트 중 등록 모달(`z-50`)이 칸 상세 시트(`z-[60]`)보다 낮은 레이어라 시트가 열린 채로는 모달이 가려지는 걸 발견해, CTA가 시트를 먼저 닫은(`onClose()`) 뒤 이벤트를 디스패치하도록 같이 수정(냉장고 쪽 라이브 재확인). "주간 인사이트 빈 차트 프레임" 하위 발견은 현재 코드상 해당 컴포넌트(`WeeklyInsight`/`WeekdayPatternChart`)가 이미 빈 상태를 `return null` 또는 대체 문구로 처리 중이라 재현 못 함(기존 라운드에서 먼저 해소됐을 가능성, 추정) — 이번엔 손대지 않음. `WardrobeView` 카드 wide/narrow variant는 미착수로 남음.
+
+**완료 메모(WardrobeView wide/narrow variant, P2-31, 2026-10-14)**: 큰 칸(293×133, `colSpan>1`)과 작은 칸(89×156, `colSpan=1`)이 같은 세로 쌓임 레이아웃을 써서 큰 칸은 라벨+썸네일 아래로 빈 공간이 크게 남고 작은 칸은 라벨이 빠듯했던 문제(실측)를 `colSpan>1`인 넓은 셀만 가로 레이아웃(아이콘·라벨+카운트·썸네일을 한 행)으로 전환해 해소 — 남는 폭을 썸네일 최대 8개 노출에 쓴다. 좁은 1칸 셀은 기존 세로 레이아웃(썸네일 3개 한도)을 그대로 유지. 라이브 테스트 중 두 레이아웃에서 카운트 배지를 똑같이 라벨과 한 줄에 두면 좁은 칸의 "액세서리"(4자)가 "액…"으로 잘리는 회귀를 발견해, 좁은 칸은 배지를 기존대로 아이콘 옆 헤더 행에 두는 구조로 되돌려 재확인. 27px/32px 루트 글자 크기 그리드 overflow 0도 재확인(역방향 스케일링 회귀 없음). 이걸로 Workstream D·E의 Step 5 항목은 모두 처리됐고, `FoodAttributeFields.tsx` 완전 통합과 공용 그리드 셀 컴포넌트(두 칸 디자인이 근본적으로 달라 강제 통일 시 시각 변경 위험)만 제품 판단이 필요해 의도적으로 보류 상태로 남긴다.
 
 ### F. 레이아웃 보강 — 터치 타깃 · 스크롤 어포던스 · 역방향 스케일링 잔여
 **대상:** P1-17, P1-59, P1-108, P1-66, P1-27(그리드→리스트 자동전환 부분)
