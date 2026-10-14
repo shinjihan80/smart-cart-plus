@@ -20,7 +20,7 @@
 | 2. B 전역 치환(`brand-warning`/`brand-accent` 재배치) | ✅ 완료 | 2026-10-14 | (아래 참고) |
 | 3. A+D 전역 치환(text/radius 리터럴) | ✅ radius 완료 · text 부분 완료(28/89, 나머지는 Step 5로 이월) | 2026-10-14 | (아래 참고) |
 | 4. C 아이콘 언어 통일 | ✅ 탭 스트립 3개 완료 · 전체 앱 전수 감사는 미착수 | 2026-10-14 | (아래 참고) |
-| 5. D+E 컴포넌트화 | 🔶 진행 중 — WardrobeView 버그 해소·Field.tsx·Surface.tsx·AppHeader(헤더 래퍼 중복 제거) 완료, EmptyState/카드 variant는 미착수 | 2026-10-14 | (아래 참고) |
+| 5. D+E 컴포넌트화 | 🔶 진행 중 — WardrobeView 버그 해소·Field.tsx·Surface.tsx·AppHeader·EmptyState(칸 상세 시트 적용) 완료, 카드 wide/narrow variant는 미착수 | 2026-10-14 | (아래 참고) |
 | 6. F 레이아웃 보강 | 대기 | | |
 | 7. B 다크모드 | 대기 | | |
 
@@ -99,6 +99,8 @@
 - 산출물: `Field.tsx`+`FoodAttributeFields.tsx`(등록/편집 `compact` prop만 다르게 공유), `EmptyState` 컴포넌트(아이콘+한줄안내+1차행동버튼), 카드 variant 2종
 
 **완료 메모(Field.tsx, 2026-10-14)**: `src/components/ui/Field.tsx`(label+helper 슬롯) + `FIELD_INPUT_CLASS`(44px 터치타깃 충족 공용 input/select 스타일) 신설, 등록·편집 폼 둘 다 적용 — 라벨 13.5px 하한 충족, 입력 높이 46~47px로 통일, 유통기한 칸의 상시 brand-primary 테두리(포커스 관용구 오용)도 제거. **필드 구성 자체(`FoodAttributeFields.tsx`로 완전 통합)는 보류** — 등록 폼은 카테고리·보관방법을 갖고 소유자·메모가 없고, 편집 폼은 반대인 데다 저장 방식도 다르다(등록=상태 객체에 모아 확정, 편집=`onBlur` 즉시 저장) — 이건 "어떤 필드를 어디서 편집 가능하게 할지"의 제품 결정이라 시각 통일과 분리해서 판단 필요. `EmptyState`·`WardrobeView` 카드 variant는 미착수.
+
+**완료 메모(EmptyState.tsx, P2-41/P2-9, 2026-10-14)**: `src/components/ui/EmptyState.tsx`(제목+선택 설명+선택 CTA 버튼) 신설, 냉장고·옷장 칸 상세 시트(`SectionDetailSheet.tsx`/`WardrobeSectionSheet.tsx`)에 적용 — 두 시트 다 헤더 부제(`meta.hint`)를 빈 상태 문구에서 그대로(냉장고) 또는 "{hint} 의류를 추가해보세요"로 어색하게 이어붙여(옷장) 중복 노출하면서도 누를 수 있는 CTA가 없었다(실측 확인). 중복 문구를 제거하고 "식품/의류 등록하기" CTA로 교체 — 기존 `nemoa:open-register` 전역 이벤트(BottomNav/CommandPalette와 동일 패턴)를 재사용. 라이브 테스트 중 등록 모달(`z-50`)이 칸 상세 시트(`z-[60]`)보다 낮은 레이어라 시트가 열린 채로는 모달이 가려지는 걸 발견해, CTA가 시트를 먼저 닫은(`onClose()`) 뒤 이벤트를 디스패치하도록 같이 수정(냉장고 쪽 라이브 재확인). "주간 인사이트 빈 차트 프레임" 하위 발견은 현재 코드상 해당 컴포넌트(`WeeklyInsight`/`WeekdayPatternChart`)가 이미 빈 상태를 `return null` 또는 대체 문구로 처리 중이라 재현 못 함(기존 라운드에서 먼저 해소됐을 가능성, 추정) — 이번엔 손대지 않음. `WardrobeView` 카드 wide/narrow variant는 미착수로 남음.
 
 ### F. 레이아웃 보강 — 터치 타깃 · 스크롤 어포던스 · 역방향 스케일링 잔여
 **대상:** P1-17, P1-59, P1-108, P1-66, P1-27(그리드→리스트 자동전환 부분)
