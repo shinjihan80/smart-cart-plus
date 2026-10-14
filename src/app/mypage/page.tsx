@@ -30,6 +30,7 @@ import ClosetCleanupSection                      from '@/components/mypage/Close
 import SeasonalStorageSection                    from '@/components/mypage/SeasonalStorageSection';
 import WaitlistBanner                            from '@/components/mypage/WaitlistBanner';
 import PaletteButton                              from '@/components/PaletteButton';
+import { AppHeader } from '@/components/ui/AppHeader';
 import AnnualSummarySection                       from '@/components/mypage/AnnualSummarySection';
 import MonthlySummarySection                      from '@/components/mypage/MonthlySummarySection';
 import WeeklySummarySection                       from '@/components/mypage/WeeklySummarySection';
@@ -216,14 +217,16 @@ export default function MyPage() {
 
   return (
     <div>
-      <header className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
-        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto">
-        <div className="px-4 py-3.5 flex items-center justify-between">
+      <AppHeader
+        actionsClassName="flex items-center gap-0.5 shrink-0"
+        left={
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">내 정보</h1>
             <p className="text-sm text-gray-400 mt-0.5">통계 · 기록 · 리스트</p>
           </div>
-          <div className="flex items-center gap-0.5 shrink-0">
+        }
+        actions={
+          <>
             <PaletteButton />
             <Link
               href="/settings"
@@ -232,42 +235,43 @@ export default function MyPage() {
             >
               <SettingsIcon size={22} strokeWidth={2} />
             </Link>
+          </>
+        }
+        below={
+          <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
+            <div role="tablist" aria-label="내 정보 탭" className="flex px-4">
+              {TABS.map((t) => {
+                const isActive = activeTab === t.id;
+                const Icon = t.icon;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => {
+                      // 탭 전환 시 스크롤을 맨 위로 — 안 그러면 직전 스크롤 위치 그대로
+                      // 새 탭 콘텐츠가 중간부터 보인다 (탭마다 길이가 크게 다름, 특히
+                      // '요약' 탭 통합 이후 두드러짐)
+                      selectTab(t.id);
+                      window.scrollTo(0, 0);
+                    }}
+                    className={[
+                      'shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
+                      isActive
+                        ? 'font-semibold text-brand-primary border-brand-primary'
+                        : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
+                    ].join(' ')}
+                  >
+                    <Icon size={14} strokeWidth={isActive ? 2.4 : 2} aria-hidden />
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-        <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
-          <div role="tablist" aria-label="내 정보 탭" className="flex px-4">
-            {TABS.map((t) => {
-              const isActive = activeTab === t.id;
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => {
-                    // 탭 전환 시 스크롤을 맨 위로 — 안 그러면 직전 스크롤 위치 그대로
-                    // 새 탭 콘텐츠가 중간부터 보인다 (탭마다 길이가 크게 다름, 특히
-                    // '요약' 탭 통합 이후 두드러짐)
-                    selectTab(t.id);
-                    window.scrollTo(0, 0);
-                  }}
-                  className={[
-                    'shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
-                    isActive
-                      ? 'font-semibold text-brand-primary border-brand-primary'
-                      : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
-                  ].join(' ')}
-                >
-                  <Icon size={14} strokeWidth={isActive ? 2.4 : 2} aria-hidden />
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        </div>
-      </header>
+        }
+      />
 
       <div className="px-4 py-5 flex flex-col gap-4">
         {/* 프로필 카드 */}

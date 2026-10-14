@@ -25,6 +25,7 @@ import { useWearLog, daysSince, selectNeverWorn } from '@/lib/wearLog';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
+import { AppHeader } from '@/components/ui/AppHeader';
 import EmojiIcon from '@/components/EmojiIcon';
 import ShoppingMallCard from '@/components/ShoppingMallCard';
 import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
@@ -286,16 +287,17 @@ export default function ClosetPage() {
 
   return (
     <div>
-      <header className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
-        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto">
-        <div className="px-4 py-3.5 flex items-center justify-between">
+      <AppHeader
+        left={
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 옷장</h1>
             <p className="text-sm text-gray-400 mt-0.5">
               {wardrobeInstances.length > 1 ? `${activeWardrobeInstance?.name ?? '옷장'} · ` : ''}패션 {activeClothing.length}개{hibernatingCount > 0 ? ` · 보관 ${hibernatingCount}` : ''}
             </p>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+        }
+        actions={
+          <>
             {hibernatingCount > 0 && (activeTab === 'closet' || activeTab === 'clothing') && (
               <button
                 onClick={() => setShowHibernating(!showHibernating)}
@@ -309,42 +311,45 @@ export default function ClosetPage() {
               </button>
             )}
             <PaletteButton />
-          </div>
-        </div>
-        {/* scrollWidth(349) > clientWidth(344)로 "쇼핑" 탭이 5px 잘리는데
-            scrollbar-hide가 스크롤 힌트까지 지워 "고장난 화면"으로 읽혔다
-            (P2-13, C9·E2 실측). 탭 좌우 패딩을 줄여 실측 여유분보다 훨씬
-            크게(16px+) 줄여 통상 폭에서 오버플로를 없애고, snap-x로 혹시
-            남는 경우에도 탭이 반쯤 걸치지 않게 하며, scrollbar-hide를 빼
-            넘칠 때는 최소한 네이티브 스크롤 힌트가 보이게 한다. */}
-        <div className="overflow-x-auto border-b border-gray-100 snap-x snap-mandatory">
-          <div role="tablist" aria-label="옷장 탭" className="flex px-4">
-            {CLOSET_TABS.map((t) => {
-              const isActive = activeTab === t.id;
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => selectTab(t.id)}
-                  className={[
-                    'shrink-0 snap-start flex items-center gap-1.5 px-3 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
-                    isActive
-                      ? 'font-semibold text-brand-primary border-brand-primary'
-                      : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
-                  ].join(' ')}
-                >
-                  <Icon size={14} strokeWidth={isActive ? 2.4 : 2} aria-hidden />
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        </div>
-      </header>
+          </>
+        }
+        below={
+          <>
+            {/* scrollWidth(349) > clientWidth(344)로 "쇼핑" 탭이 5px 잘리는데
+                scrollbar-hide가 스크롤 힌트까지 지워 "고장난 화면"으로 읽혔다
+                (P2-13, C9·E2 실측). 탭 좌우 패딩을 줄여 실측 여유분보다 훨씬
+                크게(16px+) 줄여 통상 폭에서 오버플로를 없애고, snap-x로 혹시
+                남는 경우에도 탭이 반쯤 걸치지 않게 하며, scrollbar-hide를 빼
+                넘칠 때는 최소한 네이티브 스크롤 힌트가 보이게 한다. */}
+            <div className="overflow-x-auto border-b border-gray-100 snap-x snap-mandatory">
+              <div role="tablist" aria-label="옷장 탭" className="flex px-4">
+                {CLOSET_TABS.map((t) => {
+                  const isActive = activeTab === t.id;
+                  const Icon = t.icon;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => selectTab(t.id)}
+                      className={[
+                        'shrink-0 snap-start flex items-center gap-1.5 px-3 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
+                        isActive
+                          ? 'font-semibold text-brand-primary border-brand-primary'
+                          : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
+                      ].join(' ')}
+                    >
+                      <Icon size={14} strokeWidth={isActive ? 2.4 : 2} aria-hidden />
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        }
+      />
 
       <div className="px-4 py-5 flex flex-col gap-4">
 

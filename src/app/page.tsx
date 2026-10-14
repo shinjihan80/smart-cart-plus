@@ -6,6 +6,7 @@ import { Bell, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import NemoaLogo from '@/components/layout/NemoaLogo';
+import { AppHeader } from '@/components/ui/AppHeader';
 import EmojiIcon from '@/components/EmojiIcon';
 import { useSessionPing } from '@/lib/analytics';
 import { flushPartnerClicksIfDue } from '@/lib/partnerClickLog';
@@ -85,10 +86,12 @@ export default function HomePage() {
   return (
     <div>
       {/* 헤더 — 로고 + 알림·프로필 (검색은 마이페이지에서) */}
-      <header className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
-        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto px-5 py-4 flex items-center justify-between gap-3">
-          <NemoaLogo size="md" />
-          <div className="flex items-center -mr-1">
+      <AppHeader
+        rowClassName="px-5 py-4 gap-3"
+        actionsClassName="flex items-center -mr-1"
+        left={<NemoaLogo size="md" />}
+        actions={
+          <>
             <Link
               href="/notifications"
               aria-label={unreadCount > 0 ? `알림 — 안 읽은 알림 ${unreadCount}개` : '알림'}
@@ -109,9 +112,9 @@ export default function HomePage() {
             >
               <User size={22} strokeWidth={2} />
             </Link>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {/* 빈 상태 CTA — 식품·옷 모두 0일 때만 노출 */}
       {items.length === 0 && (

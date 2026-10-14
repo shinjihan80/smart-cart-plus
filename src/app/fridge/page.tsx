@@ -12,6 +12,7 @@ import { todayLocalStr } from '@/lib/dateMath';
 import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, type LucideIcon } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
+import { AppHeader } from '@/components/ui/AppHeader';
 import EmojiIcon from '@/components/EmojiIcon';
 import ShoppingMallCard from '@/components/ShoppingMallCard';
 
@@ -449,17 +450,18 @@ export default function FridgePage() {
 
   return (
     <div>
-      <header className="sticky top-0 w-screen ml-[calc(50%-50vw)] z-20 bg-white/95 backdrop-blur-md border-b border-gray-50">
-        <div className="max-w-md min-[700px]:max-w-[680px] min-[1000px]:max-w-[880px] mx-auto">
-        <div className="px-4 py-3.5 flex items-center justify-between gap-3">
+      <AppHeader
+        rowClassName="px-4 py-3.5 gap-3"
+        left={
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">스마트 냉장고</h1>
             <p className="text-sm text-gray-400 mt-0.5">
               {fridgeInstances.length > 1 ? `${activeFridgeInstance?.name ?? '냉장고'} · ` : ''}{FRIDGE_MODELS[fridgeModelId].label} · 식품 {ownerFood.length}개
             </p>
           </div>
-          <PaletteButton />
-        </div>
+        }
+        actions={<PaletteButton />}
+        below={
         <div className="overflow-x-auto scrollbar-hide border-b border-gray-100">
           <div role="tablist" aria-label="냉장고 탭" className="flex px-4">
             {FRIDGE_TABS.map((t) => {
@@ -486,8 +488,8 @@ export default function FridgePage() {
             })}
           </div>
         </div>
-        </div>
-      </header>
+        }
+      />
 
       <div className="px-4 py-5 flex flex-col gap-4">
 
