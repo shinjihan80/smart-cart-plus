@@ -21,7 +21,7 @@
 | 3. A+D 전역 치환(text/radius 리터럴) | ✅ radius 완료 · text 부분 완료(28/89, 나머지는 Step 5로 이월) | 2026-10-14 | (아래 참고) |
 | 4. C 아이콘 언어 통일 | ✅ 탭 스트립 3개 완료 · 전체 앱 전수 감사는 미착수 | 2026-10-14 | (아래 참고) |
 | 5. D+E 컴포넌트화 | ✅ Field.tsx·Surface.tsx·AppHeader·EmptyState·WardrobeView(버그 해소+wide/narrow variant) 완료 — `FoodAttributeFields.tsx` 완전 통합·공용 그리드 셀 컴포넌트는 제품 판단 필요해 의도적 보류 | 2026-10-14 | (아래 참고) |
-| 6. F 레이아웃 보강 | 🔶 진행 중 — FoodSummaryStats(P1-108)·touch-target-44 6곳(P1-17 일부)·useScrollHint()+메인 탭 2곳(P1-59 일부)·NameChips+UrgentAlert(P1-66) 완료, 그리드→리스트 자동전환·터치타깃 나머지 8곳+WaitlistBanner는 미착수 | 2026-10-14 | (아래 참고) |
+| 6. F 레이아웃 보강 | 🔶 진행 중 — FoodSummaryStats(P1-108)·touch-target-44 11곳(P1-17)·useScrollHint()+메인 탭 2곳(P1-59 일부)·NameChips+UrgentAlert(P1-66) 완료, 그리드→리스트 자동전환(P1-27 후반)·WaitlistBanner+RecipeDetailModal+InstallBanner(간격 부족)는 미착수 | 2026-10-14 | (아래 참고) |
 | 7. B 다크모드 | 대기 | | |
 
 ## 이번 트랙에 포함되지 않는 것
@@ -121,6 +121,8 @@
 **완료 메모(useScrollHint(), P1-59, 2026-10-14)**: `src/lib/useScrollHint.ts` 신설 — 대상 스크롤 컨테이너에 ref를 달면 `scroll`/`resize` 리스너와 `ResizeObserver`로 왼쪽/오른쪽 각각 더 스크롤할 수 있는지(`canScrollLeft`/`canScrollRight`)를 반환한다. `scrollbar-hide`를 쓰는 가로 스크롤러 7곳 중, 정말 "탭이 더 있는지 알 길이 없다"는 원 발견에 해당하는 역할(`role="tablist"`) 2곳(냉장고·마이페이지 메인 탭)에만 적용 — 각 스크롤 가능한 쪽에만 `pointer-events-none` 흰색 그라디언트 페이드를 겹쳐 그린다. 옷장 메인 탭은 이미 이전 라운드(P2-13)에서 `scrollbar-hide`를 빼고 네이티브 스크롤 힌트를 쓰도록 고쳐져 있어 제외 — `/fridge` 탭 스트립의 "깨짐"으로 지목됐던 P1-108도 사실 이 어포던스 부재였다는 게 여기서 같이 해소됐다. 라이브로 루트 27px에서 오른쪽 페이드 노출, 끝까지 스크롤 후 왼쪽 페이드 전환(DOM 확인)을 둘 다 확인. 나머지 5곳(`FoodSummaryStats`류 요약 행, `RecipeBrowserModal`/`RecipeSection`/`DailyBriefing`/인스턴스 전환 칩 등 `role="tablist"`가 아닌 캐러셀성 스크롤러)은 "탭이 더 있다"는 탐색 맥락이 아니라 범위를 좁혀 제외 — 필요성 재검토 후 별도 처리.
 
 **완료 메모(NameChips.tsx, P1-66, 2026-10-14)**: `src/components/ui/NameChips.tsx` 신설 — 이름 배열을 `max`개까지만 그대로 보여주고 나머지는 "+N"으로 표시(항상 단어 경계에서 끊김, 개수도 함께 전달). 대상 6곳(`UrgentAlert`/`SeasonalHintWidget`/`RebuyAlert`/`FridgeView`/`RecipeSection`/`OutfitCard`) 재조사 결과 원 발견("항목 수가 늘면 구조적으로 한 줄에 못 들어감")에 실제로 해당하는 곳은 `UrgentAlert`(개수 제한 전혀 없이 `.join(', ')`+1줄 truncate) 하나뿐이었다 — `RebuyAlert`는 이미 `slice(0,3)`로 상한, `SeasonalHintWidget`은 `line-clamp-2`+별도 총 개수 문구 병행, `OutfitCard`의 `accentNames`는 구조적으로 최대 2개(신발+액세서리), `FridgeView`는 이미 `list.length > 3 ? ' 외 N' : ''` 로 같은 효과의 카운트 접미사가 있었다(라이브 확인) — 다섯 곳 모두 이미 다른 방식으로 해소돼 있어 변경 없이 유지. `UrgentAlert`에만 적용, 라이브로 n=1 케이스가 기존과 동일하게 렌더됨을 확인하고 n=3/5 경계값은 로직 단위로 검증(라이브 데이터로 4개 이상 재현은 안 함).
+
+**완료 메모(touch-target-44 전체 11곳, P1-17 마무리, 2026-10-14)**: 1차(6곳, absolute 배치) 이후 나머지 static 배치 5곳도 처리 — `RecipeBrowserModal`(`w-10 h-10`)·`RewardedAdModal`/`TextImportModal`(`p-1`만)·냉장고/옷장 compact 상세 바텀시트 닫기(`w-7 h-7`)에 `relative`를 추가해 `.touch-target-44` 적용. 적용 전 각각 justify-between 헤더에서 닫기가 유일한 오른쪽 요소이거나 바텀시트 제목이 비클릭 `truncate` 텍스트뿐이라 이웃 요소 덮임 위험이 없음을 확인. 반대로 **적용을 보류한 2곳**: `RecipeDetailModal`(즐겨찾기+닫기 버튼이 `gap-2`=8px로 붙어 있어 양쪽 9px씩 확장 시 18px>8px로 서로의 히트존이 겹침)과 `InstallBanner`(설치+닫기가 `gap-3`=12px, 역시 18px>12px로 겹침) — 둘 다 `.touch-target-44`의 알려진 실패 유형(P1-88, 확장된 히트존이 이웃의 진짜 클릭 가능 버튼을 덮어 오탭 유발)과 같은 패턴이라 손대지 않았다. `WaitlistBanner`는 1차와 동일한 사유(env var 미설정으로 로컬 렌더 불가)로 계속 보류. 라이브로 4곳 직접 클릭 재확인, `RewardedAdModal`은 동일 구조라 코드 대칭성으로 갈음 — 이로써 P1-17 대상 14곳 닫기 버튼 중 11곳 적용 완료, 3곳(간격 부족 2 + 렌더 불가 1)은 설계 판단 또는 환경 문제로 별도 남김.
 
 ## 제안 순서
 
