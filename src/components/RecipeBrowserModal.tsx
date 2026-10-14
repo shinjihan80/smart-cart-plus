@@ -10,6 +10,7 @@ import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useProfiles } from '@/lib/profile';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { currentSeasonByMonth } from '@/lib/season';
+import { useScrollHint } from '@/lib/useScrollHint';
 import EmojiIcon from '@/components/EmojiIcon';
 
 type FilterKey = '전체' | '이번계절' | '즐겨찾기' | '셰프' | '예능' | '간단' | '보통' | '도전' | '아침' | '점심' | '간식';
@@ -22,6 +23,10 @@ interface RecipeBrowserModalProps {
 
 export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }: RecipeBrowserModalProps) {
   useModalA11y(onClose);
+  // 11개 필터 칩이 모달 폭(448px)을 넘어 overflow-x-auto로 스크롤되는데
+  // scrollbar-hide라 "더 있다"는 힌트가 없었다(실측 — 간단 칩 다음이
+  // 잘려 보임, P1-59와 같은 뿌리). 스크롤 가능한 쪽에만 엣지 페이드.
+  const { ref: filterScrollRef, canScrollLeft: canScrollFiltersLeft, canScrollRight: canScrollFiltersRight } = useScrollHint<HTMLDivElement>();
   const { isFavorite } = useRecipeFavorites();
   const { recipes: RECIPES } = useMergedCatalog();
   const { main } = useProfiles();
@@ -144,21 +149,29 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
           </div>
 
           {/* 필터 칩 */}
-          <div className="px-6 pb-3 overflow-x-auto scrollbar-hide">
-            <div className="flex bg-gray-100 rounded-full p-0.5 w-fit">
-              {FILTERS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setFilter(key)}
-                  className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    filter === key
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+          <div className="relative px-6 pb-3">
+            {canScrollFiltersLeft && (
+              <div className="pointer-events-none absolute left-6 top-0 bottom-3 w-6 bg-gradient-to-r from-white to-transparent z-10" aria-hidden />
+            )}
+            {canScrollFiltersRight && (
+              <div className="pointer-events-none absolute right-6 top-0 bottom-3 w-6 bg-gradient-to-l from-white to-transparent z-10" aria-hidden />
+            )}
+            <div ref={filterScrollRef} className="overflow-x-auto scrollbar-hide">
+              <div className="flex bg-gray-100 rounded-full p-0.5 w-fit">
+                {FILTERS.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setFilter(key)}
+                    className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      filter === key
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

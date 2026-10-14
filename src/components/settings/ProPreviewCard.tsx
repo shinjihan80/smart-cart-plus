@@ -10,6 +10,7 @@ import { VISION_MONTHLY_LIMITS } from '@/lib/monthlyVisionQuota';
 import { FREE_PROFILE_LIMIT } from '@/lib/profile';
 import { getDeviceId } from '@/lib/deviceId';
 import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
+import { isAnalyticsEnabled } from '@/lib/analytics';
 import type { PlanTier } from '@/types';
 import dynamic from 'next/dynamic';
 const UpgradeSheet = dynamic(() => import('./UpgradeSheet'), { ssr: false });
@@ -127,6 +128,13 @@ export default function ProPreviewCard() {
   const handleInterest = useCallback(() => {
     try { localStorage.setItem(INTEREST_KEY, '1'); } catch {}
     setInterestSaved(true);
+    // "익명 사용 통계"에 opt-in한 기기에 한해 오늘 날짜 집계에 +1만
+    // 보탠다 — 개별 기기 식별자 없이 하루 총 건수만 서버에 쌓인다
+    // (설정 > 피드백 토글 설명에도 명시). opt-in 안 했으면 여전히
+    // 이 기기 localStorage에만 남고 서버로는 아무것도 안 간다.
+    if (isAnalyticsEnabled()) {
+      fetch('/api/admin/telemetry/pro-interest', { method: 'POST', keepalive: true }).catch(() => {});
+    }
   }, []);
 
   const handleCancel = useCallback(async () => {
@@ -258,13 +266,14 @@ export default function ProPreviewCard() {
           disabled={interestSaved}
           className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all disabled:opacity-60"
         >
-          {/* 재검토(C3 실측) P1 — handleInterest는 localStorage 플래그 하나만
-              남길 뿐, 이메일·푸시·서버 어디에도 연락처를 남기지 않는다
-              (nemoa-pro-interest를 실제로 읽어 알림을 보내는 코드는 0건).
-              "알림 신청 완료"는 나중에 뭔가 연락이 온다는 약속인데 지킬
-              방법이 없다 — "아무것도 안 받았는데 왜 완료라고 하지?"라는
-              의심을 산다. 실제로 하는 일(이 기기에 관심 표시 저장)과
-              정확히 같은 말로 바꾼다. */}
+          {/* 재검토(C3 실측) P1 — handleInterest는 이메일·푸시 등 연락처는
+              여전히 전혀 남기지 않는다. "알림 신청 완료"는 나중에 뭔가
+              연락이 온다는 약속인데 지킬 방법이 없어 — "아무것도 안
+              받았는데 왜 완료라고 하지?"라는 의심을 산다 — 실제로 하는
+              일과 정확히 같은 말("관심 표시")로 바꿔 둔 상태를 유지.
+              이후 추가: "익명 사용 통계" opt-in 기기에 한해 서버에
+              하루 총 건수만(식별자 없이) 집계 — 통계 열람용이지, 역시
+              "연락 준다"는 약속은 아니라 문구는 그대로 둠. */}
           {interestSaved ? '관심 표시 완료 ✓' : '관심 있어요'}
         </button>
       ) : currentTier === 'free' ? (

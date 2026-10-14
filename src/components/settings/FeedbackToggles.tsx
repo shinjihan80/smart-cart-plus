@@ -64,7 +64,7 @@ export default function FeedbackToggles() {
     // Vercel Analytics의 화면 방문(페이지뷰) 추적이 안 적힌 수집으로
     // 남아 있었다. PII·식별자는 Vercel 쪽도 수집하지 않지만(URL·익명
     // 디바이스 ID만), 뭘 보내는지는 빠짐없이 적는다.
-    { label: '익명 사용 통계', desc: '세션 핑 + 화면 방문 통계(Vercel Analytics) + 파트너 클릭 집계 + 오류 발생 시 진단 정보(오류 메시지·화면 경로) 전송 (개인정보·식별자 없음) — 서비스 개선에 사용', on: analyticsOn, toggle: toggleAnalytics },
+    { label: '익명 사용 통계', desc: '세션 핑 + 화면 방문 통계(Vercel Analytics) + 파트너 클릭 집계 + Pro 관심 표시 집계 + 오류 발생 시 진단 정보(오류 메시지·화면 경로) 전송 (개인정보·식별자 없음) — 서비스 개선에 사용', on: analyticsOn, toggle: toggleAnalytics },
   ];
 
   return (
