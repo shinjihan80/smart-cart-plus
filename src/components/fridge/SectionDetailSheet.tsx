@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 import SwipeFoodCard from '@/components/fridge/SwipeFoodCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import { classifyExpiry } from '@/lib/expiryThresholds';
 import { type FridgeModelId } from '@/lib/fridgeModel';
@@ -88,10 +89,18 @@ export function SectionDetailSheet({
               </div>
 
               {items.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">
-                  <p className="text-sm font-medium">이 칸은 비어있어요</p>
-                  <p className="text-xs mt-1">{meta.hint}</p>
-                </div>
+                <EmptyState
+                  title="이 칸은 비어있어요"
+                  action={{
+                    label: '식품 등록하기',
+                    onClick: () => {
+                      // 등록 모달(z-50)이 이 시트(z-[60])보다 아래라 시트를
+                      // 먼저 닫지 않으면 뒤에 가려 안 보인다 (라이브 실측)
+                      onClose();
+                      window.dispatchEvent(new Event('nemoa:open-register'));
+                    },
+                  }}
+                />
               ) : (
                 <div className="flex flex-col gap-3">
                   {items.map((item, index) => (

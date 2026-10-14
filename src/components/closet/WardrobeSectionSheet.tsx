@@ -7,6 +7,7 @@ import { WARDROBE_SECTION_META, type WardrobeSection, type WardrobeCell } from '
 import type { ClothingItem } from '@/types';
 import type { MatchBadge } from '@/lib/weather';
 import SwipeClothingCard from '@/components/closet/SwipeClothingCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface WardrobeSectionSheetProps {
   section:        WardrobeSection | null;
@@ -81,10 +82,18 @@ export function WardrobeSectionSheet({
               </div>
 
               {items.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">
-                  <p className="text-sm font-medium">이 칸은 비어있어요</p>
-                  <p className="text-xs mt-1 leading-relaxed">{meta.hint} 의류를 추가해보세요</p>
-                </div>
+                <EmptyState
+                  title="이 칸은 비어있어요"
+                  action={{
+                    label: '의류 등록하기',
+                    onClick: () => {
+                      // 등록 모달(z-50)이 이 시트(z-[60])보다 아래라 시트를
+                      // 먼저 닫지 않으면 뒤에 가려 안 보인다 (라이브 실측)
+                      onClose();
+                      window.dispatchEvent(new Event('nemoa:open-register'));
+                    },
+                  }}
+                />
               ) : (
                 <div className="flex flex-col gap-3">
                   {items.map((item, index) => (
