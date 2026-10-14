@@ -122,7 +122,7 @@ export default function StatsSection({
             가능한 것처럼 보였다(P2-34, C6 실측 — "채소·과일 80%"
             막대와 "상의 80%" 막대가 실제 개수는 달라도 똑같이 길어
             보임). 숨겨진 정규화 기준을 캡션으로 드러낸다. */}
-        <p className="text-[11px] text-gray-300 mb-3">각 칸 안에서의 비중이에요 — 식품·패션 전체 수량은 서로 달라요</p>
+        <p className="text-xs text-gray-300 mb-3">각 칸 안에서의 비중이에요 — 식품·패션 전체 수량은 서로 달라요</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="text-xs text-gray-400 mb-1.5">🥬 식품</p>

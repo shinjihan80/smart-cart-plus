@@ -525,7 +525,7 @@ export default function FridgePage() {
               <button
                 type="button"
                 onClick={() => setShowFridgePicker(v => !v)}
-                className="shrink-0 text-[11px] font-semibold text-brand-primary bg-brand-primary/8 hover:bg-brand-primary/15 px-2.5 py-1 rounded-full transition-all whitespace-nowrap"
+                className="shrink-0 text-xs font-semibold text-brand-primary bg-brand-primary/8 hover:bg-brand-primary/15 px-2.5 py-1 rounded-full transition-all whitespace-nowrap"
               >
                 {activeFridgeInstance?.name ?? '냉장고'} 유형 변경
               </button>

@@ -494,7 +494,7 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
             className="text-xs px-2 py-1.5 rounded-lg bg-white border border-brand-primary/30 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
           {expiryError && (
-            <span className="text-[10px] text-rose-500">구매일({item.purchaseDate})보다 이전 날짜는 입력할 수 없어요.</span>
+            <span className="text-xs text-rose-500">구매일({item.purchaseDate})보다 이전 날짜는 입력할 수 없어요.</span>
           )}
         </label>
         <FridgeSectionPicker
@@ -1203,7 +1203,7 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
             )}
             {activeTab === 'image' && (
               <>
-                <p className="text-[11px] text-gray-400 mb-2">
+                <p className="text-xs text-gray-400 mb-2">
                   이번 달 사진 분석 남은 횟수 {isProMax ? '무제한' : `${monthlyVision.remaining}/${monthlyVision.limit}`}
                 </p>
                 <ImageTab

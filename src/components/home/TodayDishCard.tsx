@@ -77,13 +77,13 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                 {(urgentBoosted || seasonBoosted || loveBoosted || rotationBoosted) && (
                   <div className="flex items-center gap-1 mt-2 flex-wrap">
                     {urgentBoosted && (
-                      <span className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-caution/10 text-caution font-semibold whitespace-nowrap">
+                      <span className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-caution/10 text-caution font-semibold whitespace-nowrap">
                         <AlertTriangle size={10} strokeWidth={2.4} />
                         <span>임박</span>
                       </span>
                     )}
                     {seasonBoosted && (
-                      <span className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold whitespace-nowrap">
+                      <span className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 font-semibold whitespace-nowrap">
                         <Flower2 size={10} strokeWidth={2.4} />
                         <span>{season}철</span>
                       </span>
@@ -91,7 +91,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                     {loveBoosted && (
                       <span
                         title={`${cookCount}번 만든 단골`}
-                        className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold whitespace-nowrap"
+                        className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold whitespace-nowrap"
                       >
                         <Trophy size={10} strokeWidth={2.4} />
                         <span>단골</span>
@@ -100,7 +100,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                     {rotationBoosted && (
                       <span
                         title="10일 이상 만들지 않은 메뉴"
-                        className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-semibold whitespace-nowrap"
+                        className="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-semibold whitespace-nowrap"
                       >
                         <Moon size={10} strokeWidth={2.4} />
                         <span>오랜만에</span>

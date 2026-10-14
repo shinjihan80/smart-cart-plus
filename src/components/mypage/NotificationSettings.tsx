@@ -227,7 +227,7 @@ export default function NotificationSettings() {
           오인하기 쉬웠다(리뷰 해결안 2번째 항목). 네이티브 앱은 OS가
           꺼져 있어도 울려주므로 이 제약이 없어 네이티브에선 숨긴다. */}
       {!isNative() && (
-        <p className="text-[11px] text-gray-400 mt-2.5 leading-relaxed">
+        <p className="text-xs text-gray-400 mt-2.5 leading-relaxed">
           💡 웹에서는 네모아 앱(탭)이 열려 있을 때만 알림을 받을 수 있어요.
         </p>
       )}

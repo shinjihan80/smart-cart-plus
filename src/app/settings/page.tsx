@@ -243,7 +243,7 @@ export default function SettingsPage() {
                 평문 JSON에 들어간다. "이름하고 키 몸무게 정도"로 믿고
                 카톡으로 보냈다가 그 안에 아이 알레르기·얼굴 사진까지
                 있다는 걸 알면 경고가 경고 역할을 못 한 셈이다. */}
-            <p className="text-[13px] font-medium text-caution mt-1">가족 이름·나이·알레르기·얼굴 사진과 등록한 사진까지 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
+            <p className="text-xs font-medium text-caution mt-1">가족 이름·나이·알레르기·얼굴 사진과 등록한 사진까지 그대로 담겨요 — 남과 공유하지 말고 안전한 곳에 보관하세요.</p>
           </div>
           <button
             onClick={handleBackupNow}

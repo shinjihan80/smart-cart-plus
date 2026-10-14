@@ -383,7 +383,7 @@ export default function ClosetPage() {
           <button
             type="button"
             onClick={() => setShowWardrobePicker(v => !v)}
-            className="shrink-0 text-[11px] font-semibold text-brand-primary bg-brand-primary/8 hover:bg-brand-primary/15 px-2.5 py-1 rounded-full transition-all whitespace-nowrap"
+            className="shrink-0 text-xs font-semibold text-brand-primary bg-brand-primary/8 hover:bg-brand-primary/15 px-2.5 py-1 rounded-full transition-all whitespace-nowrap"
           >
             {activeWardrobeInstance?.name ?? '옷장'} 구성 변경
           </button>

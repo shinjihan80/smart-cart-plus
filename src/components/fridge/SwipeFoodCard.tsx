@@ -181,7 +181,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
           탄 {item.nutritionFacts.carbs}g
         </span>
       ) : (
-        <span className="block text-[11px] text-gray-300 mt-2.5">영양 정보 없음</span>
+        <span className="block text-xs text-gray-300 mt-2.5">영양 정보 없음</span>
       )}
     </>
   );
@@ -440,7 +440,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                         }}
                         className="w-full bg-white border border-brand-primary/30 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"
                       />
-                      <p className="text-[11px] text-gray-400 mt-1">
+                      <p className="text-xs text-gray-400 mt-1">
                         {item.shelfLifeSource === 'user'
                           ? '직접 확인한 날짜예요'
                           : `네모아 추정값 — 구매일 기준 ${item.baseShelfLifeDays}일. 다르면 날짜를 고쳐주세요`}
@@ -549,7 +549,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 {!editing && (
                   <button
                     onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id, 'discarded'); }}
-                    className="w-full mt-1.5 py-1 text-[11px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
+                    className="w-full mt-1.5 py-1 text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     🗑️ 상해서 버렸어요
                   </button>

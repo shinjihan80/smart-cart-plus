@@ -35,7 +35,7 @@ export function WardrobeConfigPicker({ config, onSelect }: WardrobeConfigPickerP
       {groups.map((group) => (
         <div key={group.name} className="flex flex-col gap-2">
           {/* 그룹 헤더 */}
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide px-0.5">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wide px-0.5">
             {group.name}
           </p>
 
@@ -72,8 +72,8 @@ export function WardrobeConfigPicker({ config, onSelect }: WardrobeConfigPickerP
                   )}
                   <span className="text-2xl" aria-hidden>{preset.emoji}</span>
                   <span className="text-sm font-bold text-gray-900 leading-tight">{preset.label}</span>
-                  <span className="text-[11px] text-gray-500 leading-snug">{preset.description}</span>
-                  <span className="text-[10px] text-gray-400">칸 {cellCount}개</span>
+                  <span className="text-xs text-gray-500 leading-snug">{preset.description}</span>
+                  <span className="text-xs text-gray-400">칸 {cellCount}개</span>
                 </motion.button>
               );
             })}

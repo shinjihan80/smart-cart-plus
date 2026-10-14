@@ -85,7 +85,7 @@ export default function NutritionBalanceSection({ foods, discardHistory }: { foo
               <span>지방 약 {round(balance.totals.fat, 5)}g</span>
             </div>
             {balance.estimatedCount > 0 && (
-              <p className="text-[11px] text-gray-400">{balance.estimatedCount}개 항목은 실측 정보가 없어 카테고리 평균으로 추정했어요.</p>
+              <p className="text-xs text-gray-400">{balance.estimatedCount}개 항목은 실측 정보가 없어 카테고리 평균으로 추정했어요.</p>
             )}
           </>
         )}

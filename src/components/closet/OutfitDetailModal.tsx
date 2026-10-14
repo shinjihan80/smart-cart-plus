@@ -104,7 +104,7 @@ export default function OutfitDetailModal({ outfit, onClose }: OutfitDetailModal
                     {outfit.reasons.map((r) => (
                       <span
                         key={r}
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/15"
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/15"
                       >
                         {r}
                       </span>

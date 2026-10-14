@@ -47,7 +47,7 @@ export default function LegalPage() {
       >
         <section>
           <h2 className="text-base font-bold text-gray-900 mb-3">이용약관</h2>
-          <div className="flex flex-col gap-3 text-[13px]">
+          <div className="flex flex-col gap-3 text-xs">
             <p>
               <strong>제1조 (목적)</strong><br />
               본 약관은 NEMOA(이하 &ldquo;서비스&rdquo;)가 제공하는 생활 관리 보조 기능의 이용 조건을 규정합니다.
@@ -76,7 +76,7 @@ export default function LegalPage() {
 
         <section>
           <h2 className="text-base font-bold text-gray-900 mb-3">개인정보 처리방침</h2>
-          <div className="flex flex-col gap-3 text-[13px]">
+          <div className="flex flex-col gap-3 text-xs">
             <p>
               <strong>1. 수집하는 정보</strong><br />
               NEMOA는 서버에 개인정보를 저장하지 않습니다. 이용자가 입력한 모든 정보(식품·의류 목록,
@@ -126,7 +126,7 @@ export default function LegalPage() {
         </section>
 
         <section className="rounded-2xl bg-brand-primary/5 border border-brand-primary/10 p-4">
-          <p className="text-[12px] text-gray-700 leading-relaxed">
+          <p className="text-xs text-gray-700 leading-relaxed">
             💡 <strong>요약</strong>: 서버에 데이터가 남지 않아요.
             모든 기록은 이 기기의 브라우저 안에만 있어요.
             AI 분석을 요청할 때만 그 순간 Google Gemini 서버로 전송되고, Google 정책에 따라 처리·파기됩니다.

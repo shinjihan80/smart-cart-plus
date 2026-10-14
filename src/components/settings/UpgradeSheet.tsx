@@ -168,7 +168,7 @@ export default function UpgradeSheet({ open, onClose, trigger }: UpgradeSheetPro
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-brand-primary">₩{price.toLocaleString()}</p>
-                      <p className="text-[10px] text-gray-400">/월</p>
+                      <p className="text-xs text-gray-400">/월</p>
                     </div>
                   </div>
 
@@ -198,7 +198,7 @@ export default function UpgradeSheet({ open, onClose, trigger }: UpgradeSheetPro
             })}
           </div>
 
-          <p className="text-[10px] text-gray-300 text-center mt-4">
+          <p className="text-xs text-gray-300 text-center mt-4">
             구독은 언제든 해지할 수 있어요. 결제는 토스페이먼츠가 처리합니다.
           </p>
         </motion.div>

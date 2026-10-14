@@ -96,7 +96,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-gray-50 border border-gray-100 p-4 mb-4 text-[12px] text-gray-700 leading-relaxed">
+              <div className="rounded-2xl bg-gray-50 border border-gray-100 p-4 mb-4 text-xs text-gray-700 leading-relaxed">
                 <p className="mb-2">
                   ✓ 데이터는 기본적으로 <strong>이 기기에만 저장</strong>됩니다. (Pro로 로그인하면 클라우드에 백업)
                 </p>
