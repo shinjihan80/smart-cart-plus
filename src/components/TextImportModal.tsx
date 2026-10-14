@@ -19,6 +19,7 @@ import { todayLocalStr, expiryDateStr, daysBetween, localMidnight } from '@/lib/
 import { EXPIRY_LABEL, classifyExpiry } from '@/lib/expiryThresholds';
 import { inferFoodCategory, inferFoodDefaults } from '@/lib/ingredientInference';
 import { useModalA11y } from '@/lib/useModalA11y';
+import { Field, FIELD_INPUT_CLASS } from '@/components/ui/Field';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -428,30 +429,34 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
         </span>
       </div>
 
-      {/* 편집 — 카테고리·보관·기한·구매일 */}
+      {/* 편집 — 카테고리·보관·기한·구매일
+          디자인 시스템 Step 5(P1-73/P2-39) — Field 공용 컴포넌트로
+          라벨 크기(text-[10px]→text-xs)·입력 높이(33px→44px 터치타깃
+          충족)를 편집 폼(SwipeFoodCard.tsx)과 통일. 유통기한 칸의
+          상시 brand-primary 테두리(포커스 관용구 오용)도 제거해
+          나머지 칸과 같은 gray-200으로. 필드 구성(카테고리·보관방법
+          vs 소유자·메모)과 저장 방식(즉시 확정 vs onBlur)은 두 폼이
+          설계가 달라 이번엔 그대로 둠. */}
       <div className="grid grid-cols-2 gap-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] text-gray-500 font-medium">카테고리</span>
+        <Field label="카테고리">
           <select
             value={item.foodCategory}
             onChange={(e) => onUpdate({ foodCategory: e.target.value as import('@/types').FoodCategory })}
-            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            className={FIELD_INPUT_CLASS}
           >
             {FOOD_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] text-gray-500 font-medium">보관 방법</span>
+        </Field>
+        <Field label="보관 방법">
           <select
             value={item.storageType}
             onChange={(e) => onUpdate({ storageType: e.target.value as import('@/types').StorageType })}
-            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            className={FIELD_INPUT_CLASS}
           >
             {STORAGE_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] text-gray-500 font-medium">구매일</span>
+        </Field>
+        <Field label="구매일">
           <input
             type="date"
             aria-label="구매일"
@@ -466,11 +471,13 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
               const v = e.target.value;
               if (v) onUpdate({ purchaseDate: v });
             }}
-            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-gray-200 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            className={`${FIELD_INPUT_CLASS} tabular-nums`}
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] text-gray-500 font-medium">유통기한 — 포장에 적힌 날짜</span>
+        </Field>
+        <Field
+          label="유통기한 — 포장에 적힌 날짜"
+          helper={expiryError && `구매일(${item.purchaseDate})보다 이전 날짜는 입력할 수 없어요.`}
+        >
           {/* 예전엔 "보관 기한(일)" 숫자칸뿐이라 포장지 날짜를 그대로 못
               넣고 구매일 기준으로 역산해야 했다(P0-33, 검토단 C1·C4·C8
               독립 발견) — 등록 시점부터 실제 날짜를 입력받는다.
@@ -491,12 +498,9 @@ function FoodConfirmDetail({ item, onUpdate }: FieldEditProps<Extract<CartItem, 
               setExpiryError(false);
               onUpdate({ expiryDate: v, baseShelfLifeDays: days, shelfLifeSource: 'user' });
             }}
-            className="text-xs px-2 py-1.5 rounded-lg bg-white border border-brand-primary/30 tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            className={`${FIELD_INPUT_CLASS} tabular-nums`}
           />
-          {expiryError && (
-            <span className="text-xs text-rose-500">구매일({item.purchaseDate})보다 이전 날짜는 입력할 수 없어요.</span>
-          )}
-        </label>
+        </Field>
         <FridgeSectionPicker
           itemName={item.name}
           foodCategory={item.foodCategory}

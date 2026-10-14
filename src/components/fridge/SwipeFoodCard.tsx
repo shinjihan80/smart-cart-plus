@@ -24,6 +24,7 @@ import { useCart } from '@/context/CartContext';
 import { expiryDateStr, expiryDateLabel, daysBetween, localMidnight, todayLocalStr } from '@/lib/dateMath';
 import { EXPIRY_LABEL, classifyExpiry } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
+import { Field, FIELD_INPUT_CLASS } from '@/components/ui/Field';
 
 interface SwipeFoodCardProps {
   item:         FoodItem;
@@ -368,7 +369,13 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                   </div>
                 )}
 
-                {/* ── 수정 모드: 사각형 폼 필드 ── */}
+                {/* ── 수정 모드: 사각형 폼 필드 ──
+                    디자인 시스템 Step 5(P1-73/P2-39) — Field 공용
+                    컴포넌트로 등록 폼(TextImportModal.tsx)과 라벨·
+                    입력 생김새 통일. 유통기한 칸의 상시 brand-primary
+                    테두리(포커스 관용구 오용)도 나머지와 같은
+                    gray-200으로 — FIELD_INPUT_CLASS가 이미 그렇게
+                    정의돼 있어 별도 처리 불필요. */}
                 {editing && (
                   <div className="flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
                     {item.imageUrl && (
@@ -380,31 +387,33 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                         🗑️ 사진 삭제
                       </button>
                     )}
-                    <div>
-                      <label className="text-xs font-medium text-gray-400 block mb-1.5">상품명</label>
+                    <Field label="상품명">
                       <input
                         type="text"
                         aria-label={`${item.name} 상품명 수정`}
                         defaultValue={item.name}
                         onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== item.name) onUpdate(item.id, { name: v }); }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition"
+                        className={`${FIELD_INPUT_CLASS} font-medium`}
                       />
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-400 block mb-1.5">구매일</label>
+                    </Field>
+                    <Field label="구매일">
                       <input
                         type="date"
                         aria-label={`${item.name} 구매일 수정`}
                         defaultValue={item.purchaseDate}
                         max={todayLocalStr()}
                         onBlur={(e) => { const v = e.target.value; if (v && v !== item.purchaseDate) onUpdate(item.id, { purchaseDate: v }); }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"
+                        className={`${FIELD_INPUT_CLASS} tabular-nums`}
                       />
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-400 block mb-1.5">
-                        유통기한 <span className="text-gray-300 font-normal">— 포장에 적힌 날짜</span>
-                      </label>
+                    </Field>
+                    <Field
+                      label="유통기한 — 포장에 적힌 날짜"
+                      helper={
+                        item.shelfLifeSource === 'user'
+                          ? '직접 확인한 날짜예요'
+                          : `네모아 추정값 — 구매일 기준 ${item.baseShelfLifeDays}일. 다르면 날짜를 고쳐주세요`
+                      }
+                    >
                       {/* 예전엔 "보관 가능 일수"(숫자) 입력만 있어 포장지에 찍힌
                           실제 날짜를 그대로 못 넣고 구매일 기준으로 역산해야
                           했다(P0-33, 검토단 C1·C4·C8 독립 발견) — 카드 앞면이
@@ -438,30 +447,23 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                           }
                           onUpdate(item.id, { expiryDate: v, baseShelfLifeDays: days, shelfLifeSource: 'user' });
                         }}
-                        className="w-full bg-white border border-brand-primary/30 rounded-lg px-3 py-2.5 text-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary/40 tabular-nums transition"
+                        className={`${FIELD_INPUT_CLASS} font-medium tabular-nums`}
                       />
-                      <p className="text-xs text-gray-400 mt-1">
-                        {item.shelfLifeSource === 'user'
-                          ? '직접 확인한 날짜예요'
-                          : `네모아 추정값 — 구매일 기준 ${item.baseShelfLifeDays}일. 다르면 날짜를 고쳐주세요`}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-400 block mb-1.5">보관 위치</label>
+                    </Field>
+                    <Field label="보관 위치">
                       <select
                         aria-label={`${item.name} 보관 위치 수정`}
                         value={currentSection}
                         onChange={(e) => { const next = e.target.value as FridgeSection; if (next !== currentSection) onUpdate(item.id, { fridgeSection: next }); }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition"
+                        className={FIELD_INPUT_CLASS}
                       >
                         {modelCells.map((cell) => {
                           const meta = FRIDGE_SECTION_META[cell.section];
                           return <option key={cell.section} value={cell.section}>{meta.emoji} {meta.label}</option>;
                         })}
                       </select>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-400 block mb-1.5">소유자</label>
+                    </Field>
+                    <Field label="소유자">
                       <div className="flex gap-1.5 flex-wrap">
                         <button onClick={() => onUpdate(item.id, { ownerId: undefined })}
                           className={`text-sm px-3 py-1 rounded-lg border transition-colors ${!item.ownerId ? 'bg-gray-700 text-white border-gray-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
@@ -474,18 +476,17 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                           </button>
                         ))}
                       </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-gray-400 block mb-1.5">메모</label>
+                    </Field>
+                    <Field label="메모">
                       <input
                         type="text"
                         aria-label={`${item.name} 메모 수정`}
                         defaultValue={item.memo ?? ''}
                         placeholder="메모를 입력하세요"
                         onBlur={(e) => { const v = e.target.value.trim(); if (v !== (item.memo ?? '')) onUpdate(item.id, { memo: v || undefined }); }}
-                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition"
+                        className={`${FIELD_INPUT_CLASS} placeholder:text-gray-300`}
                       />
-                    </div>
+                    </Field>
                   </div>
                 )}
 
