@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, Grid3x3, Shirt, Sparkles, ShoppingBag, type LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
@@ -84,11 +84,15 @@ type ClosetTab = 'closet' | 'clothing' | 'outfit' | 'shopping';
 const isClosetTab = (v: unknown): v is ClosetTab =>
   v === 'closet' || v === 'clothing' || v === 'outfit' || v === 'shopping';
 
-const CLOSET_TABS: { id: ClosetTab; emoji: string; label: string }[] = [
-  { id: 'closet',   emoji: '👔', label: '옷장' },
-  { id: 'clothing', emoji: '🧥', label: '의류' },
-  { id: 'outfit',   emoji: '👗', label: '코디' },
-  { id: 'shopping', emoji: '🛍️', label: '쇼핑' },
+// 디자인 시스템 Step 4(docs/design-system-scope.md, P2-1/P2-29) —
+// 탭(=앱 크롬)은 라인아이콘만 쓴다는 규칙을 타입 레벨로 고정. "옷장"
+// 탭은 fridge/page.tsx의 "냉장고" 탭과 같은 이유로 Grid3x3(내용이
+// WardrobeView 칸 그리드, 내부 목록/격자 토글의 LayoutGrid와 구분).
+const CLOSET_TABS: { id: ClosetTab; icon: LucideIcon; label: string }[] = [
+  { id: 'closet',   icon: Grid3x3,     label: '옷장' },
+  { id: 'clothing', icon: Shirt,       label: '의류' },
+  { id: 'outfit',   icon: Sparkles,    label: '코디' },
+  { id: 'shopping', icon: ShoppingBag, label: '쇼핑' },
 ];
 
 
@@ -317,6 +321,7 @@ export default function ClosetPage() {
           <div role="tablist" aria-label="옷장 탭" className="flex px-4">
             {CLOSET_TABS.map((t) => {
               const isActive = activeTab === t.id;
+              const Icon = t.icon;
               return (
                 <button
                   key={t.id}
@@ -325,13 +330,14 @@ export default function ClosetPage() {
                   aria-selected={isActive}
                   onClick={() => selectTab(t.id)}
                   className={[
-                    'shrink-0 snap-start flex items-center gap-1 px-3 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
+                    'shrink-0 snap-start flex items-center gap-1.5 px-3 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
                       ? 'font-semibold text-brand-primary border-brand-primary'
                       : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
                   ].join(' ')}
                 >
-                  {t.emoji} {t.label}
+                  <Icon size={14} strokeWidth={isActive ? 2.4 : 2} aria-hidden />
+                  {t.label}
                 </button>
               );
             })}

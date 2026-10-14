@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { summarizeFoods } from '@/lib/foodStats';
-import { Settings as SettingsIcon, Check, Users, ChevronRight, X } from 'lucide-react';
+import { Settings as SettingsIcon, Check, Users, ChevronRight, X, User, BarChart3, ShoppingCart, type LucideIcon } from 'lucide-react';
 import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
@@ -48,10 +48,16 @@ import { EXPIRY_LABEL }                          from '@/lib/expiryThresholds';
 // 사용자+요금제 → profile("내 정보"), 요약+옷장+요리 → activity("요약"). 쇼핑은 그대로.
 type MyTab = 'profile' | 'activity' | 'shopping';
 
-const TABS: { id: MyTab; emoji: string; label: string }[] = [
-  { id: 'profile',  emoji: '👤', label: '내 정보' },
-  { id: 'activity', emoji: '📊', label: '요약' },
-  { id: 'shopping', emoji: '🛒', label: '쇼핑' },
+// 디자인 시스템 Step 4(docs/design-system-scope.md, P2-1/P2-29) — 탭
+// 데이터가 emoji: string이라, 매 라운드 새 탭을 추가할 때마다 다시
+// 이모지를 집어넣는 선택지가 열려있었다(실제로 옷장·코디 재설계에서
+// 역행 사례 발생). 탭(=앱 크롬)은 라인아이콘만 쓴다는 규칙을 타입
+// 레벨로 고정 — icon: LucideIcon이면 애초에 이모지 리터럴을 넣을
+// 수가 없다.
+const TABS: { id: MyTab; icon: LucideIcon; label: string }[] = [
+  { id: 'profile',  icon: User,        label: '내 정보' },
+  { id: 'activity', icon: BarChart3,   label: '요약' },
+  { id: 'shopping', icon: ShoppingCart, label: '쇼핑' },
 ];
 
 const isMyTab = (v: unknown): v is MyTab =>
@@ -232,6 +238,7 @@ export default function MyPage() {
           <div role="tablist" aria-label="내 정보 탭" className="flex px-4">
             {TABS.map((t) => {
               const isActive = activeTab === t.id;
+              const Icon = t.icon;
               return (
                 <button
                   key={t.id}
@@ -246,13 +253,14 @@ export default function MyPage() {
                     window.scrollTo(0, 0);
                   }}
                   className={[
-                    'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
+                    'shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
                       ? 'font-semibold text-brand-primary border-brand-primary'
                       : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
                   ].join(' ')}
                 >
-                  {t.emoji} {t.label}
+                  <Icon size={14} strokeWidth={isActive ? 2.4 : 2} aria-hidden />
+                  {t.label}
                 </button>
               );
             })}

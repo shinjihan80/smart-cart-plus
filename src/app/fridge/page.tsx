@@ -9,7 +9,7 @@ import { useToast } from '@/context/ToastContext';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { classifyExpiry, EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { todayLocalStr } from '@/lib/dateMath';
-import { LayoutGrid, List, SlidersHorizontal, X } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, type LucideIcon } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import EmojiIcon from '@/components/EmojiIcon';
@@ -49,11 +49,17 @@ type FridgeTab     = 'fridge' | 'food' | 'suggest' | 'shopping';
 const isFridgeTab = (v: unknown): v is FridgeTab =>
   v === 'fridge' || v === 'food' || v === 'suggest' || v === 'shopping';
 
-const FRIDGE_TABS: { id: FridgeTab; emoji: string; label: string }[] = [
-  { id: 'fridge',   emoji: '🧊', label: '냉장고' },
-  { id: 'food',     emoji: '🍽️', label: '음식' },
-  { id: 'suggest',  emoji: '💡', label: '추천' },
-  { id: 'shopping', emoji: '🛒', label: '장보기' },
+// 디자인 시스템 Step 4(docs/design-system-scope.md, P2-1/P2-29) —
+// 탭(=앱 크롬)은 라인아이콘만 쓴다는 규칙을 타입 레벨로 고정.
+// "냉장고" 탭은 실제 내용(FridgeView)이 칸 그리드라 그리드 계열
+// 아이콘으로 — 다만 "음식" 탭 안 목록/격자 토글이 이미 LayoutGrid를
+// 쓰고 있어(694행 아래), 같은 화면에 같은 아이콘이 다른 뜻으로
+// 겹치지 않게 Grid3x3으로 구분.
+const FRIDGE_TABS: { id: FridgeTab; icon: LucideIcon; label: string }[] = [
+  { id: 'fridge',   icon: Grid3x3,          label: '냉장고' },
+  { id: 'food',     icon: UtensilsCrossed,  label: '음식' },
+  { id: 'suggest',  icon: Lightbulb,        label: '추천' },
+  { id: 'shopping', icon: ShoppingCart,     label: '장보기' },
 ];
 
 
@@ -458,6 +464,7 @@ export default function FridgePage() {
           <div role="tablist" aria-label="냉장고 탭" className="flex px-4">
             {FRIDGE_TABS.map((t) => {
               const isActive = activeTab === t.id;
+              const Icon = t.icon;
               return (
                 <button
                   key={t.id}
@@ -466,13 +473,14 @@ export default function FridgePage() {
                   aria-selected={isActive}
                   onClick={() => selectTab(t.id)}
                   className={[
-                    'shrink-0 flex items-center gap-1 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
+                    'shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
                       ? 'font-semibold text-brand-primary border-brand-primary'
                       : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
                   ].join(' ')}
                 >
-                  {t.emoji} {t.label}
+                  <Icon size={14} strokeWidth={isActive ? 2.4 : 2} aria-hidden />
+                  {t.label}
                 </button>
               );
             })}
