@@ -15,9 +15,15 @@ import InstallBanner from "@/components/layout/InstallBanner";
 import OfflineBanner from "@/components/layout/OfflineBanner";
 import MilestoneAdPrompt from "@/components/layout/MilestoneAdPrompt";
 
+// 재검토(비판 모드) P2-10 — 이 폰트는 ⌘K 단축키 배지·오류 ID 등 부가
+// 요소에서만 쓰이는데(본문 SUIT와 달리 첫 화면 어디에도 없음), next/font가
+// 기본으로 모든 루트 레이아웃 폰트를 preload해 초기 로드 대역폭을 먹었다
+// (전문단 E2 실측). 실제 본문 폰트(SUIT)는 preload가 전혀 없는 반대 상황도
+// 같이 있었다 — 아래 head의 수동 preload로 보완.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -112,6 +118,12 @@ export default function RootLayout({
       className={`${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      {/* P2-10 — 본문 전체가 쓰는 SUIT는 globals.css의 평범한
+          @font-face라 next/font 자동 preload 대상이 아니었다. 폰트
+          서브셋(610KB→~150KB)은 폰트 도구 없이는 손대기 위험해 이번엔
+          손 안 대고, 수동 preload만 추가해 최소한 "발견이 늦어 깜빡임·
+          지연 렌더"는 줄인다. */}
+      <link rel="preload" href="/fonts/SUIT-Variable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       <body
         className="min-h-full flex flex-col"
         style={{ backgroundColor: 'var(--background)' }}
