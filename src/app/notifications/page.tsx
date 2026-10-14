@@ -10,10 +10,10 @@ import { useNotificationLog, type NotificationLogEntry } from '@/lib/notificatio
 // 예전엔 카드가 아예 안 눌려서 "우유가 임박"이라고 읽고도 냉장고 탭을
 // 처음부터 다시 찾아 들어가야 했다(검토단 C9 발견).
 const KIND_META: Record<NotificationLogEntry['kind'], { emoji: string; bg: string; href: string }> = {
-  expiry:  { emoji: '⏰', bg: 'bg-brand-warning/10', href: '/fridge' },
+  expiry:  { emoji: '⏰', bg: 'bg-caution/10', href: '/fridge' },
   codi:    { emoji: '👗', bg: 'bg-brand-primary/10', href: '/closet?tab=outfit' },
   // P1-81 — 홈 인앱 배너 4종도 알림함에 쌓이도록 추가(아래 참고).
-  urgent:  { emoji: '⏰', bg: 'bg-brand-warning/10', href: '/fridge' },
+  urgent:  { emoji: '⏰', bg: 'bg-caution/10', href: '/fridge' },
   rebuy:   { emoji: '🔄', bg: 'bg-amber-50',         href: '/mypage?tab=shopping' },
   season:  { emoji: '🍃', bg: 'bg-brand-primary/10', href: '/mypage?tab=activity#seasonal' },
   expired: { emoji: '🗑️', bg: 'bg-red-50',           href: '/fridge?tab=food' },

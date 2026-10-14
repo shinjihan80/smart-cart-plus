@@ -21,7 +21,7 @@ function QuotaTile({
   const pct   = isUnlimited ? 100 : total > 0 ? Math.round((left / total) * 100) : 0;
   const isLow = !isUnlimited && left < total * 0.3;
   const tone  = !isUnlimited && left === 0
-    ? 'text-brand-warning'
+    ? 'text-caution'
     : isLow
     ? 'text-amber-600'
     : 'text-brand-primary';
@@ -37,7 +37,7 @@ function QuotaTile({
         <div
           className={`h-full rounded-full ${
             !isUnlimited && left === 0
-              ? 'bg-brand-warning'
+              ? 'bg-caution'
               : isLow
               ? 'bg-amber-400'
               : 'bg-brand-primary/60'

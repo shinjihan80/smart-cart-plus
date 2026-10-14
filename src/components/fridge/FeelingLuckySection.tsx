@@ -90,7 +90,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
             </motion.p>
             <p className="text-sm text-gray-500 mt-0.5">
               ⏱ {pick.recipe.time} · {pick.recipe.difficulty}
-              {pick.urgentBoosted && <span className="text-brand-warning ml-1">· ⚠️ 임박 재료</span>}
+              {pick.urgentBoosted && <span className="text-caution ml-1">· ⚠️ 임박 재료</span>}
               {pick.seasonBoosted && (() => {
                 const Icon = SEASON_ICON[season];
                 const color = SEASON_COLOR[season];

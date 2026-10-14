@@ -182,7 +182,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
-                          {fav && <span className="text-xs text-brand-warning shrink-0">♥</span>}
+                          {fav && <span className="text-xs text-brand-primary shrink-0">♥</span>}
                           {recipe.seasons?.includes(season) && (
                             <span className="shrink-0 inline-flex items-center" title={`${season}철 추천`}>
                               <SeasonIcon size={12} strokeWidth={2} className={seasonColor.text} />

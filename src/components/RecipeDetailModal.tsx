@@ -146,7 +146,7 @@ export default function RecipeDetailModal({
               onClick={onToggleFavorite}
               aria-label={isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
               className={`w-10 h-10 flex items-center justify-center transition-colors ${
-                isFavorite ? 'text-brand-warning' : 'text-gray-400 hover:text-gray-600'
+                isFavorite ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               <Heart size={20} strokeWidth={2} fill={isFavorite ? 'currentColor' : 'none'} />
@@ -313,18 +313,18 @@ export default function RecipeDetailModal({
           {totalSeconds !== null && totalSeconds > 0 && (
             <div className={`rounded-2xl border px-4 py-3 mb-4 flex items-center gap-3 transition-colors ${
               finished
-                ? 'bg-brand-warning/10 border-brand-warning/30'
+                ? 'bg-caution/10 border-caution/30'
                 : running
                   ? 'bg-brand-primary/10 border-brand-primary/25'
                   : 'bg-gray-50 border-gray-100'
             }`}>
-              <EmojiIcon emoji={finished ? '🔔' : running ? '⏱️' : '⏰'} size={20} className={finished ? 'text-brand-warning' : running ? 'text-brand-primary' : 'text-gray-600'} />
+              <EmojiIcon emoji={finished ? '🔔' : running ? '⏱️' : '⏰'} size={20} className={finished ? 'text-caution' : running ? 'text-brand-primary' : 'text-gray-600'} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-500">
                   {finished ? '완성 시간이에요!' : running ? '타이머 진행 중' : '조리 타이머'}
                 </p>
                 <p className={`text-xl font-extrabold tabular-nums leading-tight ${
-                  finished ? 'text-brand-warning' : running ? 'text-brand-primary' : 'text-gray-800'
+                  finished ? 'text-caution' : running ? 'text-brand-primary' : 'text-gray-800'
                 }`}>
                   {formatMMSS(remaining)}
                 </p>

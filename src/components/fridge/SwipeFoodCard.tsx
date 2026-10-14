@@ -67,8 +67,15 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
   // 달라 "빨간 숫자 위 앰버 바" 같은 자기모순 렌더가 났다.
   const expiryBucket = classifyExpiry(dDay);
   const urgencyFill = Math.max(0, Math.min(1, (7 - dDay) / 7));
+  // 디자인 시스템 Step 2(docs/design-system-scope.md) — expired와
+  // today를 한 버킷(brand-warning)으로 묶어 "기한 이미 지남"과
+  // "오늘까지만 괜찮음"을 같은 색으로 표시했다. danger/caution 정책
+  // (danger=되돌릴 수 없는 것만, caution=지금 챙기면 되는 것)대로
+  // expired만 danger, today는 soon과 같은 "챙겨야 함" 계열로
+  // caution에 재배치.
   const urgencyBarColor =
-    expiryBucket === 'expired' || expiryBucket === 'today' ? 'bg-brand-warning'
+    expiryBucket === 'expired' ? 'bg-danger'
+      : expiryBucket === 'today' ? 'bg-caution'
       : expiryBucket === 'soon' ? 'bg-amber-400'
       : 'bg-brand-success';
   // D배지·"N일 남음" 텍스트가 자체 임계값(dDay<=3)으로 전부 빨강을 썼다
@@ -76,7 +83,8 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
   // 모순됐다(P1-90, C8·E2·E3 실측). 막대와 같은 expiryBucket 하나로
   // 텍스트 색도 통일.
   const urgencyTextColor =
-    expiryBucket === 'expired' || expiryBucket === 'today' ? 'text-[#DC2626]'
+    expiryBucket === 'expired' ? 'text-danger'
+      : expiryBucket === 'today' ? 'text-caution'
       : expiryBucket === 'soon' ? 'text-amber-600'
       : '';
 
@@ -136,10 +144,10 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
           하는가)인데 gray-400(2.54:1)이라 WCAG AA(4.5:1) 미달,
           부차정보인 제품명(15.5:1)보다 훨씬 안 보여 위계가
           거꾸로였다(P1-70, C8·E3 실측). gray-500(4.83:1)로 상향.
-          긴급 빨강도 텍스트용(#DC2626, 4.83:1)과 배경·바용
-          (brand-warning #EF4444, 비텍스트라 대비 기준 다름)을
-          분리 — 전체 brand-warning 토큰 재정의(66곳, P1-69)는
-          범위 밖이라 이 카드의 텍스트 2곳만 스코프로 고정. */}
+          (이전엔 brand-warning 전체 재정의가 범위 밖이라 이 카드만
+          텍스트 색을 따로 분리해뒀는데, 디자인 시스템 Step 2에서
+          danger/caution 토큰으로 전역 정리하며 urgencyTextColor가
+          이미 그 역할을 하게 됨.) */}
       <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-3">
         <span>
           🗓 {expiryDateLabel(item)}

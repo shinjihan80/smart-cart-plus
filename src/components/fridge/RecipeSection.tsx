@@ -69,7 +69,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
         <span className="text-base font-bold text-gray-900 tracking-tight">오늘의 메뉴 추천</span>
         <div className="flex items-center gap-1.5 ml-auto shrink-0">
             {favoriteCount > 0 && (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning">
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary">
                 ♥ {favoriteCount}
               </span>
             )}
@@ -103,7 +103,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 onClick={() => setSelected({ recipe, matchedItems })}
                 className={`shrink-0 rounded-2xl px-3.5 py-2.5 min-w-[140px] max-w-[160px] text-left hover:scale-[1.02] active:scale-[0.98] transition-transform ${
                   urgentBoosted
-                    ? 'bg-brand-warning/5 border border-brand-warning/20'
+                    ? 'bg-caution/5 border border-caution/20'
                     : loveBoosted
                       ? 'bg-rose-50 border border-rose-100'
                       : 'bg-brand-primary/5 border border-brand-primary/10'
@@ -112,7 +112,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 <div className="flex items-start justify-between">
                   <EmojiIcon emoji={recipe.emoji} size={22} className="text-gray-700" />
                   <div className="flex items-center gap-0.5">
-                    {fav && <EmojiIcon emoji="♥" size={14} className="text-brand-warning" />}
+                    {fav && <EmojiIcon emoji="♥" size={14} className="text-brand-primary" />}
                     {loveBoosted && <span title={`${cookCount}번 만든 단골`}><EmojiIcon emoji="🏆" size={11} className="text-amber-500" /></span>}
                     {seasonBoosted && (() => {
                       const Icon = SEASON_ICON[season];
@@ -123,7 +123,7 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                         </span>
                       );
                     })()}
-                    {urgentBoosted && <EmojiIcon emoji="⚠️" size={11} className="text-brand-warning" />}
+                    {urgentBoosted && <EmojiIcon emoji="⚠️" size={11} className="text-caution" />}
                     {rotationBoosted && <span title="오랜만에 다시 추천"><EmojiIcon emoji="🌙" size={11} className="text-indigo-500" /></span>}
                   </div>
                 </div>

@@ -126,8 +126,8 @@ export default function NotificationSettings() {
         </button>
       )}
       {permState === 'denied' && (
-        <div className="mb-3 p-2.5 rounded-2xl bg-brand-warning/5 border border-brand-warning/15">
-          <p className="text-xs text-brand-warning font-semibold">알림이 차단됐어요</p>
+        <div className="mb-3 p-2.5 rounded-2xl bg-caution/5 border border-caution/15">
+          <p className="text-xs text-caution font-semibold">알림이 차단됐어요</p>
           <p className="text-xs text-gray-400 mt-0.5">
             {isNative()
               ? '휴대폰 설정 → 앱 → NEMOA → 알림에서 허용으로 바꿔주세요.'
@@ -138,7 +138,7 @@ export default function NotificationSettings() {
               모순처럼 읽혔다(C1·C9 실측). 스위치는 "어떤 알림을
               원하는지"(선호도)이고 권한과는 별개 차원이라는 걸 한
               줄로 연결. */}
-          <p className="text-xs text-gray-400 mt-1.5 pt-1.5 border-t border-brand-warning/10">
+          <p className="text-xs text-gray-400 mt-1.5 pt-1.5 border-t border-caution/10">
             아래 스위치는 &ldquo;어떤 알림을 받고 싶은지&rdquo; 설정이에요 — 켜져 있어도 위 권한이 차단된 동안은 오지 않아요.
           </p>
         </div>

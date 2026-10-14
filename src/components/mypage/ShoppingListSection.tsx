@@ -253,7 +253,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                           }}
                           aria-label={`${it.name} 제거`}
                           title="제거"
-                          className="shrink-0 text-sm text-gray-300 hover:text-brand-warning px-1 py-1 transition-colors"
+                          className="shrink-0 text-sm text-gray-300 hover:text-danger px-1 py-1 transition-colors"
                         >
                           ✕
                         </button>

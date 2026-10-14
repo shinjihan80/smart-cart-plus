@@ -230,7 +230,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                     if (confirm(`"${o.name}" 삭제할까요?`)) removeOutfit(o.id);
                   }}
                   aria-label={`${o.name} 삭제`}
-                  className="text-sm px-1.5 py-0.5 text-gray-400 hover:text-brand-warning border-l border-gray-100 transition-colors"
+                  className="text-sm px-1.5 py-0.5 text-gray-400 hover:text-danger border-l border-gray-100 transition-colors"
                 >
                   <EmojiIcon emoji="✕" size={12} className="text-current" />
                 </button>

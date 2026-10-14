@@ -88,7 +88,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
                 ? 'text-brand-success'
                 : rotationScore.score >= 40
                   ? 'text-brand-primary'
-                  : 'text-brand-warning'
+                  : 'text-caution'
             }`}>
               {rotationScore.score}점
             </span>
@@ -100,7 +100,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
                   ? 'bg-brand-success'
                   : rotationScore.score >= 40
                     ? 'bg-brand-primary'
-                    : 'bg-brand-warning'
+                    : 'bg-caution'
               }`}
               style={{ width: `${rotationScore.score}%` }}
             />

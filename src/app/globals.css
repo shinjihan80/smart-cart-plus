@@ -27,22 +27,22 @@
 
   /* Brand Colors — 검정 + 인디고 듀얼톤 (로고와 일관) */
   --color-brand-primary: #4F46E5;   /* 시그니처 인디고 (보라끼 있는 파랑) — CTA·포인트 */
-  --color-brand-accent:  #4F46E5;   /* 동일 — 단일 포인트 색 */
   --color-brand-ink:     #1F1F2E;   /* 잉크 — 헤드라인·로고 메인 */
   --color-brand-success: #10B981;
-  /* 재검토(비판 모드) P1-83 — 흰 배경 텍스트 대비 3.76:1로 WCAG AA
-     (4.5:1) 미달(전문단 E2 실측, D-day·임박 라벨·하단탭 배지 등 13개
-     요소). 아래 danger와 같은 값(#DC2626, 대비 4.83:1)으로 교체 —
-     단일 토큰이라 텍스트든 배경(흰 글자와 대비해도 동일하게
-     4.83:1)이든 한 번에 해소되고, 별도 텍스트/배경 토큰 분리가
-     필요 없었다. danger/caution/info 3단과의 완전한 통합(P1-64)은
-     더 큰 범위라 이번엔 값만 맞춤 */
-  --color-brand-warning: #DC2626;
 
   /* 상태 색 3단 — 위험도별 분리 (P2-4)
      danger : 되돌릴 수 없는 것만 (소비기한 초과, 삭제, 초기화)
      caution: 지금 챙기면 되는 것 (오늘까지 소비, 임박, 미백업)
-     info   : 제안·인사이트 (레시피 활용, 주간 요약, 코디 추천) */
+     info   : 제안·인사이트 (레시피 활용, 주간 요약, 코디 추천)
+     디자인 시스템 Step 2(docs/design-system-scope.md) — 구형
+     --color-brand-warning(#DC2626, P1-83에서 대비만 먼저 고침)과
+     --color-brand-accent(brand-primary와 동일값이라 보조 강조색
+     역할을 못 하고 있었음, P2-4)를 전부 이 3단 + brand-primary로
+     재배치하고 토큰 자체를 삭제 — 재유입 방지(70곳/29파일,
+     brand-accent 8곳/3파일 전수 치환, "즐겨찾기 하트"·"도전 배지"
+     처럼 심각도가 아닌 장식용 강조였던 곳은 brand-primary로,
+     "다시 시도"·"알림 차단" 같은 복구 가능한 안내는 caution으로,
+     "전체 초기화"·확정 삭제처럼 되돌릴 수 없는 곳만 danger로) */
   --color-danger:  #DC2626;
   --color-caution: #B45309;
   --color-info:    #4F46E5;

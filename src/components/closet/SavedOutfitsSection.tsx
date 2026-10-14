@@ -73,7 +73,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                       if (confirm(`"${o.name}" 삭제할까요?`)) remove(o.id);
                     }}
                     aria-label={`${o.name} 삭제`}
-                    className="text-sm text-gray-400 hover:text-brand-warning px-1.5 py-0.5 transition-colors"
+                    className="text-sm text-gray-400 hover:text-danger px-1.5 py-0.5 transition-colors"
                   >
                     <EmojiIcon emoji="✕" size={12} className="text-current" />
                   </button>

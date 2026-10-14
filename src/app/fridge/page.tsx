@@ -124,7 +124,7 @@ function FoodSummaryStats({
           <p className="text-xs text-gray-400 mt-0.5">실온</p>
         </button>
         <button className="flex-1 active:opacity-70 transition-opacity" onClick={onUrgent}>
-          <p className={`text-base font-bold tabular-nums ${urgent > 0 ? 'text-brand-warning' : 'text-gray-900'}`}>
+          <p className={`text-base font-bold tabular-nums ${urgent > 0 ? 'text-caution' : 'text-gray-900'}`}>
             {urgent}
           </p>
           <p className="text-xs text-gray-400 mt-0.5">임박</p>
@@ -661,7 +661,7 @@ export default function FridgePage() {
               <div className="flex-1 h-px bg-gray-100" />
               {urgentOnly && (
                 <button onClick={() => setUrgentOnly(false)}
-                  className="shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium bg-brand-warning text-white flex items-center gap-1">
+                  className="shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium bg-caution text-white flex items-center gap-1">
                   ⚠️ 임박만 <X size={11} strokeWidth={2.5} />
                 </button>
               )}

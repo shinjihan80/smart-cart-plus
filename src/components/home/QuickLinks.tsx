@@ -104,12 +104,12 @@ export default function QuickLinks({
               aria-hidden
             />
             {c.badge && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-accent text-white text-[10px] font-bold flex items-center justify-center tabular-nums ring-2 ring-white">
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-white text-[10px] font-bold flex items-center justify-center tabular-nums ring-2 ring-white">
                 {c.badge}
               </span>
             )}
             {c.dot && !c.badge && (
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-brand-accent ring-2 ring-white" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-brand-primary ring-2 ring-white" />
             )}
           </div>
           <span className="text-xs font-semibold text-brand-ink tracking-tight">{c.label}</span>

@@ -26,11 +26,11 @@ import { getDaypart, greetingText, type Daypart } from '@/lib/daypart';
 
 const TONE = {
   urgent: {
-    accent:  'text-brand-accent',
-    cta:     'bg-brand-accent text-white',
-    chip:    'bg-brand-accent/10 text-brand-accent',
-    iconBg:  'bg-brand-accent/10 text-brand-accent',
-    cardBg:  'bg-gradient-to-br from-brand-accent/8 via-white to-white',
+    accent:  'text-brand-primary',
+    cta:     'bg-brand-primary text-white',
+    chip:    'bg-brand-primary/10 text-brand-primary',
+    iconBg:  'bg-brand-primary/10 text-brand-primary',
+    cardBg:  'bg-gradient-to-br from-brand-primary/8 via-white to-white',
   },
   insight: {
     accent:  'text-brand-primary',

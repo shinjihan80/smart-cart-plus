@@ -96,7 +96,7 @@ export default function RebuyAlert({ items }: { items: CartItem[] }) {
             <p className="text-xs font-bold text-amber-700">
               {dueSoon.length}개 식품 곧 떨어질 때
               {overdueCount > 0 && (
-                <span className="ml-1 text-xs font-medium text-brand-warning">
+                <span className="ml-1 text-xs font-medium text-caution">
                   · {overdueCount}개 늦음
                 </span>
               )}

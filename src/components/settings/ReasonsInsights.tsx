@@ -67,7 +67,7 @@ export default function ReasonsInsights() {
           onClick={() => {
             if (confirm('추천 선호도 기록을 모두 삭제할까요?')) clearAll();
           }}
-          className="text-xs text-gray-400 hover:text-brand-warning transition-colors"
+          className="text-xs text-gray-400 hover:text-danger transition-colors"
         >
           기록 삭제
         </button>

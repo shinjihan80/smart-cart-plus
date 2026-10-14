@@ -17,7 +17,7 @@ function FailContent() {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 280, damping: 22 }}
       >
-        <XCircle size={64} className="text-brand-warning mx-auto mb-5" strokeWidth={1.5} />
+        <XCircle size={64} className="text-danger mx-auto mb-5" strokeWidth={1.5} />
         <h1 className="text-xl font-bold text-gray-900 mb-2">결제 실패</h1>
         <p className="text-sm text-gray-500 mb-8">{message}</p>
         <button

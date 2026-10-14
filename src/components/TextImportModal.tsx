@@ -976,7 +976,7 @@ function StepConfirm({
       )}
 
       {items.length > 0 && nameBlurred && items.some((it) => !it.name.trim()) && (
-        <p className="mt-2 text-xs text-brand-warning font-medium text-center">이름이 빈 항목이 있어요 — 위에서 입력해주세요.</p>
+        <p className="mt-2 text-xs text-caution font-medium text-center">이름이 빈 항목이 있어요 — 위에서 입력해주세요.</p>
       )}
 
       <button

@@ -77,7 +77,7 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                 {(urgentBoosted || seasonBoosted || loveBoosted || rotationBoosted) && (
                   <div className="flex items-center gap-1 mt-2 flex-wrap">
                     {urgentBoosted && (
-                      <span className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-brand-warning/10 text-brand-warning font-semibold whitespace-nowrap">
+                      <span className="inline-flex items-center gap-0.5 text-[11px] px-2 py-0.5 rounded-full bg-caution/10 text-caution font-semibold whitespace-nowrap">
                         <AlertTriangle size={10} strokeWidth={2.4} />
                         <span>임박</span>
                       </span>

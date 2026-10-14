@@ -102,7 +102,7 @@ export default function ResetConfirmSheet({ open, onClose, onDownloadBackup, onC
           {step === 'choice' && (
             <>
               <div className="flex items-center gap-1.5 mb-1">
-                <AlertTriangle size={14} className="text-brand-warning" />
+                <AlertTriangle size={14} className="text-danger" />
                 <h2 className="text-base font-bold text-gray-900">전체 초기화</h2>
               </div>
               <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">
@@ -119,7 +119,7 @@ export default function ResetConfirmSheet({ open, onClose, onDownloadBackup, onC
                 </button>
                 <button
                   onClick={() => setStep('confirmNoBackup')}
-                  className="w-full py-3 text-xs text-gray-400 hover:text-brand-warning transition-colors"
+                  className="w-full py-3 text-xs text-gray-400 hover:text-danger transition-colors"
                 >
                   백업 없이 바로 삭제
                 </button>
@@ -139,7 +139,7 @@ export default function ResetConfirmSheet({ open, onClose, onDownloadBackup, onC
               <div className="mt-5 flex flex-col gap-2.5">
                 <button
                   onClick={handleFinalBackup}
-                  className="w-full py-3.5 rounded-2xl bg-brand-warning text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+                  className="w-full py-3.5 rounded-2xl bg-danger text-white text-sm font-semibold hover:opacity-90 transition-opacity"
                 >
                   확인했어요, 초기화 진행
                 </button>
@@ -156,7 +156,7 @@ export default function ResetConfirmSheet({ open, onClose, onDownloadBackup, onC
           {step === 'confirmNoBackup' && (
             <>
               <div className="flex items-center gap-1.5 mb-1">
-                <AlertTriangle size={14} className="text-brand-warning" />
+                <AlertTriangle size={14} className="text-danger" />
                 <h2 className="text-base font-bold text-gray-900">백업 없이 바로 삭제할까요?</h2>
               </div>
               <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">
@@ -165,7 +165,7 @@ export default function ResetConfirmSheet({ open, onClose, onDownloadBackup, onC
               <div className="mt-5 flex flex-col gap-2.5">
                 <button
                   onClick={handleFinalNoBackup}
-                  className="w-full py-3.5 rounded-2xl bg-brand-warning text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+                  className="w-full py-3.5 rounded-2xl bg-danger text-white text-sm font-semibold hover:opacity-90 transition-opacity"
                 >
                   네, 백업 없이 전부 삭제
                 </button>

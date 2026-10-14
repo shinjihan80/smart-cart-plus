@@ -183,7 +183,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                         <p className="text-xs font-medium text-gray-800 truncate">{item.name}</p>
                         <p className="text-sm text-gray-400 truncate">
                           {reason}
-                          {isLongIdle && <span className="text-brand-warning ml-1">· 정리 추천</span>}
+                          {isLongIdle && <span className="text-info ml-1">· 정리 추천</span>}
                         </p>
                       </div>
                       <button
@@ -199,7 +199,7 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                       </button>
                       <button
                         onClick={() => handleRemove(item.id, item.name)}
-                        className="shrink-0 text-sm font-semibold px-2 py-1 rounded-full bg-brand-warning/10 text-brand-warning hover:bg-brand-warning/15 transition-colors"
+                        className="shrink-0 text-sm font-semibold px-2 py-1 rounded-full bg-danger/10 text-danger hover:bg-danger/15 transition-colors"
                       >
                         정리
                       </button>

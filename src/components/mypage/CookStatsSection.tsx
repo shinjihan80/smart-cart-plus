@@ -67,7 +67,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
         const bars = [
           { key: '간단', label: '간단', color: 'bg-brand-success' },
           { key: '보통', label: '보통', color: 'bg-brand-primary' },
-          { key: '도전', label: '도전', color: 'bg-brand-warning' },
+          { key: '도전', label: '도전', color: 'bg-caution' },
         ] as const;
         return (
           <div className="mb-3">
@@ -135,7 +135,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       {untriedFavs.length > 0 && (
         <div>
-          <p className="text-sm text-brand-warning font-semibold mb-1.5">⭐ 즐겨찾기인데 미도전</p>
+          <p className="text-sm text-info font-semibold mb-1.5">⭐ 즐겨찾기인데 미도전</p>
           <div className="flex flex-col gap-1">
             {untriedFavs.map((x) => (
               <button
@@ -145,7 +145,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
               >
                 <EmojiIcon emoji={x.recipe.emoji} size={14} className="text-gray-600 shrink-0" />
                 <span className="text-sm text-gray-800 flex-1 truncate">{x.recipe.name}</span>
-                <span className="text-sm text-brand-warning">도전 →</span>
+                <span className="text-sm text-info">도전 →</span>
               </button>
             ))}
           </div>

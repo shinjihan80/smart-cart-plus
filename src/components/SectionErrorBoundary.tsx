@@ -44,10 +44,10 @@ export default class SectionErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       const spanClass = this.props.colSpan === 'full' ? 'col-span-2' : '';
       return (
-        <div className={`${spanClass} rounded-2xl border border-brand-warning/20 bg-brand-warning/5 px-4 py-3 flex items-start gap-3`}>
+        <div className={`${spanClass} rounded-2xl border border-caution/20 bg-caution/5 px-4 py-3 flex items-start gap-3`}>
           <span className="text-lg">⚠️</span>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-brand-warning">
+            <p className="text-xs font-semibold text-caution">
               {this.props.label ?? '이 섹션'}을 불러오지 못했어요
             </p>
             <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
@@ -56,7 +56,7 @@ export default class SectionErrorBoundary extends Component<Props, State> {
           </div>
           <button
             onClick={this.handleRetry}
-            className="shrink-0 text-sm font-semibold px-2.5 py-1 rounded-full bg-white border border-brand-warning/30 text-brand-warning hover:bg-brand-warning/10 transition-colors"
+            className="shrink-0 text-sm font-semibold px-2.5 py-1 rounded-full bg-white border border-caution/30 text-caution hover:bg-caution/10 transition-colors"
           >
             다시 시도
           </button>

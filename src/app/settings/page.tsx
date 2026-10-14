@@ -209,7 +209,7 @@ export default function SettingsPage() {
             !backup.hydrated
               ? 'bg-gray-50 border-gray-100'
               : backup.isStale
-                ? 'bg-brand-warning/5 border-brand-warning/15'
+                ? 'bg-caution/5 border-caution/15'
                 : 'bg-brand-success/5 border-brand-success/15'
           }`}
         >
@@ -218,7 +218,7 @@ export default function SettingsPage() {
               렌더가 "✅ 백업 null일 전"(curl로 확인) 같은 거짓 성공
               배지를 보여줬다. hydrated로 분기해 "확인 중" 중립 상태를
               먼저 보여주고, 실제 값을 안 뒤에만 성공/경고를 단정한다. */}
-          <EmojiIcon emoji={!backup.hydrated ? '⏳' : backup.isStale ? '💾' : '✅'} size={20} className={!backup.hydrated ? 'text-gray-400 shrink-0' : backup.isStale ? 'text-brand-warning shrink-0' : 'text-brand-success shrink-0'} />
+          <EmojiIcon emoji={!backup.hydrated ? '⏳' : backup.isStale ? '💾' : '✅'} size={20} className={!backup.hydrated ? 'text-gray-400 shrink-0' : backup.isStale ? 'text-caution shrink-0' : 'text-brand-success shrink-0'} />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-800">
               {!backup.hydrated
@@ -394,20 +394,20 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...springTransition, delay: 0.14 }}
-          className="rounded-[28px] border border-brand-warning/20 bg-brand-warning/3 px-4 py-4"
+          className="rounded-[28px] border border-danger/20 bg-danger/3 px-4 py-4"
         >
           <div className="flex items-center gap-1.5 mb-1">
-            <AlertTriangle size={12} className="text-brand-warning" />
-            <h3 className="text-xs text-brand-warning font-semibold">위험 구역</h3>
+            <AlertTriangle size={12} className="text-danger" />
+            <h3 className="text-xs text-danger font-semibold">위험 구역</h3>
           </div>
           <p className="text-xs text-gray-400 mb-3">아래 작업은 되돌리기 어려워요. 백업 후 진행을 권장합니다.</p>
           <button
             onClick={() => setResetOpen(true)}
-            className="flex items-center gap-3 w-full py-2.5 text-left hover:bg-brand-warning/5 -mx-2 px-2 rounded-2xl transition-colors"
+            className="flex items-center gap-3 w-full py-2.5 text-left hover:bg-danger/5 -mx-2 px-2 rounded-2xl transition-colors"
           >
-            <EmojiIcon emoji="🔄" size={16} className="text-brand-warning" />
+            <EmojiIcon emoji="🔄" size={16} className="text-danger" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-brand-warning">전체 초기화</p>
+              <p className="text-sm font-medium text-danger">전체 초기화</p>
               <p className="text-sm text-gray-400">백업 후 삭제 또는 백업 없이 바로 삭제</p>
             </div>
           </button>

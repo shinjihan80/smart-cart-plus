@@ -415,7 +415,7 @@ export default function MyPage() {
                 </div>
               </div>
               {urgentCount > 0 && (
-                <p className="mt-2.5 text-xs text-brand-warning font-semibold text-center">
+                <p className="mt-2.5 text-xs text-caution font-semibold text-center">
                   ⚠️ {EXPIRY_LABEL.soon} {urgentCount}개 확인이 필요해요
                 </p>
               )}

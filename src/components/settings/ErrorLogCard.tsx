@@ -45,7 +45,7 @@ export default function ErrorLogCard() {
         className="w-full flex items-center justify-between gap-2"
       >
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="🩺" size={16} className="text-brand-warning" />
+          <EmojiIcon emoji="🩺" size={16} className="text-caution" />
           <span className="text-xs text-gray-400 font-medium">오류 기록</span>
           {entries.length > 0 && (
             <span className="text-sm font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full tabular-nums">

@@ -328,7 +328,7 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
                     {(isPhoto || isEmoji) && (
                       <button
                         onClick={() => onUpdate({ avatar: undefined })}
-                        className="text-xs text-gray-400 hover:text-brand-warning transition-colors text-left"
+                        className="text-xs text-gray-400 hover:text-danger transition-colors text-left"
                       >
                         기본으로 돌리기
                       </button>
@@ -499,7 +499,7 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
                             onClick={() => toggleAllergen(a)}
                             className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
                               active
-                                ? 'bg-brand-warning text-white'
+                                ? 'bg-brand-primary text-white'
                                 : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
                             }`}
                           >
@@ -521,7 +521,7 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
               {!profile.isMain && (
                 <button
                   onClick={onRemove}
-                  className="flex items-center justify-center gap-1.5 w-full mt-1 py-1.5 rounded-xl bg-white border border-brand-warning/20 text-sm text-brand-warning font-medium hover:bg-brand-warning/5 transition-colors"
+                  className="flex items-center justify-center gap-1.5 w-full mt-1 py-1.5 rounded-xl bg-white border border-danger/20 text-sm text-danger font-medium hover:bg-danger/5 transition-colors"
                 >
                   <Trash2 size={10} /> 이 프로필 삭제
                 </button>

@@ -99,9 +99,7 @@ export default function BottomNav() {
                   {badge > 0 && (
                     <span
                       aria-hidden="true"
-                      className={`absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white ${
-                        href === '/fridge' ? 'bg-brand-accent' : 'bg-brand-primary'
-                      }`}
+                      className="absolute -top-1 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white bg-brand-primary"
                     >
                       {badge}
                     </span>

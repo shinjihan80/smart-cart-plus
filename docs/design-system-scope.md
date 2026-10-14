@@ -17,7 +17,7 @@
 | 단계 | 상태 | 날짜 | 커밋 |
 |---|---|---|---|
 | 1. A+B+D 토큰 선언 | ✅ 완료 | 2026-10-14 | (아래 참고) |
-| 2. B 전역 치환(`brand-warning` 재배치) | 대기 | | |
+| 2. B 전역 치환(`brand-warning`/`brand-accent` 재배치) | ✅ 완료 | 2026-10-14 | (아래 참고) |
 | 3. A+D 전역 치환(text/radius 리터럴) | 대기 | | |
 | 4. C 아이콘 언어 통일 | 대기 | | |
 | 5. D+E 컴포넌트화 | 대기 | | |
@@ -58,6 +58,8 @@
 - `brand-accent` = `brand-primary` 동일값이라 urgent/insight를 색으로 구별 못 함(P1-69)
 - 코디 카드 배경색(`categoryImages.ts` 13색)이 인접 카테고리 간 CIELAB ΔE*ab 1.78(JND 2.3 미만, 사실상 안 보임) — 별도 소규모 서브태스크(P2-30)
 - 순서: ① 3단 색 의미 확정 → ② `brand-warning` 30곳을 danger/caution으로 의미별 재배치(히어로·냉장고카드·홈배너 ~15곳 우선, 나머지 점진) → ③ `brand-accent` 제거 또는 재바인딩 → ④ 색을 CSS 변수로 완전히 추출(다크모드 전제 조건) → **이후 P2-7은 별도 트랙으로 착수 가능**
+
+**완료 메모(①②③, 2026-10-14)**: `brand-warning` 70곳(29파일)·`brand-accent` 8곳(3파일) 전수 재분류, 두 토큰 모두 `globals.css`에서 삭제(재유입 차단). 분류 기준: ①진짜 심각도 신호(expired/초기화/확정삭제=danger, 임박/미백업/복구가능한 안내=caution, 제안·인사이트=info) ②심각도가 아닌 장식용 강조(즐겨찾기 하트·난이도 배지 등 — brand_accent=brand_primary라 보조 강조색이 없어 빨강을 끌어쓰고 있었다는 P2-4의 진단이 실제로 다수 발견됨)는 brand-primary로 재배정. `SwipeFoodCard.tsx`의 expired+today 결합 버킷도 이번에 분리(expired=danger, today=caution). ④(CSS 변수 완전 추출)는 아직 — 지금은 Tailwind 유틸리티 클래스로만 참조되고 있어 다크모드 착수 전 별도 확인 필요.
 
 ### C. 아이콘 언어 통일
 **대상:** P2-1, P2-29

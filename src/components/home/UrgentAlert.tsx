@@ -78,13 +78,13 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
           이미 Link라 중복 신호였으므로 제거하고, ✕는 flex 형제 칼럼으로
           분리해 실제 44px 폭 레이아웃 공간을 갖게 한다 — 겹침이 구조적으로
           불가능해진다(의사요소 확장 불필요). */}
-      <div className="bg-brand-warning/10 border border-brand-warning/20 rounded-[24px] flex items-stretch overflow-hidden">
+      <div className="bg-caution/10 border border-caution/20 rounded-[24px] flex items-stretch overflow-hidden">
         <Link
           href="/fridge"
-          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-brand-warning/15 transition-colors"
+          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-caution/15 transition-colors"
         >
-          <span className="w-9 h-9 rounded-xl bg-brand-warning/15 flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} strokeWidth={2.2} className="text-brand-warning" />
+          <span className="w-9 h-9 rounded-xl bg-caution/15 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} strokeWidth={2.2} className="text-caution" />
           </span>
           <div className="flex-1 min-w-0">
             {/* 헤드라인은 본문 줄(바로 아래, text-sm)보다 작으면 안 된다 —
@@ -93,7 +93,7 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
                 제목을 text-xs에 그대로 둬 "제목 < 본문" 역전을 새로 만들었다
                 (P1-49, E3 발견). 본문은 그대로 두고 제목을 text-sm으로 맞춤
                 — bold+경고색은 유지돼 위계는 그대로 살아있음. */}
-            <p className="text-sm font-bold text-brand-warning">
+            <p className="text-sm font-bold text-caution">
               {headline} 먹어야 할 식품 {urgent.length}개
             </p>
             <p className="text-sm text-gray-500 truncate mt-0.5">
@@ -105,7 +105,7 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
           onClick={handleDismiss}
           aria-label="임박 식품 알림 오늘 안 보기"
           title="오늘 안 보기"
-          className="w-11 shrink-0 flex items-center justify-center text-brand-warning/60 hover:text-brand-warning hover:bg-brand-warning/15 transition-colors"
+          className="w-11 shrink-0 flex items-center justify-center text-caution/60 hover:text-caution hover:bg-caution/15 transition-colors"
         >
           <X size={14} strokeWidth={2.4} />
         </button>

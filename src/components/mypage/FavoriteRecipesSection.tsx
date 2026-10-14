@@ -59,7 +59,7 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs text-gray-400 font-medium">즐겨찾기 레시피</h3>
         <div className="flex items-center gap-1.5">
-          <span className="text-sm text-brand-warning font-semibold">♥ {favoriteRecipes.length}</span>
+          <span className="text-sm text-brand-primary font-semibold">♥ {favoriteRecipes.length}</span>
           <button
             onClick={() => setSortBy(SORT_NEXT[sortBy])}
             className="text-sm text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"

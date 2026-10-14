@@ -133,7 +133,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
             <div className="flex items-center justify-between gap-2 mb-2 flex-wrap gap-y-1">
               <p className="text-[15px] font-bold text-brand-ink line-clamp-2 break-keep flex-1 min-w-[5em] leading-snug">{item.name}</p>
               <div className="flex items-center gap-1.5 shrink-0">
-                <p className={`text-sm font-bold tabular-nums ${daysAgo !== null && daysAgo > 30 ? 'text-brand-warning' : 'text-gray-400'}`}>
+                <p className={`text-sm font-bold tabular-nums ${daysAgo !== null && daysAgo > 30 ? 'text-caution' : 'text-gray-400'}`}>
                   {item.size}
                 </p>
                 {!hideToggle && (
@@ -152,7 +152,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
             <div className="flex items-center gap-2 text-xs text-gray-400 tabular-nums mb-3">
               <span>{item.category}</span>
               <span className="text-gray-200">·</span>
-              <span className={daysAgo !== null && daysAgo > 30 ? 'text-brand-warning font-medium' : ''}>
+              <span className={daysAgo !== null && daysAgo > 30 ? 'text-caution font-medium' : ''}>
                 {daysAgo === null ? '아직 안 입음' :
                  daysAgo === 0    ? '오늘 입음' :
                  daysAgo <= 7     ? `${daysAgo}일 전 입음` :
@@ -165,7 +165,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
               <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
-                    daysAgo > 60 ? 'bg-brand-warning' :
+                    daysAgo > 60 ? 'bg-caution' :
                     daysAgo > 30 ? 'bg-amber-400' :
                     'bg-brand-success'
                   }`}
@@ -230,7 +230,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                       className={`inline-flex text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap ${
                         sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
                         sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
-                        'bg-brand-warning/10 text-brand-warning'
+                        'bg-caution/10 text-caution'
                       }`}
                       title={sizeMatch.detail}
                     >
