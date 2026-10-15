@@ -7,7 +7,7 @@ import { isFoodItem, type StorageType, type FoodGroup, FOOD_GROUPS, type FridgeS
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { getRemainingDays } from '@/lib/expirySelectors';
-import { classifyExpiry, EXPIRY_LABEL } from '@/lib/expiryThresholds';
+import { classifyExpiry, EXPIRY_LABEL, EXPIRY_TONE } from '@/lib/expiryThresholds';
 import { todayLocalStr } from '@/lib/dateMath';
 import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, type LucideIcon } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
@@ -177,10 +177,11 @@ function FoodSummaryStats({
  * 기한 초과(expired)와 당일(today)을 하나로 묶어 상한 품목도 "D-day"
  * (오늘까지 먹으면 됨)로 보여줬다 — 목록뷰는 같은 품목을 "기한 초과"로
  * 정확히 보여주는 것과 모순됐다(P0-71, E2·E3 코드 확인, P0-30 계열
- * 재발). classifyExpiry/EXPIRY_LABEL을 거치도록 교정 — 버킷→색 완전
- * 통일(ExpiryBadge 공용 컴포넌트화)은 더 큰 범위의 별도 항목(P1-90)으로
- * 남겨두고, 여기선 "기한 초과를 오늘까지로 오표시"하는 핵심 버그만
- * 고친다.
+ * 재발). classifyExpiry/EXPIRY_LABEL을 거치도록 교정.
+ * P1-111 — 색은 red-500/orange-400 원색 대신 EXPIRY_TONE(냉장고 칸
+ * 배지·칸 상세 시트·식품 카드와 같은 소스)으로 교체 — soon(amber-600
+ * 계열, AA 미달)이 today(caution)보다 더 튀어 급함이 역전되던 버그가
+ * 이 격자뷰에도 똑같이 있었다.
  */
 function GridExpiryBadge({ dDay }: { dDay: number }) {
   const bucket = classifyExpiry(dDay);
@@ -189,7 +190,7 @@ function GridExpiryBadge({ dDay }: { dDay: number }) {
   // `D-${dDay}`)로, 격자뷰는 여기서만 "D-day"로 따로 불러 같은 값이
   // 보기 모드마다 다르게 표기됐다. 목록뷰와 같은 숫자 표기로 통일.
   const label = bucket === 'expired' ? EXPIRY_LABEL.over : `D-${dDay}`;
-  const bg = bucket === 'expired' || bucket === 'today' ? 'bg-red-500' : 'bg-orange-400';
+  const bg = EXPIRY_TONE[bucket].bar;
   return (
     <span className={`absolute top-1.5 right-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${bg} text-white`}>
       {label}
