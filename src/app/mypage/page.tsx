@@ -222,7 +222,6 @@ export default function MyPage() {
   return (
     <div>
       <AppHeader
-        actionsClassName="flex items-center gap-0.5 shrink-0"
         left={
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight">내 정보</h1>

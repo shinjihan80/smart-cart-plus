@@ -88,7 +88,6 @@ export default function HomePage() {
       {/* 헤더 — 로고 + 알림·프로필 (검색은 마이페이지에서) */}
       <AppHeader
         rowClassName="px-5 py-4 gap-3"
-        actionsClassName="flex items-center -mr-1"
         left={<NemoaLogo size="md" />}
         actions={
           <>
