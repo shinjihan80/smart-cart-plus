@@ -20,6 +20,8 @@ import { EXPIRY_LABEL, classifyExpiry } from '@/lib/expiryThresholds';
 import { inferFoodCategory, inferFoodDefaults } from '@/lib/ingredientInference';
 import { useModalA11y } from '@/lib/useModalA11y';
 import { Field, FIELD_INPUT_CLASS } from '@/components/ui/Field';
+import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
+import type { RegisterPreset } from '@/lib/registerIntent';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -28,6 +30,9 @@ const AGENT_LABEL: Record<AiAgent, string> = {
 interface TextImportModalProps {
   onClose:  () => void;
   onImport: (items: CartItem[]) => void;
+  /** P1-109 — 칸 상세 시트 등에서 열렸으면 식품/의류 선택을 건너뛰고
+   *  해당 칸·인스턴스를 미리 채운다. 없으면 기존처럼 처음부터 시작. */
+  preset?:  RegisterPreset;
 }
 
 type InputTab  = 'manual' | 'image' | 'text' | 'url';
@@ -1012,7 +1017,7 @@ function LoadingSpinner({ label }: { label: string }) {
 }
 
 // ── 메인 모달 ─────────────────────────────────────────────────────────────────
-export default function TextImportModal({ onClose, onImport }: TextImportModalProps) {
+export default function TextImportModal({ onClose, onImport, preset }: TextImportModalProps) {
   const { canUse: canUseAi, consume: consumeAi, canGrantBonus, grantBonus } = useAiQuota();
   const monthlyVision = useMonthlyVisionQuota();
   const { isPro, isProMax } = usePlan();
@@ -1121,15 +1126,26 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
 
   function handleManualPick(domain: 'food' | 'clothing') {
     const id = `manual-${Date.now()}`;
+    // P1-109 — preset으로 칸이 지정됐으면 그 칸의 zone으로 보관방법·
+    // 인스턴스를 미리 채운다. freezer→냉동, pantry→실온, 나머지(냉장실·
+    // 도어·야채실·버터칸·김치냉장고)는 전부 냉장 — 지금까지 기본값
+    // '냉장'·7일 고정이 "냉동실에서 등록해도 냉장으로 저장되는" 원인이었다.
+    const foodPreset = preset?.domain === 'food' ? preset : undefined;
+    const fridgeZone  = foodPreset?.fridgeSection ? FRIDGE_SECTION_META[foodPreset.fridgeSection].zone : undefined;
+    const storageType = fridgeZone === 'freezer' ? '냉동' : fridgeZone === 'pantry' ? '실온' : '냉장';
+    const clothingPreset = preset?.domain === 'clothing' ? preset : undefined;
+
     const blank: CartItem = domain === 'food'
       ? {
           id,
           name:              '',
           category:          '식품',
           foodCategory:      '기타 식품',
-          storageType:       '냉장',
+          storageType,
           baseShelfLifeDays: 7,
           purchaseDate:      todayLocalStr(),
+          ...(foodPreset?.fridgeSection     ? { fridgeSection: foodPreset.fridgeSection } : {}),
+          ...(foodPreset?.fridgeInstanceId  ? { fridgeInstanceId: foodPreset.fridgeInstanceId } : {}),
         }
       : {
           id,
@@ -1138,12 +1154,21 @@ export default function TextImportModal({ onClose, onImport }: TextImportModalPr
           size:      '',
           thickness: '보통',
           material:  '',
+          ...(clothingPreset?.wardrobeSection    ? { wardrobeSection: clothingPreset.wardrobeSection } : {}),
+          ...(clothingPreset?.wardrobeInstanceId ? { wardrobeInstanceId: clothingPreset.wardrobeInstanceId } : {}),
         };
     setParsedItems([blank]);
     setDomainSummary(undefined);
     setManualEntry(true);
     setStep('confirm');
   }
+
+  // P1-109 — preset이 있으면(칸 상세 시트 등에서 진입) 식품/의류를 다시
+  // 묻지 않고 바로 확인 화면으로 건너뛴다. 마운트 시 한 번만 실행.
+  useEffect(() => {
+    if (preset) handleManualPick(preset.domain);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleConfirm(tagged: CartItem[]) {
     // 의류 등록일 기록 — 옷장 정리 제안 90일+계절 게이팅용(P0-60 후속).

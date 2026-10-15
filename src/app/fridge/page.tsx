@@ -1016,6 +1016,7 @@ export default function FridgePage() {
       <SectionDetailSheet
         section={activeSection}
         fridgeModelId={fridgeModelId}
+        activeInstanceId={activeFridgeId}
         items={
           activeSection
             ? items.filter((i) => effectiveFridgeSection(i, fridgeModelId) === activeSection)

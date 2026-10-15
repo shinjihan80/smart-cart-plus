@@ -7,6 +7,9 @@ import { Home, Refrigerator, Shirt, User, Plus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { selectExpiring } from '@/lib/expirySelectors';
+import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
+import { WARDROBE_SECTION_META } from '@/lib/wardrobeModel';
+import type { RegisterPreset } from '@/lib/registerIntent';
 import dynamic from 'next/dynamic';
 const TextImportModal = dynamic(() => import('@/components/TextImportModal'), { ssr: false });
 
@@ -20,12 +23,18 @@ export default function BottomNav() {
   const { showToast } = useToast();
   const [mounted, setMounted] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  // P1-109 — 칸 상세 시트 등록 CTA 등에서 넘어온 맥락(어느 칸·어느
+  // 인스턴스인지)을 TextImportModal까지 전달하기 위한 상태.
+  const [registerPreset, setRegisterPreset] = useState<RegisterPreset | undefined>(undefined);
 
   useEffect(() => setMounted(true), []);
 
   // 명령 팔레트 '상품 등록 열기'에서도 모달 오픈
   useEffect(() => {
-    function onOpen() { setAddOpen(true); }
+    function onOpen(e: Event) {
+      setRegisterPreset((e as CustomEvent<RegisterPreset | undefined>).detail);
+      setAddOpen(true);
+    }
     window.addEventListener('nemoa:open-register', onOpen);
     return () => window.removeEventListener('nemoa:open-register', onOpen);
   }, []);
@@ -114,11 +123,22 @@ export default function BottomNav() {
 
       {addOpen && (
         <TextImportModal
-          onClose={() => setAddOpen(false)}
+          preset={registerPreset}
+          onClose={() => { setAddOpen(false); setRegisterPreset(undefined); }}
           onImport={(newItems) => {
             const { added, skipped } = addItems(newItems);
+            // P1-109 — preset으로 칸이 지정된 등록이면 "어디에 들어갔는지"를
+            // 확인시켜 맥락이 안 끊겼다는 걸 알려준다(E1 제안).
+            const sectionLabel =
+              registerPreset?.domain === 'food' && registerPreset.fridgeSection
+                ? FRIDGE_SECTION_META[registerPreset.fridgeSection].label
+                : registerPreset?.domain === 'clothing' && registerPreset.wardrobeSection
+                  ? WARDROBE_SECTION_META[registerPreset.wardrobeSection].label
+                  : null;
             if (skipped > 0) {
               showToast(`${added}개 추가 (${skipped}개 중복 건너뜀)`);
+            } else if (sectionLabel) {
+              showToast(`${sectionLabel}에 ${added}개 넣었어요!`);
             } else {
               showToast(`${added}개 상품이 추가됐어요!`);
             }

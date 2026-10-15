@@ -8,11 +8,14 @@ import type { ClothingItem } from '@/types';
 import type { MatchBadge } from '@/lib/weather';
 import SwipeClothingCard from '@/components/closet/SwipeClothingCard';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { openRegister } from '@/lib/registerIntent';
 
 interface WardrobeSectionSheetProps {
   section:        WardrobeSection | null;
   items:          ClothingItem[];
   getMatchBadge?: (item: ClothingItem) => MatchBadge | undefined;
+  /** P1-109 — 등록 모달에 "어느 옷장인지" 넘기기 위한 현재 활성 인스턴스 */
+  activeInstanceId?: string;
   onClose:        () => void;
   onRemove:       (id: string) => void;
   onUpdate:       (id: string, updates: Partial<ClothingItem>) => void;
@@ -23,6 +26,7 @@ export function WardrobeSectionSheet({
   section,
   items,
   getMatchBadge,
+  activeInstanceId,
   onClose,
   onRemove,
   onUpdate,
@@ -90,7 +94,10 @@ export function WardrobeSectionSheet({
                       // 등록 모달(z-50)이 이 시트(z-[60])보다 아래라 시트를
                       // 먼저 닫지 않으면 뒤에 가려 안 보인다 (라이브 실측)
                       onClose();
-                      window.dispatchEvent(new Event('nemoa:open-register'));
+                      // P1-109 — 어느 칸·어느 옷장에서 눌렀는지 등록
+                      // 모달에 넘긴다(이전엔 맥락 없이 열려 식품/옷을
+                      // 다시 묻고 선택이 저장 안 됐다, C9·E1·E2).
+                      openRegister({ domain: 'clothing', wardrobeSection: section ?? undefined, wardrobeInstanceId: activeInstanceId });
                     },
                   }}
                 />

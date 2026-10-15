@@ -978,6 +978,7 @@ export default function ClosetPage() {
       <WardrobeSectionSheet
         section={activeWardrobeSection}
         items={sectionItems}
+        activeInstanceId={activeWardrobeId}
         getMatchBadge={(item) =>
           weather && FASHION_GROUP[item.category] === '의류'
             ? clothingMatch(item.thickness, item.weatherTags, weather.tempC)

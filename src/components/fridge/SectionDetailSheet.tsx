@@ -10,11 +10,14 @@ import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import { classifyExpiry } from '@/lib/expiryThresholds';
 import { type FridgeModelId } from '@/lib/fridgeModel';
 import type { FoodItem, FridgeSection } from '@/types';
+import { openRegister } from '@/lib/registerIntent';
 
 interface SectionDetailSheetProps {
   section:       FridgeSection | null;
   items:         (FoodItem & { dDay: number })[];
   fridgeModelId: FridgeModelId;
+  /** P1-109 — 등록 모달에 "어느 냉장고인지" 넘기기 위한 현재 활성 인스턴스 */
+  activeInstanceId?: string;
   onClose:    () => void;
   onDiscard:  (id: string) => void;
   onUpdate:   (id: string, updates: Partial<FoodItem>) => void;
@@ -24,6 +27,7 @@ export function SectionDetailSheet({
   section,
   items,
   fridgeModelId,
+  activeInstanceId,
   onClose,
   onDiscard,
   onUpdate,
@@ -97,7 +101,10 @@ export function SectionDetailSheet({
                       // 등록 모달(z-50)이 이 시트(z-[60])보다 아래라 시트를
                       // 먼저 닫지 않으면 뒤에 가려 안 보인다 (라이브 실측)
                       onClose();
-                      window.dispatchEvent(new Event('nemoa:open-register'));
+                      // P1-109 — 어느 칸·어느 냉장고에서 눌렀는지 등록
+                      // 모달에 넘긴다(이전엔 맥락 없이 열려 식품/옷을
+                      // 다시 묻고 기본값 냉장·7일로 저장됐다, C9·E1·E2).
+                      openRegister({ domain: 'food', fridgeSection: section, fridgeInstanceId: activeInstanceId });
                     },
                   }}
                 />
