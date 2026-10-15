@@ -94,35 +94,45 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
               gridRow:    `${cell.row} / span ${cell.rowSpan}`,
               boxShadow:  '0 2px 6px -3px rgba(31, 31, 46, 0.08)',
             }}
-            aria-label={`${meta.label} — ${list.length}개${expired ? `, 기한초과 ${expiredCount}개` : ''}`}
+            aria-label={`${meta.label} — ${list.length}개 보관${urgent ? `, 임박 ${urgentCount}개` : ''}${expired ? `, 기한초과 ${expiredCount}개` : ''}`}
           >
             <div className="flex items-start justify-between gap-[4px]">
               <span className="emoji text-[16px]" aria-hidden>{meta.emoji}</span>
               {/*
-               * 재검토(비판 모드) P1-75 — 배지가 최대 3개(기한초과·임박·
-               * 총개수)까지 나란히 떴는데, 좁은 칸에서 "⏱1"+"1"처럼
-               * 붙으면 "11"로 잘못 읽혔다(E3 실측). 총개수 배지 하나로
-               * 통합하고, 상태는 배지 색+접두 이모지로만 구분 — 숫자가
-               * 항상 하나만 보이니 붙어 읽힐 자리 자체가 없어진다.
-               * 셀 테두리(expired/urgent 링) 색이 이미 긴급도를 알려주고
-               * 있어 정보 손실도 없다.
+               * 재검토(비판 모드, 2026-10-15) — P1-75(위 "통합" 리팩터)가
+               * 숫자를 하나로 합치며 그 숫자를 "총개수"로 정해, 색은
+               * 상태(임박/기한초과)를 뜻하는데 숫자는 그걸 안 세는
+               * 불일치가 재발했다(P0-29 재오픈 — ⏱4인데 실제 임박은
+               * 1개, C8·C9·E1·E2·E3 5인 확인). 배지는 이제 "그 색이
+               * 뜻하는 걸 그 숫자만큼" 보여준다 — expired면 기한초과
+               * 개수, urgent면 임박 개수. 둘 다 아니면 배지 자체를 안
+               * 그린다(총개수는 아래 칸 이름 줄로 이동). 버튼 자체의
+               * aria-label(위)이 이미 임박·기한초과 수를 포함하고,
+               * 스크린리더는 버튼 레벨 aria-label만 읽고 자식 요소는
+               * 건너뛰므로 이 span은 장식으로만 남겨 aria-hidden 처리.
                */}
-              {list.length > 0 && (
+              {(expired || urgent) && (
                 <span
                   className={`text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums text-white ${
-                    expired ? 'bg-red-700' : urgent ? 'bg-rose-500' : 'bg-gray-900'
+                    expired ? 'bg-red-700' : 'bg-rose-500'
                   }`}
-                  aria-label={`${list.length}개${expired ? `, 기한초과 ${expiredCount}개` : urgent ? `, 임박 ${urgentCount}개` : ''}`}
+                  aria-hidden
                 >
-                  {expired ? '🚫' : urgent ? '⏱' : ''}{list.length}
+                  {expired ? `🚫${expiredCount}` : `⏱${urgentCount}`}
                 </span>
               )}
             </div>
 
             <div className="mt-[6px]">
               {/* P1-92 — "도어 중간 포켓"처럼 긴 칸 이름이 truncate 1줄 컷으로
-                  잘렸다(C1·C8 실측). line-clamp-2로 2줄까지 허용. */}
-              <p title={meta.label} className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 break-keep">{meta.label}</p>
+                  잘렸다(C1·C8 실측). line-clamp-2로 2줄까지 허용.
+                  총개수는 더는 우상단 배지가 아니라(P0-29 재오픈 수정)
+                  여기 라벨 옆 중립 텍스트로 이동 — 상태(색)와 분리된
+                  순수 정보라 시각적으로도 분리한다. */}
+              <p title={meta.label} className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 break-keep">
+                {meta.label}
+                {list.length > 0 && <span className="font-normal text-gray-400"> · {list.length}</span>}
+              </p>
               {list.length === 0 ? (
                 // 빈 칸의 예시 힌트("잼·소스·드레싱" 등)와 실제 보유 품목이
                 // 글자 크기·굵기·위치가 전부 같고 명도 차이(gray-400 vs
