@@ -134,7 +134,11 @@ function FoodSummaryStats({
             <p className="text-xs text-gray-400 mt-0.5">냉동</p>
           </button>
           <button className="flex-1 active:opacity-70 transition-opacity" onClick={onRoom}>
-            <p className="text-base font-bold text-amber-600 tabular-nums">{room}</p>
+            {/* P2-56 — "실온"은 보관법 범주일 뿐인데 amber-600이라 바로
+                옆 "임박"(caution, #B45309)과 한 줄 안에서 구별이 잘 안
+                됐다(C6·E3). 범주형 수치는 상태색을 침범하지 않는
+                중립색으로. */}
+            <p className="text-base font-bold text-gray-600 tabular-nums">{room}</p>
             <p className="text-xs text-gray-400 mt-0.5">실온</p>
           </button>
           <button className="flex-1 active:opacity-70 transition-opacity" onClick={onUrgent}>

@@ -597,9 +597,13 @@ export default function ClosetPage() {
                   {untried.map((c) => {
                     const Icon = FASHION_ICON[c.category] ?? FASHION_ICON['기타 액세서리'];
                     return (
-                      <div key={c.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-100">
-                        <Icon size={13} strokeWidth={2} className="text-amber-700" />
-                        <span className="text-xs font-medium text-amber-700 whitespace-nowrap">{c.name}</span>
+                      // P2-56 — "안 입어본 옷"은 경고가 아니라 범주 정보(그냥
+                      // 사실 안내)인데 amber-50/700이라 caution·expiry-soon
+                      // 상태색과 거의 같은 톤이었다(C6·E3). 상태색 전용 팔레트를
+                      // 침범하지 않도록 중립 칩으로 교체.
+                      <div key={c.id} className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100 border border-gray-200">
+                        <Icon size={13} strokeWidth={2} className="text-gray-600" />
+                        <span className="text-xs font-medium text-gray-700 whitespace-nowrap">{c.name}</span>
                       </div>
                     );
                   })}

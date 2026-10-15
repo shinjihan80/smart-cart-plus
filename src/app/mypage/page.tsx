@@ -358,15 +358,20 @@ export default function MyPage() {
           </div>
         </motion.div>
 
-        {/* 백업 안내 배너 — 지킬 데이터가 어느 정도 쌓였을 때만. 경고(빨강) 아닌 caution(황토) 톤 (P1-4) */}
+        {/* 백업 안내 배너 — 지킬 데이터가 어느 정도 쌓였을 때만.
+            P2-56 — caution(황토) 톤이었는데(P1-4), 같은 "백업해두세요"
+            안내가 홈(BackupReminderBanner, 중립 회색)과 여기서 심각도가
+            다르게 보였다(C6·E3). 홈과 같은 중립 톤으로 통일 — 백업은
+            "지금 당장 챙겨야 하는 위험"이 아니라 예방적 안내라
+            caution보다 중립이 더 정확하다. */}
         {backup.isStale && items.length >= 5 && !backupBannerRecentlyDismissed && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springTransition, delay: 0.05 }}
-            className="rounded-card border px-4 py-3 flex items-center gap-3 bg-caution/5 border-caution/20"
+            className="rounded-card border px-4 py-3 flex items-center gap-3 bg-gray-900/5 border-gray-900/10"
           >
-            <EmojiIcon emoji="💾" size={20} className="text-caution shrink-0" />
+            <EmojiIcon emoji="💾" size={20} className="text-gray-600 shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-gray-800">
                 {backup.lastBackupAt === null ? `등록한 ${items.length}개, 파일로 저장해두면 안전해요` : `마지막 백업 ${daysAgoLabel(backup.daysSince)}`}
