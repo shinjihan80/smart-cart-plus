@@ -487,7 +487,12 @@ export default function FridgePage() {
           {tabScroll.canScrollRight && (
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white to-transparent z-10" aria-hidden />
           )}
-          <div ref={tabScroll.ref} className="overflow-x-auto scrollbar-hide">
+          {/* P1-59 재오픈 — 냉장고 탭만 버튼 패딩이 px-4라 옷장(px-3,
+              P2-13에서 이미 수정)보다 7px 더 넘쳐(scrollWidth 382/
+              clientWidth 375) scrollHint 임계값(2px)에 걸려 페이드가
+              "장보기"의 '기' 글자를 흐리게 덮었다(C2·C6·C8·C9·E2·E3).
+              옷장과 같은 px-3+snap-x로 맞춰 쌍둥이 수정 누락을 해소. */}
+          <div ref={tabScroll.ref} className="overflow-x-auto scrollbar-hide snap-x snap-mandatory">
           <div role="tablist" aria-label="냉장고 탭" className="flex px-4">
             {FRIDGE_TABS.map((t) => {
               const isActive = activeTab === t.id;
@@ -500,7 +505,7 @@ export default function FridgePage() {
                   aria-selected={isActive}
                   onClick={() => selectTab(t.id)}
                   className={[
-                    'shrink-0 flex items-center gap-1.5 px-4 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
+                    'shrink-0 snap-start flex items-center gap-1.5 px-3 py-2.5 text-sm whitespace-nowrap transition-colors border-b-2 -mb-px',
                     isActive
                       ? 'font-semibold text-brand-primary border-brand-primary'
                       : 'font-medium text-gray-500 border-transparent hover:text-gray-700',
