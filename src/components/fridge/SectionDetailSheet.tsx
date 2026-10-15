@@ -7,7 +7,7 @@ import { X } from 'lucide-react';
 import SwipeFoodCard from '@/components/fridge/SwipeFoodCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
-import { classifyExpiry } from '@/lib/expiryThresholds';
+import { classifyExpiry, EXPIRY_TONE } from '@/lib/expiryThresholds';
 import { type FridgeModelId } from '@/lib/fridgeModel';
 import type { FoodItem, FridgeSection } from '@/types';
 import { openRegister } from '@/lib/registerIntent';
@@ -85,11 +85,21 @@ export function SectionDetailSheet({
                 {/* 하한 없이 dDay<=3만 쓰면 기한 지난 품목까지 "임박"에
                     섞여 칸 배지 ⏱N(today+soon만 셈)과 숫자가 어긋났다
                     (P0-72, E2·E3 코드 확인). */}
-                {items.some((i) => classifyExpiry(i.dDay) === 'today' || classifyExpiry(i.dDay) === 'soon') && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 font-medium tabular-nums">
-                    임박 {items.filter((i) => classifyExpiry(i.dDay) === 'today' || classifyExpiry(i.dDay) === 'soon').length}
-                  </span>
-                )}
+                {(() => {
+                  const urgentItems = items.filter((i) => classifyExpiry(i.dDay) === 'today' || classifyExpiry(i.dDay) === 'soon');
+                  if (urgentItems.length === 0) return null;
+                  // P1-111 — rose-100/600을 이 시트만 따로 쓰고 있었다
+                  // (냉장고 칸 배지는 rose-500, 식품 카드는 caution/amber,
+                  // FoodTags는 또 다른 4단). EXPIRY_TONE 단일 매핑으로
+                  // 교체 — 묶음 중 더 급한 today가 하나라도 있으면 그
+                  // 색을, 전부 soon이면 soon 색을 쓴다.
+                  const tone = urgentItems.some((i) => classifyExpiry(i.dDay) === 'today') ? EXPIRY_TONE.today : EXPIRY_TONE.soon;
+                  return (
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium tabular-nums ${tone.chipBg} ${tone.chipText}`}>
+                      임박 {urgentItems.length}
+                    </span>
+                  );
+                })()}
               </div>
 
               {items.length === 0 ? (

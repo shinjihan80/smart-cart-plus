@@ -42,6 +42,28 @@ export function isUpcoming(dDay: number): boolean {
 }
 
 /**
+ * ExpiryBucket → 색 단일 매핑(P1-111). 냉장고 칸 배지·칸 상세 시트·
+ * 식품 카드가 같은 "임박"을 빨강·분홍·갈색·노랑으로 제각각 칠해, 한
+ * 화면 안에서 더 급한 품목이 덜 급해 보이는 역전까지 났다(C6·C8·E2·E3).
+ * (검토단이 같이 지목한 FoodTags.tsx는 확인 결과 실제로는 아무 화면도
+ * import하지 않는 죽은 컴포넌트 — calcRemainingDays만 다른 곳에서
+ * 쓰인다. 되살아날 경우를 대비해 색은 같이 교체해두되, 지금 당장
+ * 사용자가 보는 화면에 영향은 없다.) 나머지 3곳은 전부 여기서만 색을
+ * 가져온다 — 원색(rose-500, amber-600 등)을 컴포넌트에 직접 적지 않는다.
+ *
+ * text/chipText — 글자색(AA 4.5:1 이상 보장: danger 요소, caution
+ * 요소, expiry-soon 요소 전부 globals.css 토큰 선언에서 검증).
+ * chipBg — 뱃지·칩의 옅은 배경(10% 틴트).
+ * bar — 진행바 등 장식 채움(글자가 아니라 AA 제약 없음).
+ */
+export const EXPIRY_TONE: Record<ExpiryBucket, { text: string; chipBg: string; chipText: string; bar: string }> = {
+  expired: { text: 'text-danger',       chipBg: 'bg-danger/10',       chipText: 'text-danger',       bar: 'bg-danger' },
+  today:   { text: 'text-caution',      chipBg: 'bg-caution/10',      chipText: 'text-caution',      bar: 'bg-caution' },
+  soon:    { text: 'text-expiry-soon',  chipBg: 'bg-expiry-soon/10',  chipText: 'text-expiry-soon',  bar: 'bg-expiry-soon' },
+  fresh:   { text: 'text-ink-secondary', chipBg: 'bg-gray-100',       chipText: 'text-gray-600',     bar: 'bg-brand-success' },
+};
+
+/**
  * 개별 품목의 dDay를 정확한 문장으로 — 버킷명(EXPIRY_LABEL)과 달리 항상
  * 그 품목의 실제 남은 일수를 그대로 말한다.
  *

@@ -10,7 +10,7 @@ import {
   FRIDGE_SECTION_META,
   groupByEffectiveSection,
 } from '@/lib/fridgeSection';
-import { classifyExpiry } from '@/lib/expiryThresholds';
+import { classifyExpiry, EXPIRY_TONE } from '@/lib/expiryThresholds';
 import type { FoodItem, FridgeSection } from '@/types';
 
 interface FridgeViewProps {
@@ -71,6 +71,11 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
         // 같은 언어로 칸별 배지도 분리한다.
         const expiredCount = list.filter((i) => classifyExpiry(i.dDay) === 'expired').length;
         const expired      = expiredCount > 0;
+        // P1-111 — urgent 배지는 today+soon을 묶어서 세는데 색은 둘 중
+        // 더 급한 today가 하나라도 있으면 그 색을 쓴다(SectionDetailSheet
+        // 임박 칩과 동일 규칙 — 한 냉장고 안에서 같은 집계가 다른 색으로
+        // 안 보이게).
+        const urgentTone = list.some((i) => classifyExpiry(i.dDay) === 'today') ? EXPIRY_TONE.today : EXPIRY_TONE.soon;
         const isActive    = highlight === cell.section;
 
         return (
@@ -113,8 +118,12 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
                */}
               {(expired || urgent) && (
                 <span
+                  // P1-111 — red-700/rose-500 원색 대신 EXPIRY_TONE의
+                  // bar(솔리드 채움)를 그대로 쓴다. 칸 상세 시트의
+                  // "임박 N" 칩·식품 카드 D배지와 같은 색 소스라 한
+                  // 화면 안에서 같은 상태가 다르게 안 보인다.
                   className={`text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums text-white ${
-                    expired ? 'bg-red-700' : 'bg-rose-500'
+                    expired ? EXPIRY_TONE.expired.bar : urgentTone.bar
                   }`}
                   aria-hidden
                 >

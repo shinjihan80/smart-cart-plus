@@ -22,7 +22,7 @@ import { haptic } from '@/lib/haptics';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import { useCart } from '@/context/CartContext';
 import { expiryDateStr, expiryDateLabel, daysBetween, localMidnight, todayLocalStr } from '@/lib/dateMath';
-import { EXPIRY_LABEL, classifyExpiry } from '@/lib/expiryThresholds';
+import { EXPIRY_LABEL, EXPIRY_TONE, classifyExpiry } from '@/lib/expiryThresholds';
 import { springTransition, CARD_SHADOW, STORAGE_ICON, STORAGE_STYLE } from './shared';
 import { Field, FIELD_INPUT_CLASS } from '@/components/ui/Field';
 
@@ -74,20 +74,17 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
   // (danger=되돌릴 수 없는 것만, caution=지금 챙기면 되는 것)대로
   // expired만 danger, today는 soon과 같은 "챙겨야 함" 계열로
   // caution에 재배치.
-  const urgencyBarColor =
-    expiryBucket === 'expired' ? 'bg-danger'
-      : expiryBucket === 'today' ? 'bg-caution'
-      : expiryBucket === 'soon' ? 'bg-amber-400'
-      : 'bg-brand-success';
+  // P1-111 — bar/text 모두 EXPIRY_TONE(expiryThresholds.ts) 단일
+  // 매핑에서만 가져온다. 예전엔 soon만 amber-400/600을 따로 썼는데
+  // amber-600이 대비 3.2:1(AA 미달)이고, caution(today)보다 더 튀어
+  // "덜 급한 게 더 급해 보이는" 역전까지 났다 — 이제 soon은 전용
+  // expiry-soon 토큰(4.92:1) 하나로 고정.
+  const urgencyBarColor  = EXPIRY_TONE[expiryBucket].bar;
   // D배지·"N일 남음" 텍스트가 자체 임계값(dDay<=3)으로 전부 빨강을 썼다
   // — 같은 카드 안에서 soon(D-2·D-3) 품목이 "빨간 글자 + 노란 막대"로
   // 모순됐다(P1-90, C8·E2·E3 실측). 막대와 같은 expiryBucket 하나로
   // 텍스트 색도 통일.
-  const urgencyTextColor =
-    expiryBucket === 'expired' ? 'text-danger'
-      : expiryBucket === 'today' ? 'text-caution'
-      : expiryBucket === 'soon' ? 'text-amber-600'
-      : '';
+  const urgencyTextColor = expiryBucket === 'fresh' ? '' : EXPIRY_TONE[expiryBucket].text;
 
   const style = STORAGE_STYLE[item.storageType];
   const Icon  = STORAGE_ICON[item.storageType];

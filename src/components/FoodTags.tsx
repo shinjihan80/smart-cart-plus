@@ -1,6 +1,6 @@
 import { FoodItem } from '@/types';
 import { localMidnight, todayMidnight, daysBetween } from '@/lib/dateMath';
-import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
+import { EXPIRY_LABEL, EXPIRY_TONE, classifyExpiry } from '@/lib/expiryThresholds';
 
 interface Props {
   item: FoodItem;
@@ -25,20 +25,16 @@ export function calcRemainingDays(purchaseDate: string, baseShelfLifeDays: numbe
   return daysBetween(todayMidnight(), expiry);
 }
 
-type StatusTier = 'expired' | 'urgent' | 'warning' | 'fresh';
-
-function getStatus(days: number): StatusTier {
-  if (days < 0) return 'expired';
-  if (days <= 2) return 'urgent';
-  if (days <= 5) return 'warning';
-  return 'fresh';
-}
-
-const STATUS_BADGE: Record<StatusTier, { label: string; className: string }> = {
-  expired: { label: '보관 기한 초과',   className: 'bg-rose-50 text-rose-500' },
-  urgent:  { label: '긴급 소비 필요',   className: 'bg-amber-50 text-amber-500' },
-  warning: { label: '소비 권장',        className: 'bg-yellow-50 text-yellow-600' },
-  fresh:   { label: '신선',             className: 'bg-emerald-50 text-emerald-600' },
+// P1-111 — 이 컴포넌트만 getStatus()로 자체 임계값(urgent<=2·warning<=5)을
+// 써서, 같은 품목이 냉장고 칸·식품 카드에선 "soon"(dDay<=3)인데 여기선
+// 아직 "urgent" 문턱(<=2)에 못 들어가 다른 상태로 보이는 불일치가 있었다
+// (C6·C8·E2·E3). classifyExpiry()로 전 화면 공통 버킷(expiryThresholds.ts)을
+// 그대로 쓰고, 색도 EXPIRY_TONE 단일 매핑으로 교체한다.
+const STATUS_LABEL: Record<ReturnType<typeof classifyExpiry>, string> = {
+  expired: '보관 기한 초과',
+  today:   '긴급 소비 필요',
+  soon:    '소비 권장',
+  fresh:   '신선',
 };
 
 /**
@@ -49,19 +45,21 @@ const STATUS_BADGE: Record<StatusTier, { label: string; className: string }> = {
  */
 export default function FoodTags({ item, wide }: Props) {
   const days   = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays, item.expiryDate);
-  const status = getStatus(days);
-  const badge  = STATUS_BADGE[status];
+  const status = classifyExpiry(days);
+  // fresh는 이번 불일치 버그(expired/today/soon 역전)의 당사자가
+  // 아니고, 이 컴포넌트만 "신선해요"를 긍정 신호(초록)로 늘 보여주던
+  // 기존 디자인이라 EXPIRY_TONE.fresh(중립 회색)로 바꾸지 않고 그대로
+  // 둔다 — 다른 3곳(냉장고 칸·칸 상세·식품 카드)은 fresh일 때 배지
+  // 자체를 안 그려 비교 대상도 아니다.
+  const tone = status === 'fresh'
+    ? { text: 'text-gray-900', chipBg: 'bg-emerald-50', chipText: 'text-emerald-600' }
+    : EXPIRY_TONE[status];
 
   return (
     <div className={`flex items-end justify-between gap-3 mt-3 ${wide ? 'mt-4' : ''}`}>
       {/* 왼쪽: D-Day 숫자 (핵심 데이터 강조) */}
       <div className="flex flex-col gap-0.5">
-        <span className={`font-bold leading-none tracking-tight ${wide ? 'text-4xl' : 'text-3xl'} ${
-          status === 'expired' ? 'text-rose-500' :
-          status === 'urgent'  ? 'text-amber-500' :
-          status === 'warning' ? 'text-yellow-500' :
-          'text-gray-900'
-        }`}>
+        <span className={`font-bold leading-none tracking-tight ${wide ? 'text-4xl' : 'text-3xl'} ${tone.text}`}>
           {days < 0 ? EXPIRY_LABEL.over : `D-${days}`}
         </span>
         <span className="text-xs text-gray-400 font-medium">
@@ -70,8 +68,8 @@ export default function FoodTags({ item, wide }: Props) {
       </div>
 
       {/* 오른쪽: 상태 배지 */}
-      <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${badge.className}`}>
-        {badge.label}
+      <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${tone.chipBg} ${tone.chipText}`}>
+        {STATUS_LABEL[status]}
       </span>
     </div>
   );
