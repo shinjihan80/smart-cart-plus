@@ -739,8 +739,12 @@ function StepConfirm({
           <button
             onClick={() => setOwnerId(undefined)}
             className={`text-sm px-2 py-0.5 rounded-full transition-colors ${
+              // P2-55 — "공용" 선택색만 gray-500이라 바로 옆 가족 칩
+              // (brand-primary)과 같은 줄에서 선택 표시가 두 가지로
+              // 보였다(C2·C6). 마이페이지 가족추가 칩과 같은
+              // brand-primary로 통일.
               !ownerId
-                ? 'bg-gray-500 text-white'
+                ? 'bg-brand-primary text-white'
                 : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
             }`}
           >
@@ -908,7 +912,11 @@ function StepConfirm({
                       }
                     }}
                     className={`w-full bg-transparent text-sm font-semibold text-brand-ink focus:outline-none border-b pb-0.5 resize-none break-words leading-snug max-h-12 overflow-y-auto ${
-                      !item.name.trim() ? 'border-rose-300 focus:border-rose-400' : 'border-gray-200 focus:border-brand-primary'
+                      // P2-55 — 아래 경고 배너(nameBlurred && ...)는 이미
+                      // blur 전엔 숨기는데(P2-45), 이 테두리 색만 그 가드가
+                      // 안 걸려 있어 시트를 열자마자(아무도 안 건드린
+                      // 시점에도) 빨간 테두리부터 보였다(C2·C6·E2·E3).
+                      nameBlurred && !item.name.trim() ? 'border-rose-300 focus:border-rose-400' : 'border-gray-200 focus:border-brand-primary'
                     }`}
                   />
                   <div className="flex items-center gap-1 mt-1.5 flex-wrap">
@@ -930,9 +938,14 @@ function StepConfirm({
                     )}
                     {isClothingItem(item) && (
                       <>
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
-                          {(item as ClothingItem).size}
-                        </span>
+                        {/* P2-55 — size가 빈 문자열이면 글자 없는 16×7px
+                            알약만 렌더링 버그처럼 그대로 남았다(C2·C6).
+                            값 없으면 칩 자체를 안 그린다. */}
+                        {(item as ClothingItem).size && (
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                            {(item as ClothingItem).size}
+                          </span>
+                        )}
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
                           {THICKNESS_LABEL[(item as ClothingItem).thickness] ?? (item as ClothingItem).thickness}
                         </span>
