@@ -22,6 +22,7 @@ import { useModalA11y } from '@/lib/useModalA11y';
 import { Field, FIELD_INPUT_CLASS } from '@/components/ui/Field';
 import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import type { RegisterPreset } from '@/lib/registerIntent';
+import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -151,7 +152,11 @@ function ProLockedTab({ feature, onClose }: { feature: string; onClose: () => vo
         onClick={onClose}
         className="text-xs font-semibold px-4 py-2 rounded-full bg-brand-primary text-white hover:opacity-90"
       >
-        플랜 업그레이드 →
+        {/* P1-110 — 결제 연동 전(PAYMENTS_ENABLED=false)엔 이 링크를 눌러도
+            실제로 업그레이드할 방법이 없어("관심 있어요"만 가능), "업그레이드"란
+            말이 못 지킬 약속이 된다(C9 "속은 기분"). 결제가 열리면 원래
+            문구로 자동 복귀 */}
+        {PAYMENTS_ENABLED ? '플랜 업그레이드 →' : 'Pro 기능 알아보기 →'}
       </Link>
     </div>
   );

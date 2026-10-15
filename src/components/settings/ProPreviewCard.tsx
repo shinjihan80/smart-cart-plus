@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, ChevronDown } from 'lucide-react';
+import { useScrollHint } from '@/lib/useScrollHint';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import { TIER_LIMITS } from '@/lib/aiQuota';
@@ -110,6 +111,7 @@ export default function ProPreviewCard() {
   const [canceling, setCanceling] = useState(false);
   const [cancelMsg, setCancelMsg] = useState<string | null>(null);
   const [interestSaved, setInterestSaved] = useState(false);
+  const { ref: tableScrollRef, canScrollLeft: tableCanScrollLeft, canScrollRight: tableCanScrollRight } = useScrollHint<HTMLDivElement>();
 
   useEffect(() => {
     if (!PAYMENTS_ENABLED) {
@@ -135,6 +137,14 @@ export default function ProPreviewCard() {
     if (isAnalyticsEnabled()) {
       fetch('/api/admin/telemetry/pro-interest', { method: 'POST', keepalive: true }).catch(() => {});
     }
+  }, []);
+
+  // P1-110(C9) — 버튼이 눌리면 영구 비활성화돼 "잘못 눌렀는데 되돌릴
+  // 수가 없다"는 불만이 있었다. 집계는 하루 총 건수만 쌓이는 것이라
+  // 취소해도 통계가 틀어지지 않으니 로컬 표시만 되돌린다.
+  const handleRetractInterest = useCallback(() => {
+    try { localStorage.removeItem(INTEREST_KEY); } catch {}
+    setInterestSaved(false);
   }, []);
 
   const handleCancel = useCallback(async () => {
@@ -231,13 +241,24 @@ export default function ProPreviewCard() {
               차지하고 남는 공간)+truncate라 "클라우드 동기화"·
               "프로필(가족 구성원)" 같은 긴 라벨이 "클라우드 …"·
               "프로필(가…"로 잘렸다. 고정 너비(8rem)로 바꿔 한 줄에
-              들어가게 하고, 그래도 넘치는 화면은 이미 있던
-              overflow-x-auto로 가로 스크롤하면 된다(스크롤 자체는
-              원래도 있었는데 truncate가 넘치기도 전에 먼저 잘랐음). */}
-          <div className="rounded-2xl bg-white border border-gray-100 overflow-x-auto">
-            <div className="min-w-[340px]">
+              들어가게 했었는데, 그 폭 때문에 기본 화면 크기에서도
+              표 전체가 카드보다 커져 Max 열이 통째로 스크롤 밖에
+              숨었다(P1-110, C2·C9 실측 — 카드 안쪽 ~289px인데 표는
+              ~364px 필요). 라벨 칸을 가변(1fr, 줄바꿈 허용)으로 되돌리고
+              값 칸·여백을 좁혀 기본 크기에선 거의 안 잘리게 하되,
+              글자 확대 등으로 그래도 넘치면 엣지 페이드로 "더 있다"를
+              알려준다(useScrollHint, P1-59와 동일 패턴). */}
+          <div className="relative rounded-2xl bg-white border border-gray-100 overflow-hidden">
+            {tableCanScrollLeft && (
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-white to-transparent z-10" aria-hidden />
+            )}
+            {tableCanScrollRight && (
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-white to-transparent z-10" aria-hidden />
+            )}
+            <div ref={tableScrollRef} className="overflow-x-auto scrollbar-hide">
+            <div className="min-w-full">
               {/* column header */}
-              <div className="grid grid-cols-[8rem_2.8rem_3.2rem_3.2rem] gap-x-2 px-3 py-2 border-b border-gray-50 bg-gray-50/60">
+              <div className="grid grid-cols-[minmax(0,1fr)_2.4rem_2.6rem_2.6rem] gap-x-1 px-2 py-2 border-b border-gray-50 bg-gray-50/60">
                 <span className="text-[10px] text-gray-400 font-medium">기능</span>
                 <span className="text-[10px] text-gray-400 font-medium text-center">무료</span>
                 <span className="text-[10px] text-brand-primary font-medium text-center">Lite</span>
@@ -246,14 +267,15 @@ export default function ProPreviewCard() {
               {ROWS.map((row, i) => (
                 <div
                   key={row.label}
-                  className={`grid grid-cols-[8rem_2.8rem_3.2rem_3.2rem] gap-x-2 items-center px-3 py-1.5 ${i < ROWS.length - 1 ? 'border-b border-gray-50' : ''}`}
+                  className={`grid grid-cols-[minmax(0,1fr)_2.4rem_2.6rem_2.6rem] gap-x-1 items-center px-2 py-1.5 ${i < ROWS.length - 1 ? 'border-b border-gray-50' : ''}`}
                 >
-                  <span className="text-xs text-gray-500">{row.label}</span>
+                  <span className="text-xs text-gray-500 leading-tight">{row.label}</span>
                   <span className="text-[10px] text-gray-400 tabular-nums text-center flex justify-center min-w-0">{row.free}</span>
                   <span className="text-[10px] text-brand-primary tabular-nums text-center flex justify-center min-w-0">{row.pro_lite}</span>
                   <span className="text-[10px] text-brand-primary font-semibold tabular-nums text-center flex justify-center min-w-0">{row.pro_max}</span>
                 </div>
               ))}
+            </div>
             </div>
           </div>
         </motion.div>
@@ -261,21 +283,36 @@ export default function ProPreviewCard() {
 
       {/* CTA */}
       {!PAYMENTS_ENABLED ? (
-        <button
-          onClick={handleInterest}
-          disabled={interestSaved}
-          className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all disabled:opacity-60"
-        >
-          {/* 재검토(C3 실측) P1 — handleInterest는 이메일·푸시 등 연락처는
-              여전히 전혀 남기지 않는다. "알림 신청 완료"는 나중에 뭔가
-              연락이 온다는 약속인데 지킬 방법이 없어 — "아무것도 안
-              받았는데 왜 완료라고 하지?"라는 의심을 산다 — 실제로 하는
-              일과 정확히 같은 말("관심 표시")로 바꿔 둔 상태를 유지.
-              이후 추가: "익명 사용 통계" opt-in 기기에 한해 서버에
-              하루 총 건수만(식별자 없이) 집계 — 통계 열람용이지, 역시
-              "연락 준다"는 약속은 아니라 문구는 그대로 둠. */}
-          {interestSaved ? '관심 표시 완료 ✓' : '관심 있어요'}
-        </button>
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={handleInterest}
+            disabled={interestSaved}
+            className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all disabled:opacity-60"
+          >
+            {/* 재검토(C3 실측) P1 — handleInterest는 이메일·푸시 등 연락처는
+                여전히 전혀 남기지 않는다. "알림 신청 완료"는 나중에 뭔가
+                연락이 온다는 약속인데 지킬 방법이 없어 — "아무것도 안
+                받았는데 왜 완료라고 하지?"라는 의심을 산다 — 실제로 하는
+                일과 정확히 같은 말("관심 표시")로 바꿔 둔 상태를 유지.
+                이후 추가: "익명 사용 통계" opt-in 기기에 한해 서버에
+                하루 총 건수만(식별자 없이) 집계 — 통계 열람용이지, 역시
+                "연락 준다"는 약속은 아니라 문구는 그대로 둠. */}
+            {interestSaved ? '관심 표시 완료 ✓' : '관심 있어요'}
+          </button>
+          {/* P1-110(C9) — 눌러도 "연락이 오는지 아무 일도 없는지" 알 길이
+              없었다. 실제로 하는 일(연락처 수집 없음·집계만)을 그대로
+              문구로 노출하고, 눌렀을 땐 되돌릴 방법을 같이 준다. */}
+          {interestSaved ? (
+            <p className="text-[10px] text-gray-400 text-center">
+              연락처는 받지 않아요. 출시되면 이 앱에서 먼저 알려드려요 ·{' '}
+              <button onClick={handleRetractInterest} className="underline hover:text-gray-600">
+                취소
+              </button>
+            </p>
+          ) : (
+            <p className="text-[10px] text-gray-400 text-center">연락처는 받지 않아요 · 관심 표시만 집계돼요</p>
+          )}
+        </div>
       ) : currentTier === 'free' ? (
         <button
           onClick={() => setUpgradeOpen(true)}
