@@ -80,43 +80,50 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
       {/* P1-88 — ✕를 absolute로 띄워 히트존만 키우자(touch-target-44)
           "켜기" 버튼 상단 21%를 덮어, 알림을 켜려던 탭이 안내를 하루
           숨기는 오동작이 났다(E2 실측). ✕를 다른 홈 배너와 같은 패턴
-          (flex 형제, 실제 44px 폭 칼럼)으로 분리해 겹침 자체를 없앤다 —
-          "켜기"는 그대로 본문 flex 행 안에 남는다. */}
-      <div className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3">
-        <span className="w-9 h-9 rounded-xl bg-gray-900/10 flex items-center justify-center shrink-0">
-          <BellOff size={18} strokeWidth={2.2} className="text-gray-600" />
-        </span>
-        <div className="flex-1 min-w-0">
-          {/* 재검토(C1·C3) — "꺼져 있어요"+[켜기]를 권한이 '차단'된
-              상태(denied)에도 똑같이 보여줬다. denied는 브라우저가 재
-              요청 자체를 막아 [켜기]를 눌러도 항상 실패하는데(매번
-              같은 실패 토스트만 반복), 라벨은 "아직 안 물어본"
-              기본 상태(default)와 구분이 안 됐다. 설정 화면과 같은
-              "차단됐어요" 문구로 통일하고, 거기서만 고칠 수 있는 걸
-              알려주는 링크로 바꾼다. */}
-          <p className="text-sm font-bold text-gray-800">
-            {permState === 'denied' ? '알림이 차단됐어요' : '알림이 꺼져 있어요'}
-          </p>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {phrase} 먹어야 할 식품 {todayCount}개를 못 알려드려요.
-            {/* 재검토(C1) — "켜면 알려드려요"로 읽히지만, 웹은 앱(탭)이
-                열려 있을 때만 알림이 온다(설정 화면엔 이미 고지돼
-                있었음, P1-100) — 하루 1~2번만 들어오는 사용자에겐
-                "켜도 못 받을 수 있다"는 뜻이라 약속이 과장돼 있었다. */}
-            {!isNative() && <span className="text-gray-400"> (웹은 앱이 열려 있을 때만)</span>}
-          </p>
+          (flex 형제, 실제 44px 폭 칼럼)으로 분리해 겹침 자체를 없앤다.
+          P0-79 — 아이콘·"켜기"/"바꾸기" 버튼·✕ 칼럼이 전부 한 행에서
+          경합하며 전부 rem이라, 글자 확대 시 본문 텍스트 칸이 0에
+          가까워져 세로 한 글자씩 쌓였다(C8 150% 실측 1396px 높이,
+          E2 원인 확정 — 6개 홈 배너 공통 패턴). 아이콘·✕ 칼럼은 고정
+          px로, CTA 버튼은 본문 아래 별도 행으로 내려 가로 경합 요소를
+          하나 줄인다. */}
+      <div className="flex-1 min-w-0 flex flex-col gap-[8px] px-[16px] py-[12px]">
+        <div className="flex items-center gap-[12px]">
+          <span className="w-[36px] h-[36px] rounded-xl bg-gray-900/10 flex items-center justify-center shrink-0">
+            <BellOff size={18} strokeWidth={2.2} className="text-gray-600" />
+          </span>
+          <div className="flex-1 min-w-0">
+            {/* 재검토(C1·C3) — "꺼져 있어요"+[켜기]를 권한이 '차단'된
+                상태(denied)에도 똑같이 보여줬다. denied는 브라우저가 재
+                요청 자체를 막아 [켜기]를 눌러도 항상 실패하는데(매번
+                같은 실패 토스트만 반복), 라벨은 "아직 안 물어본"
+                기본 상태(default)와 구분이 안 됐다. 설정 화면과 같은
+                "차단됐어요" 문구로 통일하고, 거기서만 고칠 수 있는 걸
+                알려주는 링크로 바꾼다. */}
+            <p className="text-sm font-bold text-gray-800">
+              {permState === 'denied' ? '알림이 차단됐어요' : '알림이 꺼져 있어요'}
+            </p>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {phrase} 먹어야 할 식품 {todayCount}개를 못 알려드려요.
+              {/* 재검토(C1) — "켜면 알려드려요"로 읽히지만, 웹은 앱(탭)이
+                  열려 있을 때만 알림이 온다(설정 화면엔 이미 고지돼
+                  있었음, P1-100) — 하루 1~2번만 들어오는 사용자에겐
+                  "켜도 못 받을 수 있다"는 뜻이라 약속이 과장돼 있었다. */}
+              {!isNative() && <span className="text-gray-400"> (웹은 앱이 열려 있을 때만)</span>}
+            </p>
+          </div>
         </div>
         {permState === 'denied' ? (
           <Link
             href="/settings#notifications"
-            className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
+            className="self-start text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
           >
             바꾸기
           </Link>
         ) : (
           <button
             onClick={handleEnable}
-            className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
+            className="self-start text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-900 text-white hover:opacity-90 transition-opacity"
           >
             켜기
           </button>
@@ -126,7 +133,7 @@ export default function NotificationOffBanner({ items }: { items: CartItem[] }) 
         onClick={handleDismiss}
         aria-label="알림 꺼짐 안내 오늘 안 보기"
         title="오늘 안 보기"
-        className="w-11 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-900/10 transition-colors"
+        className="w-[44px] shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-900/10 transition-colors"
       >
         <X size={14} strokeWidth={2.4} />
       </button>

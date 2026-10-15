@@ -44,12 +44,15 @@ export default function BackupReminderBanner({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
+      {/* P0-79 — 아이콘·✕ 칼럼을 고정 px로(6개 홈 배너 공통 수정 — rem
+          형제들이 글자 확대 시 본문 텍스트 칸을 잠식해 세로 글씨로
+          붕괴하던 문제, C8·E2). */}
       <div className="bg-gray-900/5 border border-gray-900/10 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/settings"
-          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-gray-900/10 transition-colors"
+          className="flex-1 min-w-0 flex items-center gap-[12px] px-[16px] py-[12px] hover:bg-gray-900/10 transition-colors"
         >
-          <span className="w-9 h-9 rounded-xl bg-gray-900/10 flex items-center justify-center shrink-0">
+          <span className="w-[36px] h-[36px] rounded-xl bg-gray-900/10 flex items-center justify-center shrink-0">
             <Save size={18} strokeWidth={2.2} className="text-gray-600" />
           </span>
           <div className="flex-1 min-w-0">
@@ -65,7 +68,7 @@ export default function BackupReminderBanner({ items }: { items: CartItem[] }) {
           onClick={handleDismiss}
           aria-label="백업 안내 오늘 안 보기"
           title="오늘 안 보기"
-          className="w-11 shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-900/10 transition-colors"
+          className="w-[44px] shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-900/10 transition-colors"
         >
           <X size={14} strokeWidth={2.4} />
         </button>

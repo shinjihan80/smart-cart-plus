@@ -11,6 +11,7 @@ import { useToast } from '@/context/ToastContext';
 import { addNotificationLogEntry } from '@/lib/notificationLog';
 import { todayLocalStr } from '@/lib/dateMath';
 import { springTransition } from './shared';
+import { NameChips } from '@/components/ui/NameChips';
 
 /**
  * 재검토(/nemoa-review 비판 모드, C5 코드 확인) P0 — 히어로는 "9개가
@@ -62,20 +63,23 @@ export default function ExpiredReminder({ items }: { items: CartItem[] }) {
       transition={springTransition}
       className="relative"
     >
+      {/* P0-79 — 아이콘·✕ 칼럼이 rem이라 글자 확대 시 본문 텍스트 칸을
+          잠식(6개 홈 배너 공통, E2 확인) — 고정 px로 전환. */}
       <div className="bg-red-50 border border-red-100 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/fridge?tab=food"
-          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-red-100/60 transition-colors"
+          className="flex-1 min-w-0 flex items-center gap-[12px] px-[16px] py-[12px] hover:bg-red-100/60 transition-colors"
         >
-          <span className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+          <span className="w-[36px] h-[36px] rounded-xl bg-red-100 flex items-center justify-center shrink-0">
             <Trash2 size={18} strokeWidth={2.2} className="text-red-600" />
           </span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-red-600">
               기한이 지난 식품 {expired.length}개
             </p>
-            <p className="text-sm text-gray-500 truncate mt-0.5">
-              {expired.join(', ')}
+            {/* P1-66 — 예전 join+truncate 패턴을 NameChips로 교체(E2 권고) */}
+            <p className="text-sm text-gray-500 mt-0.5">
+              <NameChips names={expired} max={3} className="text-sm text-gray-500" />
             </p>
           </div>
         </Link>
@@ -83,7 +87,7 @@ export default function ExpiredReminder({ items }: { items: CartItem[] }) {
           onClick={handleDismiss}
           aria-label="기한 초과 알림 오늘 안 보기"
           title="오늘 안 보기"
-          className="w-11 shrink-0 flex items-center justify-center text-red-600/60 hover:text-red-600 hover:bg-red-100/60 transition-colors"
+          className="w-[44px] shrink-0 flex items-center justify-center text-red-600/60 hover:text-red-600 hover:bg-red-100/60 transition-colors"
         >
           <X size={14} strokeWidth={2.4} />
         </button>

@@ -79,12 +79,19 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
           이미 Link라 중복 신호였으므로 제거하고, ✕는 flex 형제 칼럼으로
           분리해 실제 44px 폭 레이아웃 공간을 갖게 한다 — 겹침이 구조적으로
           불가능해진다(의사요소 확장 불필요). */}
+      {/* P0-79 — icon(w-9)·닫기 칼럼(w-11)이 전부 rem이라, 글자 확대
+          (OS/브라우저 150%)에서 같이 커지며 본문 텍스트 칸을 잠식해
+          세로 한 글자씩 쌓이는 수준까지 무너졌다(C8·E2 실측 — 텍스트
+          칸 113px→150%에서 26px). 아이콘·닫기 칼럼을 고정 px로 바꿔
+          더는 커지지 않게 한다(.touch-target-44 유틸의 "손가락 크기는
+          확대와 무관" 원칙과 동일 — 실제 원인은 그 유틸이 아니라 이
+          rem 형제들이었음, E2 확인). */}
       <div className="bg-caution/10 border border-caution/20 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/fridge"
-          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-caution/15 transition-colors"
+          className="flex-1 min-w-0 flex items-center gap-[12px] px-[16px] py-[12px] hover:bg-caution/15 transition-colors"
         >
-          <span className="w-9 h-9 rounded-xl bg-caution/15 flex items-center justify-center shrink-0">
+          <span className="w-[36px] h-[36px] rounded-xl bg-caution/15 flex items-center justify-center shrink-0">
             <AlertTriangle size={18} strokeWidth={2.2} className="text-caution" />
           </span>
           <div className="flex-1 min-w-0">
@@ -99,9 +106,12 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
             </p>
             {/* P1-66 — 개수 제한 없이 .join(', ')+truncate(1줄)로 자르면
                 긴 목록에서 단어 중간이 잘리고 몇 개가 더 있는지도 안 보였다.
-                NameChips는 항목 3개까지 그대로 보여주고 나머지는 "+N"으로. */}
-            <p className="text-sm text-gray-500 truncate mt-0.5">
-              <NameChips names={urgent.map((u) => u.name)} max={3} />
+                NameChips는 항목 3개까지 그대로 보여주고 나머지는 "+N"으로.
+                재오픈 수정: 바깥 <p>의 truncate를 빼야 한다 — NameChips가
+                스스로 "이름=truncate / +N=shrink-0"을 책임지는데, 부모가
+                또 한 줄 truncate를 씌우면 "+N" 꼬리부터 다시 잘려 나간다. */}
+            <p className="text-sm text-gray-500 mt-0.5">
+              <NameChips names={urgent.map((u) => u.name)} max={3} className="text-sm text-gray-500" />
             </p>
           </div>
         </Link>
@@ -109,7 +119,7 @@ export default function UrgentAlert({ items }: { items: CartItem[] }) {
           onClick={handleDismiss}
           aria-label="임박 식품 알림 오늘 안 보기"
           title="오늘 안 보기"
-          className="w-11 shrink-0 flex items-center justify-center text-caution/60 hover:text-caution hover:bg-caution/15 transition-colors"
+          className="w-[44px] shrink-0 flex items-center justify-center text-caution/60 hover:text-caution hover:bg-caution/15 transition-colors"
         >
           <X size={14} strokeWidth={2.4} />
         </button>

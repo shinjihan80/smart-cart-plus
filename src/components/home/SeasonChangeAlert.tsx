@@ -105,13 +105,14 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
     >
       {/* P1-88 — 다른 홈 배너와 동일한 수정: ›는 카드 전체가 이미 Link라
           중복이라 제거, ✕는 flex 형제 칼럼으로 분리해 실제 44px 레이아웃
-          공간을 갖게 해 의사요소 확장 겹침 자체를 없앤다. */}
+          공간을 갖게 해 의사요소 확장 겹침 자체를 없앤다.
+          P0-79 — 아이콘·✕ 칼럼을 고정 px로(6개 홈 배너 공통 수정). */}
       <div className="bg-brand-primary/8 border border-brand-primary/15 rounded-panel flex items-stretch overflow-hidden">
         <Link
           href="/mypage?tab=activity#seasonal"
-          className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 hover:bg-brand-primary/10 transition-colors"
+          className="flex-1 min-w-0 flex items-center gap-[12px] px-[16px] py-[12px] hover:bg-brand-primary/10 transition-colors"
         >
-          <span className="w-9 h-9 rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0 text-lg">
+          <span className="w-[36px] h-[36px] rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0 text-lg">
             {SEASON_EMOJI[season] ?? '🍃'}
           </span>
           <div className="flex-1 min-w-0">
@@ -130,7 +131,7 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
           onClick={handleDismiss}
           aria-label={`${season} 알림 오늘 안 보기`}
           title="오늘 안 보기"
-          className="w-11 shrink-0 flex items-center justify-center text-brand-primary/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
+          className="w-[44px] shrink-0 flex items-center justify-center text-brand-primary/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors"
         >
           <X size={14} strokeWidth={2.4} />
         </button>
