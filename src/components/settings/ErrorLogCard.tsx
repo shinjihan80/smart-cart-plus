@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Copy, Trash2 } from 'lucide-react';
+import { ChevronDown, Copy, Trash2, Stethoscope } from 'lucide-react';
 import { useErrorLog, summarizeErrors } from '@/lib/errorLog';
 import { useToast } from '@/context/ToastContext';
-import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 export default function ErrorLogCard() {
@@ -45,7 +44,7 @@ export default function ErrorLogCard() {
         className="w-full flex items-center justify-between gap-2"
       >
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="🩺" size={16} className="text-caution" />
+          <Stethoscope size={16} strokeWidth={2} className="text-caution" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">오류 기록</span>
           {entries.length > 0 && (
             <span className="text-sm font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full tabular-nums">
@@ -103,7 +102,7 @@ export default function ErrorLogCard() {
                 </button>
                 <button
                   onClick={handleClear}
-                  className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-full bg-danger/10 text-danger hover:bg-danger/15 transition-colors"
                 >
                   <Trash2 size={11} />
                   <span>지우기</span>

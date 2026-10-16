@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Info } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function AppInfo() {
   return (
     <>
       <div className="flex items-center gap-2">
-        <EmojiIcon emoji="ℹ️" size={16} className="text-gray-600" />
+        <Info size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
         <span className="text-base font-bold text-gray-900 tracking-tight">앱 정보</span>
       </div>
       <motion.div

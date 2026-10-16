@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { getLatestAutoSnapshot } from '@/lib/autoSnapshot';
 import { applyNonCartFromSnapshot, type BackupSnapshot } from '@/lib/backup';
-import EmojiIcon from '@/components/EmojiIcon';
+import { LifeBuoy } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 /**
@@ -69,7 +69,7 @@ export default function AutoSnapshotRecoveryCard() {
       style={CARD_SHADOW}
     >
       <div className="flex items-start gap-2.5">
-        <EmojiIcon emoji="🧭" size={18} className="text-brand-primary shrink-0 mt-0.5" />
+        <LifeBuoy size={18} strokeWidth={2} className="text-brand-primary shrink-0 mt-0.5" aria-hidden />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900">자동 저장된 데이터를 찾았어요</p>
           <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import EmojiIcon from '@/components/EmojiIcon';
+import { HardDrive } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 interface UsageRow {
@@ -129,7 +129,7 @@ export default function StorageUsage() {
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="📦" size={16} className="text-gray-600" />
+          <HardDrive size={16} strokeWidth={2} className="text-gray-500" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">저장 용량</span>
         </div>
         <span className="text-xs text-gray-500 tabular-nums shrink-0">

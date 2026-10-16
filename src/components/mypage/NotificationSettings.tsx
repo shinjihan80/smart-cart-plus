@@ -3,7 +3,11 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/context/ToastContext';
-import EmojiIcon from '@/components/EmojiIcon';
+import {
+  Bell, Clock, Shirt, Tag, EyeOff, Lightbulb,
+  RotateCcw, Flower2, Sun, Leaf, Snowflake, BellOff,
+  type LucideIcon,
+} from 'lucide-react';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 import { requestPermission, scheduleExpiryNotification } from '@/lib/notificationScheduler';
@@ -17,14 +21,16 @@ import {
 import { useCart } from '@/context/CartContext';
 import { isFoodItem } from '@/types';
 
-const ALERT_LABEL: Record<string, string> = {
-  urgent:        '⏰ 임박 식품',
-  rebuy:         '🔁 재구매 알림',
-  'season-봄':   '🌸 봄 옷장 정리',
-  'season-여름': '☀️ 여름 옷장 정리',
-  'season-가을': '🍂 가을 옷장 정리',
-  'season-겨울': '❄️ 겨울 옷장 정리',
-  'noti-off':    '🔕 알림 꺼짐 안내',
+// 리디자인(옵션 B) — 라벨 문자열에 이모지를 직접 박아 넣으면 텍스트
+// 색과 분리해 칠할 수 없다 — {icon, label}로 분리.
+const ALERT_META: Record<string, { icon: LucideIcon; label: string }> = {
+  urgent:        { icon: Clock,     label: '임박 식품' },
+  rebuy:         { icon: RotateCcw, label: '재구매 알림' },
+  'season-봄':   { icon: Flower2,   label: '봄 옷장 정리' },
+  'season-여름': { icon: Sun,       label: '여름 옷장 정리' },
+  'season-가을': { icon: Leaf,      label: '가을 옷장 정리' },
+  'season-겨울': { icon: Snowflake, label: '겨울 옷장 정리' },
+  'noti-off':    { icon: BellOff,   label: '알림 꺼짐 안내' },
 };
 
 type NotiKey = 'expiry' | 'codi' | 'deal';
@@ -95,16 +101,16 @@ export default function NotificationSettings() {
   // 할인·가격 정보 화면 자체가 앱에 없다(P1-39, C7 발견: "셋 중 가장
   // 솔깃한 토글이 계속 안 울리면 나중에 진짜 기능이 생겨도 안 켠다").
   // 기능이 생기기 전까지 비활성 + "출시 예정" 배지로 명확히 표시.
-  const items: { key: NotiKey; emoji: string; label: string; comingSoon?: boolean }[] = [
-    { key: 'expiry', emoji: '⏰', label: '보관 기한 임박 알림' },
-    { key: 'codi',   emoji: '👗', label: '코디 추천 알림' },
-    { key: 'deal',   emoji: '🏷️', label: '할인 정보 알림', comingSoon: true },
+  const items: { key: NotiKey; icon: LucideIcon; label: string; comingSoon?: boolean }[] = [
+    { key: 'expiry', icon: Clock, label: '보관 기한 임박 알림' },
+    { key: 'codi',   icon: Shirt, label: '코디 추천 알림' },
+    { key: 'deal',   icon: Tag,   label: '할인 정보 알림', comingSoon: true },
   ];
 
   return (
     <>
       <div id="notifications" className="flex items-center gap-2 scroll-mt-28">
-        <EmojiIcon emoji="🔔" size={16} className="text-gray-600" />
+        <Bell size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
         <span className="text-base font-bold text-gray-900 tracking-tight">알림 설정</span>
       </div>
       <motion.div
@@ -121,7 +127,7 @@ export default function NotificationSettings() {
           onClick={handlePermRequest}
           className="mb-3 w-full flex items-center gap-2.5 p-2.5 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 text-left"
         >
-          <EmojiIcon emoji="🔔" size={14} className="text-brand-primary shrink-0" />
+          <Bell size={14} strokeWidth={2} className="text-brand-primary shrink-0" aria-hidden />
           <p className="text-xs text-brand-primary font-semibold flex-1">알림 권한 허용 — 탭해서 활성화</p>
         </button>
       )}
@@ -148,8 +154,8 @@ export default function NotificationSettings() {
       {dismissed.length > 0 && (
         <div className="mb-3 p-2.5 rounded-2xl bg-gray-50 border border-gray-100">
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-gray-500 font-semibold">
-              🙈 오늘 안 보기 ({dismissed.length})
+            <p className="text-xs text-gray-500 font-semibold inline-flex items-center gap-1">
+              <EyeOff size={12} strokeWidth={2} aria-hidden /> 오늘 안 보기 ({dismissed.length})
             </p>
             <button
               onClick={() => {
@@ -162,19 +168,24 @@ export default function NotificationSettings() {
             </button>
           </div>
           <div className="flex flex-wrap gap-1">
-            {dismissed.map((key) => (
-              <button
-                key={key}
-                onClick={() => {
-                  restore(key);
-                  showToast(`${ALERT_LABEL[key] ?? key} 다시 표시됨`);
-                }}
-                className="text-xs px-2 py-1 rounded-full bg-white border border-gray-200 text-gray-700 hover:border-brand-primary/30 hover:text-brand-primary transition-colors"
-                aria-label={`${ALERT_LABEL[key] ?? key} 다시 표시`}
-              >
-                {ALERT_LABEL[key] ?? key} ×
-              </button>
-            ))}
+            {dismissed.map((key) => {
+              const meta = ALERT_META[key];
+              const AlertIcon = meta?.icon ?? Bell;
+              const label = meta?.label ?? key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => {
+                    restore(key);
+                    showToast(`${label} 다시 표시됨`);
+                  }}
+                  className="text-xs px-2 py-1 rounded-full bg-white border border-gray-200 text-gray-700 hover:border-brand-primary/30 hover:text-brand-primary transition-colors inline-flex items-center gap-1"
+                  aria-label={`${label} 다시 표시`}
+                >
+                  <AlertIcon size={11} strokeWidth={2} aria-hidden /> {label} ×
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -183,7 +194,7 @@ export default function NotificationSettings() {
         {items.map((item) => (
           <div key={item.key} className="flex items-center justify-between py-2.5">
             <div className="flex items-center gap-2">
-              <EmojiIcon emoji={item.emoji} size={16} className={item.comingSoon ? 'text-gray-300' : 'text-gray-600'} />
+              <item.icon size={16} strokeWidth={2} className={item.comingSoon ? 'text-gray-300' : 'text-gray-600'} aria-hidden />
               <span className={`text-sm ${item.comingSoon ? 'text-gray-400' : 'text-gray-600'}`}>{item.label}</span>
               {item.comingSoon && (
                 <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 rounded-full px-1.5 py-0.5">
@@ -227,8 +238,9 @@ export default function NotificationSettings() {
           오인하기 쉬웠다(리뷰 해결안 2번째 항목). 네이티브 앱은 OS가
           꺼져 있어도 울려주므로 이 제약이 없어 네이티브에선 숨긴다. */}
       {!isNative() && (
-        <p className="text-xs text-gray-400 mt-2.5 leading-relaxed">
-          💡 웹에서는 네모아 앱(탭)이 열려 있을 때만 알림을 받을 수 있어요.
+        <p className="text-xs text-gray-400 mt-2.5 leading-relaxed inline-flex items-start gap-1">
+          <Lightbulb size={12} strokeWidth={2} className="shrink-0 mt-0.5" aria-hidden />
+          <span>웹에서는 네모아 앱(탭)이 열려 있을 때만 알림을 받을 수 있어요.</span>
         </p>
       )}
       </motion.div>

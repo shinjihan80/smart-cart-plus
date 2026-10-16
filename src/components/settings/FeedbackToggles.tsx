@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { haptic, isHapticEnabled, setHapticEnabled } from '@/lib/haptics';
 import { playChime, isChimeEnabled, setChimeEnabled } from '@/lib/chime';
 import { isAnalyticsEnabled, setAnalyticsEnabled } from '@/lib/analytics';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Sparkles } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 /**
@@ -70,7 +70,7 @@ export default function FeedbackToggles() {
   return (
     <>
       <div className="flex items-center gap-2">
-        <EmojiIcon emoji="✨" size={16} className="text-gray-600" />
+        <Sparkles size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
         <span className="text-base font-bold text-gray-900 tracking-tight">피드백</span>
       </div>
       <motion.div

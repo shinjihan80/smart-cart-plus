@@ -3,7 +3,11 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, AlertTriangle, Cloud } from 'lucide-react';
+import {
+  ChevronLeft, ChevronRight, AlertTriangle, Cloud,
+  Loader2, Save, CheckCircle2, User, Package, Smartphone, GraduationCap, RotateCcw,
+  Download, FileText, BarChart3, type LucideIcon,
+} from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -21,7 +25,6 @@ import FeedbackToggles      from '@/components/settings/FeedbackToggles';
 import StorageUsage         from '@/components/settings/StorageUsage';
 import ErrorLogCard         from '@/components/settings/ErrorLogCard';
 import PaletteButton        from '@/components/PaletteButton';
-import EmojiIcon            from '@/components/EmojiIcon';
 import LoginSheet           from '@/components/auth/LoginSheet';
 import UpgradeSheet         from '@/components/settings/UpgradeSheet';
 import ResetConfirmSheet    from '@/components/settings/ResetConfirmSheet';
@@ -156,10 +159,11 @@ export default function SettingsPage() {
     setTimeout(() => window.location.reload(), 600);
   }
 
-  const dataItems = [
+  // 리디자인(옵션 B) — 행 아이콘을 이모지 대신 라인 아이콘으로.
+  const dataItems: { label: string; icon: LucideIcon; desc: string; action: () => void }[] = [
     {
       label: '지금 백업하기',
-      emoji: '💾',
+      icon: Save,
       desc: user
         ? '클라우드에 자동 동기화 중 · JSON 파일로도 저장'
         : isPro
@@ -167,15 +171,15 @@ export default function SettingsPage() {
           : '전체 상태를 JSON 파일로 저장',
       action: handleBackupNow,
     },
-    { label: '백업에서 복원',  emoji: '📥', desc: '이전 백업 파일로 데이터 복구',     action: handlePickRestoreFile },
+    { label: '백업에서 복원',  icon: Download, desc: '이전 백업 파일로 데이터 복구',     action: handlePickRestoreFile },
     // 재검토(C5 실측) P1 — "JSON 내보내기"로 받은 파일을 "백업에서
     // 복원"에 넣으면 "네모아 백업 파일이 아닙니다"로 거부된다(아이템
     // 배열만 담아 프로필·로그 등이 없는 다른 포맷 — readBackupFile이
     // version/app 필드를 검증함). 두 버튼이 똑같이 "JSON"이라 백업으로
     // 착각하기 쉬운데, 기기를 바꾼 뒤에야 복원이 안 된다는 걸 알게 되면
     // 그땐 원본 기기가 없을 수 있다 — 지금 이 자리에서 바로 안내한다.
-    { label: 'JSON 내보내기', emoji: '📄', desc: '현재 아이템 목록을 JSON으로 내보내기 (복원용 아님 — 복원은 위 "지금 백업하기" 파일로)', action: handleExportJSON },
-    { label: 'CSV 내보내기',  emoji: '📊', desc: '현재 아이템 목록을 CSV로 내보내기',  action: handleExportCSV },
+    { label: 'JSON 내보내기', icon: FileText, desc: '현재 아이템 목록을 JSON으로 내보내기 (복원용 아님 — 복원은 위 "지금 백업하기" 파일로)', action: handleExportJSON },
+    { label: 'CSV 내보내기',  icon: BarChart3, desc: '현재 아이템 목록을 CSV로 내보내기',  action: handleExportCSV },
   ];
 
   return (
@@ -218,7 +222,15 @@ export default function SettingsPage() {
               렌더가 "✅ 백업 null일 전"(curl로 확인) 같은 거짓 성공
               배지를 보여줬다. hydrated로 분기해 "확인 중" 중립 상태를
               먼저 보여주고, 실제 값을 안 뒤에만 성공/경고를 단정한다. */}
-          <EmojiIcon emoji={!backup.hydrated ? '⏳' : backup.isStale ? '💾' : '✅'} size={20} className={!backup.hydrated ? 'text-gray-400 shrink-0' : backup.isStale ? 'text-caution shrink-0' : 'text-brand-success shrink-0'} />
+          {/* 리디자인(옵션 B) — 상태 이모지(⏳💾✅)를 라인 아이콘으로.
+              색은 그대로 상태 의미(중립/caution/success)를 유지. */}
+          {!backup.hydrated ? (
+            <Loader2 size={20} strokeWidth={2} className="text-gray-400 shrink-0 animate-spin" aria-hidden />
+          ) : backup.isStale ? (
+            <Save size={20} strokeWidth={2} className="text-caution shrink-0" aria-hidden />
+          ) : (
+            <CheckCircle2 size={20} strokeWidth={2} className="text-brand-success shrink-0" aria-hidden />
+          )}
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-gray-800">
               {!backup.hydrated
@@ -259,7 +271,7 @@ export default function SettingsPage() {
             실질적으로 비어있던 문제). 다른 곳(P1-5/P1-20/P1-40)과 동일하게
             ?tab=profile로 명시 지정. */}
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="👤" size={16} className="text-gray-600" />
+          <User size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
           <span className="text-base font-bold text-gray-900 tracking-tight">프로필 관리</span>
         </div>
         <motion.div
@@ -330,7 +342,7 @@ export default function SettingsPage() {
 
         {/* 백업 & 내보내기 */}
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="📦" size={16} className="text-gray-600" />
+          <Package size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
           <span className="text-base font-bold text-gray-900 tracking-tight">백업 & 내보내기</span>
         </div>
         <motion.div
@@ -347,7 +359,7 @@ export default function SettingsPage() {
                 onClick={m.action}
                 className="flex items-center gap-3 w-full py-3 text-left hover:bg-gray-50/50 -mx-2 px-2 rounded-2xl transition-colors"
               >
-                <EmojiIcon emoji={m.emoji} size={16} className="text-gray-600" />
+                <m.icon size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800">{m.label}</p>
                   <p className="text-sm text-gray-400">{m.desc}</p>
@@ -362,7 +374,7 @@ export default function SettingsPage() {
 
         {/* 앱 */}
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="📱" size={16} className="text-gray-600" />
+          <Smartphone size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
           <span className="text-base font-bold text-gray-900 tracking-tight">앱</span>
         </div>
         <motion.div
@@ -376,7 +388,7 @@ export default function SettingsPage() {
             onClick={() => window.dispatchEvent(new CustomEvent('nemoa:replay-onboarding'))}
             className="flex items-center gap-3 w-full py-3 text-left hover:bg-gray-50/50 -mx-2 px-2 rounded-2xl transition-colors"
           >
-            <EmojiIcon emoji="🎓" size={16} className="text-gray-600" />
+            <GraduationCap size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800">온보딩 다시 보기</p>
               <p className="text-sm text-gray-400">네모아 소개 7단계 재생</p>
@@ -405,7 +417,7 @@ export default function SettingsPage() {
             onClick={() => setResetOpen(true)}
             className="flex items-center gap-3 w-full py-2.5 text-left hover:bg-danger/5 -mx-2 px-2 rounded-2xl transition-colors"
           >
-            <EmojiIcon emoji="🔄" size={16} className="text-danger" />
+            <RotateCcw size={16} strokeWidth={2} className="text-danger" aria-hidden />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-danger">전체 초기화</p>
               <p className="text-sm text-gray-400">백업 후 삭제 또는 백업 없이 바로 삭제</p>
