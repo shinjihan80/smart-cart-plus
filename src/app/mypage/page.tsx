@@ -378,7 +378,11 @@ export default function MyPage() {
           >
             <EmojiIcon emoji="💾" size={20} className="text-gray-600 shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-gray-800">
+              {/* P2-53 — 제목이 text-xs(13.5px)로 바로 아래 본문
+                  text-sm(15.75px)보다 작아 위계가 뒤집혀 있었다(C6·C8·E3
+                  실측, 홈 BackupReminderBanner는 이미 text-sm으로 맞음).
+                  홈과 같은 크기로 통일. */}
+              <p className="text-sm font-semibold text-gray-800">
                 {backup.lastBackupAt === null ? `등록한 ${items.length}개, 파일로 저장해두면 안전해요` : `마지막 백업 ${daysAgoLabel(backup.daysSince)}`}
               </p>
               {/* "수"(의존명사)가 뒷말과 떨어져 줄 끝에 혼자 남아
