@@ -1,9 +1,9 @@
 'use client';
 
+import { Lightbulb, Pin, ChefHat, Flame, ShoppingCart, Shirt, type LucideIcon } from 'lucide-react';
 import { isFoodItem, isClothingItem, type CartItem } from '@/types';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useWearLog } from '@/lib/wearLog';
-import EmojiIcon from '@/components/EmojiIcon';
 import { Widget } from './shared';
 import { todayLocalStr } from '@/lib/dateMath';
 
@@ -70,30 +70,33 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
   // selectExpiring() 출처)에 이미 있는데, 가장 한가로운 이름의 "둘러보기"
   // 구역에까지 다시 나와 "구경거리인 줄 알고 넘겼다"는 지적을 받았다
   // (P1-57, C9 발견) — 이 구역은 "지난 7일 기록"만 담당하도록 제거.
-  const insights: string[] = [];
+  // 리디자인(옵션 B) — 인사이트 문구 안에 박혀있던 이모지(📌🍳🔥🛒👔)를
+  // 꺼내 별도 아이콘으로 — 문자열 안 이모지는 텍스트 색과 분리해서
+  // 칠할 수 없어 항상 플랫폼 기본색으로만 보였다.
+  const insights: { icon: LucideIcon; text: string }[] = [];
   if (cookWeek === 0 && wearWeek === 0) {
-    insights.push('📌 한 주가 비었어요. 오늘 만든 요리·입은 옷을 기록해볼까요?');
+    insights.push({ icon: Pin, text: '한 주가 비었어요. 오늘 만든 요리·입은 옷을 기록해볼까요?' });
   } else if (cookWeek >= 5) {
-    insights.push(`🍳 이번 주 ${cookWeek}번 요리 — 꾸준히 잘하고 있어요!`);
+    insights.push({ icon: ChefHat, text: `이번 주 ${cookWeek}번 요리 — 꾸준히 잘하고 있어요!` });
   } else if (activeDays >= 5) {
-    insights.push(`🔥 ${activeDays}일 활동 기록 — 페이스 좋아요`);
+    insights.push({ icon: Flame, text: `${activeDays}일 활동 기록 — 페이스 좋아요` });
   } else if (cookWeek > 0 || wearWeek > 0) {
-    insights.push(`🍳 요리 ${cookWeek}번 · 👕 착용 ${wearWeek}회 — 한 주 정리해봤어요`);
+    insights.push({ icon: ChefHat, text: `요리 ${cookWeek}번 · 착용 ${wearWeek}회 — 한 주 정리해봤어요` });
   }
   if (food.length === 0 && insights.length < 2) {
-    insights.push('🛒 냉장고가 비어있어요 — 장을 봐야 할 때예요');
+    insights.push({ icon: ShoppingCart, text: '냉장고가 비어있어요 — 장을 봐야 할 때예요' });
   } else if (clothes.length > 30 && insights.length < 2) {
-    insights.push(`👔 옷장에 ${clothes.length}벌 — 정리 추천해요`);
+    insights.push({ icon: Shirt, text: `옷장에 ${clothes.length}벌 — 정리 추천해요` });
   }
   if (insights.length === 0) {
-    insights.push('이번 주도 잘 관리하고 있어요!');
+    insights.push({ icon: Lightbulb, text: '이번 주도 잘 관리하고 있어요!' });
   }
 
   return (
     <Widget index={5} variant="ghost">
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="💡" size={16} className="text-amber-500" />
+          <Lightbulb size={16} strokeWidth={2} className="text-amber-500" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">네모아의 주간 인사이트</span>
         </div>
         <span className="text-[10px] text-gray-400 tabular-nums">
@@ -114,9 +117,12 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
                   style={{ height: `${heightPct}%`, minHeight: total > 0 ? '3px' : '1px' }}
                   title={`${d.label} 조리 ${d.cookCount} · 착용 ${d.wearCount}`}
                 >
+                  {/* 리디자인(옵션 B) — 조리=amber-500이 상태색 팔레트를
+                      침범하고(P2-56), 마이페이지 활동 요약(조리=teal)과도
+                      달라 같은 지표가 화면마다 다른 색으로 보였다 — 통일. */}
                   {d.cookCount > 0 && (
                     <div
-                      className="bg-amber-500"
+                      className="bg-teal-600"
                       style={{ height: `${(d.cookCount / total) * 100}%`, minHeight: '1px' }}
                     />
                   )}
@@ -141,7 +147,7 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
         </div>
         <div className="flex items-center justify-center gap-3 mt-1.5 pt-1.5 border-t border-gray-100">
           <div className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-sm bg-amber-500" />
+            <span className="w-1.5 h-1.5 rounded-sm bg-teal-600" />
             <span className="text-[10px] text-gray-500 tabular-nums">조리 {cookWeek}</span>
           </div>
           <div className="flex items-center gap-1">
@@ -154,17 +160,21 @@ export default function WeeklyInsight({ items }: { items: CartItem[] }) {
       {/* 인사이트 텍스트 (최대 2개). 자연스러운 끊김(—, 마침표)에서 줄바꿈해
           "때예요"처럼 단어 한둘만 다음 줄로 밀려나는 어색한 자동 줄바꿈을 피한다. */}
       <div className="flex flex-col gap-1">
-        {insights.slice(0, 2).map((text, i) => {
-          const [first, second] = splitInsightLine(text);
+        {insights.slice(0, 2).map((insight, i) => {
+          const [first, second] = splitInsightLine(insight.text);
+          const Icon = insight.icon;
           return (
-            <p key={i} className="text-xs text-gray-500 leading-relaxed">
-              {first}
-              {second && (
-                <>
-                  <br />
-                  {second}
-                </>
-              )}
+            <p key={i} className="text-xs text-gray-500 leading-relaxed flex items-start gap-1">
+              <Icon size={12} strokeWidth={2} className="shrink-0 mt-0.5 text-gray-400" aria-hidden />
+              <span>
+                {first}
+                {second && (
+                  <>
+                    <br />
+                    {second}
+                  </>
+                )}
+              </span>
             </p>
           );
         })}
