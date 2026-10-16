@@ -1,12 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import {
-  UtensilsCrossed, Egg, Beef, FlaskConical, CupSoda, Wine,
-  Carrot, Milk, IceCreamCone, PackageOpen, Soup, Archive, Box,
-  Ban, Clock,
-  type LucideIcon,
-} from 'lucide-react';
+import { Ban, Clock } from 'lucide-react';
 
 import {
   FRIDGE_MODELS,
@@ -17,34 +12,8 @@ import {
   groupByEffectiveSection,
 } from '@/lib/fridgeSection';
 import { classifyExpiry, EXPIRY_TONE } from '@/lib/expiryThresholds';
+import { SECTION_ICON, ZONE_TINT } from '@/lib/fridgeZoneTheme';
 import type { FoodItem, FridgeSection } from '@/types';
-
-// 리디자인(옵션 B 채택, 2026-10-16) — 칸 그림이 이모지(플랫폼마다 다르게
-// 렌더, 라인 아이콘과 섞이면 촌스럽다는 지적)와 흰 배경만 썼다. 이
-// 그리드 전용으로 칸마다 라인 아이콘 + 구역별 틴트를 입힌다 — 공유
-// FRIDGE_SECTION_META.emoji는 칸 상세 시트 등 다른 소비처가 그대로
-// 쓰므로 안 건드린다(범위를 이 컴포넌트로 좁혀 다른 화면 회귀 방지).
-const SECTION_ICON: Record<FridgeSection, LucideIcon> = {
-  main_top: UtensilsCrossed, main_middle: Egg, main_bottom: Beef,
-  door_top: FlaskConical, door_middle: CupSoda, door_bottom: Wine,
-  crisper: Carrot, butter: Milk,
-  freezer_top: IceCreamCone, freezer_bottom: PackageOpen,
-  kimchi_top: Soup, kimchi_bottom: Archive,
-  pantry: Box,
-};
-
-// 따뜻한 색(amber·orange)은 상태(임박·기한초과) 전용으로 예약돼
-// 있어(P2-56) 구역 틴트에선 쓰지 않는다 — pantry(실온)도 일부러
-// 따뜻한 베이지 대신 중립 slate를 썼다.
-type FridgeZone = 'fridge' | 'door' | 'crisper' | 'freezer' | 'kimchi' | 'pantry';
-const ZONE_TINT: Record<FridgeZone, { cellBg: string; chipBg: string; icon: string; title: string; meta: string }> = {
-  fridge:  { cellBg: 'bg-sky-50',     chipBg: 'bg-sky-100',     icon: '#2563EB', title: 'text-[#1D3A6B]', meta: 'text-[#6B8FC9]' },
-  door:    { cellBg: 'bg-indigo-50',  chipBg: 'bg-indigo-100',  icon: '#4F46E5', title: 'text-[#2E2A8F]', meta: 'text-[#8C87D9]' },
-  crisper: { cellBg: 'bg-emerald-50', chipBg: 'bg-emerald-100', icon: '#059669', title: 'text-[#0F5132]', meta: 'text-[#5FA98A]' },
-  freezer: { cellBg: 'bg-violet-50',  chipBg: 'bg-violet-100',  icon: '#7C3AED', title: 'text-[#4C2A8F]', meta: 'text-[#A98FE0]' },
-  kimchi:  { cellBg: 'bg-rose-50',    chipBg: 'bg-rose-100',    icon: '#BE185D', title: 'text-[#7A1041]', meta: 'text-[#C97BA0]' },
-  pantry:  { cellBg: 'bg-zinc-100',   chipBg: 'bg-zinc-200',    icon: '#52525B', title: 'text-[#3F3F46]', meta: 'text-[#8C8C94]' },
-};
 
 interface FridgeViewProps {
   modelId:        FridgeModelId;

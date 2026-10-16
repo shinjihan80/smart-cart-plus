@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { WARDROBE_SECTION_META, type WardrobeSection, type WardrobeCell } from '@/lib/wardrobeModel';
+import { WARDROBE_SECTION_META, WARDROBE_SECTION_GROUP, type WardrobeSection, type WardrobeCell } from '@/lib/wardrobeModel';
+import { SECTION_ICON, GROUP_TINT } from '@/lib/wardrobeZoneTheme';
 import type { ClothingItem } from '@/types';
 import type { MatchBadge } from '@/lib/weather';
 import SwipeClothingCard from '@/components/closet/SwipeClothingCard';
@@ -38,6 +39,8 @@ export function WardrobeSectionSheet({
     <AnimatePresence>
       {section && (() => {
         const meta = WARDROBE_SECTION_META[section];
+        const tint = GROUP_TINT[WARDROBE_SECTION_GROUP[section]];
+        const Icon = SECTION_ICON[section];
         return (
           <motion.div
             key={section}
@@ -71,8 +74,12 @@ export function WardrobeSectionSheet({
                 <X size={20} strokeWidth={2} />
               </button>
 
+              {/* 리디자인(옵션 B) — 그리드 칸(WardrobeView)과 같은 소스로
+                  이어지는 라인 아이콘 + 그룹 틴트. */}
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl" aria-hidden>{meta.emoji}</span>
+                <span className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${tint.chipBg}`} aria-hidden>
+                  <Icon size={22} strokeWidth={1.8} style={{ color: tint.icon }} />
+                </span>
                 <div className="flex-1 min-w-0 pr-10">
                   <h2 className="text-base font-extrabold text-gray-900">{meta.label}</h2>
                   <p className="text-xs text-gray-500 mt-0.5 leading-snug">{meta.hint}</p>

@@ -8,6 +8,7 @@ import SwipeFoodCard from '@/components/fridge/SwipeFoodCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import { classifyExpiry, EXPIRY_TONE } from '@/lib/expiryThresholds';
+import { SECTION_ICON, ZONE_TINT } from '@/lib/fridgeZoneTheme';
 import { type FridgeModelId } from '@/lib/fridgeModel';
 import type { FoodItem, FridgeSection } from '@/types';
 import { openRegister } from '@/lib/registerIntent';
@@ -37,6 +38,8 @@ export function SectionDetailSheet({
     <AnimatePresence>
       {section && (() => {
         const meta = FRIDGE_SECTION_META[section];
+        const tint = ZONE_TINT[meta.zone];
+        const Icon = SECTION_ICON[section];
         return (
           <motion.div
             key={section}
@@ -70,8 +73,14 @@ export function SectionDetailSheet({
                 <X size={20} strokeWidth={2} />
               </button>
 
+              {/* 리디자인(옵션 B) — 그리드 칸은 구역 틴트+라인 아이콘으로
+                  바뀌었는데 시트만 이모지 그대로면, 탭해 들어오자마자
+                  "방금 본 색이 사라졌다"로 느껴진다 — 같은 소스(SECTION_
+                  ICON/ZONE_TINT)로 이어지게 한다. */}
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl" aria-hidden>{meta.emoji}</span>
+                <span className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${tint.chipBg}`} aria-hidden>
+                  <Icon size={22} strokeWidth={1.8} style={{ color: tint.icon }} />
+                </span>
                 <div className="flex-1 min-w-0 pr-10">
                   <h2 className="text-base font-extrabold text-gray-900">{meta.label}</h2>
                   <p className="text-xs text-gray-500 mt-0.5 leading-snug">{meta.hint}</p>
