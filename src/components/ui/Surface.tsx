@@ -24,7 +24,11 @@ export const SURFACE_CLASS: Record<SurfaceVariant, string> = {
   compact:  'bg-white rounded-chip p-4',
 };
 
-const SHADOW_BORDERED: CSSProperties = { boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' };
+// 리디자인(옵션 B, 2026-10-16) — bordered만 그림자가 원거리 1단뿐이라
+// "밋밋하다"는 지적(C6)의 한 원인이었다. plain처럼 근접 접촉 그림자를
+// 더해 테두리 없이도 경계가 또렷해지게 — 47곳(fridge·closet CARD
+// 포함)에 자동 전파되는 단일 소스 수정.
+const SHADOW_BORDERED: CSSProperties = { boxShadow: '0 1px 2px -1px rgba(31, 31, 46, 0.05), 0 10px 32px -12px rgba(31, 31, 46, 0.12)' };
 const SHADOW_PLAIN: CSSProperties = { boxShadow: '0 6px 16px -8px rgba(31, 31, 46, 0.08), 0 2px 4px -2px rgba(31, 31, 46, 0.04)' };
 
 export const SURFACE_SHADOW: Record<SurfaceVariant, CSSProperties> = {
