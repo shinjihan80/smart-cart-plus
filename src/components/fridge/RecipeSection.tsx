@@ -16,6 +16,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import dynamic from 'next/dynamic';
 const RecipeBrowserModal = dynamic(() => import('@/components/RecipeBrowserModal'), { ssr: false });
 import EmojiIcon from '@/components/EmojiIcon';
+import { ChefHat, Heart, Trophy, AlertTriangle, Moon, Clock, Check } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
@@ -65,17 +66,17 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
   return (
     <>
       <div className="flex items-center gap-2">
-        <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
+        <ChefHat size={16} strokeWidth={2} className="text-gray-700" aria-hidden />
         <span className="text-base font-bold text-gray-900 tracking-tight">오늘의 메뉴 추천</span>
         <div className="flex items-center gap-1.5 ml-auto shrink-0">
             {favoriteCount > 0 && (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary">
-                ♥ {favoriteCount}
+              <span className="inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary">
+                <Heart size={11} strokeWidth={2} className="fill-current" /> {favoriteCount}
               </span>
             )}
             {loveCount > 0 && (
-              <span className="text-xs font-semibold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">
-                🏆 단골 {loveCount}
+              <span className="inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">
+                <Trophy size={11} strokeWidth={2} /> 단골 {loveCount}
               </span>
             )}
             <button
@@ -112,8 +113,8 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                 <div className="flex items-start justify-between">
                   <EmojiIcon emoji={recipe.emoji} size={22} className="text-gray-700" />
                   <div className="flex items-center gap-0.5">
-                    {fav && <EmojiIcon emoji="♥" size={14} className="text-brand-primary" />}
-                    {loveBoosted && <span title={`${cookCount}번 만든 단골`}><EmojiIcon emoji="🏆" size={11} className="text-amber-500" /></span>}
+                    {fav && <Heart size={14} strokeWidth={2} className="text-brand-primary fill-current" />}
+                    {loveBoosted && <span title={`${cookCount}번 만든 단골`}><Trophy size={11} strokeWidth={2} className="text-amber-500" /></span>}
                     {seasonBoosted && (() => {
                       const Icon = SEASON_ICON[season];
                       const color = SEASON_COLOR[season];
@@ -123,16 +124,16 @@ export default function RecipeSection({ foods }: { foods: FoodItem[] }) {
                         </span>
                       );
                     })()}
-                    {urgentBoosted && <EmojiIcon emoji="⚠️" size={11} className="text-caution" />}
-                    {rotationBoosted && <span title="오랜만에 다시 추천"><EmojiIcon emoji="🌙" size={11} className="text-indigo-500" /></span>}
+                    {urgentBoosted && <AlertTriangle size={11} strokeWidth={2} className="text-caution" />}
+                    {rotationBoosted && <span title="오랜만에 다시 추천"><Moon size={11} strokeWidth={2} className="text-indigo-500" /></span>}
                   </div>
                 </div>
                 <p className="text-xs font-semibold text-gray-800 mt-1.5 truncate">{recipe.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  ⏱ {recipe.time} · {recipe.difficulty}
+                <p className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+                  <Clock size={11} strokeWidth={2} /> {recipe.time} · {recipe.difficulty}
                 </p>
-                <p className="text-xs text-brand-primary truncate mt-0.5" title={matchedItems.join(', ')}>
-                  ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
+                <p className="flex items-center gap-1 text-xs text-brand-primary truncate mt-0.5" title={matchedItems.join(', ')}>
+                  <Check size={11} strokeWidth={2.5} className="shrink-0" /> {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
                 </p>
               </button>
             );

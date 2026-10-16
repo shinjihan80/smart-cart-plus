@@ -18,6 +18,7 @@ import { useAiQuota } from '@/lib/aiQuota';
 import { isMarketedUnlimited } from '@/lib/aiQuotaConstants';
 import { usePlan } from '@/lib/usePlan';
 import RewardedAdModal from '@/components/RewardedAdModal';
+import { Sparkles, Lightbulb } from 'lucide-react';
 import type { FoodCategory, FridgeSection, StorageType } from '@/types';
 
 interface Props {
@@ -99,10 +100,10 @@ export default function FridgeSectionPicker({
           type="button"
           onClick={handleAiRecommend}
           disabled={loading || remainingCount <= 0}
-          className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary disabled:opacity-40 hover:bg-brand-primary/20 transition-colors"
+          className="inline-flex items-center gap-0.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary disabled:opacity-40 hover:bg-brand-primary/20 transition-colors"
           aria-label="AI로 보관 위치 추천 받기"
         >
-          {loading ? '추천 중…' : `✨ AI 추천 (${!isFinite(remainingCount) || (isMarketedUnlimited(tier) && remainingCount > 0) ? '∞' : remainingCount})`}
+          {loading ? '추천 중…' : (<><Sparkles size={10} strokeWidth={2} /> AI 추천 ({!isFinite(remainingCount) || (isMarketedUnlimited(tier) && remainingCount > 0) ? '∞' : remainingCount})</>)}
         </button>
       </div>
       <select
@@ -121,7 +122,9 @@ export default function FridgeSectionPicker({
         })}
       </select>
       {reason && (
-        <p className="text-[10px] text-brand-primary/80 leading-snug mt-0.5">💡 {reason}</p>
+        <p className="flex items-start gap-0.5 text-[10px] text-brand-primary/80 leading-snug mt-0.5">
+          <Lightbulb size={11} strokeWidth={2} className="shrink-0 mt-px" aria-hidden /> {reason}
+        </p>
       )}
       {error && (
         <p className="text-[10px] text-red-500 leading-snug mt-0.5">{error}</p>

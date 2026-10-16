@@ -13,7 +13,7 @@ import { useProfiles } from '@/lib/profile';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { haptic } from '@/lib/haptics';
 import EmojiIcon from '@/components/EmojiIcon';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Dices, Clock, AlertTriangle, Trophy } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
@@ -46,7 +46,7 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
   return (
     <>
       <div className="flex items-center gap-2">
-        <EmojiIcon emoji="🎲" size={16} className="text-gray-700" />
+        <Dices size={16} strokeWidth={2} className="text-gray-700" aria-hidden />
         <span className="text-base font-bold text-gray-900 tracking-tight">오늘 뭐 먹지?</span>
         <button
           onClick={handleShuffle}
@@ -88,19 +88,27 @@ export default function FeelingLuckySection({ foods }: { foods: FoodItem[] }) {
             >
               {pick.recipe.name}
             </motion.p>
-            <p className="text-sm text-gray-500 mt-0.5">
-              ⏱ {pick.recipe.time} · {pick.recipe.difficulty}
-              {pick.urgentBoosted && <span className="text-caution ml-1">· ⚠️ 임박 재료</span>}
+            <p className="flex items-center flex-wrap gap-x-1 text-sm text-gray-500 mt-0.5">
+              <Clock size={11} strokeWidth={2} className="shrink-0" aria-hidden /> {pick.recipe.time} · {pick.recipe.difficulty}
+              {pick.urgentBoosted && (
+                <span className="inline-flex items-center gap-0.5 text-caution">
+                  · <AlertTriangle size={11} strokeWidth={2} /> 임박 재료
+                </span>
+              )}
               {pick.seasonBoosted && (() => {
                 const Icon = SEASON_ICON[season];
                 const color = SEASON_COLOR[season];
                 return (
-                  <span className="inline-flex items-center gap-1 text-gray-500 ml-1">
+                  <span className="inline-flex items-center gap-1 text-gray-500">
                     · <Icon size={11} strokeWidth={2} className={color.text} /> {season}철
                   </span>
                 );
               })()}
-              {pick.loveBoosted && <span className="text-rose-500 ml-1">· 🏆 {pick.cookCount}번 만든 단골</span>}
+              {pick.loveBoosted && (
+                <span className="inline-flex items-center gap-0.5 text-rose-500">
+                  · <Trophy size={11} strokeWidth={2} /> {pick.cookCount}번 만든 단골
+                </span>
+              )}
             </p>
             {pick.recipe.blurb && (
               <p className="text-sm text-gray-400 mt-1 leading-relaxed line-clamp-1">

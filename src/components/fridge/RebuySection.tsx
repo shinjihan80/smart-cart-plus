@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import PartnerChip from '@/components/PartnerChip';
 import { PARTNERS } from '@/lib/partnerLinks';
-import EmojiIcon from '@/components/EmojiIcon';
+import { RotateCcw } from 'lucide-react';
 import { sameFoodProduct } from '@/lib/ingredientInference';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -29,7 +29,7 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
   return (
     <>
       <div className="flex items-center gap-2">
-        <EmojiIcon emoji="🔄" size={16} className="text-amber-600" />
+        <RotateCcw size={16} strokeWidth={2} className="text-amber-600" aria-hidden />
         <span className="text-base font-bold text-gray-900 tracking-tight">재구매 추천</span>
         <span className="text-xs text-gray-400">다 먹은 식품 기반</span>
       </div>
@@ -45,9 +45,9 @@ export default function RebuySection({ history, currentNames, onQuickAdd }: Rebu
           <button
             key={s.name}
             onClick={() => onQuickAdd(s.name)}
-            className="text-xs px-2.5 py-1.5 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
+            className="inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-2xl bg-amber-50 border border-amber-100 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
           >
-            🔄 {s.name}
+            <RotateCcw size={11} strokeWidth={2} /> {s.name}
           </button>
         ))}
       </div>

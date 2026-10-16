@@ -5,7 +5,7 @@ import type { FoodItem } from '@/types';
 import type { DiscardRecord } from '@/context/CartContext';
 import { analyzeBalance, WEEKLY_TARGET } from '@/lib/nutritionAnalysis';
 import { useProfiles, resolveDailyCalorieTarget, calcTDEE } from '@/lib/profile';
-import EmojiIcon from '@/components/EmojiIcon';
+import { BarChart3, Salad, Beef, Flame } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 /**
@@ -53,12 +53,12 @@ export default function NutritionBalanceSection({ foods, discardHistory }: { foo
   return (
     <>
       <div className="flex items-center gap-2">
-        <EmojiIcon emoji="📊" size={16} className="text-gray-700" />
+        <BarChart3 size={16} strokeWidth={2} className="text-gray-700" aria-hidden />
         <span className="text-base font-bold text-gray-900 tracking-tight">냉장고 영양 구성</span>
         <div className="flex items-center gap-1.5 text-xs text-gray-400 ml-auto">
-          <span>🥬 {balance.vegFruitCount}</span>
+          <span className="inline-flex items-center gap-0.5"><Salad size={12} strokeWidth={2} /> {balance.vegFruitCount}</span>
           <span className="text-gray-200">·</span>
-          <span>🥩 {balance.proteinCount}</span>
+          <span className="inline-flex items-center gap-0.5"><Beef size={12} strokeWidth={2} /> {balance.proteinCount}</span>
         </div>
       </div>
       <motion.div
@@ -79,7 +79,7 @@ export default function NutritionBalanceSection({ foods, discardHistory }: { foo
               지금 냉장고에 있는 재료로 대략 계산한 값이에요 — 실제로 먹은 양이 아니라 <strong className="text-gray-700 font-semibold">보유량 기준 추정치</strong>예요.
             </p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-700 tabular-nums mb-1">
-              <span>🔥 약 {round(balance.totals.calories, 50).toLocaleString()}kcal</span>
+              <span className="inline-flex items-center gap-1"><Flame size={13} strokeWidth={2} className="text-gray-400" /> 약 {round(balance.totals.calories, 50).toLocaleString()}kcal</span>
               <span>단백질 약 {round(balance.totals.protein, 5)}g</span>
               <span>탄수 약 {round(balance.totals.carbs, 5)}g</span>
               <span>지방 약 {round(balance.totals.fat, 5)}g</span>
@@ -100,13 +100,14 @@ export default function NutritionBalanceSection({ foods, discardHistory }: { foo
               const needVeg     = balance.vegFruitCount < 3;
               if (!needProtein && !needVeg) return null;
               const hint = needProtein ? 'protein' : 'veg';
-              const label = needProtein ? '🥩 단백질 레시피 보기' : '🥬 채소 레시피 보기';
+              const Icon = needProtein ? Beef : Salad;
+              const label = needProtein ? '단백질 레시피 보기' : '채소 레시피 보기';
               return (
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: hint === 'protein' ? '두부' : '샐러드' } }))}
-                  className="mt-1.5 text-sm font-semibold text-brand-primary hover:underline"
+                  className="mt-1.5 inline-flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
                 >
-                  {label} →
+                  <Icon size={13} strokeWidth={2} /> {label} →
                 </button>
               );
             })()}

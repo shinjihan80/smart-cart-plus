@@ -7,6 +7,7 @@ import { countRecipesByIngredient } from '@/lib/recipes';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import EmojiIcon from '@/components/EmojiIcon';
+import { BookOpen } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface SeasonalProduceSectionProps {
@@ -65,9 +66,9 @@ export default function SeasonalProduceSection({ currentNames, onQuickAdd }: Sea
                   <button
                     onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }))}
                     title={`${p.name}(으)로 만드는 요리 보기`}
-                    className="text-sm px-2 py-1 border-l border-brand-primary/15 text-brand-primary/80 hover:bg-brand-primary/10 transition-colors"
+                    className="inline-flex items-center gap-0.5 text-sm px-2 py-1 border-l border-brand-primary/15 text-brand-primary/80 hover:bg-brand-primary/10 transition-colors"
                   >
-                    📖 {recipeCount}
+                    <BookOpen size={12} strokeWidth={2} /> {recipeCount}
                   </button>
                 )}
               </div>
