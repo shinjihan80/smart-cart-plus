@@ -68,8 +68,8 @@ export default function TodayDishCard({ items }: { items: CartItem[] }) {
                 <p className="text-xs text-gray-500 mt-1 truncate">
                   {recipe.time} · {recipe.difficulty}
                   {matchedItems.length > 0 && (
-                    <span className="text-gray-900 font-semibold ml-1">
-                      · ✓ {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
+                    <span className="inline-flex items-center gap-0.5 text-gray-900 font-semibold ml-1">
+                      · <Check size={11} strokeWidth={2.5} /> {matchedItems[0]}{matchedItems.length > 1 && ` +${matchedItems.length - 1}`}
                     </span>
                   )}
                 </p>

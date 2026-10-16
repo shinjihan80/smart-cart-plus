@@ -6,18 +6,12 @@ import { motion } from 'framer-motion';
 import { Wind, X } from 'lucide-react';
 import { isClothingItem, FASHION_GROUP, type CartItem } from '@/types';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
+import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useDismissedAlerts } from '@/lib/useDismissedAlerts';
 import { useToast } from '@/context/ToastContext';
 import { addNotificationLogEntry } from '@/lib/notificationLog';
 import { todayLocalStr } from '@/lib/dateMath';
 import { springTransition } from './shared';
-
-const SEASON_EMOJI: Record<string, string> = {
-  봄:   '🌸',
-  여름: '☀️',
-  가을: '🍂',
-  겨울: '❄️',
-};
 
 /**
  * 시즌 전환 알림 배너.
@@ -112,8 +106,11 @@ export default function SeasonChangeAlert({ items }: { items: CartItem[] }) {
           href="/mypage?tab=activity#seasonal"
           className="flex-1 min-w-0 flex items-center gap-[12px] px-[16px] py-[12px] hover:bg-brand-primary/10 transition-colors"
         >
-          <span className="w-[36px] h-[36px] rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0 text-lg">
-            {SEASON_EMOJI[season] ?? '🍃'}
+          <span className="w-[36px] h-[36px] rounded-xl bg-brand-primary/15 flex items-center justify-center shrink-0">
+            {(() => {
+              const Icon = SEASON_ICON[season];
+              return <Icon size={18} strokeWidth={2} className={SEASON_COLOR[season].text} aria-hidden />;
+            })()}
           </span>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-brand-primary">
