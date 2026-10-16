@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X } from 'lucide-react';
+import { Search, X, Heart, ChefHat, Tv, Zap, CookingPot, Flame } from 'lucide-react';
 import { recipeGradient, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
@@ -45,12 +45,36 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
         이번 계절
       </span>
     ) },
-    { key: '즐겨찾기', label: '♥ 즐겨찾기' },
-    { key: '셰프',     label: '👨‍🍳 셰프' },
-    { key: '예능',     label: '📺 예능' },
-    { key: '간단',     label: '⚡ 간단' },
-    { key: '보통',     label: '🍳 보통' },
-    { key: '도전',     label: '🔥 도전' },
+    { key: '즐겨찾기', label: (
+      <span className="inline-flex items-center gap-1">
+        <Heart size={12} strokeWidth={2} className="fill-current" /> 즐겨찾기
+      </span>
+    ) },
+    { key: '셰프',     label: (
+      <span className="inline-flex items-center gap-1">
+        <ChefHat size={12} strokeWidth={2} /> 셰프
+      </span>
+    ) },
+    { key: '예능',     label: (
+      <span className="inline-flex items-center gap-1">
+        <Tv size={12} strokeWidth={2} /> 예능
+      </span>
+    ) },
+    { key: '간단',     label: (
+      <span className="inline-flex items-center gap-1">
+        <Zap size={12} strokeWidth={2} /> 간단
+      </span>
+    ) },
+    { key: '보통',     label: (
+      <span className="inline-flex items-center gap-1">
+        <CookingPot size={12} strokeWidth={2} /> 보통
+      </span>
+    ) },
+    { key: '도전',     label: (
+      <span className="inline-flex items-center gap-1">
+        <Flame size={12} strokeWidth={2} /> 도전
+      </span>
+    ) },
     { key: '아침',     label: '아침' },
     { key: '점심',     label: '점심' },
     { key: '간식',     label: '간식' },
@@ -195,7 +219,7 @@ export default function RecipeBrowserModal({ onSelect, onClose, initialSearch }:
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="text-sm font-semibold text-gray-900 truncate">{recipe.name}</p>
-                          {fav && <span className="text-xs text-brand-primary shrink-0">♥</span>}
+                          {fav && <Heart size={12} strokeWidth={2} className="text-brand-primary fill-current shrink-0" />}
                           {recipe.seasons?.includes(season) && (
                             <span className="shrink-0 inline-flex items-center" title={`${season}철 추천`}>
                               <SeasonIcon size={12} strokeWidth={2} className={seasonColor.text} />
