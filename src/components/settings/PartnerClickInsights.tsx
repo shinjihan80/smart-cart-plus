@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
 import { usePartnerClicks } from '@/lib/partnerClickLog';
 import EmojiIcon from '@/components/EmojiIcon';
-import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
+// P2-52 — settings 쪽 컴포넌트가 closet/shared(bordered, 36px)를
+// 잘못 import하고 있었다. mypage 전용 shared로 교정.
+import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 const DOMAIN_LABEL: Record<PartnerDomain, string> = {
   groceries:  '식품',

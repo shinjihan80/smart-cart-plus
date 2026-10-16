@@ -58,7 +58,10 @@ export default function WaitlistBanner() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springTransition, delay: 0.3 }}
-      className="rounded-card bg-gradient-to-br from-brand-primary/8 to-brand-primary/5 border border-brand-primary/15 px-4 py-4 relative"
+      // P2-52 — 마이페이지 다른 카드(CARD=rounded-panel, 27px)와 달리
+      // rounded-card(36px, fridge·closet 쪽 토큰)를 쓰고 있었다 —
+      // 같은 화면 안 모서리 값 불일치(E3 실측) 중 하나.
+      className="rounded-panel bg-gradient-to-br from-brand-primary/8 to-brand-primary/5 border border-brand-primary/15 px-4 py-4 relative"
       style={CARD_SHADOW}
     >
       <button

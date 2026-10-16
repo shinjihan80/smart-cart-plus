@@ -4,7 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, ChevronDown } from 'lucide-react';
 import { useScrollHint } from '@/lib/useScrollHint';
-import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
+// P2-52 — closet/shared(bordered, 36px)를 잘못 import해 요금제
+// 카드만 마이페이지 다른 카드(plain, 27px)와 모서리·테두리가
+// 달랐다(E3 실측). 마이페이지 전용 shared로 교정.
+import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
 import { TIER_LIMITS } from '@/lib/aiQuota';
 import { VISION_MONTHLY_LIMITS } from '@/lib/monthlyVisionQuota';

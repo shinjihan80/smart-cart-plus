@@ -369,7 +369,12 @@ export default function MyPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springTransition, delay: 0.05 }}
-            className="rounded-card border px-4 py-3 flex items-center gap-3 bg-gray-900/5 border-gray-900/10"
+            // P2-52 — rounded-card(36px, fridge·closet 쪽 토큰)를 빌려 써서
+            // 바로 위 프로필 카드(CARD=rounded-panel, 27px)와 한 화면
+            // 안에서 모서리 값이 달랐다(E3 실측). 마이페이지는 전부
+            // rounded-panel을 쓰므로 거기 맞춘다 — 테두리·그림자 없음은
+            // callout 성격상 의도된 차이라 유지.
+            className="rounded-panel border px-4 py-3 flex items-center gap-3 bg-gray-900/5 border-gray-900/10"
           >
             <EmojiIcon emoji="💾" size={20} className="text-gray-600 shrink-0" />
             <div className="flex-1 min-w-0">

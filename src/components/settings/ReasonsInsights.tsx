@@ -3,7 +3,9 @@
 import { motion } from 'framer-motion';
 import { useReasonsLog } from '@/lib/reasonsLog';
 import EmojiIcon from '@/components/EmojiIcon';
-import { springTransition, CARD, CARD_SHADOW } from '@/components/closet/shared';
+// P2-52 — settings 쪽 컴포넌트가 closet/shared(bordered, 36px)를
+// 잘못 import하고 있었다. mypage 전용 shared로 교정.
+import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
 /**
  * 추천 신호 선호도 인사이트.
