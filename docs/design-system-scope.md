@@ -19,7 +19,7 @@
 | 1. A+B+D 토큰 선언 | ✅ 완료 | 2026-10-14 | (아래 참고) |
 | 2. B 전역 치환(`brand-warning`/`brand-accent` 재배치) | ✅ 완료 | 2026-10-14 | (아래 참고) |
 | 3. A+D 전역 치환(text/radius 리터럴) | ✅ radius 완료 · text 부분 완료(28/89, 나머지는 Step 5로 이월) | 2026-10-14 | (아래 참고) |
-| 4. C 아이콘 언어 통일 | ✅ 탭 스트립 3개 완료 · 전체 앱 전수 감사는 미착수 | 2026-10-14 | (아래 참고) |
+| 4. C 아이콘 언어 통일 | 🔶 탭 스트립 3개 + 화면 8곳(마이·홈·설정·검색·알림·제철달력·명령팔레트·레시피모달) 완료 · 나머지 ~38파일(closet/fridge/home 서브컴포넌트 등) 미착수 | 2026-10-14~16 | (아래 참고) |
 | 5. D+E 컴포넌트화 | ✅ Field.tsx·Surface.tsx·AppHeader·EmptyState·WardrobeView(버그 해소+wide/narrow variant) 완료 — `FoodAttributeFields.tsx` 완전 통합·공용 그리드 셀 컴포넌트는 제품 판단 필요해 의도적 보류 | 2026-10-14 | (아래 참고) |
 | 6. F 레이아웃 보강 | ✅ FoodSummaryStats(P1-108)·touch-target-44 11곳(P1-17)·useScrollHint()+메인 탭 2곳(P1-59 일부)·NameChips+UrgentAlert(P1-66)·그리드→리스트 자동전환 재검토(P1-27 후반, 불필요 확인) 완료 — WaitlistBanner+RecipeDetailModal+InstallBanner(간격 부족)는 의도적 보류 | 2026-10-14 | (아래 참고) |
 | 7. B 다크모드 | 🔶 착수 전 감사만 완료 — 선행 조건 ④(색 CSS 변수 완전 추출)가 237곳+39파일(원색 팔레트)·~1,600곳(gray/white)짜리 별도 대규모 감사임을 확인, 구현은 미착수 | 2026-10-14 | (아래 참고) |
@@ -75,6 +75,8 @@
 - 규칙: "이모지는 사용자 데이터(등록한 옷·음식)에만, 앱 크롬(탭·헤더·버튼)은 라인아이콘만" — 탭 데이터 스키마를 `{icon: LucideIcon, label}`로 타입 레벨 강제(`WARDROBE_SECTION_META.emoji`도 포함)해야 재발 방지가 됨, 단순 치환만으로는 다음 기능 추가 때 또 이모지가 섞여 들어옴
 
 **완료 메모(탭 스트립 3개, 2026-10-14)**: mypage/fridge/closet의 `TABS`/`FRIDGE_TABS`/`CLOSET_TABS`를 `emoji: string` → `icon: LucideIcon`으로 타입 레벨 전환(가장 구체적으로 지목된 역행 사례). `inst.emoji`(냉장고·옷장 인스턴스명 커스텀 이모지)·`tone.emoji`(카테고리 대표 이모지)는 사용자 데이터라 그대로 유지 — `EmojiIcon.tsx`가 이미 구현해둔 "앱 크롬=라인아이콘/사용자 데이터=이모지" 원칙과 일치. "히어로 54px 이모지" 사례는 현재 코드에서 특정 안 됨(이전 스냅샷 기준으로 추정, 다른 수정 과정에서 이미 해소된 듯). `WARDROBE_SECTION_META.emoji` 등 앱 전체 이모지 전수 감사(냉장고/옷장 섹션 메타, 헤더 아이콘 등)는 Step 3의 text 리터럴 치환급으로 범위가 커 미착수 — 별도 후속 필요.
+
+**완료 메모(화면별 수동 스윕 — 마이·홈·설정·검색·알림·제철달력·명령팔레트·레시피모달, 2026-10-16)**: "전체 앱 전수 감사"(위 메모의 미착수 항목)를 타입 레벨 강제가 아니라 화면 단위 수동 치환으로 상당 부분 진행 — 마이페이지 12개 서브섹션, 홈(`WeeklyInsight`), 설정 페이지+7개 서브컴포넌트, 검색 화면, 알림함(`notifications/page.tsx`, 종류별 `KIND_META` 타입 레벨 매핑으로 전환), 제철 달력, 전역 명령 팔레트(`CommandPalette.tsx`, `Cmd` 타입을 `nav`/`action`은 `icon: LucideIcon`·`recipe`/`seasonal`은 `emoji: string`으로 분기), 레시피 찾기 모달(`RecipeBrowserModal.tsx`) 필터 칩. 매 건 "이모지는 사용자 데이터에만" 원칙을 재적용해 `recipe.emoji`/`p.emoji`(제철 재료)/`getFoodEmoji()`/`DIETARY_BADGE.emoji` 등은 전부 유지. `/help`·`/manual`·`/legal`의 이모지(13+42+1곳)는 인라인 설명 카피 안에 있어 "카피" 제외 사유(위 "이번 트랙에 포함되지 않는 것" 표)에 해당, 손대지 않음. **여전히 미착수로 남은 영역**: `closet/`(`OutfitDetailModal`·`OutfitGrid`·`OutfitPreview`·`SavedOutfitsSection`·`SwipeClothingCard`·`WardrobeView`) · `fridge/`(`FeelingLuckySection`·`FridgeSectionPicker`·`FridgeView`·`NutritionBalanceSection`·`RebuySection`·`RecipeSection`·`SeasonalProduceSection`·`SwipeFoodCard`) · `home/`의 배너·알림류(`BackupReminderBanner`·`DailyBriefing`·`ExpiredReminder`·`NotificationOffBanner`·`RebuyAlert`·`SeasonChangeAlert`·`TodayDishCard`·`TodoEmptyState`·`UrgentAlert`) · `layout/`(`ConsentGate`·`MilestoneAdPrompt`·`OnboardingModal`) · `mypage/MyFridgeSection`·`WeekdayPatternChart` · `settings/`(`AiQuotaCard`·`KnowledgeSummary`·`PartnerClickInsights`·`ProfilesSection`·`ReasonsInsights`·`ProPreviewCard`) · `RecipeDetailModal`·`PartnerChip`·`ShoppingMallCard`·`auth/LoginSheet`·`SectionErrorBoundary`·`error.tsx` — 약 38개 파일, Step 3 text 리터럴 치환급 규모라 원 메모와 같은 사유로 별도 패스 필요.
 
 ### D. Surface/Radius/카드 컴포넌트
 **대상:** P2-5, P2-16, P1-27(그리드 셀 통합 부분)
