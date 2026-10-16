@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
+import {
+  Search, Home, Refrigerator, Shirt, BarChart3, Flower2, Settings, Rocket, Users,
+  Save, Plus, Archive, FileText, Calendar, RotateCcw, Trash2, UtensilsCrossed, Bookmark,
+  type LucideIcon,
+} from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { isFoodItem } from '@/types';
@@ -29,10 +33,10 @@ import { todayLocalStr } from '@/lib/dateMath';
  */
 
 type Cmd =
-  | { kind: 'nav';      id: string; emoji: string; label: string; sub?: string; href: string }
+  | { kind: 'nav';      id: string; icon: LucideIcon; label: string; sub?: string; href: string }
   | { kind: 'recipe';   id: string; emoji: string; label: string; sub?: string; recipeId: string }
   | { kind: 'seasonal'; id: string; emoji: string; label: string; sub?: string; ingredient: string }
-  | { kind: 'action';   id: string; emoji: string; label: string; sub?: string; run: () => void };
+  | { kind: 'action';   id: string; icon: LucideIcon; label: string; sub?: string; run: () => void };
 
 export default function CommandPalette() {
   const router = useRouter();
@@ -104,18 +108,18 @@ export default function CommandPalette() {
     const query = normalize(body);
     const includesFuzzy = (text: string) => normalize(text).includes(query);
     const navs: Cmd[] = [
-      { kind: 'nav', id: 'n-home',     emoji: '🏠', label: '홈',         sub: '오늘의 한 마디·벤토',    href: '/' },
-      { kind: 'nav', id: 'n-fridge',   emoji: '🧊', label: '스마트 냉장고', sub: '보관 기한·레시피·제철', href: '/fridge' },
-      { kind: 'nav', id: 'n-closet',   emoji: '👔', label: '스마트 옷장',   sub: '코디·계절 꺼내기',      href: '/closet' },
-      { kind: 'nav', id: 'n-mypage',   emoji: '📊', label: '내 정보',      sub: '프로필·요약·쇼핑',      href: '/mypage' },
-      { kind: 'nav', id: 'n-seasonal', emoji: '🌸', label: '제철 달력',      sub: '4계절 × 27종',          href: '/seasonal' },
-      { kind: 'nav', id: 'n-settings', emoji: '⚙️', label: '설정',          sub: '백업·초기화·프로필',    href: '/settings' },
-      { kind: 'nav', id: 'n-partners', emoji: '🚀', label: '파트너 로드맵',  sub: 'Phase 7 연결 예정 서비스', href: '/mypage#partners' },
-      { kind: 'nav', id: 'n-profiles', emoji: '👥', label: '프로필 관리',    sub: '소유자 추가·수정',        href: '/mypage?tab=profile' },
+      { kind: 'nav', id: 'n-home',     icon: Home,        label: '홈',         sub: '오늘의 한 마디·벤토',    href: '/' },
+      { kind: 'nav', id: 'n-fridge',   icon: Refrigerator, label: '스마트 냉장고', sub: '보관 기한·레시피·제철', href: '/fridge' },
+      { kind: 'nav', id: 'n-closet',   icon: Shirt,       label: '스마트 옷장',   sub: '코디·계절 꺼내기',      href: '/closet' },
+      { kind: 'nav', id: 'n-mypage',   icon: BarChart3,   label: '내 정보',      sub: '프로필·요약·쇼핑',      href: '/mypage' },
+      { kind: 'nav', id: 'n-seasonal', icon: Flower2,     label: '제철 달력',      sub: '4계절 × 27종',          href: '/seasonal' },
+      { kind: 'nav', id: 'n-settings', icon: Settings,    label: '설정',          sub: '백업·초기화·프로필',    href: '/settings' },
+      { kind: 'nav', id: 'n-partners', icon: Rocket,      label: '파트너 로드맵',  sub: 'Phase 7 연결 예정 서비스', href: '/mypage#partners' },
+      { kind: 'nav', id: 'n-profiles', icon: Users,       label: '프로필 관리',    sub: '소유자 추가·수정',        href: '/mypage?tab=profile' },
     ];
     const actions: Cmd[] = [
       {
-        kind: 'action', id: 'a-backup', emoji: '💾',
+        kind: 'action', id: 'a-backup', icon: Save,
         label: '지금 백업 다운로드', sub: '전체 상태를 JSON으로',
         run: () => {
           const f = downloadBackup();
@@ -123,12 +127,12 @@ export default function CommandPalette() {
         },
       },
       {
-        kind: 'action', id: 'a-register', emoji: '➕',
+        kind: 'action', id: 'a-register', icon: Plus,
         label: '상품 등록 열기', sub: '텍스트·영수증에서 추가',
         run: () => window.dispatchEvent(new CustomEvent('nemoa:open-register')),
       },
       {
-        kind: 'action', id: 'a-archive', emoji: '📦',
+        kind: 'action', id: 'a-archive', icon: Archive,
         label: '만료 식품 정리', sub: '보관 기한 +7일 초과 아카이브',
         run: () => {
           const n = archiveExpired();
@@ -136,12 +140,12 @@ export default function CommandPalette() {
         },
       },
       {
-        kind: 'action', id: 'a-export-json', emoji: '📄',
+        kind: 'action', id: 'a-export-json', icon: FileText,
         label: 'JSON 내보내기', sub: '현재 아이템만',
         run: () => { exportAsJSON(items); showToast('JSON 파일로 내보냈어요.'); },
       },
       {
-        kind: 'action', id: 'a-export-csv', emoji: '📊',
+        kind: 'action', id: 'a-export-csv', icon: BarChart3,
         label: 'CSV 내보내기', sub: '현재 아이템만',
         run: () => { exportAsCSV(items); showToast('CSV 파일로 내보냈어요.'); },
       },
@@ -154,7 +158,7 @@ export default function CommandPalette() {
     );
     if (peakToShop.length > 0) {
       actions.push({
-        kind: 'action', id: 'a-peak-shop', emoji: '🌸',
+        kind: 'action', id: 'a-peak-shop', icon: Flower2,
         label: `${season}철 피크 ${peakToShop.length}종 쇼핑 리스트에 담기`,
         sub: '현재 계절 피크 · 미보유만',
         run: () => {
@@ -171,7 +175,7 @@ export default function CommandPalette() {
     const wearToday = Object.values(wearLog).filter((dates) => Array.isArray(dates) && dates[0] === today).length;
     if (cookToday > 0 || wearToday > 0) {
       actions.push({
-        kind: 'action', id: 'a-today-review', emoji: '📅',
+        kind: 'action', id: 'a-today-review', icon: Calendar,
         label: '오늘 하루 리뷰', sub: `조리 ${cookToday} · 착용 ${wearToday}`,
         run: () => showToast(`오늘 조리 ${cookToday}건 · 착용 ${wearToday}건 기록했어요.`),
       });
@@ -184,7 +188,7 @@ export default function CommandPalette() {
       const r = RECIPES.find((x) => x.id === lastCookedId);
       if (r) {
         actions.push({
-          kind: 'action', id: 'a-reopen-last', emoji: '↻',
+          kind: 'action', id: 'a-reopen-last', icon: RotateCcw,
           label: `어제 만든 "${r.name}" 다시 보기`, sub: `${yesterday} 기록`,
           run: () => window.dispatchEvent(new CustomEvent('nemoa:open-recipe', { detail: { recipeId: r.id } })),
         });
@@ -194,7 +198,7 @@ export default function CommandPalette() {
     // 쇼핑 리스트 비우기 — 항목 있을 때만 노출
     if (shoppingList.length > 0) {
       actions.push({
-        kind: 'action', id: 'a-clear-shopping', emoji: '🗑️',
+        kind: 'action', id: 'a-clear-shopping', icon: Trash2,
         label: '쇼핑 리스트 비우기', sub: `현재 ${shoppingList.length}개`,
         run: () => {
           if (!confirm('쇼핑 리스트를 모두 비울까요?')) return;
@@ -257,7 +261,7 @@ export default function CommandPalette() {
       .slice(0, 5)
       .map((it) => ({
         kind: 'nav' as const, id: `i-${it.id}`,
-        emoji: isFoodItem(it) ? '🍱' : '👕',
+        icon: isFoodItem(it) ? UtensilsCrossed : Shirt,
         label: it.name, sub: isFoodItem(it) ? '냉장고 보유' : '옷장 보유',
         href: isFoodItem(it) ? '/fridge' : '/closet',
       }));
@@ -268,7 +272,7 @@ export default function CommandPalette() {
       .slice(0, 4)
       .map((o) => ({
         kind: 'nav' as const, id: `o-${o.id}`,
-        emoji: '💾',
+        icon: Bookmark,
         label: o.name, sub: `저장된 코디 · ${Object.keys(o.slots).length}벌`,
         href: '/closet',
       }));
@@ -426,7 +430,9 @@ export default function CommandPalette() {
                         i === cursor ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
                       }`}
                     >
-                      <EmojiIcon emoji={cmd.emoji} size={18} className="text-gray-700 shrink-0" />
+                      {'icon' in cmd
+                        ? <cmd.icon size={18} strokeWidth={2} className="text-gray-500 shrink-0" aria-hidden />
+                        : <EmojiIcon emoji={cmd.emoji} size={18} className="text-gray-700 shrink-0" />}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-800 truncate">{cmd.label}</p>
                         {cmd.sub && <p className="text-sm text-gray-400 truncate">{cmd.sub}</p>}
