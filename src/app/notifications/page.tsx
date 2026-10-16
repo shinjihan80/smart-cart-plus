@@ -3,20 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, BellOff, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BellOff, Trash2, Clock, Shirt, RotateCcw, Leaf, Bell, type LucideIcon } from 'lucide-react';
 import { useNotificationLog, type NotificationLogEntry } from '@/lib/notificationLog';
 
 // 카드를 눌렀을 때 갈 곳 — 알림 종류별로 실제 확인할 화면으로 보낸다.
 // 예전엔 카드가 아예 안 눌려서 "우유가 임박"이라고 읽고도 냉장고 탭을
 // 처음부터 다시 찾아 들어가야 했다(검토단 C9 발견).
-const KIND_META: Record<NotificationLogEntry['kind'], { emoji: string; bg: string; href: string }> = {
-  expiry:  { emoji: '⏰', bg: 'bg-caution/10', href: '/fridge' },
-  codi:    { emoji: '👗', bg: 'bg-brand-primary/10', href: '/closet?tab=outfit' },
+// 리디자인(옵션 B) — 이모지를 라인 아이콘으로, expired의 raw red-50을
+// danger 토큰으로 통일(다른 임박 색 체계와 같은 소스).
+const KIND_META: Record<NotificationLogEntry['kind'], { icon: LucideIcon; bg: string; iconColor: string; href: string }> = {
+  expiry:  { icon: Clock,      bg: 'bg-caution/10',       iconColor: 'text-caution',      href: '/fridge' },
+  codi:    { icon: Shirt,      bg: 'bg-brand-primary/10', iconColor: 'text-brand-primary', href: '/closet?tab=outfit' },
   // P1-81 — 홈 인앱 배너 4종도 알림함에 쌓이도록 추가(아래 참고).
-  urgent:  { emoji: '⏰', bg: 'bg-caution/10', href: '/fridge' },
-  rebuy:   { emoji: '🔄', bg: 'bg-amber-50',         href: '/mypage?tab=shopping' },
-  season:  { emoji: '🍃', bg: 'bg-brand-primary/10', href: '/mypage?tab=activity#seasonal' },
-  expired: { emoji: '🗑️', bg: 'bg-red-50',           href: '/fridge?tab=food' },
+  urgent:  { icon: Clock,      bg: 'bg-caution/10',       iconColor: 'text-caution',      href: '/fridge' },
+  rebuy:   { icon: RotateCcw,  bg: 'bg-amber-50',         iconColor: 'text-amber-700',    href: '/mypage?tab=shopping' },
+  season:  { icon: Leaf,       bg: 'bg-brand-primary/10', iconColor: 'text-brand-primary', href: '/mypage?tab=activity#seasonal' },
+  expired: { icon: Trash2,     bg: 'bg-danger/10',        iconColor: 'text-danger',       href: '/fridge?tab=food' },
 };
 
 function formatWhen(iso: string): string {
@@ -109,7 +111,9 @@ export default function NotificationsPage() {
 
         {entries.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-20 text-center">
-            <span className="text-4xl" aria-hidden>🔔</span>
+            <span className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center" aria-hidden>
+              <Bell size={28} strokeWidth={2} className="text-gray-300" />
+            </span>
             <p className="text-sm font-semibold text-gray-700 mt-2">아직 받은 알림이 없어요</p>
             <p className="text-xs text-gray-400 leading-relaxed">
               유통기한이 임박하거나 오늘의 코디를 추천할 때{'\n'}여기에 알림이 쌓여요.
@@ -124,15 +128,21 @@ export default function NotificationsPage() {
                 href={meta.href}
                 className="flex items-start gap-3 rounded-chip px-4 py-3.5 bg-white ring-1 ring-gray-100 active:scale-[0.99] transition-transform"
               >
-                <span className={`w-9 h-9 rounded-full ${meta.bg} flex items-center justify-center shrink-0 text-base`} aria-hidden>
-                  {meta.emoji}
+                <span className={`w-9 h-9 rounded-full ${meta.bg} flex items-center justify-center shrink-0`} aria-hidden>
+                  <meta.icon size={16} strokeWidth={2} className={meta.iconColor} />
                 </span>
                 <div className="flex-1 min-w-0">
-                  {/* 아이콘이 이미 종류를 나타내므로 제목의 이모지는 지운다 —
-                      한 카드에 같은 그림이 두 번 나와 좁은 화면에서 가장 중요한
-                      정보(개수)가 밀려 잘리던 문제(검토단 C9). 제목은 줄바꿈
-                      허용(line-clamp-2)해서 숫자가 안 잘리게. */}
-                  <p className="text-sm font-semibold text-gray-900 line-clamp-2">{entry.title.replace(/^\S+\s/, '')}</p>
+                  {/* 재발견 — 제목 첫 단어를 "이모지 제거"용으로 무조건
+                      잘라내는 정규식(/^\S+\s/)이 있었는데, 실제 제목
+                      생성부(UrgentAlert 등 4곳)는 더는 이모지를 안 붙여
+                      순수 텍스트만 준다 — 그 결과 "오늘까지 먹어야 할
+                      식품 3개"의 "오늘까지"처럼 진짜 내용 첫 단어가
+                      조용히 잘려 "먹어야 할 식품 3개"로만 보였다(라이브
+                      실측 재현). 아이콘 칩이 이미 종류를 나타내므로
+                      이모지 제거 자체는 더 필요 없어 그대로 둔다 —
+                      제목은 줄바꿈 허용(line-clamp-2)해서 숫자가 안
+                      잘리게. */}
+                  <p className="text-sm font-semibold text-gray-900 line-clamp-2">{entry.title}</p>
                   <p className="text-xs text-gray-500 mt-0.5 truncate">{entry.body}</p>
                   {/* 11px + gray-400 조합이 2.6:1로 흰 배경에서 거의 안 보였다
                       (검토단 C6·C8) — "언제 온 알림인지"가 이 줄의 핵심
