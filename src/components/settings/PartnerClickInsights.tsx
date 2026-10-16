@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
 import { usePartnerClicks } from '@/lib/partnerClickLog';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Link2 } from 'lucide-react';
 // P2-52 — settings 쪽 컴포넌트가 closet/shared(bordered, 36px)를
 // 잘못 import하고 있었다. mypage 전용 shared로 교정.
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -49,7 +49,7 @@ export default function PartnerClickInsights() {
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="🔗" size={16} className="text-gray-600" />
+          <Link2 size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">파트너 사용 기록</span>
         </div>
         <span className="text-xs text-gray-400 tabular-nums shrink-0">

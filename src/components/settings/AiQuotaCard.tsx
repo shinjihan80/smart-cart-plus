@@ -5,19 +5,19 @@ import { useAiQuota, TIER_LIMITS, type AiAgent } from '@/lib/aiQuota';
 import { isMarketedUnlimited } from '@/lib/aiQuotaConstants';
 import { useMonthlyVisionQuota } from '@/lib/monthlyVisionQuota';
 import { usePlan, PLAN_LABEL } from '@/lib/usePlan';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Bot, Camera, FileText, Salad, Link2, type LucideIcon } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
-const AGENTS: Array<{ key: AiAgent; label: string; emoji: string }> = [
-  { key: 'vision',    label: '사진 분석',   emoji: '📸' },
-  { key: 'parser',    label: '텍스트 파싱', emoji: '📝' },
-  { key: 'nutrition', label: '영양 분석',   emoji: '🥗' },
-  { key: 'url',       label: 'URL 분석',    emoji: '🔗' },
+const AGENTS: Array<{ key: AiAgent; label: string; icon: LucideIcon }> = [
+  { key: 'vision',    label: '사진 분석',   icon: Camera },
+  { key: 'parser',    label: '텍스트 파싱', icon: FileText },
+  { key: 'nutrition', label: '영양 분석',   icon: Salad },
+  { key: 'url',       label: 'URL 분석',    icon: Link2 },
 ];
 
 function QuotaTile({
-  emoji, label, left, total, isUnlimited,
-}: { emoji: string; label: string; left: number; total: number; isUnlimited: boolean }) {
+  icon: Icon, label, left, total, isUnlimited,
+}: { icon: LucideIcon; label: string; left: number; total: number; isUnlimited: boolean }) {
   const pct   = isUnlimited ? 100 : total > 0 ? Math.round((left / total) * 100) : 0;
   const isLow = !isUnlimited && left < total * 0.3;
   const tone  = !isUnlimited && left === 0
@@ -28,7 +28,7 @@ function QuotaTile({
   return (
     <div className="rounded-xl border border-gray-100 p-2.5">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-gray-600 truncate min-w-0">{emoji} {label}</span>
+        <span className="inline-flex items-center gap-1 text-xs text-gray-600 truncate min-w-0"><Icon size={12} strokeWidth={2} className="shrink-0" /> {label}</span>
         <span className={`text-xs font-bold tabular-nums ${tone}`}>
           {isUnlimited ? '∞' : `${left}/${total}`}
         </span>
@@ -75,14 +75,14 @@ export default function AiQuotaCard() {
           잘 안 보였다(P0-14). */}
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="🤖" size={16} className="text-brand-primary" />
+          <Bot size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
           <span className="text-xs text-gray-400 font-medium whitespace-nowrap">AI 이번 달 남은 횟수</span>
         </div>
         <span className="text-xs text-gray-400 whitespace-nowrap">{PLAN_LABEL[tier]} · 매달 1일 리셋</span>
       </div>
       <div className="mb-3">
         <QuotaTile
-          emoji="📸" label="사진 분석"
+          icon={Camera} label="사진 분석"
           left={monthlyVision.remaining} total={monthlyVision.limit}
           isUnlimited={!isFinite(monthlyVision.limit)}
         />
@@ -97,7 +97,7 @@ export default function AiQuotaCard() {
           const left  = remaining(a.key);
           const total = limits[a.key];
           const isUnlimited = !isFinite(total) || (isMarketedUnlimited(tier) && left > 0);
-          return <QuotaTile key={a.key} emoji={a.emoji} label={a.label} left={left} total={total} isUnlimited={isUnlimited} />;
+          return <QuotaTile key={a.key} icon={a.icon} label={a.label} left={left} total={total} isUnlimited={isUnlimited} />;
         })}
       </div>
 

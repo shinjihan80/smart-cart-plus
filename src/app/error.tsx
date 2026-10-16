@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { CircleAlert } from 'lucide-react';
 import { logError } from '@/lib/errorLog';
 
 export default function ErrorPage({
@@ -17,7 +18,7 @@ export default function ErrorPage({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
-      <div className="text-5xl mb-4">😵</div>
+      <CircleAlert size={44} strokeWidth={1.75} className="text-caution mb-4" aria-hidden />
       <h2 className="text-lg font-bold text-gray-900 mb-2">문제가 발생했어요</h2>
       <p className="text-sm text-gray-500 mb-6 max-w-[260px] leading-relaxed">
         일시적인 오류예요. 아래 버튼을 눌러 다시 시도해주세요.

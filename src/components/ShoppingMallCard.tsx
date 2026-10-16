@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, ShoppingCart, type LucideIcon } from 'lucide-react';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
 import { logPartnerClick } from '@/lib/partnerClickLog';
 import { PartnerMonogram } from '@/components/PartnerChip';
@@ -13,8 +13,8 @@ interface ShoppingMallCardProps {
   title:    string;
   /** 한 줄 설명 */
   subtitle?: string;
-  /** 추천 이모지 (헤더 좌측) */
-  emoji?:   string;
+  /** 헤더 좌측 아이콘 */
+  icon?:    LucideIcon;
 }
 
 /**
@@ -24,7 +24,7 @@ interface ShoppingMallCardProps {
  * `enabled: true`인 파트너만 노출. 클릭 시 새 창으로 열림.
  */
 export default function ShoppingMallCard({
-  domain, title, subtitle, emoji = '🛒',
+  domain, title, subtitle, icon: Icon = ShoppingCart,
 }: ShoppingMallCardProps) {
   const malls = Object.values(PARTNERS).filter((p) => p.domain === domain && p.enabled && p.buildUrl);
 
@@ -33,7 +33,7 @@ export default function ShoppingMallCard({
   return (
     <>
       <div className="flex items-baseline gap-2 min-w-0">
-        <span className="text-base shrink-0" aria-hidden>{emoji}</span>
+        <Icon size={16} strokeWidth={2} className="shrink-0 text-gray-700" aria-hidden />
         <h3 className="text-base font-bold text-gray-900 tracking-tight shrink-0 whitespace-nowrap">{title}</h3>
         {subtitle && <span className="text-xs text-gray-400 truncate min-w-0">{subtitle}</span>}
       </div>

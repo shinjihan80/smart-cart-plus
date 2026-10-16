@@ -9,7 +9,7 @@ import { SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { PARTNERS } from '@/lib/partnerLinks';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Brain, ChefHat, Flower2, UtensilsCrossed, Shirt, Bookmark, Handshake, type LucideIcon } from 'lucide-react';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 
@@ -23,13 +23,13 @@ export default function KnowledgeSummary() {
   const produce     = SEASONAL_PRODUCE.length;
   const partners    = Object.keys(PARTNERS).length;
 
-  const stats = [
-    { emoji: '👨‍🍳', label: '레시피',        value: recipes,     suffix: '개' },
-    { emoji: '🌸',    label: '제철 재료',     value: produce,     suffix: '종' },
-    { emoji: '🥦',    label: '식품 카테고리', value: foodCats,    suffix: '종' },
-    { emoji: '👕',    label: '패션 카테고리', value: fashionCats, suffix: '종' },
-    { emoji: '💾',    label: '저장 코디',     value: outfits.length, suffix: '개' },
-    { emoji: '🤝',    label: '파트너',        value: partners,    suffix: '개' },
+  const stats: { icon: LucideIcon; label: string; value: number; suffix: string }[] = [
+    { icon: ChefHat,         label: '레시피',        value: recipes,     suffix: '개' },
+    { icon: Flower2,         label: '제철 재료',     value: produce,     suffix: '종' },
+    { icon: UtensilsCrossed, label: '식품 카테고리', value: foodCats,    suffix: '종' },
+    { icon: Shirt,           label: '패션 카테고리', value: fashionCats, suffix: '종' },
+    { icon: Bookmark,        label: '저장 코디',     value: outfits.length, suffix: '개' },
+    { icon: Handshake,       label: '파트너',        value: partners,    suffix: '개' },
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function KnowledgeSummary() {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <EmojiIcon emoji="🧠" size={16} className="text-brand-primary" />
+          <Brain size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">네모아가 알고 있는 것</span>
         </div>
         <ChevronDown
@@ -57,7 +57,7 @@ export default function KnowledgeSummary() {
       <div className="grid grid-cols-5 gap-2 mt-3">
         {stats.map((s) => (
           <div key={s.label} className="flex flex-col items-center gap-0.5">
-            <EmojiIcon emoji={s.emoji} size={18} className="text-gray-700" />
+            <s.icon size={18} strokeWidth={2} className="text-gray-700" />
             <span className="text-sm font-bold text-gray-900 tabular-nums">
               {s.value}
               <span className="text-xs text-gray-400 ml-0.5 font-medium">{s.suffix}</span>
@@ -81,7 +81,7 @@ export default function KnowledgeSummary() {
               className="mt-3 flex items-center justify-between px-3 py-2 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 hover:bg-brand-primary/10 transition-colors"
             >
               <div className="flex items-center gap-2">
-                <EmojiIcon emoji="🌸" size={16} className="text-brand-primary" />
+                <Flower2 size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
                 <span className="text-xs font-semibold text-brand-primary">
                   제철 달력 열기 — 4계절 전체 보기
                 </span>

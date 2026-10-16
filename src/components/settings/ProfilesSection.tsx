@@ -2,7 +2,12 @@
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, ChevronDown, Camera } from 'lucide-react';
+import {
+  Plus, Trash2, ChevronDown, Camera,
+  UtensilsCrossed, Fish, Salad, Sprout,
+  Armchair, Footprints, PersonStanding, Dumbbell, Flame,
+  type LucideIcon,
+} from 'lucide-react';
 import {
   useProfiles, calcTDEE, resolveDailyCalorieTarget, FREE_PROFILE_LIMIT,
   type Profile, type Relation, type Dietary, type Gender, type ActivityLevel,
@@ -25,11 +30,11 @@ const RELATION_EMOJI: Record<Relation, string> = {
   기타:   '👥',
 };
 
-const DIETARY_OPTIONS: { key: Dietary; label: string; emoji: string }[] = [
-  { key: 'none',         label: '없음',       emoji: '🍽️' },
-  { key: 'pescatarian',  label: '페스코',     emoji: '🐟' },
-  { key: 'vegetarian',   label: '채식',       emoji: '🥬' },
-  { key: 'vegan',        label: '비건',       emoji: '🌱' },
+const DIETARY_OPTIONS: { key: Dietary; label: string; icon: LucideIcon }[] = [
+  { key: 'none',         label: '없음',       icon: UtensilsCrossed },
+  { key: 'pescatarian',  label: '페스코',     icon: Fish },
+  { key: 'vegetarian',   label: '채식',       icon: Salad },
+  { key: 'vegan',        label: '비건',       icon: Sprout },
 ];
 
 const GENDER_OPTIONS: { key: Gender; label: string; emoji: string }[] = [
@@ -38,12 +43,12 @@ const GENDER_OPTIONS: { key: Gender; label: string; emoji: string }[] = [
   { key: 'other',  label: '기타',   emoji: '🧑' },
 ];
 
-const ACTIVITY_OPTIONS: { key: ActivityLevel; label: string; emoji: string; sub: string }[] = [
-  { key: 'sedentary',  label: '거의 안함',  emoji: '🪑', sub: '주로 앉아서' },
-  { key: 'light',      label: '가볍게',     emoji: '🚶', sub: '주 1-3회 운동' },
-  { key: 'moderate',   label: '보통',       emoji: '🏃', sub: '주 3-5회 운동' },
-  { key: 'active',     label: '활발',       emoji: '💪', sub: '주 6-7회 운동' },
-  { key: 'veryActive', label: '매우 활발',  emoji: '🔥', sub: '하루 2회 또는 육체 노동' },
+const ACTIVITY_OPTIONS: { key: ActivityLevel; label: string; icon: LucideIcon; sub: string }[] = [
+  { key: 'sedentary',  label: '거의 안함',  icon: Armchair,       sub: '주로 앉아서' },
+  { key: 'light',      label: '가볍게',     icon: Footprints,     sub: '주 1-3회 운동' },
+  { key: 'moderate',   label: '보통',       icon: PersonStanding, sub: '주 3-5회 운동' },
+  { key: 'active',     label: '활발',       icon: Dumbbell,       sub: '주 6-7회 운동' },
+  { key: 'veryActive', label: '매우 활발',  icon: Flame,          sub: '하루 2회 또는 육체 노동' },
 ];
 
 const COMMON_ALLERGENS = ['갑각류', '땅콩', '계란', '우유', '밀', '대두', '복숭아', '토마토', '견과류', '메밀'];
@@ -381,7 +386,7 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
                             : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
-                        {opt.emoji} {opt.label}
+                        <span className="inline-flex items-center gap-1"><opt.icon size={12} strokeWidth={2} /> {opt.label}</span>
                       </button>
                     );
                   })}
@@ -440,7 +445,7 @@ function ProfileCard({ profile, onUpdate, onRemove, initialExpanded = false }: {
                           active ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
                         }`}
                       >
-                        <span className="text-base leading-none">{opt.emoji}</span>
+                        <opt.icon size={16} strokeWidth={2} />
                         <span className="mt-0.5 text-[10px] leading-tight text-center">{opt.label}</span>
                       </button>
                     );

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, X } from 'lucide-react';
+import { Heart, X, Check, Plus, Clipboard, CookingPot, Link2, Bell, Timer, Clock } from 'lucide-react';
 import { parseRecipeSeconds, recipeGradient, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
@@ -231,7 +231,7 @@ export default function RecipeDetailModal({
                           : 'border-brand-success/20 text-brand-success'
                       }`}
                     >
-                      <span>✓ {name}</span>
+                      <span className="inline-flex items-center gap-0.5"><Check size={11} strokeWidth={2.5} /> {name}</span>
                       {inSeason && (() => {
                         const Icon = SEASON_ICON[season];
                         const color = SEASON_COLOR[season];
@@ -280,7 +280,9 @@ export default function RecipeDetailModal({
                             : 'bg-white border border-amber-200 text-amber-700 hover:bg-amber-100 active:scale-95'
                       }`}
                     >
-                      <span>{added ? `✓ ${kw}` : `+ ${kw}`}</span>
+                      <span className="inline-flex items-center gap-0.5">
+                        {added ? <Check size={11} strokeWidth={2.5} /> : <Plus size={11} strokeWidth={2.5} />} {kw}
+                      </span>
                       {inSeason && !added && (() => {
                         const Icon = SEASON_ICON[season];
                         const color = SEASON_COLOR[season];
@@ -318,7 +320,10 @@ export default function RecipeDetailModal({
                   ? 'bg-brand-primary/10 border-brand-primary/25'
                   : 'bg-gray-50 border-gray-100'
             }`}>
-              <EmojiIcon emoji={finished ? '🔔' : running ? '⏱️' : '⏰'} size={20} className={finished ? 'text-caution' : running ? 'text-brand-primary' : 'text-gray-600'} />
+              {(() => {
+                const TimerIcon = finished ? Bell : running ? Timer : Clock;
+                return <TimerIcon size={20} strokeWidth={2} className={finished ? 'text-caution' : running ? 'text-brand-primary' : 'text-gray-600'} aria-hidden />;
+              })()}
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-500">
                   {finished ? '완성 시간이에요!' : running ? '타이머 진행 중' : '조리 타이머'}
@@ -374,9 +379,9 @@ export default function RecipeDetailModal({
                     showToast('복사에 실패했어요. 권한을 확인해주세요.');
                   }
                 }}
-                className="text-sm font-semibold text-gray-500 hover:text-brand-primary hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-brand-primary hover:underline"
               >
-                📋 레시피 복사
+                <Clipboard size={13} strokeWidth={2} /> 레시피 복사
               </button>
             </div>
             <ol className="flex flex-col gap-2.5">
@@ -393,7 +398,9 @@ export default function RecipeDetailModal({
 
           {coCooked.length > 0 && (
             <div className="mt-4">
-              <p className="text-xs font-semibold text-gray-500 mb-2">🍳 같이 만들었던 메뉴</p>
+              <p className="flex items-center gap-1 text-xs font-semibold text-gray-500 mb-2">
+                <CookingPot size={13} strokeWidth={2} /> 같이 만들었던 메뉴
+              </p>
               <div className="flex gap-1.5 flex-wrap">
                 {coCooked.map((co) => (
                   <button
@@ -432,7 +439,9 @@ export default function RecipeDetailModal({
             if (similar.length === 0) return null;
             return (
               <div className="mt-4">
-                <p className="text-xs font-semibold text-gray-500 mb-2">🔗 비슷한 레시피</p>
+                <p className="flex items-center gap-1 text-xs font-semibold text-gray-500 mb-2">
+                  <Link2 size={13} strokeWidth={2} /> 비슷한 레시피
+                </p>
                 <div className="flex gap-1.5 flex-wrap">
                   {similar.map((r) => (
                     <button

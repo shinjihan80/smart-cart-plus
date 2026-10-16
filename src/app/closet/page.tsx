@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid, List, SlidersHorizontal, Grid3x3, Shirt, Sparkles, ShoppingBag, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, Grid3x3, Shirt, Sparkles, ShoppingBag, Banknote, Heart, Package, type LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
@@ -671,28 +671,28 @@ export default function ClosetPage() {
           domain="fashion"
           title="패션 쇼핑몰"
           subtitle="옷 사러 가기 — 탭하면 새 창으로 이동"
-          emoji="👕"
+          icon={Shirt}
         />
 
         <ShoppingMallCard
           domain="secondhand"
           title="중고 판매"
           subtitle="안 입는 옷 빠르게 팔기 — 당근·번개장터·KREAM"
-          emoji="💰"
+          icon={Banknote}
         />
 
         <ShoppingMallCard
           domain="donation"
           title="기부하기"
           subtitle="오래 안 입은 옷 따뜻하게 — 아름다운가게·굿윌·옷캔"
-          emoji="❤️"
+          icon={Heart}
         />
 
         <ShoppingMallCard
           domain="storage"
           title="짐 보관 서비스"
           subtitle="계절 옷 잠깐 빼두기 — 세탁특공대·다락"
-          emoji="📦"
+          icon={Package}
         />
 
         {/* 빠른 추가 */}

@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, type ReactNode } from 'react';
+import { AlertTriangle } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -45,7 +46,7 @@ export default class SectionErrorBoundary extends Component<Props, State> {
       const spanClass = this.props.colSpan === 'full' ? 'col-span-2' : '';
       return (
         <div className={`${spanClass} rounded-2xl border border-caution/20 bg-caution/5 px-4 py-3 flex items-start gap-3`}>
-          <span className="text-lg">⚠️</span>
+          <AlertTriangle size={18} strokeWidth={2} className="text-caution shrink-0" aria-hidden />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-caution">
               {this.props.label ?? '이 섹션'}을 불러오지 못했어요

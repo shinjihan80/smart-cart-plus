@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Cloud, CloudOff, Mail, ArrowLeft } from 'lucide-react';
+import { X, Cloud, CloudOff, Mail, ArrowLeft, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { isSupabaseEnabled } from '@/lib/supabase';
 import { useModalA11y } from '@/lib/useModalA11y';
@@ -134,7 +134,7 @@ export default function LoginSheet({ open, onClose }: LoginSheetProps) {
                   onClick={signInGoogle}
                   className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl border border-gray-200 font-semibold text-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors active:scale-[.98]"
                 >
-                  <span className="text-lg">🌐</span>
+                  <Globe size={18} strokeWidth={2} />
                   Google로 계속하기
                 </button>
 

@@ -290,7 +290,7 @@ export default function ProPreviewCard() {
           <button
             onClick={handleInterest}
             disabled={interestSaved}
-            className="w-full py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all disabled:opacity-60"
+            className="w-full inline-flex items-center justify-center gap-1 py-2.5 rounded-2xl bg-brand-primary text-white text-xs font-bold hover:opacity-90 active:scale-[.98] transition-all disabled:opacity-60"
           >
             {/* 재검토(C3 실측) P1 — handleInterest는 이메일·푸시 등 연락처는
                 여전히 전혀 남기지 않는다. "알림 신청 완료"는 나중에 뭔가
@@ -300,7 +300,7 @@ export default function ProPreviewCard() {
                 이후 추가: "익명 사용 통계" opt-in 기기에 한해 서버에
                 하루 총 건수만(식별자 없이) 집계 — 통계 열람용이지, 역시
                 "연락 준다"는 약속은 아니라 문구는 그대로 둠. */}
-            {interestSaved ? '관심 표시 완료 ✓' : '관심 있어요'}
+            {interestSaved ? <><Check size={13} strokeWidth={2.5} /> 관심 표시 완료</> : '관심 있어요'}
           </button>
           {/* P1-110(C9) — 눌러도 "연락이 오는지 아무 일도 없는지" 알 길이
               없었다. 실제로 하는 일(연락처 수집 없음·집계만)을 그대로

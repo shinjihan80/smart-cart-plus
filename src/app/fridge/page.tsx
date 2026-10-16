@@ -9,7 +9,7 @@ import { useToast } from '@/context/ToastContext';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { classifyExpiry, EXPIRY_LABEL, EXPIRY_TONE } from '@/lib/expiryThresholds';
 import { todayLocalStr } from '@/lib/dateMath';
-import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, Salad, type LucideIcon } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import { useScrollHint } from '@/lib/useScrollHint';
 import PaletteButton from '@/components/PaletteButton';
@@ -916,7 +916,7 @@ export default function FridgePage() {
               domain="groceries"
               title="식품 쇼핑몰"
               subtitle="장보기 — 탭하면 새 창으로 이동"
-              emoji="🥬"
+              icon={Salad}
             />
 
             <div className="flex items-center gap-2">
