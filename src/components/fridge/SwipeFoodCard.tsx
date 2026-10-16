@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, CalendarDays, Flame, Camera, Repeat, Trash2, Check, BookOpen, Pencil, Soup } from 'lucide-react';
 import { type FoodItem, type FridgeSection } from '@/types';
 import { FOOD_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
@@ -147,8 +147,9 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
           danger/caution 토큰으로 전역 정리하며 urgencyTextColor가
           이미 그 역할을 하게 됨.) */}
       <div className="flex items-center gap-2 text-xs text-gray-500 tabular-nums mb-3">
-        <span>
-          🗓 {expiryDateLabel(item)}
+        <span className="inline-flex items-center gap-1">
+          <CalendarDays size={12} strokeWidth={2} className="text-gray-400 shrink-0" aria-hidden />
+          {expiryDateLabel(item)}
           {dDay >= 0 ? (item.shelfLifeSource === 'user' ? '까지' : '쯤까지') : ' 지남'}
         </span>
         <span className="text-gray-200">·</span>
@@ -169,8 +170,9 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
 
       {/* 칼로리·영양소 — 한 줄 (펼치면 자세히) */}
       {item.nutritionFacts ? (
-        <span className="block text-xs text-gray-500 tabular-nums mt-2.5">
-          🔥 <span className="font-semibold">{item.nutritionFacts.calories}</span>kcal
+        <span className="flex items-center gap-1 text-xs text-gray-500 tabular-nums mt-2.5">
+          <Flame size={12} strokeWidth={2} className="text-gray-400 shrink-0" aria-hidden />
+          <span className="font-semibold">{item.nutritionFacts.calories}</span>kcal
           <span className="text-gray-300"> · </span>
           단 {item.nutritionFacts.protein}g
           <span className="text-gray-300"> · </span>
@@ -242,10 +244,10 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 )}
                 {/* 변경 가능 표시 — 사진 우하단에 항상 작게 보임 */}
                 <span
-                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white/95 flex items-center justify-center text-[12px] shadow-md ring-1 ring-gray-100"
+                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white/95 flex items-center justify-center shadow-md ring-1 ring-gray-100"
                   aria-hidden
                 >
-                  📷
+                  <Camera size={12} strokeWidth={2} className="text-gray-600" />
                 </span>
               </button>
             );
@@ -352,15 +354,15 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                     {item.nutritionFacts && (
                       <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
                         <span className="text-xs text-gray-400">영양</span>
-                        <span className="font-medium text-gray-600 tabular-nums text-xs">
-                          🔥{item.nutritionFacts.calories}kcal · 단{item.nutritionFacts.protein} · 지{item.nutritionFacts.fat} · 탄{item.nutritionFacts.carbs}g
+                        <span className="inline-flex items-center gap-0.5 font-medium text-gray-600 tabular-nums text-xs">
+                          <Flame size={11} strokeWidth={2} className="text-gray-400" aria-hidden />{item.nutritionFacts.calories}kcal · 단{item.nutritionFacts.protein} · 지{item.nutritionFacts.fat} · 탄{item.nutritionFacts.carbs}g
                         </span>
                       </div>
                     )}
                     {cycle && (
                       <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
                         <span className="text-xs text-gray-400">재구매 주기</span>
-                        <span className="font-medium text-gray-700">🔁 {cycle.cycleDays}일 <span className="text-xs text-gray-400">({cycle.occurrences}회)</span></span>
+                        <span className="inline-flex items-center gap-1 font-medium text-gray-700"><Repeat size={12} strokeWidth={2} className="text-gray-400" aria-hidden />{cycle.cycleDays}일 <span className="text-xs text-gray-400">({cycle.occurrences}회)</span></span>
                       </div>
                     )}
                   </div>
@@ -379,9 +381,9 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                       <button
                         type="button"
                         onClick={() => { onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
-                        className="self-start text-xs text-gray-400 hover:text-rose-500 transition-colors"
+                        className="self-start inline-flex items-center gap-1 text-xs text-gray-400 hover:text-rose-500 transition-colors"
                       >
-                        🗑️ 사진 삭제
+                        <Trash2 size={12} strokeWidth={2} /> 사진 삭제
                       </button>
                     )}
                     <Field label="상품명">
@@ -497,25 +499,25 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                   // 동작과 맞춘다.
                   <button
                     onClick={(e) => { e.stopPropagation(); setEditing(false); }}
-                    className="w-full py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-colors mt-1"
+                    className="inline-flex items-center justify-center gap-1 w-full py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-colors mt-1"
                   >
-                    ✓ 완료
+                    <Check size={14} strokeWidth={2.5} /> 완료
                   </button>
                 ) : (
                   <div className="flex gap-2 mt-1">
                     {recipeCount > 0 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); setRecipeBrowser(true); }}
-                        className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                        className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-semibold bg-brand-primary/5 border border-brand-primary/15 text-brand-primary hover:bg-brand-primary/10 transition-colors"
                       >
-                        📖 레시피 {recipeCount}개
+                        <BookOpen size={12} strokeWidth={2} /> 레시피 {recipeCount}개
                       </button>
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); setEditing(true); }}
-                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                     >
-                      ✏️ 정보 수정
+                      <Pencil size={12} strokeWidth={2} /> 정보 수정
                     </button>
                     {/* "소진 처리"는 일상어가 아니고, 🗑️(휴지통) 아이콘은
                         "먹어서 없앤 것"과 "상해서 버린 것"을 구분 못 하게
@@ -529,9 +531,9 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                         kind='discarded' 전용 보조 동작.) */}
                     <button
                       onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id, 'eaten'); }}
-                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100 hover:bg-rose-100 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-500 border border-rose-100 hover:bg-rose-100 transition-colors"
                     >
-                      🍲 다 먹었어요
+                      <Soup size={12} strokeWidth={2} /> 다 먹었어요
                     </button>
                   </div>
                 )}
@@ -547,9 +549,9 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                 {!editing && (
                   <button
                     onClick={(e) => { e.stopPropagation(); haptic('action'); onDiscard(item.id, 'discarded'); }}
-                    className="w-full mt-1.5 py-1 text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"
+                    className="inline-flex items-center justify-center gap-1 w-full mt-1.5 py-1 text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    🗑️ 상해서 버렸어요
+                    <Trash2 size={12} strokeWidth={2} /> 상해서 버렸어요
                   </button>
                 )}
 

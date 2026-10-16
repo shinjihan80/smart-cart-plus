@@ -8,6 +8,7 @@ import { usePersistedState } from '@/lib/usePersistedState';
 import { useSavedOutfits } from '@/lib/savedOutfits';
 import { useToast } from '@/context/ToastContext';
 import { haptic } from '@/lib/haptics';
+import { Sparkles, Shuffle, Bookmark, X } from 'lucide-react';
 import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
@@ -78,7 +79,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
     >
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2 min-w-0">
-          <EmojiIcon emoji="👗" size={16} className="text-brand-primary" />
+          <Sparkles size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">코디 미리보기</span>
         </div>
         {profiles.length >= 2 && (
@@ -150,16 +151,16 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                 setSelected(next);
                 haptic('tap');
               }}
-              className="text-sm font-semibold text-gray-500 hover:text-brand-primary"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-brand-primary"
               title="무작위로 코디 조합 생성"
             >
-              🎲 섞기
+              <Shuffle size={13} strokeWidth={2} /> 섞기
             </button>
             <button
               onClick={() => setSaveOpen(!saveOpen)}
-              className="text-sm font-semibold text-brand-primary hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
             >
-              💾 이 코디 저장
+              <Bookmark size={13} strokeWidth={2} /> 이 코디 저장
             </button>
           </div>
         </div>
@@ -232,7 +233,7 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
                   aria-label={`${o.name} 삭제`}
                   className="text-sm px-1.5 py-0.5 text-gray-400 hover:text-danger border-l border-gray-100 transition-colors"
                 >
-                  <EmojiIcon emoji="✕" size={12} className="text-current" />
+                  <X size={12} strokeWidth={2.5} className="text-current" />
                 </button>
               </div>
             ))}

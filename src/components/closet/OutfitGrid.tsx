@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import type { ClothingItem } from '@/types';
 import type { Outfit } from '@/lib/outfitMatcher';
 import { useTodayOutfits } from '@/lib/useTodayOutfits';
@@ -52,8 +52,9 @@ export default function OutfitGrid({ items, count = 6, weather }: OutfitGridProp
         style={CARD_SHADOW}
       >
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-gray-900">
-            👗 오늘 입을 코디
+          <h3 className="flex items-center gap-1.5 text-sm font-bold text-gray-900">
+            <Sparkles size={14} strokeWidth={2} className="text-brand-primary" aria-hidden />
+            오늘 입을 코디
           </h3>
           <span className="text-xs text-gray-400 tabular-nums">{safeIndex + 1}/{outfits.length}</span>
         </div>

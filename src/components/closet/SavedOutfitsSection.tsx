@@ -7,7 +7,7 @@ import { useSavedOutfits } from '@/lib/savedOutfits';
 import { useToast } from '@/context/ToastContext';
 import { useWearLog } from '@/lib/wearLog';
 import { haptic } from '@/lib/haptics';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Bookmark, Check, X } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 /**
@@ -48,7 +48,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-3">
-        <EmojiIcon emoji="💾" size={16} className="text-brand-primary" />
+        <Bookmark size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
         <span className="text-xs text-gray-400 font-medium">저장된 코디</span>
         <span className="text-sm text-gray-300 tabular-nums">{outfits.length}</span>
       </div>
@@ -64,9 +64,9 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => handleWearAll(o.slots, o.name)}
-                    className="text-sm font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+                    className="inline-flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
                   >
-                    👕 오늘 입었어요
+                    <Check size={12} strokeWidth={2.5} /> 오늘 입었어요
                   </button>
                   <button
                     onClick={() => {
@@ -75,7 +75,7 @@ export default function SavedOutfitsSection({ items }: { items: CartItem[] }) {
                     aria-label={`${o.name} 삭제`}
                     className="text-sm text-gray-400 hover:text-danger px-1.5 py-0.5 transition-colors"
                   >
-                    <EmojiIcon emoji="✕" size={12} className="text-current" />
+                    <X size={12} strokeWidth={2.5} className="text-current" />
                   </button>
                 </div>
               </div>

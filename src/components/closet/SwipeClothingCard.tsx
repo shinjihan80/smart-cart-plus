@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Camera, Trash2, Check, CalendarDays, Pencil } from 'lucide-react';
 import { isEnrichedClothingItem, isClothingItem, type ClothingItem, type WardrobeSection } from '@/types';
 import { todayLocalStr } from '@/lib/dateMath';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
@@ -119,10 +119,10 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   <span className="text-4xl" aria-hidden>{tone.emoji}</span>
                 )}
                 <span
-                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white/95 flex items-center justify-center text-[12px] shadow-md ring-1 ring-gray-100"
+                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white/95 flex items-center justify-center shadow-md ring-1 ring-gray-100"
                   aria-hidden
                 >
-                  📷
+                  <Camera size={12} strokeWidth={2} className="text-gray-600" />
                 </span>
               </button>
             );
@@ -311,9 +311,9 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                       <button
                         type="button"
                         onClick={() => { onUpdate(item.id, { imageUrl: undefined }); showToast('사진을 삭제했어요.'); }}
-                        className="self-start text-xs text-gray-400 hover:text-rose-500 transition-colors"
+                        className="self-start inline-flex items-center gap-1 text-xs text-gray-400 hover:text-rose-500 transition-colors"
                       >
-                        🗑️ 사진 삭제
+                        <Trash2 size={12} strokeWidth={2} /> 사진 삭제
                       </button>
                     )}
                     <div>
@@ -454,17 +454,17 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                           haptic('toggle');
                           showToast(`"${item.name}" 오늘 착용 기록 완료 👕`);
                         }}
-                        className="text-sm font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
+                        className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
                       >
-                        👕 오늘 입었어요
+                        <Check size={13} strokeWidth={2.5} /> 오늘 입었어요
                       </button>
                     )}
                     <label
                       onClick={(e) => e.stopPropagation()}
                       title="다른 날짜 기록"
-                      className="text-sm font-semibold px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center text-sm font-semibold px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
                     >
-                      📅
+                      <CalendarDays size={14} strokeWidth={2} />
                       <input
                         type="date"
                         max={todayLocalStr()}
@@ -503,23 +503,23 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                 {editing ? (
                   <button
                     onClick={(e) => { e.stopPropagation(); showToast(`"${item.name}" 저장됐어요.`); setEditing(false); }}
-                    className="w-full py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-colors mt-1"
+                    className="inline-flex items-center justify-center gap-1 w-full py-2.5 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:opacity-90 transition-colors mt-1"
                   >
-                    ✓ 저장하고 완료
+                    <Check size={14} strokeWidth={2.5} /> 저장하고 완료
                   </button>
                 ) : (
                   <div className="flex gap-2 mt-1">
                     <button
                       onClick={(e) => { e.stopPropagation(); setEditing(true); }}
-                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                     >
-                      ✏️ 정보 수정
+                      <Pencil size={12} strokeWidth={2} /> 정보 수정
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); haptic('action'); onRemove(item.id); }}
-                      className="flex-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-1 py-2.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors"
                     >
-                      🗑️ 삭제
+                      <Trash2 size={12} strokeWidth={2} /> 삭제
                     </button>
                   </div>
                 )}
