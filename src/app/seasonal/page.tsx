@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Search } from 'lucide-react';
+import { ChevronLeft, Search, BookOpen } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import { SEASONAL_PRODUCE, type SeasonalProduce } from '@/lib/seasonalProduce';
@@ -404,9 +404,9 @@ function SeasonalPageInner() {
                       <button
                         onClick={() => setBrowserIngredient(p.name)}
                         title={`${p.name} 레시피 보기`}
-                        className="text-sm font-semibold px-2 py-1.5 rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-1 text-sm font-semibold px-2 py-1.5 rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
                       >
-                        📖 {recipeCount}
+                        <BookOpen size={13} strokeWidth={2} aria-hidden /> {recipeCount}
                       </button>
                     )}
                   </div>
