@@ -362,7 +362,7 @@ export default function SwipeFoodCard({ item, dDay, index, fridgeModelId, onDisc
                     {cycle && (
                       <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
                         <span className="text-xs text-gray-400">재구매 주기</span>
-                        <span className="inline-flex items-center gap-1 font-medium text-gray-700"><Repeat size={12} strokeWidth={2} className="text-gray-400" aria-hidden />{cycle.cycleDays}일 <span className="text-xs text-gray-400">({cycle.occurrences}회)</span></span>
+                        <span className="inline-flex items-center gap-1 font-medium text-gray-700"><Repeat size={12} strokeWidth={2} className="text-gray-400 shrink-0" aria-hidden /><span>{cycle.cycleDays}일 <span className="text-xs text-gray-400">({cycle.occurrences}회)</span></span></span>
                       </div>
                     )}
                   </div>

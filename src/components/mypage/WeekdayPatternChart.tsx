@@ -1,5 +1,7 @@
 'use client';
 
+import { CalendarDays } from 'lucide-react';
+
 /**
  * 요일별 빈도 막대 차트 — 최근 4주 집계 패턴을 시각화.
  * CookStats·WearStats 공용.
@@ -34,7 +36,9 @@ export default function WeekdayPatternChart({ datesByKey, label, weeks = 4 }: Pr
   return (
     <div className="mb-3">
       <div className="flex items-center justify-between mb-1.5">
-        <p className="text-sm text-brand-primary font-semibold">🗓️ {label} (최근 {weeks}주)</p>
+        <p className="flex items-center gap-1 text-sm text-brand-primary font-semibold">
+          <CalendarDays size={13} strokeWidth={2} /> {label} (최근 {weeks}주)
+        </p>
         <span className="text-sm text-gray-400 tabular-nums">
           {total}회 · 피크 {DOW_LABELS[peakIdx]}요일
         </span>

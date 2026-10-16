@@ -3,47 +3,47 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useModalA11y } from '@/lib/useModalA11y';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Sparkles, Camera, Refrigerator, Shirt, NotebookPen, Save, Search, type LucideIcon } from 'lucide-react';
 
 interface Step {
-  emoji: string;
+  icon:  LucideIcon;
   title: string;
   desc:  string;
 }
 
 const STEPS: Step[] = [
   {
-    emoji: '🟦',
+    icon: Sparkles,
     title: '네모아에 오신 것을 환영해요',
     desc: '일상을 반듯한 네모로 모으는\nAI 라이프스타일 비서예요.',
   },
   {
-    emoji: '📸',
+    icon: Camera,
     title: '사진 한 장이면 충분해요',
     desc: '식품 라벨이나 의류 사이즈표를\n네모아가 자동 분류·등록해요.',
   },
   {
-    emoji: '🧊',
+    icon: Refrigerator,
     title: '스마트 냉장고',
     desc: '보관 기한·영양 밸런스부터\n오늘 만들 레시피까지 챙겨드려요.\n쓰는 냉장고 종류는 냉장고 탭에서 골라주세요.',
   },
   {
-    emoji: '👕',
+    icon: Shirt,
     title: '스마트 옷장',
     desc: '실시간 날씨로 오늘의 코디 매칭.\n오래 안 입은 옷도 다시 꺼내볼까요?',
   },
   {
-    emoji: '📝',
+    icon: NotebookPen,
     title: '오늘 뭘 입고, 뭘 만들었는지 기록해요',
     desc: '간단한 한 탭으로 착용·조리 로그가 쌓이고\n자주 쓰는 옷과 요리가 드러나요.',
   },
   {
-    emoji: '💾',
+    icon: Save,
     title: '데이터는 언제나 안전하게',
     desc: '내 정보에서 한 번에 백업하고\n새 기기에서 그대로 복원할 수 있어요.',
   },
   {
-    emoji: '🔍',
+    icon: Search,
     title: '어디서든 빠른 탐색',
     desc: '냉장고·옷장·내 정보 화면 우측 상단\n돋보기 버튼으로 레시피·제철을\n바로 찾을 수 있어요.',
   },
@@ -81,7 +81,7 @@ function OnboardingContent({ step, setStep, onClose }: { step: number; setStep: 
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="flex justify-center mb-5"><EmojiIcon emoji={current.emoji} size={48} className="text-brand-primary" /></div>
+            <div className="flex justify-center mb-5"><current.icon size={44} strokeWidth={1.75} className="text-brand-primary" aria-hidden /></div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">{current.title}</h2>
             <p className="text-sm text-gray-500 leading-relaxed whitespace-pre-line">{current.desc}</p>
           </motion.div>

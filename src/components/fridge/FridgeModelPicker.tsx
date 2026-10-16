@@ -46,8 +46,8 @@ export function FridgeModelPicker({ selected, onSelect, compact }: FridgeModelPi
                 <Check className="w-3 h-3" />
               </span>
             )}
-            <span className={compact ? 'text-2xl' : 'text-3xl'} aria-hidden>
-              {model.emoji}
+            <span className="text-indigo-500" aria-hidden>
+              <model.icon size={compact ? 22 : 26} strokeWidth={1.75} />
             </span>
             <span className={['font-bold text-gray-900', compact ? 'text-sm' : 'text-base'].join(' ')}>
               {model.label}

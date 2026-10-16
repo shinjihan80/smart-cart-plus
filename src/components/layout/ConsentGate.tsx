@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { mockCartItems } from '@/data/mockData';
 import { useToast } from '@/context/ToastContext';
-import EmojiIcon from '@/components/EmojiIcon';
+import { Smartphone, Check } from 'lucide-react';
 
 const CONSENT_KEY = 'nemoa-consent-v1';
 
@@ -89,7 +89,7 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
               }}
             >
               <div className="text-center mb-4">
-                <div className="flex justify-center mb-2"><EmojiIcon emoji="📱" size={28} className="text-brand-primary" /></div>
+                <div className="flex justify-center mb-2"><Smartphone size={26} strokeWidth={1.75} className="text-brand-primary" aria-hidden /></div>
                 <h2 className="text-lg font-bold text-gray-900">NEMOA 시작하기 전에</h2>
                 <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                   이용 약관과 개인정보 처리방침을 확인해 주세요.
@@ -97,14 +97,17 @@ export default function ConsentGate({ children }: { children: React.ReactNode })
               </div>
 
               <div className="rounded-2xl bg-gray-50 border border-gray-100 p-4 mb-4 text-xs text-gray-700 leading-relaxed">
-                <p className="mb-2">
-                  ✓ 데이터는 기본적으로 <strong>이 기기에만 저장</strong>됩니다. (Pro로 로그인하면 클라우드에 백업)
+                <p className="flex items-start gap-1.5 mb-2">
+                  <Check size={14} strokeWidth={2.5} className="shrink-0 mt-px text-brand-primary" aria-hidden />
+                  <span>데이터는 기본적으로 <strong>이 기기에만 저장</strong>됩니다. (Pro로 로그인하면 클라우드에 백업)</span>
                 </p>
-                <p className="mb-2">
-                  ✓ AI 분석(사진·텍스트)은 사용자가 실행할 때만 Google Gemini로 전송됩니다.
+                <p className="flex items-start gap-1.5 mb-2">
+                  <Check size={14} strokeWidth={2.5} className="shrink-0 mt-px text-brand-primary" aria-hidden />
+                  <span>AI 분석(사진·텍스트)은 사용자가 실행할 때만 Google Gemini로 전송됩니다.</span>
                 </p>
-                <p>
-                  ✓ 설정에서 언제든 데이터를 완전 삭제할 수 있습니다.
+                <p className="flex items-start gap-1.5">
+                  <Check size={14} strokeWidth={2.5} className="shrink-0 mt-px text-brand-primary" aria-hidden />
+                  <span>설정에서 언제든 데이터를 완전 삭제할 수 있습니다.</span>
                 </p>
               </div>
 

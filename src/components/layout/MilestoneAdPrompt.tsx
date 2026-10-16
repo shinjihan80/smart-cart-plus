@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Clapperboard } from 'lucide-react';
 import { showForcedMilestoneAd } from '@/lib/admob';
 import { canShowForcedAd } from '@/lib/adFrequency';
 
@@ -45,7 +46,9 @@ export default function MilestoneAdPrompt() {
             exit={{ opacity: 0, y: 12 }}
             className="w-full max-w-sm rounded-card bg-white p-6 flex flex-col items-center gap-3 text-center"
           >
-            <span className="text-4xl" aria-hidden>🎬</span>
+            <span className="w-12 h-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center" aria-hidden>
+              <Clapperboard size={24} strokeWidth={1.75} className="text-brand-primary" />
+            </span>
             <p className="text-base font-bold text-gray-900">짧은 광고 하나 보고 계속할까요?</p>
             <p className="text-sm text-gray-500 leading-relaxed">
               무료로 계속 이용할 수 있도록 도와줘요. 별도 보상은 없어요.

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Refrigerator } from 'lucide-react';
 
 import { FridgeModelPicker } from '@/components/fridge/FridgeModelPicker';
 import { useFridgeModel } from '@/lib/useFridgeModel';
@@ -13,10 +13,9 @@ import {
   type FridgeSectionMigration,
 } from '@/lib/fridgeModel';
 import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
+import { SECTION_ICON } from '@/lib/fridgeZoneTheme';
 import { usePersistedState } from '@/lib/usePersistedState';
 import { useCart } from '@/context/CartContext';
-import EmojiIcon from '@/components/EmojiIcon';
-
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function MyFridgeSection() {
@@ -67,10 +66,10 @@ export default function MyFridgeSection() {
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <EmojiIcon emoji="🧊" size={16} className="text-brand-primary" />
+          <Refrigerator size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">내 냉장고</span>
-          <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium">
-            {current.emoji} {current.label}
+          <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium">
+            <current.icon size={11} strokeWidth={2} /> {current.label}
           </span>
         </div>
         <ChevronDown
@@ -160,12 +159,14 @@ function MigrationConfirmModal({
             {preview.map((m) => {
               const fromMeta = FRIDGE_SECTION_META[m.from];
               const toMeta   = FRIDGE_SECTION_META[m.to];
+              const FromIcon = SECTION_ICON[m.from];
+              const ToIcon   = SECTION_ICON[m.to];
               return (
                 <li key={m.id} className="flex items-center gap-1.5 text-xs text-gray-600">
                   <span className="font-medium truncate max-w-[40%]">{m.name}</span>
-                  <span className="text-gray-400 shrink-0">{fromMeta.emoji} {fromMeta.label}</span>
+                  <span className="inline-flex items-center gap-0.5 text-gray-400 shrink-0"><FromIcon size={11} strokeWidth={2} /> {fromMeta.label}</span>
                   <span className="text-gray-300 shrink-0">→</span>
-                  <span className="text-brand-primary font-medium shrink-0">{toMeta.emoji} {toMeta.label}</span>
+                  <span className="inline-flex items-center gap-0.5 text-brand-primary font-medium shrink-0"><ToIcon size={11} strokeWidth={2} /> {toMeta.label}</span>
                 </li>
               );
             })}

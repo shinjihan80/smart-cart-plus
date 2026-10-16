@@ -6,6 +6,7 @@
  * 단위로 표현되어 Step 3 시각화 컴포넌트가 그대로 렌더링한다.
  */
 
+import { Refrigerator, DoorOpen, DoorClosed, Salad, type LucideIcon } from 'lucide-react';
 import type { CartItem, FoodItem, FridgeSection, StorageType } from '@/types';
 
 // ─────────────────────────────────────────────
@@ -39,7 +40,7 @@ export interface FridgeCell {
 export interface FridgeModel {
   id:          FridgeModelId;
   label:       string;
-  emoji:       string;       // 모델 카드의 식별 아이콘
+  icon:        LucideIcon;   // 모델 카드의 식별 아이콘
   description: string;
   cols:        number;       // 그리드 컬럼 수 (시각화 컨테이너용)
   rows:        number;       // 그리드 로우 수
@@ -60,7 +61,7 @@ export interface FridgeModel {
 const SIDE_BY_SIDE: FridgeModel = {
   id: 'side_by_side',
   label: '양문형',
-  emoji: '🧊',
+  icon: Refrigerator,
   description: '좌·우로 갈라진 가장 흔한 형태',
   cols: 4,
   rows: 6,
@@ -88,7 +89,7 @@ const SIDE_BY_SIDE: FridgeModel = {
 const FOUR_DOOR: FridgeModel = {
   id: 'four_door',
   label: '4도어',
-  emoji: '🚪',
+  icon: DoorOpen,
   description: '위는 냉장, 아래는 냉동인 4문 타입',
   cols: 2,
   rows: 6,
@@ -110,7 +111,7 @@ const FOUR_DOOR: FridgeModel = {
 const ONE_DOOR: FridgeModel = {
   id: 'one_door',
   label: '1도어',
-  emoji: '🚪',
+  icon: DoorClosed,
   description: '소형·원룸용 — 냉장 위주에 작은 냉동',
   cols: 2,
   rows: 4,
@@ -129,7 +130,7 @@ const ONE_DOOR: FridgeModel = {
 const KIMCHI_ONLY: FridgeModel = {
   id: 'kimchi_only',
   label: '김치냉장고',
-  emoji: '🥬',
+  icon: Salad,
   description: '김치·장아찌 장기 보관용',
   cols: 1,
   rows: 3,
