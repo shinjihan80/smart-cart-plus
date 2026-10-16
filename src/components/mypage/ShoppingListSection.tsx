@@ -2,7 +2,11 @@
 
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
+import {
+  Search, ShoppingCart, Download, Clipboard,
+  AlertTriangle, Repeat, History, EyeOff, Flower2, Leaf, PenLine,
+  type LucideIcon,
+} from 'lucide-react';
 import type { CartItem } from '@/types';
 import { useShoppingList } from '@/lib/shoppingList';
 import { createFoodItemFromIngredient, inferFoodCategory, getFoodEmoji } from '@/lib/ingredientInference';
@@ -89,8 +93,8 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
       style={CARD_SHADOW}
     >
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs text-gray-400 font-medium">
-          🛒 쇼핑 리스트 <span className="tabular-nums">({shopping.list.length})</span>
+        <h3 className="text-xs text-gray-400 font-medium inline-flex items-center gap-1">
+          <ShoppingCart size={13} strokeWidth={2} aria-hidden /> 쇼핑 리스트 <span className="tabular-nums">({shopping.list.length})</span>
         </h3>
         <div className="flex items-center gap-1">
           {shopping.list.length >= 2 && (
@@ -103,10 +107,10 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
           )}
           <button
             onClick={() => setImportOpen(!importOpen)}
-            className="text-sm text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-sm text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors inline-flex items-center gap-1"
             title="텍스트에서 여러 줄 가져오기"
           >
-            📥 가져오기
+            <Download size={12} strokeWidth={2} aria-hidden /> 가져오기
           </button>
           <button
             onClick={async () => {
@@ -118,10 +122,10 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
                 showToast('복사에 실패했어요.');
               }
             }}
-            className="text-sm text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-sm text-gray-400 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors inline-flex items-center gap-1"
             title="클립보드에 복사"
           >
-            📋 복사
+            <Clipboard size={12} strokeWidth={2} aria-hidden /> 복사
           </button>
           <button
             onClick={handleClear}
@@ -174,15 +178,16 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
         </div>
       )}
       {(() => {
-        // source별 그룹화 — 우선순위 순 + 직접 추가(source 없음)는 마지막
-        const SOURCE_ORDER: { key: string; label: string; emoji: string }[] = [
-          { key: '임박 재구매', label: '임박 재구매',   emoji: '⚠️' },
-          { key: '구매 주기',   label: '주기 기반',     emoji: '🔁' },
-          { key: '소진 이력',   label: '다 먹어서 재구매', emoji: '🔄' },
-          { key: '제철 놓친 것', label: '놓친 제철',     emoji: '🫥' },
-          { key: '제철 추천',   label: '제철 추천',     emoji: '🌸' },
-          { key: '제철 재료',   label: '제철 재료',     emoji: '🌱' },
-          { key: '',            label: '직접 추가',     emoji: '✏️' },
+        // source별 그룹화 — 우선순위 순 + 직접 추가(source 없음)는 마지막.
+        // 리디자인(옵션 B) — 그룹 라벨 이모지를 중립색 라인 아이콘으로.
+        const SOURCE_ORDER: { key: string; label: string; icon: LucideIcon }[] = [
+          { key: '임박 재구매', label: '임박 재구매',   icon: AlertTriangle },
+          { key: '구매 주기',   label: '주기 기반',     icon: Repeat },
+          { key: '소진 이력',   label: '다 먹어서 재구매', icon: History },
+          { key: '제철 놓친 것', label: '놓친 제철',     icon: EyeOff },
+          { key: '제철 추천',   label: '제철 추천',     icon: Flower2 },
+          { key: '제철 재료',   label: '제철 재료',     icon: Leaf },
+          { key: '',            label: '직접 추가',     icon: PenLine },
         ];
         const byKey = new Map<string, typeof shopping.list>();
         for (const it of filteredList) {
@@ -204,7 +209,7 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
               <div key={g.key || 'direct'}>
                 {groups.length > 1 && (
                   <div className="flex items-center gap-1.5 mb-1">
-                    <EmojiIcon emoji={g.emoji} size={11} className="text-gray-600" />
+                    <g.icon size={11} strokeWidth={2} className="text-gray-500" aria-hidden />
                     <span className="text-sm font-semibold text-gray-500">{g.label}</span>
                     <span className="text-xs text-gray-300 tabular-nums">· {g.items.length}</span>
                     {g.items.length >= 2 && (
@@ -272,7 +277,9 @@ export default function ShoppingListSection({ addItems, showToast }: ShoppingLis
 
       {/* 파트너 연결 placeholder — Phase 7 */}
       <div className="mt-3 pt-3 border-t border-gray-50">
-        <p className="text-sm text-gray-400 mb-1.5">🛒 바로 장보기</p>
+        <p className="text-sm text-gray-400 mb-1.5 inline-flex items-center gap-1">
+          <ShoppingCart size={13} strokeWidth={2} aria-hidden /> 바로 장보기
+        </p>
         <div className="flex gap-1.5 flex-wrap">
           {/* PARTNERS에 'mart' 키가 없어(정의된 키: coupang/kurly/naver_shop/
               ssg/homeplus 등) partner=undefined가 PartnerChip에 그대로

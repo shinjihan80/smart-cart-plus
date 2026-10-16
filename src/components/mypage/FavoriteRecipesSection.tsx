@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Heart, Clock, Flame, ArrowDownAZ, type LucideIcon } from 'lucide-react';
 import { RECIPES, recipeDietary, DIETARY_BADGE, type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import { useCookLog } from '@/lib/recipeCookLog';
@@ -37,10 +37,11 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
     });
   if (favoriteRecipes.length === 0) return null;
 
+  const SORT_ICON: Record<SortKey, LucideIcon> = { recent: Clock, count: Flame, name: ArrowDownAZ };
   const SORT_LABEL: Record<SortKey, string> = {
-    recent: '🕑 최근 조리',
-    count:  '🔥 많이 만든',
-    name:   '🔤 가나다',
+    recent: '최근 조리',
+    count:  '많이 만든',
+    name:   '가나다',
   };
   const SORT_NEXT: Record<SortKey, SortKey> = {
     recent: 'count',
@@ -59,12 +60,15 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs text-gray-400 font-medium">즐겨찾기 레시피</h3>
         <div className="flex items-center gap-1.5">
-          <span className="text-sm text-brand-primary font-semibold">♥ {favoriteRecipes.length}</span>
+          <span className="text-sm text-brand-primary font-semibold inline-flex items-center gap-0.5">
+            <Heart size={12} strokeWidth={2} className="fill-brand-primary" aria-hidden /> {favoriteRecipes.length}
+          </span>
           <button
             onClick={() => setSortBy(SORT_NEXT[sortBy])}
-            className="text-sm text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors"
+            className="text-sm text-gray-500 font-medium px-2 py-0.5 rounded-full hover:bg-gray-100 transition-colors inline-flex items-center gap-1"
             title="정렬 전환"
           >
+            {(() => { const SortIcon = SORT_ICON[sortBy]; return <SortIcon size={12} strokeWidth={2} aria-hidden />; })()}
             {SORT_LABEL[sortBy]}
           </button>
           <button
@@ -100,8 +104,8 @@ export default function FavoriteRecipesSection({ onOpenRecipe, onOpenBrowser }: 
                     ) : null;
                   })()}
                 </div>
-                <p className="text-sm text-gray-400 mt-0.5">
-                  ⏱ {recipe.time} · {recipe.difficulty}
+                <p className="text-sm text-gray-400 mt-0.5 inline-flex items-center gap-1">
+                  <Clock size={11} strokeWidth={2} aria-hidden /> {recipe.time} · {recipe.difficulty}
                   {cook.count > 0 && (
                     <>
                       <span className="text-gray-300 mx-1">·</span>

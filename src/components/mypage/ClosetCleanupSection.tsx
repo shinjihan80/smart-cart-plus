@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Sparkles, Banknote, Heart, Package, Link2 } from 'lucide-react';
 import { isClothingItem, type CartItem } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
 import { getFashionCategoryTone } from '@/lib/categoryImages';
@@ -14,7 +14,6 @@ import { useToast } from '@/context/ToastContext';
 import PartnerChip from '@/components/PartnerChip';
 import { useMergedCatalog } from '@/lib/useMergedCatalog';
 import { usePersistedState } from '@/lib/usePersistedState';
-import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
@@ -77,10 +76,13 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between"
       >
+        {/* 리디자인(옵션 B) — 개수 배지가 amber였는데, 이 섹션은
+            경고가 아니라 제안(suggestion)이라 범주색을 침범하고
+            있었다(P2-56과 동일 패턴) — 중립으로. */}
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="🧹" size={16} className="text-gray-600" />
+          <Sparkles size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">옷장 정리 제안</span>
-          <span className="text-sm px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold">
+          <span className="text-sm px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold">
             {candidates.length}벌
           </span>
         </div>
@@ -133,8 +135,8 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
             <div className="flex flex-col gap-2 mb-3">
               {dispositions.resell > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-sm font-semibold text-gray-500 shrink-0">
-                    💰 중고 판매 <span className="text-gray-400 font-normal">· {dispositions.resell}벌</span>
+                  <span className="text-sm font-semibold text-gray-500 shrink-0 inline-flex items-center gap-1">
+                    <Banknote size={13} strokeWidth={2} aria-hidden /> 중고 판매 <span className="text-gray-400 font-normal">· {dispositions.resell}벌</span>
                   </span>
                   <PartnerChip partner={PARTNERS.karrot} />
                   <PartnerChip partner={PARTNERS.bunjang} />
@@ -143,8 +145,8 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
               )}
               {dispositions.donate > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-sm font-semibold text-gray-500 shrink-0">
-                    ❤️ 기부 추천 <span className="text-gray-400 font-normal">· {dispositions.donate}벌 (6개월+)</span>
+                  <span className="text-sm font-semibold text-gray-500 shrink-0 inline-flex items-center gap-1">
+                    <Heart size={13} strokeWidth={2} aria-hidden /> 기부 추천 <span className="text-gray-400 font-normal">· {dispositions.donate}벌 (6개월+)</span>
                   </span>
                   <PartnerChip partner={PARTNERS.beautiful} />
                   <PartnerChip partner={PARTNERS.goodwill} />
@@ -152,8 +154,8 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                 </div>
               )}
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-sm font-semibold text-gray-500 shrink-0">
-                  📦 계절 보관 <span className="text-gray-400 font-normal">· 잠깐 빼둘 때</span>
+                <span className="text-sm font-semibold text-gray-500 shrink-0 inline-flex items-center gap-1">
+                  <Package size={13} strokeWidth={2} aria-hidden /> 계절 보관 <span className="text-gray-400 font-normal">· 잠깐 빼둘 때</span>
                 </span>
                 <PartnerChip partner={PARTNERS.thelaundry} />
                 <PartnerChip partner={PARTNERS.darak} />
@@ -189,13 +191,13 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                       <button
                         onClick={() => setActiveMenuId(isMenuOpen ? null : item.id)}
                         aria-label={`${item.name} 처분 옵션`}
-                        className={`shrink-0 text-sm font-semibold px-2 py-1 rounded-full transition-colors ${
+                        className={`shrink-0 flex items-center justify-center w-7 h-7 rounded-full transition-colors ${
                           isMenuOpen
                             ? 'bg-brand-primary text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
-                        🔗
+                        <Link2 size={13} strokeWidth={2} aria-hidden />
                       </button>
                       <button
                         onClick={() => handleRemove(item.id, item.name)}
@@ -215,19 +217,19 @@ export default function ClosetCleanupSection({ items }: { items: CartItem[] }) {
                         >
                           <div className="pb-2 pl-11 flex flex-col gap-1.5">
                             <div className="flex items-center gap-1 flex-wrap">
-                              <span className="text-xs text-gray-400 mr-1">💰 팔기</span>
+                              <span className="text-xs text-gray-400 mr-1 inline-flex items-center gap-0.5"><Banknote size={11} strokeWidth={2} aria-hidden /> 팔기</span>
                               <PartnerChip partner={PARTNERS.karrot} query={item.name} />
                               <PartnerChip partner={PARTNERS.bunjang} query={item.name} />
                               <PartnerChip partner={PARTNERS.kream} query={item.name} />
                             </div>
                             <div className="flex items-center gap-1 flex-wrap">
-                              <span className="text-xs text-gray-400 mr-1">❤️ 기부</span>
+                              <span className="text-xs text-gray-400 mr-1 inline-flex items-center gap-0.5"><Heart size={11} strokeWidth={2} aria-hidden /> 기부</span>
                               <PartnerChip partner={PARTNERS.beautiful} />
                               <PartnerChip partner={PARTNERS.goodwill} />
                               <PartnerChip partner={PARTNERS.otcan} />
                             </div>
                             <div className="flex items-center gap-1 flex-wrap">
-                              <span className="text-xs text-gray-400 mr-1">📦 보관</span>
+                              <span className="text-xs text-gray-400 mr-1 inline-flex items-center gap-0.5"><Package size={11} strokeWidth={2} aria-hidden /> 보관</span>
                               <PartnerChip partner={PARTNERS.thelaundry} />
                               <PartnerChip partner={PARTNERS.darak} />
                             </div>

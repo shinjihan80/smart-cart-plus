@@ -10,6 +10,7 @@ import {
 } from '@/lib/seasonalProduce';
 import { countRecipesByIngredient } from '@/lib/recipes';
 import { SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
+import { EyeOff, ShoppingCart, BookOpen } from 'lucide-react';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useToast } from '@/context/ToastContext';
@@ -148,12 +149,15 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
             onClick={() => setMissedOpen(!missedOpen)}
             className="w-full flex items-center justify-between"
           >
+            {/* 리디자인(옵션 B) — "놓친 제철" 블록 전체가 amber였는데
+                경고가 아니라 제안이라 상태색을 침범했다(P2-56과 동일
+                패턴) — 중립으로. */}
             <div className="flex items-center gap-1.5">
-              <EmojiIcon emoji="🫥" size={14} className="text-gray-600" />
+              <EyeOff size={14} strokeWidth={2} className="text-gray-500" aria-hidden />
               <span className="text-xs font-semibold text-gray-600 whitespace-nowrap">
                 아직 못 드신 {season}철 재료
               </span>
-              <span className="text-sm px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold tabular-nums">
+              <span className="text-sm px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold tabular-nums">
                 {missed.length}/{totalInSeason}
               </span>
             </div>
@@ -172,9 +176,9 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                   <div className="pt-2">
                     <button
                       onClick={handleShopAddAll}
-                      className="w-full text-xs font-semibold py-1.5 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                      className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                     >
-                      🛒 {missed.length}종 모두 쇼핑 리스트에 담기
+                      <ShoppingCart size={13} strokeWidth={2} aria-hidden /> {missed.length}종 모두 쇼핑 리스트에 담기
                     </button>
                   </div>
                 )}
@@ -184,26 +188,26 @@ export default function SeasonalHistorySection({ history }: { history: DiscardRe
                     return (
                       <div
                         key={p.name}
-                        className="flex items-center rounded-2xl bg-amber-50 border border-amber-100 overflow-hidden"
+                        className="flex items-center rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden"
                       >
                         <button
                           onClick={() => handleShopAdd(p.name)}
                           title={p.blurb ?? `${season}철 제철`}
-                          className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-amber-700 hover:bg-amber-100 active:scale-95 transition-all"
+                          className="flex items-center gap-1 text-xs pl-1.5 pr-2 py-1 text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
                         >
-                          <EmojiIcon emoji={p.emoji} size={14} className="text-amber-700" />
+                          <EmojiIcon emoji={p.emoji} size={14} className="text-gray-600" />
                           <span className="font-medium">{p.name}</span>
                           {p.peak === season && (
-                            <span className="text-xs px-1 py-0 rounded-full bg-amber-200 text-amber-800">피크</span>
+                            <span className="text-xs px-1 py-0 rounded-full bg-gray-200 text-gray-700">피크</span>
                           )}
                         </button>
                         {recipeCount > 0 && (
                           <button
                             onClick={() => window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: p.name } }))}
                             title={`${p.name}(으)로 만드는 요리 보기`}
-                            className="text-sm px-2 py-1 border-l border-amber-100 text-amber-700/80 hover:bg-amber-100 transition-colors"
+                            className="flex items-center gap-1 text-sm px-2 py-1 border-l border-gray-100 text-gray-500 hover:bg-gray-100 transition-colors"
                           >
-                            📖 {recipeCount}
+                            <BookOpen size={12} strokeWidth={2} aria-hidden /> {recipeCount}
                           </button>
                         )}
                       </div>

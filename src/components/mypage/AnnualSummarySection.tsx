@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { CalendarDays, ChefHat, Shirt, CheckCircle2, type LucideIcon } from 'lucide-react';
 import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
-import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 import { localMidnight, todayMidnight, daysBetween } from '@/lib/dateMath';
 
@@ -57,10 +57,13 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
   const remaining   = yearTotal - dayOfYear;
   const paceMultiplier = dayOfYear > 0 ? yearTotal / dayOfYear : 1;
 
-  const stats = [
-    { emoji: '🍳', label: '조리',      value: cookTotal,    months: countByMonth(cookDates, year),    tone: 'bg-amber-500'     },
-    { emoji: '👕', label: '착용',      value: wearTotal,    months: countByMonth(wearDates, year),    tone: 'bg-brand-primary' },
-    { emoji: '🍲', label: '다 먹은 식품', value: discardTotal, months: countByMonth(discardDates, year), tone: 'bg-emerald-500'   },
+  // 리디자인(옵션 B) — amber(조리)는 상태색(caution/expiry-soon) 팔레트를
+  // 침범해(P2-56) teal로 교체. Weekly/MonthlySummarySection과 같은
+  // 3색(조리=teal/착용=indigo/다먹음=emerald)로 통일.
+  const stats: { icon: LucideIcon; label: string; value: number; months: number[]; tone: string }[] = [
+    { icon: ChefHat,      label: '조리',      value: cookTotal,    months: countByMonth(cookDates, year),    tone: 'bg-teal-500'      },
+    { icon: Shirt,        label: '착용',      value: wearTotal,    months: countByMonth(wearDates, year),    tone: 'bg-brand-primary' },
+    { icon: CheckCircle2, label: '다 먹은 식품', value: discardTotal, months: countByMonth(discardDates, year), tone: 'bg-emerald-500'   },
   ];
 
   // 모든 카테고리 합산해 가장 활동이 많은 달
@@ -81,7 +84,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="📅" size={16} className="text-gray-600" />
+          <CalendarDays size={16} strokeWidth={2} className="text-gray-500" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">올해 활동 요약</span>
         </div>
         <span className="text-xs text-gray-400 tabular-nums shrink-0">
@@ -95,7 +98,7 @@ export default function AnnualSummarySection({ discardHistory }: Props) {
           const pace = Math.round(s.value * paceMultiplier);
           return (
             <div key={s.label} className="flex flex-col items-center gap-0.5 py-1.5 px-1.5 rounded-2xl bg-gray-50">
-              <EmojiIcon emoji={s.emoji} size={18} className="text-gray-700" />
+              <s.icon size={18} strokeWidth={2} className="text-gray-600" aria-hidden />
               <span className="text-base font-extrabold text-brand-primary tabular-nums">{s.value}</span>
               <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{s.label}</span>
               {s.value > 0 && remaining > 30 && (

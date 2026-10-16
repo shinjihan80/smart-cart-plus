@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Star } from 'lucide-react';
 import { getFoodEmoji } from '@/lib/ingredientInference';
 import { useShoppingList } from '@/lib/shoppingList';
 import { useToast } from '@/context/ToastContext';
@@ -53,8 +54,11 @@ export default function FrequentIngredientsSection({ discardHistory, currentItem
       className={CARD}
       style={CARD_SHADOW}
     >
+      {/* 순위 별 아이콘은 금색 관용색이라 경고색과 혼동 소지가 낮아
+          유지 — 재료 이름 옆 아이콘(getFoodEmoji)은 "어떤 재료인지"
+          식별용 데이터라 이모지 그대로 둔다. */}
       <div className="flex items-center gap-2 mb-2.5">
-        <EmojiIcon emoji="⭐" size={16} className="text-amber-400" />
+        <Star size={16} strokeWidth={2} className="text-amber-400 fill-amber-400" aria-hidden />
         <span className="text-xs text-gray-400 font-medium">자주 구매하는 재료 TOP 5</span>
       </div>
       <div className="flex flex-col gap-1">

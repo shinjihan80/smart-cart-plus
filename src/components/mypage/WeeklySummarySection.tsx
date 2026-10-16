@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { CalendarDays, ChefHat, Shirt, CheckCircle2 } from 'lucide-react';
 import { useWearLog } from '@/lib/wearLog';
 import { useCookLog } from '@/lib/recipeCookLog';
-import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 import { todayLocalStr } from '@/lib/dateMath';
 
@@ -49,24 +49,26 @@ export default function WeeklySummarySection({ discardHistory }: Props) {
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="📅" size={16} className="text-gray-600" />
+          <CalendarDays size={16} strokeWidth={2} className="text-gray-500" aria-hidden />
           <span className="text-xs text-gray-400 font-medium">이번 주 활동</span>
         </div>
         <span className="text-xs text-gray-400 shrink-0">최근 7일</span>
       </div>
+      {/* 리디자인(옵션 B) — 활동 3종을 구분색으로: 조리=teal, 착용=
+          indigo(옷장 화면 의류 그룹과 동일), 다먹음=emerald. */}
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col items-center gap-0.5 py-1">
-          <EmojiIcon emoji="🍳" size={18} className="text-gray-700" />
+          <ChefHat size={18} strokeWidth={2} style={{ color: '#0D9488' }} aria-hidden />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{cookCount}</span>
           <span className="text-xs text-gray-400 font-medium whitespace-nowrap">조리 · {cookPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
-          <EmojiIcon emoji="👕" size={18} className="text-gray-700" />
+          <Shirt size={18} strokeWidth={2} style={{ color: '#4F46E5' }} aria-hidden />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{wearCount}</span>
           <span className="text-xs text-gray-400 font-medium whitespace-nowrap">착용 · {wearPerDay}/일</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 py-1">
-          <EmojiIcon emoji="🍲" size={18} className="text-gray-700" />
+          <CheckCircle2 size={18} strokeWidth={2} style={{ color: '#059669' }} aria-hidden />
           <span className="text-base font-extrabold text-brand-primary tabular-nums">{discardCount}</span>
           <span className="text-xs text-gray-400 font-medium whitespace-nowrap">다 먹음</span>
         </div>

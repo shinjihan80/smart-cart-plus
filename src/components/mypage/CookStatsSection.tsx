@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ChefHat, SlidersHorizontal, Flame, Lightbulb, Star } from 'lucide-react';
 import { RECIPES, type Recipe } from '@/lib/recipes';
 import { useCookLog } from '@/lib/recipeCookLog';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
@@ -48,7 +49,7 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-3">
-        <EmojiIcon emoji="👨‍🍳" size={16} className="text-gray-700" />
+        <ChefHat size={16} strokeWidth={2} className="text-gray-600" aria-hidden />
         <span className="text-xs text-gray-400 font-medium">조리 로그 분석</span>
       </div>
 
@@ -71,7 +72,9 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
         ] as const;
         return (
           <div className="mb-3">
-            <p className="text-sm text-brand-primary font-semibold mb-1.5">🎚️ 난이도 분포</p>
+            <p className="text-sm text-brand-primary font-semibold mb-1.5 flex items-center gap-1">
+              <SlidersHorizontal size={13} strokeWidth={2} aria-hidden /> 난이도 분포
+            </p>
             <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100">
               {bars.map((b) => {
                 const pct = Math.round((diffCounts[b.key] / total) * 100);
@@ -97,7 +100,9 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       {topMade.length > 0 && (
         <div className="mb-3">
-          <p className="text-sm text-brand-primary font-semibold mb-1.5">🔥 자주 만든 레시피 TOP 3</p>
+          <p className="text-sm text-brand-primary font-semibold mb-1.5 flex items-center gap-1">
+            <Flame size={13} strokeWidth={2} aria-hidden /> 자주 만든 레시피 TOP 3
+          </p>
           <div className="flex flex-col gap-1">
             {topMade.map((x) => (
               <button
@@ -116,7 +121,9 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       {longIdle.length > 0 && (
         <div className="mb-3">
-          <p className="text-sm text-amber-600 font-semibold mb-1.5">💭 오래된 레시피 다시 만들기</p>
+          <p className="text-sm text-amber-600 font-semibold mb-1.5 flex items-center gap-1">
+            <Lightbulb size={13} strokeWidth={2} aria-hidden /> 오래된 레시피 다시 만들기
+          </p>
           <div className="flex flex-col gap-1">
             {longIdle.map((x) => (
               <button
@@ -135,7 +142,9 @@ export default function CookStatsSection({ onOpenRecipe }: CookStatsSectionProps
 
       {untriedFavs.length > 0 && (
         <div>
-          <p className="text-sm text-info font-semibold mb-1.5">⭐ 즐겨찾기인데 미도전</p>
+          <p className="text-sm text-info font-semibold mb-1.5 flex items-center gap-1">
+            <Star size={13} strokeWidth={2} className="fill-info" aria-hidden /> 즐겨찾기인데 미도전
+          </p>
           <div className="flex flex-col gap-1">
             {untriedFavs.map((x) => (
               <button

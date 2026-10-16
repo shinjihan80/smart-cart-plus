@@ -9,6 +9,7 @@ import { currentSeasonalProduce } from '@/lib/seasonalProduce';
 import { getFoodEmoji, sameFoodProduct } from '@/lib/ingredientInference';
 import { estimateCycles } from '@/lib/purchaseCycle';
 import EmojiIcon from '@/components/EmojiIcon';
+import { Wand2 } from 'lucide-react';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface ShoppingSuggestionsSectionProps {
@@ -135,7 +136,7 @@ export default function ShoppingSuggestionsSection({
     >
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-2 min-w-0">
-          <EmojiIcon emoji="🪄" size={16} className="text-brand-primary" />
+          <Wand2 size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
           <span className="text-xs text-gray-400 font-medium whitespace-nowrap shrink-0">장볼 거 추천</span>
           <span className="text-xs text-gray-300 whitespace-nowrap truncate min-w-0">· 주기·재구매·제철</span>
         </div>

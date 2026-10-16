@@ -15,6 +15,13 @@ export const SECTION_ICON: Record<WardrobeSection, LucideIcon> = {
   shoes: Footprints, bags: Backpack, accessories: Sparkles,
 };
 
+// 패션 그룹(4종) 단위 아이콘 — SECTION_ICON과 같은 선택을 공유해 마이
+// 페이지의 그룹별 통계(WearStatsSection 등)도 옷장 그리드와 같은
+// 아이콘을 쓴다.
+export const GROUP_ICON: Record<FashionGroup, LucideIcon> = {
+  의류: Shirt, 신발: Footprints, 가방: Backpack, 액세서리: Sparkles,
+};
+
 // 따뜻한 색(amber·orange)은 상태 전용으로 예약돼 있어(P2-56) 그룹
 // 틴트에선 쓰지 않는다.
 export const GROUP_TINT: Record<FashionGroup, { cellBg: string; chipBg: string; icon: string; title: string; meta: string }> = {

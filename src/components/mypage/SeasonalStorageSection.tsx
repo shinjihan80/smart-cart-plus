@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Package, Archive } from 'lucide-react';
 import { isClothingItem, FASHION_GROUP, type CartItem, type ClothingItem } from '@/types';
 import { FASHION_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useCart } from '@/context/CartContext';
@@ -10,7 +10,6 @@ import { useToast } from '@/context/ToastContext';
 import { currentSeasonByMonth, matchesSeason } from '@/lib/season';
 import { josa } from '@/lib/korean';
 import { PARTNERS } from '@/lib/partnerLinks';
-import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function SeasonalStorageSection({ items }: { items: CartItem[] }) {
@@ -116,7 +115,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
             className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <EmojiIcon emoji="📦" size={14} className="text-gray-600" />
+              <Package size={14} strokeWidth={2} className="text-gray-500" aria-hidden />
               <p className="text-xs font-semibold text-gray-700">
                 이번 {season} 동안 보관할 옷 {stowCandidates.length}벌
               </p>
@@ -185,7 +184,7 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
             className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <EmojiIcon emoji="🗃️" size={14} className="text-gray-600" />
+              <Archive size={14} strokeWidth={2} className="text-gray-500" aria-hidden />
               <p className="text-xs font-semibold text-gray-700">
                 보관 중 {allStored.length}벌
               </p>

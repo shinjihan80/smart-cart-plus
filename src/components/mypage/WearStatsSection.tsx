@@ -1,12 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Shirt, RotateCw, Heart, Moon, EyeOff } from 'lucide-react';
 import { isClothingItem, type CartItem } from '@/types';
 import { useWearLog, daysSince, selectNeverWorn } from '@/lib/wearLog';
 import { FASHION_GROUP, type FashionGroup } from '@/types';
 import { FASHION_ICON } from '@/lib/iconMap';
+import { GROUP_ICON, GROUP_TINT } from '@/lib/wardrobeZoneTheme';
 import WeekdayPatternChart from './WeekdayPatternChart';
-import EmojiIcon from '@/components/EmojiIcon';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 interface WearStatsSectionProps {
@@ -72,7 +73,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
       style={CARD_SHADOW}
     >
       <div className="flex items-center gap-2 mb-3">
-        <EmojiIcon emoji="👕" size={16} className="text-brand-primary" />
+        <Shirt size={16} strokeWidth={2} className="text-brand-primary" aria-hidden />
         <span className="text-xs text-gray-400 font-medium">착용 로그 분석</span>
       </div>
 
@@ -80,7 +81,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         <div className="mb-3 rounded-2xl bg-gray-50 px-3 py-2.5">
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-1.5">
-              <EmojiIcon emoji="🔄" size={14} className="text-gray-600" />
+              <RotateCw size={14} strokeWidth={2} className="text-gray-500" aria-hidden />
               <p className="text-sm font-semibold text-gray-600">로테이션 밸런스</p>
             </div>
             <span className={`text-xs font-bold tabular-nums ${
@@ -128,33 +129,36 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
         }
         const total = Object.values(catCounts).reduce((a, b) => a + b, 0);
         if (total === 0) return null;
-        const bars: Array<{ key: FashionGroup; emoji: string; color: string }> = [
-          { key: '의류',     emoji: '👕', color: 'bg-brand-primary' },
-          { key: '신발',     emoji: '👟', color: 'bg-brand-success' },
-          { key: '가방',     emoji: '👜', color: 'bg-amber-400' },
-          { key: '액세서리', emoji: '✨', color: 'bg-rose-400' },
-        ];
+        // 리디자인(옵션 B) — 가방(amber-400)이 상태색 팔레트를 침범하고
+        // (P2-56) 있었고, 옷장 그리드(WardrobeView)의 그룹 색과도 달라
+        // 같은 "가방"인데 다른 색으로 보였다. GROUP_TINT로 통일.
+        const groups: FashionGroup[] = ['의류', '신발', '가방', '액세서리'];
         return (
           <div className="mb-3">
-            <p className="text-sm text-brand-primary font-semibold mb-1.5">👗 카테고리 분포</p>
+            <p className="text-sm text-brand-primary font-semibold mb-1.5">카테고리 분포</p>
             <div className="flex h-1.5 rounded-full overflow-hidden bg-gray-100">
-              {bars.map((b) => {
-                const pct = Math.round((catCounts[b.key] / total) * 100);
+              {groups.map((g) => {
+                const pct = Math.round((catCounts[g] / total) * 100);
                 if (pct === 0) return null;
                 return (
                   <div
-                    key={b.key}
-                    className={b.color}
-                    style={{ width: `${pct}%` }}
-                    title={`${b.emoji} ${b.key} ${catCounts[b.key]}회`}
+                    key={g}
+                    style={{ width: `${pct}%`, backgroundColor: GROUP_TINT[g].icon }}
+                    title={`${g} ${catCounts[g]}회`}
                   />
                 );
               })}
             </div>
-            <div className="flex justify-between mt-1 text-xs text-gray-400 tabular-nums flex-wrap gap-1">
-              {bars.filter((b) => catCounts[b.key] > 0).map((b) => (
-                <span key={b.key}>{b.emoji} {catCounts[b.key]}</span>
-              ))}
+            <div className="flex justify-between mt-1 text-xs text-gray-400 tabular-nums flex-wrap gap-1.5">
+              {groups.filter((g) => catCounts[g] > 0).map((g) => {
+                const Icon = GROUP_ICON[g];
+                return (
+                  <span key={g} className="inline-flex items-center gap-0.5">
+                    <Icon size={11} strokeWidth={2} style={{ color: GROUP_TINT[g].icon }} aria-hidden />
+                    {catCounts[g]}
+                  </span>
+                );
+              })}
             </div>
           </div>
         );
@@ -162,7 +166,9 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
 
       {topWorn.length > 0 && (
         <div className="mb-3">
-          <p className="text-sm text-brand-primary font-semibold mb-1.5">♥ 자주 입는 옷 TOP 3</p>
+          <p className="text-sm text-brand-primary font-semibold mb-1.5 flex items-center gap-1">
+            <Heart size={13} strokeWidth={2} className="fill-brand-primary" aria-hidden /> 자주 입는 옷 TOP 3
+          </p>
           <div className="flex flex-col gap-1">
             {topWorn.map((x) => {
               const Icon = FASHION_ICON[x.item.category] ?? FASHION_ICON['기타 액세서리'];
@@ -180,7 +186,9 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
 
       {longIdle.length > 0 && (
         <div className="mb-3">
-          <p className="text-sm text-amber-600 font-semibold mb-1.5">🌙 오래 안 입은 옷</p>
+          <p className="text-sm text-amber-600 font-semibold mb-1.5 flex items-center gap-1">
+            <Moon size={13} strokeWidth={2} aria-hidden /> 오래 안 입은 옷
+          </p>
           <div className="flex flex-col gap-1">
             {longIdle.map((x) => {
               const Icon = FASHION_ICON[x.item.category] ?? FASHION_ICON['기타 액세서리'];
@@ -198,7 +206,9 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
 
       {neverWorn.length > 0 && (
         <div>
-          <p className="text-sm text-gray-500 font-semibold mb-1.5">👀 미착용 패션 전체 {neverWornAll.length}개</p>
+          <p className="text-sm text-gray-500 font-semibold mb-1.5 flex items-center gap-1">
+            <EyeOff size={13} strokeWidth={2} aria-hidden /> 미착용 패션 전체 {neverWornAll.length}개
+          </p>
           <div className="flex flex-col gap-1">
             {neverWorn.map((x) => {
               const Icon = FASHION_ICON[x.item.category] ?? FASHION_ICON['기타 액세서리'];
