@@ -98,6 +98,9 @@ export default function SearchPage() {
             onKeyDown={(e) => { if (e.key === 'Enter' && trimmed) pushRecent(trimmed); }}
             placeholder="레시피·식품·옷·제철 재료 검색"
             aria-label="통합 검색"
+            // type="search"의 네이티브 지우기(×) 버튼이 바로 아래
+            // 커스텀 X 버튼과 겹쳐 "X가 두 개"로 보였다 — globals.css가
+            // input[type=search] 전체에서 네이티브 버튼을 끈다.
             className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-gray-100 text-sm text-brand-ink placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
           {q && (

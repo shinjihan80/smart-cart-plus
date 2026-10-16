@@ -142,6 +142,18 @@ html {
 h1, h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
 
+/* type="search" 인풋이 Chrome/Safari에서 자체 지우기(×) 버튼을 그린다
+   — 5곳(검색·제철·명령 팔레트·레시피 전체보기·쇼핑 리스트 검색) 중
+   일부는 커스텀 X 버튼과 겹쳐 "X가 두 개"로 보이고, 일부는 ⌘K 단축키
+   배지와 겹친다. input[type=search] 전체에서 네이티브 버튼만 끈다 —
+   실제 지우기 동작(onChange)은 그대로, 보이는 브라우저 기본 아이콘만
+   사라진다. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
