@@ -2,38 +2,56 @@
 
 import { motion } from 'framer-motion';
 import {
+  ShoppingBag, Soup, Shirt, AlertTriangle, Flame, Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
+import {
   FOOD_GROUP, FASHION_GROUP, FOOD_GROUPS,
   type CartItem, type FoodItem, type FashionGroup,
 } from '@/types';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
-import EmojiIcon from '@/components/EmojiIcon';
 import { EXPIRY_LABEL } from '@/lib/expiryThresholds';
+import { ZONE_TINT } from '@/lib/fridgeZoneTheme';
+import { GROUP_TINT } from '@/lib/wardrobeZoneTheme';
+import { STORAGE_ICON } from '@/components/fridge/shared';
 
-function StatRow({ emoji, label, value, accent }: { emoji: string; label: string; value: string; accent?: boolean }) {
+// 리디자인(옵션 B) — 플랫폼마다 다르게 렌더되는 이모지 대신 라인
+// 아이콘 칩. "임박" 행만 caution(상태색)을 쓰고 나머지는 중립 —
+// 범주 정보가 상태색을 침범하지 않도록(P2-56 원칙).
+function StatRow({ icon: Icon, iconColor, label, value, accent }: { icon: LucideIcon; iconColor: string; label: string; value: string; accent?: boolean }) {
   return (
     <div className="flex items-center justify-between py-2.5">
       <div className="flex items-center gap-2.5">
-        <EmojiIcon emoji={emoji} size={16} className="text-gray-600" />
+        <span className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+          <Icon size={14} strokeWidth={2} style={{ color: iconColor }} />
+        </span>
         <span className="text-sm text-gray-600">{label}</span>
       </div>
-      <span className={`text-sm font-bold tabular-nums ${accent ? 'text-brand-primary' : 'text-gray-900'}`}>
+      <span className={`text-sm font-bold tabular-nums ${accent ? 'text-caution' : 'text-gray-900'}`}>
         {value}
       </span>
     </div>
   );
 }
 
-function StorageBar({ label, emoji, count, total }: { label: string; emoji: string; count: number; total: number }) {
+// 리디자인(옵션 B) — 냉장고 화면(FridgeView)과 같은 구역 색(sky/
+// violet/zinc)을 재사용해 "마이페이지에서 본 냉장 막대"와 "냉장고
+// 화면의 냉장 칸"이 같은 색으로 느껴지게 한다.
+function StorageBar({ label, icon: Icon, tint, count, total }: { label: string; icon: LucideIcon; tint: { icon: string }; count: number; total: number }) {
   const pct = total > 0 ? (count / total) * 100 : 0;
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm w-16 shrink-0">{emoji} {label}</span>
+      <span className="text-sm w-16 shrink-0 flex items-center gap-1.5">
+        <Icon size={14} strokeWidth={2} style={{ color: tint.icon }} aria-hidden />
+        {label}
+      </span>
       <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ ...springTransition, delay: 0.3 }}
-          className="h-full bg-brand-primary rounded-full"
+          className="h-full rounded-full"
+          style={{ backgroundColor: tint.icon }}
         />
       </div>
       <span className="text-xs text-gray-500 w-6 text-right tabular-nums">{count}</span>
@@ -81,12 +99,15 @@ export default function StatsSection({
       >
         <h3 className="text-xs text-gray-400 font-medium mb-2">종합 통계</h3>
         <div className="divide-y divide-gray-50">
-          <StatRow emoji="🛍️" label="전체 상품"       value={`${items.length}개`} />
-          <StatRow emoji="🥦" label="식품"             value={`${foodItems.length}개`} />
-          <StatRow emoji="👕" label="패션 전체"        value={`${clothingItems.length}개`} />
-          <StatRow emoji="⚠️" label={EXPIRY_LABEL.soon} value={`${urgentCount}개`} accent={urgentCount > 0} />
-          <StatRow emoji="🍲" label="다 먹은 식품 (누적)" value={`${eatenCount}개`} />
-          <StatRow emoji="🧹" label="정리한 옷 (누적)"    value={`${clearedCount}개`} />
+          <StatRow icon={ShoppingBag}   iconColor="#6B7280" label="전체 상품"       value={`${items.length}개`} />
+          <StatRow icon={Soup}          iconColor="#6B7280" label="식품"             value={`${foodItems.length}개`} />
+          <StatRow icon={Shirt}         iconColor="#6B7280" label="패션 전체"        value={`${clothingItems.length}개`} />
+          {/* #B45309 = --color-caution(globals.css) — 냉장고 요약
+              줄(fridge/page.tsx)의 집계 "임박" 숫자와 같은 색 규칙
+              (today/soon 세부 구분 없는 합계는 caution 하나로 통일). */}
+          <StatRow icon={AlertTriangle} iconColor={urgentCount > 0 ? '#B45309' : '#6B7280'} label={EXPIRY_LABEL.soon} value={`${urgentCount}개`} accent={urgentCount > 0} />
+          <StatRow icon={Flame}         iconColor="#6B7280" label="다 먹은 식품 (누적)" value={`${eatenCount}개`} />
+          <StatRow icon={Sparkles}      iconColor="#6B7280" label="정리한 옷 (누적)"    value={`${clearedCount}개`} />
         </div>
       </motion.div>
 
@@ -101,9 +122,9 @@ export default function StatsSection({
         >
           <h3 className="text-xs text-gray-400 font-medium mb-3">보관 현황</h3>
           <div className="flex flex-col gap-2.5">
-            <StorageBar emoji="❄️" label="냉장" count={coldCount}   total={foodItems.length} />
-            <StorageBar emoji="🧊" label="냉동" count={frozenCount} total={foodItems.length} />
-            <StorageBar emoji="📦" label="실온" count={roomCount}   total={foodItems.length} />
+            <StorageBar icon={STORAGE_ICON.냉장} tint={ZONE_TINT.fridge}  label="냉장" count={coldCount}   total={foodItems.length} />
+            <StorageBar icon={STORAGE_ICON.냉동} tint={ZONE_TINT.freezer} label="냉동" count={frozenCount} total={foodItems.length} />
+            <StorageBar icon={STORAGE_ICON.실온} tint={ZONE_TINT.pantry}  label="실온" count={roomCount}   total={foodItems.length} />
           </div>
         </motion.div>
       )}
@@ -125,7 +146,7 @@ export default function StatsSection({
         <p className="text-xs text-gray-300 mb-3">각 칸 안에서의 비중이에요 — 식품·패션 전체 수량은 서로 달라요</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">🥬 식품</p>
+            <p className="text-xs text-gray-400 mb-1.5 flex items-center gap-1"><Soup size={12} strokeWidth={2} aria-hidden /> 식품</p>
             {FOOD_GROUPS.map((g) => {
               const count = foodItems.filter((f) => (FOOD_GROUP[f.foodCategory] ?? '기타') === g).length;
               if (count === 0) return null;
@@ -142,7 +163,9 @@ export default function StatsSection({
             })}
           </div>
           <div>
-            <p className="text-xs text-gray-400 mb-1.5">👕 패션</p>
+            <p className="text-xs text-gray-400 mb-1.5 flex items-center gap-1"><Shirt size={12} strokeWidth={2} aria-hidden /> 패션</p>
+            {/* 리디자인(옵션 B) — 옷장 화면(WardrobeView)과 같은 그룹
+                색(indigo/teal/rose/emerald)을 재사용해 일관성 유지. */}
             {(['의류', '신발', '가방', '액세서리'] as FashionGroup[]).map((g) => {
               const count = clothingItems.filter((c) => (FASHION_GROUP[c.category as keyof typeof FASHION_GROUP] ?? '의류') === g).length;
               if (count === 0) return null;
@@ -151,7 +174,7 @@ export default function StatsSection({
                 <div key={g} className="flex items-center gap-1.5 mb-1">
                   <span className="text-xs text-gray-500 w-14 truncate">{g}</span>
                   <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full bg-brand-primary rounded-full" />
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ ...springTransition, delay: 0.4 }} className="h-full rounded-full" style={{ backgroundColor: GROUP_TINT[g].icon }} />
                   </div>
                   <span className="text-xs text-gray-400 tabular-nums w-4 text-right">{count}</span>
                 </div>
