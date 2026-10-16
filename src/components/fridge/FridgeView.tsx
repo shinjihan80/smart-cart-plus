@@ -1,6 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import {
+  UtensilsCrossed, Egg, Beef, FlaskConical, CupSoda, Wine,
+  Carrot, Milk, IceCreamCone, PackageOpen, Soup, Archive, Box,
+  Ban, Clock,
+  type LucideIcon,
+} from 'lucide-react';
 
 import {
   FRIDGE_MODELS,
@@ -12,6 +18,33 @@ import {
 } from '@/lib/fridgeSection';
 import { classifyExpiry, EXPIRY_TONE } from '@/lib/expiryThresholds';
 import type { FoodItem, FridgeSection } from '@/types';
+
+// 리디자인(옵션 B 채택, 2026-10-16) — 칸 그림이 이모지(플랫폼마다 다르게
+// 렌더, 라인 아이콘과 섞이면 촌스럽다는 지적)와 흰 배경만 썼다. 이
+// 그리드 전용으로 칸마다 라인 아이콘 + 구역별 틴트를 입힌다 — 공유
+// FRIDGE_SECTION_META.emoji는 칸 상세 시트 등 다른 소비처가 그대로
+// 쓰므로 안 건드린다(범위를 이 컴포넌트로 좁혀 다른 화면 회귀 방지).
+const SECTION_ICON: Record<FridgeSection, LucideIcon> = {
+  main_top: UtensilsCrossed, main_middle: Egg, main_bottom: Beef,
+  door_top: FlaskConical, door_middle: CupSoda, door_bottom: Wine,
+  crisper: Carrot, butter: Milk,
+  freezer_top: IceCreamCone, freezer_bottom: PackageOpen,
+  kimchi_top: Soup, kimchi_bottom: Archive,
+  pantry: Box,
+};
+
+// 따뜻한 색(amber·orange)은 상태(임박·기한초과) 전용으로 예약돼
+// 있어(P2-56) 구역 틴트에선 쓰지 않는다 — pantry(실온)도 일부러
+// 따뜻한 베이지 대신 중립 slate를 썼다.
+type FridgeZone = 'fridge' | 'door' | 'crisper' | 'freezer' | 'kimchi' | 'pantry';
+const ZONE_TINT: Record<FridgeZone, { cellBg: string; chipBg: string; icon: string; title: string; meta: string }> = {
+  fridge:  { cellBg: 'bg-sky-50',     chipBg: 'bg-sky-100',     icon: '#2563EB', title: 'text-[#1D3A6B]', meta: 'text-[#6B8FC9]' },
+  door:    { cellBg: 'bg-indigo-50',  chipBg: 'bg-indigo-100',  icon: '#4F46E5', title: 'text-[#2E2A8F]', meta: 'text-[#8C87D9]' },
+  crisper: { cellBg: 'bg-emerald-50', chipBg: 'bg-emerald-100', icon: '#059669', title: 'text-[#0F5132]', meta: 'text-[#5FA98A]' },
+  freezer: { cellBg: 'bg-violet-50',  chipBg: 'bg-violet-100',  icon: '#7C3AED', title: 'text-[#4C2A8F]', meta: 'text-[#A98FE0]' },
+  kimchi:  { cellBg: 'bg-rose-50',    chipBg: 'bg-rose-100',    icon: '#BE185D', title: 'text-[#7A1041]', meta: 'text-[#C97BA0]' },
+  pantry:  { cellBg: 'bg-zinc-100',   chipBg: 'bg-zinc-200',    icon: '#52525B', title: 'text-[#3F3F46]', meta: 'text-[#8C8C94]' },
+};
 
 interface FridgeViewProps {
   modelId:        FridgeModelId;
@@ -51,6 +84,8 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
     >
       {model.cells.map((cell, idx) => {
         const meta        = FRIDGE_SECTION_META[cell.section];
+        const tint        = ZONE_TINT[meta.zone];
+        const Icon         = SECTION_ICON[cell.section];
         const list        = bySection.get(cell.section) ?? [];
         // 배지 색(urgent)과 숫자(list.length)가 서로 다른 의미라 빨간 배지 합이
         // 임박 수와 안 맞던 버그(P0-29) — 총 개수 배지는 항상 중립색, 임박 개수는
@@ -88,21 +123,31 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
             transition={{ type: 'spring', stiffness: 280, damping: 22, delay: idx * 0.025 }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
+            // 리디자인(옵션 B) — 흰 배경+회색 링 대신 구역별 틴트(zone
+            // tint)로 칸을 구분한다. 임박/기한초과는 더는 배경을
+            // 덮어씌우지 않고(틴트와 섞이면 탁해짐) 링 색으로만 표시 —
+            // 코너 배지가 이미 경고색을 또렷이 전달한다.
             className={[
-              'relative flex flex-col justify-between text-left rounded-2xl p-[10px]',
-              'bg-white ring-1',
-              isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
-              expired && !isActive ? 'ring-red-300 bg-red-50/50' : urgent && !isActive ? 'ring-rose-200 bg-rose-50/40' : '',
+              'relative flex flex-col justify-between text-left rounded-2xl p-[10px] ring-1',
+              tint.cellBg,
+              isActive ? 'ring-2 ring-indigo-500' : expired ? 'ring-danger/40' : urgent ? 'ring-caution/30' : 'ring-black/[0.03]',
             ].join(' ')}
             style={{
               gridColumn: `${cell.col} / span ${cell.colSpan}`,
               gridRow:    `${cell.row} / span ${cell.rowSpan}`,
-              boxShadow:  '0 2px 6px -3px rgba(31, 31, 46, 0.08)',
+              boxShadow:  '0 1px 2px -1px rgba(31, 31, 46, 0.04), 0 4px 10px -6px rgba(31, 31, 46, 0.10)',
             }}
             aria-label={`${meta.label} — ${list.length}개 보관${urgent ? `, 임박 ${urgentCount}개` : ''}${expired ? `, 기한초과 ${expiredCount}개` : ''}`}
           >
             <div className="flex items-start justify-between gap-[4px]">
-              <span className="emoji text-[16px]" aria-hidden>{meta.emoji}</span>
+              {/* 리디자인(옵션 B) — 플랫폼마다 다르게 렌더되는 이모지
+                  대신 구역 틴트 색의 라인 아이콘 칩으로 통일. */}
+              <span
+                className={`w-[26px] h-[26px] rounded-[9px] flex items-center justify-center shrink-0 ${tint.chipBg}`}
+                aria-hidden
+              >
+                <Icon size={14} strokeWidth={2} style={{ color: tint.icon }} />
+              </span>
               {/*
                * 재검토(비판 모드, 2026-10-15) — P1-75(위 "통합" 리팩터)가
                * 숫자를 하나로 합치며 그 숫자를 "총개수"로 정해, 색은
@@ -122,12 +167,15 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
                   // bar(솔리드 채움)를 그대로 쓴다. 칸 상세 시트의
                   // "임박 N" 칩·식품 카드 D배지와 같은 색 소스라 한
                   // 화면 안에서 같은 상태가 다르게 안 보인다.
-                  className={`text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums text-white ${
+                  // 리디자인(옵션 B) — 🚫/⏱ 이모지도 새 라인 아이콘
+                  // 칩 옆에서 혼용되면 촌스러워 보여 Ban/Clock으로 교체.
+                  className={`flex items-center gap-[2px] text-[10px] font-bold rounded-full pl-[5px] pr-[6px] py-[2px] tabular-nums text-white ${
                     expired ? EXPIRY_TONE.expired.bar : urgentTone.bar
                   }`}
                   aria-hidden
                 >
-                  {expired ? `🚫${expiredCount}` : `⏱${urgentCount}`}
+                  {expired ? <Ban size={10} strokeWidth={2.4} /> : <Clock size={10} strokeWidth={2.4} />}
+                  {expired ? expiredCount : urgentCount}
                 </span>
               )}
             </div>
@@ -138,9 +186,12 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
                   총개수는 더는 우상단 배지가 아니라(P0-29 재오픈 수정)
                   여기 라벨 옆 중립 텍스트로 이동 — 상태(색)와 분리된
                   순수 정보라 시각적으로도 분리한다. */}
-              <p title={meta.label} className="text-[11px] font-bold text-gray-800 leading-tight line-clamp-2 break-keep">
+              {/* 리디자인(옵션 B) — 제목·메타 텍스트도 중립 회색 대신
+                  구역 틴트의 짙은/옅은 변형으로 — 아이콘 칩과 한
+                  색 계열로 묶여 보이게(듀오톤). */}
+              <p title={meta.label} className={`text-[11px] font-bold leading-tight line-clamp-2 break-keep ${tint.title}`}>
                 {meta.label}
-                {list.length > 0 && <span className="font-normal text-gray-400"> · {list.length}</span>}
+                {list.length > 0 && <span className={`font-normal ${tint.meta}`}> · {list.length}</span>}
               </p>
               {list.length === 0 ? (
                 // 빈 칸의 예시 힌트("잼·소스·드레싱" 등)와 실제 보유 품목이
@@ -149,14 +200,14 @@ export function FridgeView({ modelId, items, onSectionClick, highlight }: Fridge
                 // 있는 것으로 오인하게 했다(P0-25, 전문단 E3 발견).
                 // "예: " 접두 + 기울임으로 "이건 예시일 뿐 실제 보유품이
                 // 아니다"를 명시적으로 표시한다.
-                <p title={`예: ${meta.hint}`} className="text-[10px] text-gray-400 italic mt-0.5 leading-tight line-clamp-1">예: {meta.hint}</p>
+                <p title={`예: ${meta.hint}`} className={`text-[10px] italic mt-0.5 leading-tight line-clamp-1 ${tint.meta}`}>예: {meta.hint}</p>
               ) : (
                 // 재검토(비판 모드) P1-83 — line-clamp-1로 잘리는 품목
                 // 목록에 title 속성이 없어, 잘린 이름 전체를 확인할
                 // 방법이(호버 툴팁조차) 없었다(전문단 E2 실측).
                 <p
                   title={list.map((i) => i.name).join(', ')}
-                  className="text-[10px] text-gray-500 mt-0.5 leading-tight line-clamp-1"
+                  className={`text-[10px] mt-0.5 leading-tight line-clamp-1 ${tint.meta}`}
                 >
                   {list.slice(0, 3).map((i) => i.name).join(', ')}
                   {list.length > 3 ? ` 외 ${list.length - 3}` : ''}

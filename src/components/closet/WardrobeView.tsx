@@ -1,9 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Shirt, Archive, Footprints, Backpack, Sparkles, type LucideIcon } from 'lucide-react';
 import {
   WARDROBE_MODELS,
   WARDROBE_SECTION_META,
+  WARDROBE_SECTION_GROUP,
   FOLDED_CATEGORIES,
   buildWardrobeCells,
   DEFAULT_WARDROBE_MODEL,
@@ -12,8 +14,28 @@ import {
   type WardrobeConfig,
 } from '@/lib/wardrobeModel';
 import { FASHION_GROUP, FASHION_EMOJI, isClothingItem } from '@/types';
-import type { CartItem, ClothingItem } from '@/types';
+import type { CartItem, ClothingItem, FashionGroup } from '@/types';
 import type { FashionCategory } from '@/types';
+
+// 리디자인(옵션 B, 2026-10-16) — FridgeView와 같은 패턴: 칸 헤더
+// 이모지(🪝🗂️👟👜✨)를 라인 아이콘 + 그룹별 틴트로 바꾼다. 칸 안
+// 아이템 썸네일(FASHION_EMOJI)은 "내 옷 식별"이 목적인 별도 문제
+// (P1-38, 타이포 타일 전환 검토 중)라 이번엔 안 건드린다.
+const SECTION_ICON: Record<WardrobeSection, LucideIcon> = {
+  hanging: Shirt, hanging_2: Shirt,
+  folded: Archive, drawer_2: Archive, drawer_3: Archive, drawer_4: Archive, drawer_5: Archive,
+  drawer_s1: Archive, drawer_s2: Archive, drawer_s3: Archive,
+  shoes: Footprints, bags: Backpack, accessories: Sparkles,
+};
+
+// 따뜻한 색(amber·orange)은 상태 전용으로 예약돼 있어(P2-56) 그룹
+// 틴트에선 쓰지 않는다.
+const GROUP_TINT: Record<FashionGroup, { cellBg: string; chipBg: string; icon: string; title: string; meta: string }> = {
+  의류:    { cellBg: 'bg-indigo-50',  chipBg: 'bg-indigo-100',  icon: '#4F46E5', title: 'text-[#2E2A8F]', meta: 'text-[#8C87D9]' },
+  신발:    { cellBg: 'bg-teal-50',    chipBg: 'bg-teal-100',    icon: '#0D9488', title: 'text-[#0F4C46]', meta: 'text-[#5FAFA3]' },
+  가방:    { cellBg: 'bg-rose-50',    chipBg: 'bg-rose-100',    icon: '#BE185D', title: 'text-[#7A1041]', meta: 'text-[#C97BA0]' },
+  액세서리: { cellBg: 'bg-emerald-50', chipBg: 'bg-emerald-100', icon: '#059669', title: 'text-[#0F5132]', meta: 'text-[#5FA98A]' },
+};
 
 // 아우터·원피스 계열은 상단 걸이, 상의 계열은 하단 걸이(2단)로 분리
 export const HANGING_2_CATEGORIES: ReadonlyArray<FashionCategory> = ['상의'];
@@ -80,6 +102,8 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
     >
       {model.cells.map((cell, idx) => {
         const meta      = WARDROBE_SECTION_META[cell.section];
+        const tint      = GROUP_TINT[WARDROBE_SECTION_GROUP[cell.section]];
+        const Icon      = SECTION_ICON[cell.section];
         const cellItems = itemsBySection.get(cell.section) ?? [];
         const count     = cellItems.length;
         const isActive  = highlight === cell.section;
@@ -102,10 +126,12 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             transition={{ type: 'spring', stiffness: 280, damping: 22, delay: idx * 0.025 }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
+            // 리디자인(옵션 B) — FridgeView와 같은 패턴: 흰 배경+회색
+            // 링 대신 패션 그룹별 틴트로 칸을 구분.
             className={[
-              'relative text-left rounded-2xl p-[16px] overflow-hidden',
-              'bg-white ring-1',
-              isActive ? 'ring-2 ring-indigo-500' : 'ring-gray-100',
+              'relative text-left rounded-2xl p-[16px] overflow-hidden ring-1',
+              tint.cellBg,
+              isActive ? 'ring-2 ring-indigo-500' : 'ring-black/[0.03]',
               // justify-between이었을 때, 같은 행의 옆 칸이 아이템이 많아 카드가
               // 커지면 이 칸의 본문(라벨)이 아래로 밀려 옆 칸과 라벨 높이가
               // 어긋나 보였다(C2·C8 발견). 세로형은 본문을 헤더 바로 아래 고정.
@@ -114,23 +140,24 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
             style={{
               gridColumn: `${cell.col} / span ${cell.colSpan}`,
               gridRow:    `${cell.row} / span ${cell.rowSpan}`,
-              boxShadow:  '0 2px 6px -3px rgba(31, 31, 46, 0.08)',
+              boxShadow:  '0 1px 2px -1px rgba(31, 31, 46, 0.04), 0 4px 10px -6px rgba(31, 31, 46, 0.10)',
             }}
             aria-label={`${meta.label} — ${count}개`}
           >
             {isWide ? (
               <>
                 {/* 넓은 칸(2칸 이상) — 아이콘·라벨+카운트·썸네일을 한 행에 가로로
-                    배치해 남는 폭을 썸네일 더 보여주는 데 쓴다. */}
+                    배치해 남는 폭을 썸네일 더 보여주는 데 쓴다.
+                    리디자인(옵션 B) — 이모지 대신 그룹 틴트의 라인 아이콘. */}
                 <span
-                  className="emoji flex items-center justify-center rounded-2xl bg-gray-50 shrink-0 w-[56px] h-[56px] text-[28px]"
+                  className={`flex items-center justify-center rounded-2xl shrink-0 w-[56px] h-[56px] ${tint.chipBg}`}
                   aria-hidden
                 >
-                  {meta.emoji}
+                  <Icon size={26} strokeWidth={1.8} style={{ color: tint.icon }} />
                 </span>
                 <div className="flex-1 min-w-0 flex flex-col gap-[6px]">
                   <div className="flex items-center justify-between gap-[8px]">
-                    <p className="text-sm font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
+                    <p className={`text-sm font-bold leading-tight truncate ${tint.title}`}>{meta.label}</p>
                     {count > 0 && (
                       <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white leading-tight shrink-0">
                         {count}
@@ -138,7 +165,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
                     )}
                   </div>
                   {count === 0 ? (
-                    <p className="text-xs text-gray-400 leading-tight truncate">{meta.hint}</p>
+                    <p className={`text-xs leading-tight truncate ${tint.meta}`}>{meta.hint}</p>
                   ) : (
                     <div className="flex flex-wrap gap-[4px] leading-none">
                       {cellItems.slice(0, thumbLimit).map((item, i) => (
@@ -147,7 +174,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
                         </span>
                       ))}
                       {count > thumbLimit && (
-                        <span className="text-xs text-gray-400 font-semibold self-center leading-none">
+                        <span className={`text-xs font-semibold self-center leading-none ${tint.meta}`}>
                           +{count - thumbLimit}
                         </span>
                       )}
@@ -161,11 +188,12 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
                     4글자가 좁은 폭(89px)에서 잘렸다(실측, 회귀). 배지는 아이콘
                     옆 헤더 행에 두고, 라벨은 그 아래 줄에서 폭을 전부 쓴다. */}
                 <div className="flex items-start justify-between gap-[4px]">
+                  {/* 리디자인(옵션 B) — 이모지 대신 그룹 틴트의 라인 아이콘. */}
                   <span
-                    className="emoji flex items-center justify-center rounded-2xl bg-gray-50 shrink-0 w-[48px] h-[48px] text-[24px]"
+                    className={`flex items-center justify-center rounded-2xl shrink-0 w-[48px] h-[48px] ${tint.chipBg}`}
                     aria-hidden
                   >
-                    {meta.emoji}
+                    <Icon size={22} strokeWidth={1.8} style={{ color: tint.icon }} />
                   </span>
                   {count > 0 && (
                     <span className="text-[10px] font-bold rounded-full px-[6px] py-[2px] tabular-nums bg-gray-900 text-white leading-tight mt-0.5">
@@ -174,9 +202,9 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
                   )}
                 </div>
                 <div className="flex flex-col gap-[6px]">
-                  <p className="text-sm font-bold text-gray-700 leading-tight truncate">{meta.label}</p>
+                  <p className={`text-sm font-bold leading-tight truncate ${tint.title}`}>{meta.label}</p>
                   {count === 0 ? (
-                    <p className="text-xs text-gray-400 leading-tight truncate">{meta.hint}</p>
+                    <p className={`text-xs leading-tight truncate ${tint.meta}`}>{meta.hint}</p>
                   ) : (
                     <div className="flex flex-wrap gap-[4px] leading-none">
                       {cellItems.slice(0, thumbLimit).map((item, i) => (
@@ -185,7 +213,7 @@ export function WardrobeView({ modelId, config, items, onSectionClick, highlight
                         </span>
                       ))}
                       {count > thumbLimit && (
-                        <span className="text-xs text-gray-400 font-semibold self-center leading-none">
+                        <span className={`text-xs font-semibold self-center leading-none ${tint.meta}`}>
                           +{count - thumbLimit}
                         </span>
                       )}
