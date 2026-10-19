@@ -1,3 +1,4 @@
+import { Shirt, Footprints, DoorClosed, Archive, LayoutGrid, type LucideIcon } from 'lucide-react';
 import type { FashionCategory, FashionGroup, WardrobeSection } from '@/types';
 
 // WardrobeSection 타입은 @/types/index.ts 에 정의 — 순환 의존 방지
@@ -25,7 +26,6 @@ export interface WardrobeCell {
 export interface WardrobeModel {
   id:          WardrobeModelId;
   label:       string;
-  emoji:       string;
   description: string;
   cols:        number;
   rows:        number;
@@ -77,7 +77,7 @@ export const WARDROBE_SECTION_META: Record<WardrobeSection, { emoji: string; lab
 
 /** 행거 — 걸이대 중심, 하단 신발·가방 */
 const HANGER: WardrobeModel = {
-  id: 'hanger', label: '행거', emoji: '🪝',
+  id: 'hanger', label: '행거',
   description: '미니멀 걸이대 + 하단 공간',
   cols: 2, rows: 2,
   cells: [
@@ -89,7 +89,7 @@ const HANGER: WardrobeModel = {
 
 /** 일반 옷장 — 걸이 + 1단 서랍 + 신발/가방/액세서리 */
 const WARDROBE_MODEL: WardrobeModel = {
-  id: 'wardrobe', label: '일반 옷장', emoji: '🚪',
+  id: 'wardrobe', label: '일반 옷장',
   description: '걸이·서랍·하단 표준 구성',
   cols: 3, rows: 3,
   cells: [
@@ -103,7 +103,7 @@ const WARDROBE_MODEL: WardrobeModel = {
 
 /** 서랍장 — 3단 서랍 중심, 상단 걸이 공간 + 하단 신발·액세서리·가방 */
 const DRESSER: WardrobeModel = {
-  id: 'dresser', label: '서랍장', emoji: '🗂️',
+  id: 'dresser', label: '서랍장',
   description: '3단 서랍 + 걸이·하단 수납',
   cols: 3, rows: 4,
   cells: [
@@ -118,7 +118,7 @@ const DRESSER: WardrobeModel = {
 
 /** 시스템 옷장 — 긴 걸이 + 2단 서랍 + 전체 구역 */
 const SYSTEM: WardrobeModel = {
-  id: 'system', label: '시스템 옷장', emoji: '🏠',
+  id: 'system', label: '시스템 옷장',
   description: '구역별 분리 대용량 수납',
   cols: 3, rows: 3,
   cells: [
@@ -245,7 +245,7 @@ export interface WardrobePreset {
   id:          string;
   group:       string;
   label:       string;
-  emoji:       string;
+  icon:        LucideIcon;
   description: string;
   config:      WardrobeConfig;
 }
@@ -256,7 +256,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'hanger-mini',
     group: '행거',
     label: '미니 행거',
-    emoji: '🪝',
+    icon: Shirt,
     description: '걸이대만 — 원룸·미니멀',
     config: { hangingType: 'single', drawers: 0, splitDrawer: 0, hasShoes: false, hasBags: false, hasAccessories: false },
   },
@@ -264,7 +264,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'hanger',
     group: '행거',
     label: '행거',
-    emoji: '🪝',
+    icon: Shirt,
     description: '걸이 + 신발·가방 하단',
     config: { hangingType: 'single', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: false },
   },
@@ -272,7 +272,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'hanger-double',
     group: '행거',
     label: '2단 행거',
-    emoji: '🪝',
+    icon: Shirt,
     description: '상·하단 걸이 + 신발·가방',
     config: { hangingType: 'double', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: false },
   },
@@ -281,7 +281,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'shoes-only',
     group: '신발장',
     label: '신발장',
-    emoji: '👟',
+    icon: Footprints,
     description: '신발 전용 수납',
     config: { hangingType: 'none', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: false, hasAccessories: false },
   },
@@ -289,7 +289,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'shoes-bags',
     group: '신발장',
     label: '슈즈+가방',
-    emoji: '👟',
+    icon: Footprints,
     description: '신발·가방 하단 수납',
     config: { hangingType: 'none', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: false },
   },
@@ -298,7 +298,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'wardrobe-hang1',
     group: '옷장',
     label: '걸이형 (1단)',
-    emoji: '🚪',
+    icon: DoorClosed,
     description: '걸이만 · 신발·가방·액세서리 하단',
     config: { hangingType: 'single', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
@@ -306,7 +306,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'wardrobe-hang2',
     group: '옷장',
     label: '걸이형 (2단)',
-    emoji: '🚪',
+    icon: DoorClosed,
     description: '2단 걸이만 · 신발·가방·액세서리 하단',
     config: { hangingType: 'double', drawers: 0, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
@@ -314,7 +314,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'wardrobe-basic',
     group: '옷장',
     label: '기본 옷장',
-    emoji: '🚪',
+    icon: DoorClosed,
     description: '걸이 + 서랍 1단 + 전체',
     config: { hangingType: 'single', drawers: 1, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
@@ -322,7 +322,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'wardrobe-std',
     group: '옷장',
     label: '스탠다드',
-    emoji: '🚪',
+    icon: DoorClosed,
     description: '걸이 + 서랍 2단 + 전체',
     config: { hangingType: 'single', drawers: 2, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
@@ -330,7 +330,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'wardrobe-large',
     group: '옷장',
     label: '대형 옷장',
-    emoji: '🚪',
+    icon: DoorClosed,
     description: '걸이 + 서랍 3단 + 전체',
     config: { hangingType: 'single', drawers: 3, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
@@ -339,7 +339,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'dresser-plain',
     group: '서랍장',
     label: '일반 서랍장',
-    emoji: '🗂️',
+    icon: Archive,
     description: '서랍 3단 — 작은서랍 없음',
     config: { hangingType: 'none', drawers: 3, splitDrawer: 0, hasShoes: false, hasBags: false, hasAccessories: false },
   },
@@ -347,7 +347,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'dresser-only',
     group: '서랍장',
     label: '서랍장 (분리형)',
-    emoji: '🗂️',
+    icon: Archive,
     description: '작은서랍 3칸 + 3단 서랍',
     config: { hangingType: 'none', drawers: 3, splitDrawer: 3, hasShoes: false, hasBags: false, hasAccessories: false },
   },
@@ -355,7 +355,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'dresser-wardrobe',
     group: '서랍장',
     label: '서랍형 옷장',
-    emoji: '🗂️',
+    icon: Archive,
     description: '걸이 + 작은서랍 3칸 + 3단 + 신발·액세서리',
     config: { hangingType: 'single', drawers: 3, splitDrawer: 3, hasShoes: true,  hasBags: false, hasAccessories: true  },
   },
@@ -364,7 +364,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'system-basic',
     group: '시스템 옷장',
     label: '기본 시스템',
-    emoji: '🏠',
+    icon: LayoutGrid,
     description: '2단 걸이 + 서랍 2단 + 전체',
     config: { hangingType: 'double', drawers: 2, splitDrawer: 0, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
@@ -372,7 +372,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'system-std',
     group: '시스템 옷장',
     label: '표준 시스템',
-    emoji: '🏠',
+    icon: LayoutGrid,
     description: '2단 걸이 + 작은서랍 2칸 + 3단 + 전체',
     config: { hangingType: 'double', drawers: 3, splitDrawer: 2, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },
@@ -380,7 +380,7 @@ export const WARDROBE_PRESETS: WardrobePreset[] = [
     id: 'system-large',
     group: '시스템 옷장',
     label: '대형 시스템',
-    emoji: '🏠',
+    icon: LayoutGrid,
     description: '2단 걸이 + 작은서랍 3칸 + 5단 + 전체',
     config: { hangingType: 'double', drawers: 5, splitDrawer: 3, hasShoes: true,  hasBags: true,  hasAccessories: true  },
   },

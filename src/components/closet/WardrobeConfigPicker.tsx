@@ -70,7 +70,9 @@ export function WardrobeConfigPicker({ config, onSelect }: WardrobeConfigPickerP
                       <Check className="w-3 h-3" />
                     </span>
                   )}
-                  <span className="text-2xl" aria-hidden>{preset.emoji}</span>
+                  <span className="text-indigo-500" aria-hidden>
+                    <preset.icon size={24} strokeWidth={1.75} />
+                  </span>
                   <span className="text-sm font-bold text-gray-900 leading-tight">{preset.label}</span>
                   <span className="text-xs text-gray-500 leading-snug">{preset.description}</span>
                   <span className="text-xs text-gray-400">칸 {cellCount}개</span>
