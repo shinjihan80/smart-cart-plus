@@ -94,8 +94,13 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
   const phrase = groupExpiryPhrase(urgent.map((i) => getRemainingDays(i)));
   const names = urgent.slice(0, 3).map((i) => i.name).join(', ');
   const more  = urgent.length > 3 ? ` 외 ${urgent.length - 3}개` : '';
+  // 재발견 — 알림함(/notifications) 재검토에서 제목 앞 이모지를 "이미
+  // 아이콘 칩이 종류를 나타내니 불필요"로 보고 그 화면의 첫 단어 제거
+  // 정규식을 지웠는데, 이 함수가 만드는 제목엔 아직 "⏰ "가 남아 있어서
+  // 지금은 그 글자가 그대로 알림함 제목에 노출된다(라이브 재현 —
+  // 매일 1회 자동 호출되는 실제 경로). 제목은 순수 텍스트로.
   await showNotification(
-    `⏰ ${phrase} 먹어야 할 식품 ${urgent.length}개`,
+    `${phrase} 먹어야 할 식품 ${urgent.length}개`,
     `${names}${more}`,
     'nemoa-expiry',
     'expiry',
@@ -110,5 +115,5 @@ export async function scheduleExpiryNotification(foodItems: FoodItem[]) {
 export async function scheduleCodiNotification(message: string) {
   if (!getNotiState().codi) return;
   if (!(await requestPermission())) return;
-  await showNotification('👗 오늘의 코디 추천', message, 'nemoa-codi', 'codi');
+  await showNotification('오늘의 코디 추천', message, 'nemoa-codi', 'codi');
 }
