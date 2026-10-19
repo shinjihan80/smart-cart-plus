@@ -1,6 +1,8 @@
 // Open-Meteo 무료 날씨 API 연동 (API 키 불필요)
 // https://open-meteo.com/en/docs
 
+import { Sparkles, ThumbsUp, Leaf, Ban, type LucideIcon } from 'lucide-react';
+
 const CACHE_KEY = 'nemoa-weather-cache';
 const CACHE_TTL_MS = 30 * 60 * 1000; // 30분
 const SEOUL = { lat: 37.5665, lon: 126.9780 } as const;
@@ -118,18 +120,6 @@ export async function fetchWeather(
   }
 }
 
-/** 이모지 + 간단 라벨로 표현. */
-export function weatherEmoji(condition: WeatherCondition, isDay: boolean): string {
-  switch (condition) {
-    case '맑음':     return isDay ? '☀️' : '🌙';
-    case '구름조금': return isDay ? '🌤️' : '🌥️';
-    case '흐림':     return '☁️';
-    case '비':       return '🌧️';
-    case '눈':       return '❄️';
-    case '안개':     return '🌫️';
-  }
-}
-
 /** 기온별 권장 thickness — 의류 매칭에 사용. */
 export function recommendedThickness(tempC: number): Array<'얇음' | '보통' | '두꺼움'> {
   if (tempC >= 23) return ['얇음'];
@@ -152,10 +142,14 @@ export type MatchLevel = 'perfect' | 'good' | 'mismatch';
 export interface MatchBadge {
   level: MatchLevel;
   label: string;
-  emoji: string;
+  icon:  LucideIcon;
 }
 
-/** 의류와 현재 기온의 매칭도 — 옷장 카드 뱃지에 사용. */
+/**
+ * 의류와 현재 기온의 매칭도 — 옷장 카드 뱃지에 사용.
+ * 재발견 — src/lib/ 파일이라 이번 세션의 이모지→아이콘 감사(src/components·
+ * src/app만 스캔)에서 빠져 있었다. emoji 필드를 icon:LucideIcon으로 전환.
+ */
 export function clothingMatch(
   thickness: '얇음' | '보통' | '두꺼움',
   weatherTags: ReadonlyArray<string> | undefined,
@@ -165,10 +159,10 @@ export function clothingMatch(
   const season = seasonFromTemp(tempC);
   const okSeason = weatherTags?.includes(season) ?? false;
 
-  if (okThickness && okSeason) return { level: 'perfect', label: '오늘 딱', emoji: '✨' };
-  if (okThickness)              return { level: 'good',    label: '오늘 적절', emoji: '👍' };
-  if (okSeason)                 return { level: 'good',    label: '계절 맞음', emoji: '🌱' };
-  return { level: 'mismatch', label: '오늘엔 안 맞아요', emoji: '🧊' };
+  if (okThickness && okSeason) return { level: 'perfect', label: '오늘 딱', icon: Sparkles };
+  if (okThickness)              return { level: 'good',    label: '오늘 적절', icon: ThumbsUp };
+  if (okSeason)                 return { level: 'good',    label: '계절 맞음', icon: Leaf };
+  return { level: 'mismatch', label: '오늘엔 안 맞아요', icon: Ban };
 }
 
 /** 온도 기반 간단 코디 힌트 (네모아 화자 톤). */

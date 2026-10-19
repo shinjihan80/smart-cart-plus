@@ -182,7 +182,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                     className={`inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${MATCH_STYLE[matchBadge.level]}`}
                     title={matchBadge.label}
                   >
-                    <span>{matchBadge.emoji}</span>
+                    <matchBadge.icon size={11} strokeWidth={2} />
                     <span>{matchBadge.label}</span>
                   </span>
                 )}
