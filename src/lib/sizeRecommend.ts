@@ -1,3 +1,4 @@
+import { Target, ThumbsUp, AlertTriangle, type LucideIcon } from 'lucide-react';
 import type { BodyInfo } from './profile';
 
 export interface RecommendedSizes {
@@ -71,7 +72,8 @@ export type SizeMatchStatus = 'match' | 'close' | 'off' | 'unknown';
 
 export interface SizeMatchResult {
   status:  SizeMatchStatus;
-  label:   string;   // UI 표시 (예: "🎯 딱 맞아요")
+  label:   string;   // UI 표시 (예: "딱 맞아요")
+  icon?:   LucideIcon;
   detail?: string;   // 추가 설명 (예: "권장 M")
 }
 
@@ -149,8 +151,8 @@ export function compareSize(
   else                         status = compareShoe(actualSize, target);
 
   const detail = `권장 ${target}`;
-  if (status === 'match')   return { status, label: '🎯 딱 맞아요',       detail };
-  if (status === 'close')   return { status, label: '👌 비슷해요',        detail };
-  if (status === 'off')     return { status, label: '⚠️ 사이즈 안 맞을 수',  detail };
+  if (status === 'match')   return { status, label: '딱 맞아요',        icon: Target,        detail };
+  if (status === 'close')   return { status, label: '비슷해요',         icon: ThumbsUp,      detail };
+  if (status === 'off')     return { status, label: '사이즈 안 맞을 수', icon: AlertTriangle, detail };
   return { status, label: '' };
 }

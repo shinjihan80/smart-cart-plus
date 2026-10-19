@@ -227,13 +227,14 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                   </span>
                   {sizeMatch.status !== 'unknown' && sizeMatch.label && (
                     <span
-                      className={`inline-flex text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap ${
+                      className={`inline-flex items-center gap-0.5 text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap ${
                         sizeMatch.status === 'match' ? 'bg-brand-success/10 text-brand-success' :
                         sizeMatch.status === 'close' ? 'bg-sky-50 text-sky-600' :
                         'bg-caution/10 text-caution'
                       }`}
                       title={sizeMatch.detail}
                     >
+                      {sizeMatch.icon && <sizeMatch.icon size={11} strokeWidth={2} />}
                       {sizeMatch.label}
                     </span>
                   )}
