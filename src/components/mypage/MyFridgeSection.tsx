@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Refrigerator } from 'lucide-react';
 
 import { FridgeModelPicker } from '@/components/fridge/FridgeModelPicker';
-import { useFridgeModel } from '@/lib/useFridgeModel';
+import { useFridgeInstances, DEFAULT_FRIDGE_INSTANCE } from '@/lib/useFridgeInstances';
 import {
   FRIDGE_MODELS,
   planSectionMigrations,
@@ -19,7 +19,14 @@ import { useCart } from '@/context/CartContext';
 import { springTransition, CARD, CARD_SHADOW } from './shared';
 
 export default function MyFridgeSection() {
-  const [modelId, setModelId] = useFridgeModel();
+  // P1-111 재검토 — 이 카드는 레거시 단일-모델 훅(useFridgeModel,
+  // nemoa-fridge-model 키)을 써서 모델을 바꿔도 /fridge 화면은 전혀
+  // 안 바뀌었다(멀티 냉장고 지원 이후 실제 화면은 useFridgeInstances의
+  // 인스턴스별 modelId만 읽는데, 이 카드만 옛 키에 썼다 — 라이브 재현
+  // 확인: 여기서 "김치냉장고"로 바꿔도 /fridge는 계속 "양문형"으로
+  // 남음). /fridge 자체의 "유형 변경" 버튼과 같은 소스로 통일.
+  const { activeId, activeInstance, updateModelId } = useFridgeInstances();
+  const modelId = activeInstance?.modelId ?? DEFAULT_FRIDGE_INSTANCE.modelId;
   const { items, updateItem } = useCart();
   const [expanded, setExpanded] = usePersistedState<boolean>(
     'nemoa-mypage-fridge-open', false,
@@ -38,7 +45,7 @@ export default function MyFridgeSection() {
     const migrations = planSectionMigrations(items, nextId);
     if (migrations.length === 0) {
       // 영향받는 식품 없음 → 바로 적용
-      setModelId(nextId);
+      updateModelId(activeId, nextId);
       return;
     }
     setPending({ targetId: nextId, migrations });
@@ -49,7 +56,7 @@ export default function MyFridgeSection() {
     for (const m of pending.migrations) {
       updateItem(m.id, { fridgeSection: m.to });
     }
-    setModelId(pending.targetId);
+    updateModelId(activeId, pending.targetId);
     setPending(null);
   }
 

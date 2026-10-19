@@ -13,7 +13,7 @@
 import { useMemo, useState } from 'react';
 import { FRIDGE_SECTION_META, recommendFridgeSection } from '@/lib/fridgeSection';
 import { FRIDGE_MODELS } from '@/lib/fridgeModel';
-import { useFridgeModel } from '@/lib/useFridgeModel';
+import { useFridgeInstances, DEFAULT_FRIDGE_INSTANCE } from '@/lib/useFridgeInstances';
 import { useAiQuota } from '@/lib/aiQuota';
 import { isMarketedUnlimited } from '@/lib/aiQuotaConstants';
 import { usePlan } from '@/lib/usePlan';
@@ -32,7 +32,12 @@ interface Props {
 export default function FridgeSectionPicker({
   itemName, foodCategory, storageType, value, onChange,
 }: Props) {
-  const [modelId] = useFridgeModel();
+  // 재검토 — 레거시 useFridgeModel(nemoa-fridge-model)을 읽어 등록 폼의
+  // "보관 위치" 선택지가 실제 활성 냉장고(useFridgeInstances)와 다른
+  // 모델 기준으로 뜰 수 있었다(MyFridgeSection.tsx와 같은 근본 원인,
+  // 같은 라운드에서 함께 수정).
+  const { activeInstance } = useFridgeInstances();
+  const modelId = activeInstance?.modelId ?? DEFAULT_FRIDGE_INSTANCE.modelId;
   const { canUse, consume, remaining, canGrantBonus, grantBonus } = useAiQuota();
   const { tier, isPro } = usePlan();
   const [rewardOpen, setRewardOpen] = useState(false);
