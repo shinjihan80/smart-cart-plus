@@ -453,7 +453,7 @@ export default function SwipeClothingCard({ item, index, onRemove, onUpdate, mat
                           e.stopPropagation();
                           markWorn(item.id);
                           haptic('toggle');
-                          showToast(`"${item.name}" 오늘 착용 기록 완료 👕`);
+                          showToast(`"${item.name}" 오늘 착용 기록 완료`);
                         }}
                         className="inline-flex items-center gap-1 text-sm font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-opacity"
                       >

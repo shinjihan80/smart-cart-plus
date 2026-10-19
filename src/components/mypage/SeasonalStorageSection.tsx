@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Package, Archive } from 'lucide-react';
+import { ChevronDown, Package, Archive, Truck } from 'lucide-react';
 import { isClothingItem, FASHION_GROUP, type CartItem, type ClothingItem } from '@/types';
 import { FASHION_ICON, SEASON_ICON, SEASON_COLOR } from '@/lib/iconMap';
 import { useCart } from '@/context/CartContext';
@@ -143,9 +143,12 @@ export default function SeasonalStorageSection({ items }: { items: CartItem[] })
                       href={PARTNERS.thelaundry.buildUrl?.() ?? '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-semibold py-2 px-3 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-brand-primary/30 hover:text-brand-primary active:scale-95 transition-all whitespace-nowrap text-center"
+                      className="flex flex-col items-center gap-0.5 text-xs font-semibold py-2 px-3 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-brand-primary/30 hover:text-brand-primary active:scale-95 transition-all whitespace-nowrap text-center"
                     >
-                      📦 업체 보관 <span className="text-xs text-gray-400 block leading-none">세탁특공대</span>
+                      <span className="inline-flex items-center gap-1">
+                        <Truck size={12} strokeWidth={2} aria-hidden /> 업체 보관
+                      </span>
+                      <span className="text-xs text-gray-400 leading-none">세탁특공대</span>
                     </a>
                   </div>
                   <div className="flex flex-col gap-1.5">

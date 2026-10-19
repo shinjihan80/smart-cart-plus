@@ -1,6 +1,7 @@
 import { FoodItem } from '@/types';
 import { localMidnight, todayMidnight, daysBetween } from '@/lib/dateMath';
 import { EXPIRY_LABEL, EXPIRY_TONE, classifyExpiry } from '@/lib/expiryThresholds';
+import { STORAGE_ICON } from '@/components/fridge/shared';
 
 interface Props {
   item: FoodItem;
@@ -8,9 +9,9 @@ interface Props {
 }
 
 const STORAGE_LABEL: Record<FoodItem['storageType'], string> = {
-  냉장: '❄️ 냉장 보관',
-  냉동: '🧊 냉동 보관',
-  실온: '📦 실온 보관',
+  냉장: '냉장 보관',
+  냉동: '냉동 보관',
+  실온: '실온 보관',
 };
 
 /**
@@ -46,6 +47,7 @@ const STATUS_LABEL: Record<ReturnType<typeof classifyExpiry>, string> = {
 export default function FoodTags({ item, wide }: Props) {
   const days   = calcRemainingDays(item.purchaseDate, item.baseShelfLifeDays, item.expiryDate);
   const status = classifyExpiry(days);
+  const StorageIcon = STORAGE_ICON[item.storageType];
   // fresh는 이번 불일치 버그(expired/today/soon 역전)의 당사자가
   // 아니고, 이 컴포넌트만 "신선해요"를 긍정 신호(초록)로 늘 보여주던
   // 기존 디자인이라 EXPIRY_TONE.fresh(중립 회색)로 바꾸지 않고 그대로
@@ -62,7 +64,8 @@ export default function FoodTags({ item, wide }: Props) {
         <span className={`font-bold leading-none tracking-tight ${wide ? 'text-4xl' : 'text-3xl'} ${tone.text}`}>
           {days < 0 ? EXPIRY_LABEL.over : `D-${days}`}
         </span>
-        <span className="text-xs text-gray-400 font-medium">
+        <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 font-medium">
+          <StorageIcon size={11} strokeWidth={2} />
           {STORAGE_LABEL[item.storageType]}
         </span>
       </div>

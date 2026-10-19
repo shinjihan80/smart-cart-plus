@@ -111,7 +111,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
               ? `${rotationScore.worn}벌을 고루 잘 입고 계세요 👏`
               : rotationScore.score >= 40
                 ? `${rotationScore.worn}벌 중 일부에 쏠려 있어요. 안 입은 옷도 한번 꺼내보세요.`
-                : `소수의 옷에 집중돼 있어요. 🌙 배지 옷을 오늘 입어볼까요?`}
+                : `소수의 옷에 집중돼 있어요. 오래 안 입은 옷을 오늘 입어볼까요?`}
           </p>
         </div>
       )}
@@ -225,7 +225,7 @@ export default function WearStatsSection({ items }: WearStatsSectionProps) {
       )}
 
       <p className="text-xs text-gray-400 mt-3 leading-relaxed">
-        옷장 카드를 펼쳐 &ldquo;👕 오늘 입었어요&rdquo;를 누르면 착용 기록이 쌓여요.
+        옷장 카드를 펼쳐 &ldquo;오늘 입었어요&rdquo;를 누르면 착용 기록이 쌓여요.
       </p>
     </motion.div>
   );
