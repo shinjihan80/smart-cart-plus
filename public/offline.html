@@ -21,7 +21,7 @@
       padding: 24px;
       text-align: center;
     }
-    .icon { font-size: 64px; margin-bottom: 16px; }
+    .icon { margin-bottom: 16px; color: #4F46E5; }
     h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
     p  { font-size: 14px; color: #6B7280; line-height: 1.6; max-width: 320px; margin-bottom: 24px; }
     button {
@@ -44,7 +44,17 @@
   </style>
 </head>
 <body>
-  <div class="icon">📡</div>
+  <div class="icon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20h.01" />
+      <path d="M8.5 16.429a5 5 0 0 1 7 0" />
+      <path d="M5 12.859a10 10 0 0 1 5.17-2.69" />
+      <path d="M19 12.859a10 10 0 0 0-2.007-1.523" />
+      <path d="M2 8.82a15 15 0 0 1 4.177-2.643" />
+      <path d="M22 8.82a15 15 0 0 0-11.288-3.764" />
+      <path d="m2 2 20 20" />
+    </svg>
+  </div>
   <h1>잠시 연결이 끊겼어요</h1>
   <p>네트워크가 돌아오면 다시 시도해주세요. 이미 열어둔 페이지는 오프라인에서도 볼 수 있어요.</p>
   <button onclick="location.reload()">다시 시도</button>
