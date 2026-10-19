@@ -85,6 +85,24 @@ export function countRecipesByIngredient(ingredient: string): number {
   return RECIPES.filter((r) => r.keywords.some((kw) => keywordMatchesName(kw, ingredient))).length;
 }
 
+/**
+ * 요리명(name) + 재료 키워드(keywords) 통합 검색 — RecipeBrowserModal·
+ * CommandPalette와 같은 "이름 우선, 키워드 후순위" 패턴의 단일 소스.
+ * countRecipesByIngredient는 keywords만 봐서, "토스트"처럼 레시피
+ * 이름에만 있고 keywords엔 없는 요리명 검색이 0건으로 떴다(/search
+ * 페이지에서 발견) — 양쪽 다 보는 이 함수로 통일한다.
+ */
+export function searchRecipes(query: string): Recipe[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const nameHits = RECIPES.filter((r) => r.name.toLowerCase().includes(q));
+  const nameHitIds = new Set(nameHits.map((r) => r.id));
+  const keywordHits = RECIPES.filter((r) =>
+    !nameHitIds.has(r.id) && r.keywords.some((kw) => keywordMatchesName(kw, q)),
+  );
+  return [...nameHits, ...keywordHits];
+}
+
 /** 레시피 time 문자열("15분", "1시간 10분" 등)을 초로 환산. 파싱 실패 시 null. */
 export function parseRecipeSeconds(time: string): number | null {
   const m = time.match(/(?:(\d+)\s*시간)?\s*(\d+)?\s*분?/);

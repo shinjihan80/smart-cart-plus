@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Search, X, ChevronLeft, BookOpen, Flower2, ChevronRight, Bookmark } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { isFoodItem, type FoodItem, type ClothingItem } from '@/types';
-import { countRecipesByIngredient } from '@/lib/recipes';
+import { searchRecipes } from '@/lib/recipes';
 import { isSeasonalProduce, SEASONAL_PRODUCE } from '@/lib/seasonalProduce';
 import { currentSeasonByMonth } from '@/lib/season';
 import { usePersistedState } from '@/lib/usePersistedState';
@@ -45,7 +45,13 @@ export default function SearchPage() {
   const itemHits = trimmed
     ? items.filter((i) => i.name.toLowerCase().includes(trimmed)).slice(0, 10)
     : [];
-  const recipeHits = trimmed ? countRecipesByIngredient(trimmed) : 0;
+  // 재발견 — countRecipesByIngredient는 keywords(재료)만 보고 레시피
+  // "이름"은 전혀 안 봐서, "토스트"처럼 보유한 레시피(프렌치토스트·
+  // 아보카도 토스트 등 8종)의 실제 요리명으로 검색하면 재료 키워드로도
+  // 안 걸려 "결과 없음"이 떴다(라이브 재현). RecipeBrowserModal·
+  // CommandPalette와 같은 이름 우선 매칭을 더한 searchRecipes로 교체.
+  const recipeMatches = trimmed ? searchRecipes(trimmed) : [];
+  const recipeHits = recipeMatches.length;
   const isSeasonSearch = trimmed ? isSeasonalProduce(trimmed, season) : false;
   const seasonalHits = trimmed
     ? SEASONAL_PRODUCE.filter((p) =>
@@ -178,11 +184,19 @@ export default function SearchPage() {
           </section>
         )}
 
-        {/* 결과 — 레시피 */}
+        {/* 결과 — 레시피
+            재발견 — 예전엔 href="/fridge"뿐이라 눌러도 그냥 냉장고
+            홈으로 떨어지고 방금 찾은 레시피는 다시 검색해야 했다.
+            전역 명령 팔레트를 "?검색어"(레시피 전용 모드)로 열어
+            바로 매칭 결과를 보여준다 — NutritionBalanceSection 등
+            이미 쓰는 것과 같은 패턴. */}
         {trimmed && recipeHits > 0 && (
           <Link
             href="/fridge"
-            onClick={() => pushRecent(trimmed)}
+            onClick={() => {
+              pushRecent(trimmed);
+              window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: `?${q.trim()}` } }));
+            }}
             className="flex items-center gap-3 p-4 rounded-2xl bg-brand-primary/5 hover:bg-brand-primary/10 transition-colors"
           >
             <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0">
