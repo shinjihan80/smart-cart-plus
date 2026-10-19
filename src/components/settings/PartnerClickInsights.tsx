@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { PARTNERS, type PartnerDomain } from '@/lib/partnerLinks';
 import { usePartnerClicks } from '@/lib/partnerClickLog';
 import { Link2 } from 'lucide-react';
+import { PartnerMonogram } from '@/components/PartnerChip';
 // P2-52 — settings 쪽 컴포넌트가 closet/shared(bordered, 36px)를
 // 잘못 import하고 있었다. mypage 전용 shared로 교정.
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
@@ -125,7 +126,7 @@ export default function PartnerClickInsights() {
               return (
                 <div key={t.partnerId} className="flex items-center gap-2 py-0.5">
                   <span className="text-xs text-gray-400 w-4 text-center shrink-0">{i + 1}</span>
-                  <span className="text-sm shrink-0" aria-hidden>{partner.emoji}</span>
+                  <PartnerMonogram partner={partner} size="sm" />
                   <span className="text-xs font-medium text-gray-700 flex-1 truncate">{partner.label}</span>
                   <span className="text-xs text-gray-400 tabular-nums shrink-0">{t.count}회</span>
                 </div>
