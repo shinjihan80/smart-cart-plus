@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Refrigerator, Shirt, Sparkles, BarChart3, type LucideIcon } from 'lucide-react';
 
 /* ── 섹션 정의 ─────────────────────────────────────────────── */
 const SECTIONS = [
@@ -206,14 +207,14 @@ export default function ManualPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-              {[
-                { icon: '🧊', title: '냉장고', desc: '식품 등록·임박 알림·레시피 추천' },
-                { icon: '👔', title: '옷장', desc: '의류 관리·날씨 코디·처분 도우미' },
-                { icon: '✨', title: 'AI 등록', desc: '사진·텍스트·URL 자동 분석' },
-                { icon: '👤', title: '마이', desc: '프로필·통계·연간 활동 기록' },
-              ].map((f) => (
+              {([
+                { icon: Refrigerator, title: '냉장고', desc: '식품 등록·임박 알림·레시피 추천' },
+                { icon: Shirt,        title: '옷장', desc: '의류 관리·날씨 코디·처분 도우미' },
+                { icon: Sparkles,     title: 'AI 등록', desc: '사진·텍스트·URL 자동 분석' },
+                { icon: BarChart3,    title: '마이', desc: '프로필·통계·연간 활동 기록' },
+              ] as { icon: LucideIcon; title: string; desc: string }[]).map((f) => (
                 <div key={f.title} className="border border-gray-100 rounded-2xl p-4 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors">
-                  <span className="text-2xl">{f.icon}</span>
+                  <f.icon size={22} strokeWidth={1.75} className="text-indigo-600" aria-hidden />
                   <p className="font-bold text-sm mt-2">{f.title}</p>
                   <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{f.desc}</p>
                 </div>
