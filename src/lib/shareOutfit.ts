@@ -129,6 +129,9 @@ export async function shareOutfit(outfit: Outfit): Promise<ShareOutfitResult> {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  // backup.ts의 downloadBackup()이 P0-64에서 고친 것과 같은 이유 —
+  // revokeObjectURL을 곧바로 부르면 일부 브라우저에서 다운로드가
+  // 시작되기 전에 blob URL이 무효화될 수 있다. 다음 틱으로 늦춘다.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
   return 'downloaded';
 }
