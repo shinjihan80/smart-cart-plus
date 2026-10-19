@@ -11,8 +11,11 @@ import { usePlan } from '@/lib/usePlan';
 import RewardedAdModal from '@/components/RewardedAdModal';
 import { pickImage, resizeAndEncode } from '@/lib/imageUtils';
 import { FOOD_ICON, FASHION_ICON } from '@/lib/iconMap';
-import { Camera, Lock, X as XIcon } from 'lucide-react';
-import EmojiIcon from '@/components/EmojiIcon';
+import {
+  Camera, Lock, X as XIcon, Pencil, FileText, Link2, Images,
+  Wind, Shirt, Layers, UtensilsCrossed, type LucideIcon,
+} from 'lucide-react';
+import { STORAGE_ICON } from '@/components/fridge/shared';
 import FridgeSectionPicker from '@/components/fridge/FridgeSectionPicker';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { todayLocalStr, expiryDateStr, daysBetween, localMidnight } from '@/lib/dateMath';
@@ -23,6 +26,8 @@ import { Field, FIELD_INPUT_CLASS } from '@/components/ui/Field';
 import { FRIDGE_SECTION_META } from '@/lib/fridgeSection';
 import type { RegisterPreset } from '@/lib/registerIntent';
 import { PAYMENTS_ENABLED } from '@/lib/featureFlags';
+
+const THICKNESS_ICON: Record<string, LucideIcon> = { 얇음: Wind, 보통: Shirt, 두꺼움: Layers };
 
 const AGENT_LABEL: Record<AiAgent, string> = {
   vision: '사진 분석', parser: '텍스트 파싱', nutrition: '영양 분석', url: 'URL 분석', fridgeSection: '보관 위치 추천',
@@ -39,8 +44,6 @@ interface TextImportModalProps {
 type InputTab  = 'manual' | 'image' | 'text' | 'url';
 type ModalStep = 'input' | 'confirm';
 
-const STORAGE_LABEL:   Record<string, string> = { 냉장: '❄️ 냉장', 냉동: '🧊 냉동', 실온: '📦 실온' };
-const THICKNESS_LABEL: Record<string, string> = { 얇음: '🌬️ 얇음', 보통: '👕 보통', 두꺼움: '🧥 두꺼움' };
 
 const TEXT_PLACEHOLDER = `예시:
 쿠팡 주문 확인
@@ -93,15 +96,15 @@ function TabBar({ active, onChange, isPro }: {
   onChange: (t: InputTab) => void;
   isPro:    boolean;
 }) {
-  const tabs: { key: InputTab; label: string; emoji: string; proOnly: boolean }[] = [
-    { key: 'manual', label: '직접입력', emoji: '✏️', proOnly: false },
-    { key: 'image',  label: '사진',    emoji: '📷', proOnly: false },
-    { key: 'text',   label: '텍스트', emoji: '📝', proOnly: false },
-    { key: 'url',    label: 'URL',    emoji: '🔗', proOnly: true  },
+  const tabs: { key: InputTab; label: string; icon: LucideIcon; proOnly: boolean }[] = [
+    { key: 'manual', label: '직접입력', icon: Pencil,   proOnly: false },
+    { key: 'image',  label: '사진',    icon: Camera,   proOnly: false },
+    { key: 'text',   label: '텍스트', icon: FileText, proOnly: false },
+    { key: 'url',    label: 'URL',    icon: Link2,    proOnly: true  },
   ];
   return (
     <div className="flex gap-1 bg-gray-100 rounded-2xl p-1 mb-4">
-      {tabs.map(({ key, label, emoji, proOnly }) => {
+      {tabs.map(({ key, label, icon: Icon, proOnly }) => {
         const locked = proOnly && !isPro;
         return (
           <button
@@ -113,7 +116,7 @@ function TabBar({ active, onChange, isPro }: {
                 : 'text-gray-400 hover:text-gray-600'
             }`}
           >
-            <EmojiIcon emoji={emoji} size={12} className="text-current" />
+            <Icon size={12} strokeWidth={2} className="text-current" />
             {label}
             {locked && (
               <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-brand-primary rounded-full flex items-center justify-center">
@@ -219,7 +222,7 @@ function ImageTab({
             dragging ? 'border-brand-primary/40 bg-brand-primary/5' : 'border-gray-200 bg-gray-50 hover:border-brand-primary/30'
           }`}
         >
-          <EmojiIcon emoji="📷" size={28} className="text-gray-500" />
+          <Camera size={28} strokeWidth={1.75} className="text-gray-500" aria-hidden />
           <p className="text-sm font-medium text-gray-500">사진을 끌어다 놓거나 클릭해서 선택</p>
           <p className="text-xs text-gray-400">JPG, PNG, WEBP · 최대 5MB</p>
           <div className="flex gap-2 mt-1 flex-wrap justify-center px-4">
@@ -239,7 +242,7 @@ function ImageTab({
             onClick={() => { setFile(null); setPreview(null); }}
             className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-black/70"
           >
-            <EmojiIcon emoji="✕" size={11} className="text-white" />
+            <XIcon size={11} strokeWidth={2.5} className="text-white" />
           </button>
         </div>
       )}
@@ -265,9 +268,9 @@ function ImageTab({
                 fileInputRef.current.click();
               }
             }}
-            className="flex-1 rounded-2xl border border-gray-200 py-2 text-xs font-medium text-gray-500 hover:bg-gray-50"
+            className="flex-1 inline-flex items-center justify-center gap-1 rounded-2xl border border-gray-200 py-2 text-xs font-medium text-gray-500 hover:bg-gray-50"
           >
-            🖼️ 갤러리에서 선택
+            <Images size={13} strokeWidth={2} /> 갤러리에서 선택
           </button>
           <button
             onClick={() => {
@@ -276,9 +279,9 @@ function ImageTab({
                 fileInputRef.current.click();
               }
             }}
-            className="flex-1 rounded-2xl border border-gray-200 py-2 text-xs font-medium text-gray-500 hover:bg-gray-50"
+            className="flex-1 inline-flex items-center justify-center gap-1 rounded-2xl border border-gray-200 py-2 text-xs font-medium text-gray-500 hover:bg-gray-50"
           >
-            📸 카메라로 촬영
+            <Camera size={13} strokeWidth={2} /> 카메라로 촬영
           </button>
         </div>
       )}
@@ -339,14 +342,14 @@ function ManualTab({ onPick }: { onPick: (domain: 'food' | 'clothing') => void }
           onClick={() => onPick('food')}
           className="flex flex-col items-center gap-1.5 py-5 rounded-2xl border border-gray-200 bg-gray-50 hover:border-brand-primary/40 hover:bg-brand-primary/5 active:scale-95 transition-all"
         >
-          <span className="text-2xl" aria-hidden>🥦</span>
+          <UtensilsCrossed size={24} strokeWidth={1.75} className="text-gray-700" aria-hidden />
           <span className="text-sm font-semibold text-gray-800">식품 등록</span>
         </button>
         <button
           onClick={() => onPick('clothing')}
           className="flex flex-col items-center gap-1.5 py-5 rounded-2xl border border-gray-200 bg-gray-50 hover:border-brand-primary/40 hover:bg-brand-primary/5 active:scale-95 transition-all"
         >
-          <span className="text-2xl" aria-hidden>👕</span>
+          <Shirt size={24} strokeWidth={1.75} className="text-gray-700" aria-hidden />
           <span className="text-sm font-semibold text-gray-800">옷 등록</span>
         </button>
       </div>
@@ -707,13 +710,13 @@ function StepConfirm({
       {domainSummary && (domainSummary.food > 0 || domainSummary.fashion > 0) && (
         <div className="flex gap-2 mb-3 flex-wrap">
           {domainSummary.food > 0 && (
-            <span className="text-sm px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold">
-              🥦 식품 {domainSummary.food}개 감지됨
+            <span className="inline-flex items-center gap-1 text-sm px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 font-semibold">
+              <UtensilsCrossed size={12} strokeWidth={2} /> 식품 {domainSummary.food}개 감지됨
             </span>
           )}
           {domainSummary.fashion > 0 && (
-            <span className="text-sm px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
-              👗 패션 {domainSummary.fashion}개 감지됨
+            <span className="inline-flex items-center gap-1 text-sm px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-semibold">
+              <Shirt size={12} strokeWidth={2} /> 패션 {domainSummary.fashion}개 감지됨
             </span>
           )}
         </div>
@@ -928,8 +931,11 @@ function StepConfirm({
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
                           {(item as import('@/types').FoodItem).foodCategory}
                         </span>
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
-                          {STORAGE_LABEL[item.storageType] ?? item.storageType}
+                        <span className="inline-flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          {(() => {
+                            const Icon = STORAGE_ICON[item.storageType as keyof typeof STORAGE_ICON];
+                            return Icon ? <Icon size={10} strokeWidth={2} /> : null;
+                          })()} {item.storageType}
                         </span>
                         <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
                           {item.baseShelfLifeDays}일
@@ -946,8 +952,11 @@ function StepConfirm({
                             {(item as ClothingItem).size}
                           </span>
                         )}
-                        <span className="text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
-                          {THICKNESS_LABEL[(item as ClothingItem).thickness] ?? (item as ClothingItem).thickness}
+                        <span className="inline-flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          {(() => {
+                            const Icon = THICKNESS_ICON[(item as ClothingItem).thickness];
+                            return Icon ? <Icon size={10} strokeWidth={2} /> : null;
+                          })()} {(item as ClothingItem).thickness}
                         </span>
                       </>
                     )}
