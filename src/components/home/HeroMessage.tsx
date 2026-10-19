@@ -87,7 +87,7 @@ export default function HeroMessage({
   }, []);
 
   // 시간·localStorage 의존 값은 마운트 후에만 — SSR/CSR 텍스트 불일치(React #418) 방지 (P0-6)
-  const PLACEHOLDER: DailyMessage = { emoji: '', text: '네모아가 오늘 하루를 살펴보고 있어요', priority: 'gentle' };
+  const PLACEHOLDER: DailyMessage = { text: '네모아가 오늘 하루를 살펴보고 있어요', priority: 'gentle' };
   const msg  = mounted
     ? pickDailyMessage(items, weather, wearLog, cookLog, favorites, shopping.length, discardHistory)
     : PLACEHOLDER;

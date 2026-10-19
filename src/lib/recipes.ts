@@ -31,8 +31,6 @@ export interface Recipe {
   videoLabel?: string;
 }
 
-export const SEASON_EMOJI = { 봄: '🌸', 여름: '☀️', 가을: '🍂', 겨울: '❄️' } as const;
-
 // 24종 레시피 — 범용 식재료 커버
 /** 레시피 난이도·태그에 맞는 은은한 Tailwind 그라데이션 클래스를 돌려준다. */
 export function recipeGradient(recipe: Recipe): string {
