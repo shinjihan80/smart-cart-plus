@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Bell, User } from 'lucide-react';
+import { Bell, User, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import NemoaLogo from '@/components/layout/NemoaLogo';
 import { AppHeader } from '@/components/ui/AppHeader';
-import EmojiIcon from '@/components/EmojiIcon';
 import { useSessionPing } from '@/lib/analytics';
 import { flushPartnerClicksIfDue } from '@/lib/partnerClickLog';
 import { selectExpiring } from '@/lib/expirySelectors';
@@ -119,7 +118,7 @@ export default function HomePage() {
       {items.length === 0 && (
         <div className="px-5 pt-5">
           <div className="rounded-panel bg-gradient-to-br from-brand-primary/5 to-amber-50 border border-brand-primary/15 p-5 text-center flex flex-col items-center gap-2">
-            <EmojiIcon emoji="👋" size={28} className="text-brand-primary" />
+            <Sparkles size={28} strokeWidth={1.75} className="text-brand-primary" />
             <p className="text-sm font-bold text-gray-900">처음이신가요?</p>
             <p className="text-xs text-gray-500 leading-relaxed">
               냉장고에 있는 것 하나만 등록해보면 감이 와요.
