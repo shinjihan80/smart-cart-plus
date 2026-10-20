@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { isFoodItem, isClothingItem } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { summarizeFoods } from '@/lib/foodStats';
-import { Settings as SettingsIcon, Check, Users, ChevronRight, X, User, BarChart3, ShoppingCart, type LucideIcon } from 'lucide-react';
+import { Settings as SettingsIcon, Check, Users, ChevronRight, X, User, BarChart3, ShoppingCart, ClipboardList, AlertTriangle, Save, Trash2, Archive, UtensilsCrossed, Shirt, type LucideIcon } from 'lucide-react';
 import { type Recipe } from '@/lib/recipes';
 import { useRecipeFavorites } from '@/lib/recipeFavorites';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
@@ -376,7 +376,7 @@ export default function MyPage() {
             // callout 성격상 의도된 차이라 유지.
             className="rounded-panel border px-4 py-3 flex items-center gap-3 bg-gray-900/5 border-gray-900/10"
           >
-            <EmojiIcon emoji="💾" size={20} className="text-gray-600 shrink-0" />
+            <Save size={20} strokeWidth={2} className="text-gray-600 shrink-0" />
             <div className="flex-1 min-w-0">
               {/* P2-53 — 제목이 text-xs(13.5px)로 바로 아래 본문
                   text-sm(15.75px)보다 작아 위계가 뒤집혀 있었다(C6·C8·E3
@@ -420,7 +420,7 @@ export default function MyPage() {
           <>
             {/* 사용자 요약 카드 */}
             <div className="flex items-center gap-2">
-              <EmojiIcon emoji="📋" size={16} className="text-gray-600" />
+              <ClipboardList size={16} strokeWidth={2} className="text-gray-600" />
               <h3 className="text-base font-bold text-gray-900 tracking-tight">내 활동 요약</h3>
             </div>
             <motion.div
@@ -452,8 +452,8 @@ export default function MyPage() {
                 </div>
               </div>
               {urgentCount > 0 && (
-                <p className="mt-2.5 text-xs text-caution font-semibold text-center">
-                  ⚠️ {EXPIRY_LABEL.soon} {urgentCount}개 확인이 필요해요
+                <p className="mt-2.5 inline-flex items-center justify-center gap-1 w-full text-xs text-caution font-semibold text-center">
+                  <AlertTriangle size={11} strokeWidth={2} /> {EXPIRY_LABEL.soon} {urgentCount}개 확인이 필요해요
                 </p>
               )}
             </motion.div>
@@ -484,7 +484,7 @@ export default function MyPage() {
             {discardHistory.length > 0 && (
               <>
                 <div className="flex items-center gap-2">
-                  <EmojiIcon emoji="🗑️" size={16} className="text-gray-600" />
+                  <Trash2 size={16} strokeWidth={2} className="text-gray-600" />
                   <h3 className="text-base font-bold text-gray-900 tracking-tight">최근 정리 내역</h3>
                 </div>
                 <motion.div
@@ -498,7 +498,9 @@ export default function MyPage() {
                     {discardHistory.slice(0, 5).map((record, i) => (
                       <div key={`${record.name}-${i}`} className="flex items-center justify-between py-1">
                         <div className="flex items-center gap-2">
-                          <EmojiIcon emoji={record.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-600" />
+                          {record.category === '식품'
+                            ? <UtensilsCrossed size={14} strokeWidth={2} className="text-gray-600 shrink-0" />
+                            : <Shirt size={14} strokeWidth={2} className="text-gray-600 shrink-0" />}
                           <span className="text-sm text-gray-700 truncate">{record.name}</span>
                         </div>
                         <span className="text-sm text-gray-400 tabular-nums shrink-0">{formatDiscardDate(record.date)}</span>
@@ -575,7 +577,7 @@ export default function MyPage() {
             {archived.length > 0 && (
               <>
                 <div className="flex items-center gap-2">
-                  <EmojiIcon emoji="📦" size={16} className="text-gray-600" />
+                  <Archive size={16} strokeWidth={2} className="text-gray-600" />
                   <h3 className="text-base font-bold text-gray-900 tracking-tight">아카이브 ({archived.length}개)</h3>
                   {archived.length > 5 && (
                     <button
@@ -598,7 +600,9 @@ export default function MyPage() {
                   {(archiveExpanded ? archived : archived.slice(0, 5)).map((item, i) => (
                     <div key={`${item.id}-${i}`} className="flex items-center justify-between py-1 gap-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <EmojiIcon emoji={item.category === '식품' ? '🥦' : '👗'} size={14} className="text-gray-500 shrink-0" />
+                        {item.category === '식품'
+                          ? <UtensilsCrossed size={14} strokeWidth={2} className="text-gray-500 shrink-0" />
+                          : <Shirt size={14} strokeWidth={2} className="text-gray-500 shrink-0" />}
                         <span className="text-sm text-gray-500 truncate">{item.name}</span>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
