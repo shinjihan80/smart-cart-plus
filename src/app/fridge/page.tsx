@@ -9,15 +9,14 @@ import { useToast } from '@/context/ToastContext';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { classifyExpiry, EXPIRY_LABEL, EXPIRY_TONE } from '@/lib/expiryThresholds';
 import { todayLocalStr } from '@/lib/dateMath';
-import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, Salad, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, Salad, Soup, CupSoda, Package, Search, Refrigerator, Zap, AlertTriangle, Ban, type LucideIcon } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import { useScrollHint } from '@/lib/useScrollHint';
 import PaletteButton from '@/components/PaletteButton';
 import { AppHeader } from '@/components/ui/AppHeader';
-import EmojiIcon from '@/components/EmojiIcon';
 import ShoppingMallCard from '@/components/ShoppingMallCard';
 
-import { springTransition, CARD, CARD_SHADOW } from '@/components/fridge/shared';
+import { springTransition, CARD, CARD_SHADOW, STORAGE_ICON } from '@/components/fridge/shared';
 import SwipeFoodCard           from '@/components/fridge/SwipeFoodCard';
 import NutritionBalanceSection from '@/components/fridge/NutritionBalanceSection';
 import FeelingLuckySection     from '@/components/fridge/FeelingLuckySection';
@@ -68,8 +67,8 @@ const FRIDGE_TABS: { id: FridgeTab; icon: LucideIcon; label: string }[] = [
 const SORT_PLAIN: Record<SortKey, string> = {
   dDay: '임박순', name: '이름순', seasonal: '제철 먼저',
 };
-const FOOD_GROUP_EMOJI: Record<string, string> = {
-  신선식품: '🥬', 가공식품: '🍜', '음료·간식': '🧃', 기타: '📦',
+const FOOD_GROUP_ICON: Record<string, LucideIcon> = {
+  신선식품: Salad, 가공식품: Soup, '음료·간식': CupSoda, 기타: Package,
 };
 
 // 재검토(C1 실측, P0-74 잔여) — storageType/days를 여기 또 하드코딩하면
@@ -612,7 +611,7 @@ export default function FridgePage() {
             {/* 이 냉장고엔 있지만 선택한 구성원 몫은 없는 경우 — "완전히 비어있음"과 구분 */}
             {ownerFood.length === 0 && allFood.length > 0 && (
               <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
-                <EmojiIcon emoji="🔍" size={32} className="text-gray-400" />
+                <Search size={32} strokeWidth={1.75} className="text-gray-400" />
                 <p className="text-sm font-medium text-gray-600">
                   {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? ownerFilter}" 몫으로 등록된 식품이 없어요`}
                 </p>
@@ -624,7 +623,7 @@ export default function FridgePage() {
 
             {allFood.length === 0 && (
               <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
-                <EmojiIcon emoji="🧊" size={32} className="text-gray-400" />
+                <Refrigerator size={32} strokeWidth={1.75} className="text-gray-400" />
                 <p className="text-sm font-medium text-gray-600">냉장고가 비어있어요</p>
                 <p className="text-xs">식품 하나만 등록해보면 감이 와요.</p>
                 {/* 1순위 CTA는 '첫 등록' — 샘플은 아래 텍스트 링크로 강등 (홈과 동일 패턴) */}
@@ -694,8 +693,8 @@ export default function FridgePage() {
             {/* 타이틀 + 개수 + 정렬 + 뷰토글 — 한 줄 */}
             <div id="fridge-items-top" className="flex items-center gap-2 scroll-mt-28">
               {(storageFilter === '냉장' || storageFilter === '냉동') && (
-                <span className="text-base font-bold text-gray-900 tracking-tight">
-                  {storageFilter === '냉장' ? '❄️ 냉장' : '🧊 냉동'}
+                <span className="inline-flex items-center gap-1 text-base font-bold text-gray-900 tracking-tight">
+                  {(() => { const StorageIcon = STORAGE_ICON[storageFilter]; return <StorageIcon size={16} strokeWidth={2} />; })()} {storageFilter}
                 </span>
               )}
               <span className="text-xs text-gray-400 font-medium tabular-nums">{items.length}개</span>
@@ -703,13 +702,13 @@ export default function FridgePage() {
               {urgentOnly && (
                 <button onClick={() => setUrgentOnly(false)}
                   className="shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium bg-caution text-white flex items-center gap-1">
-                  ⚠️ 임박만 <X size={11} strokeWidth={2.5} />
+                  <AlertTriangle size={11} strokeWidth={2} /> 임박만 <X size={11} strokeWidth={2.5} />
                 </button>
               )}
               {expiredOnly && (
                 <button onClick={() => setExpiredOnly(false)}
                   className="shrink-0 px-2.5 py-1 rounded-2xl text-xs font-medium bg-red-600 text-white flex items-center gap-1">
-                  🚫 기한초과만 <X size={11} strokeWidth={2.5} />
+                  <Ban size={11} strokeWidth={2} /> 기한초과만 <X size={11} strokeWidth={2.5} />
                 </button>
               )}
               {seasonalCount > 0 && (
@@ -750,7 +749,9 @@ export default function FridgePage() {
                     return (
                       <div key={grp} id={`fridge-group-${grp}`} className="scroll-mt-28">
                         <div className="flex items-center gap-2 mb-2 mt-1">
-                          <span className="text-base font-bold text-gray-900 tracking-tight">{FOOD_GROUP_EMOJI[grp]} {grp}</span>
+                          <span className="inline-flex items-center gap-1 text-base font-bold text-gray-900 tracking-tight">
+                            {(() => { const GroupIcon = FOOD_GROUP_ICON[grp]; return <GroupIcon size={16} strokeWidth={2} />; })()} {grp}
+                          </span>
                           <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                           <div className="flex-1 h-px bg-gray-100" />
                         </div>
@@ -793,7 +794,9 @@ export default function FridgePage() {
                     return (
                       <div key={grp} id={`fridge-group-${grp}`} className="scroll-mt-28">
                         <div className="flex items-center gap-2 mb-2 mt-1">
-                          <span className="text-base font-bold text-gray-900 tracking-tight">{FOOD_GROUP_EMOJI[grp]} {grp}</span>
+                          <span className="inline-flex items-center gap-1 text-base font-bold text-gray-900 tracking-tight">
+                            {(() => { const GroupIcon = FOOD_GROUP_ICON[grp]; return <GroupIcon size={16} strokeWidth={2} />; })()} {grp}
+                          </span>
                           <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                           <div className="flex-1 h-px bg-gray-100" />
                         </div>
@@ -839,7 +842,7 @@ export default function FridgePage() {
 
             {items.length === 0 && ownerFood.length > 0 && (
               <div className="text-center py-12 text-gray-400">
-                <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
+                <div className="flex justify-center mb-2"><Search size={28} strokeWidth={1.75} className="text-gray-400" /></div>
                 <p className="text-sm font-medium">검색 결과가 없어요</p>
                 <button onClick={() => { setSearch(''); setStorageFilter('전체'); setGroupFilter('전체'); }} className="text-xs text-brand-primary mt-1">
                   필터 초기화
@@ -850,7 +853,7 @@ export default function FridgePage() {
             {/* 이 냉장고엔 있지만 선택한 구성원 몫은 없는 경우 */}
             {ownerFood.length === 0 && allFood.length > 0 && (
               <div className="text-center py-12 text-gray-400">
-                <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
+                <div className="flex justify-center mb-2"><Search size={28} strokeWidth={1.75} className="text-gray-400" /></div>
                 <p className="text-sm font-medium">
                   {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? ownerFilter}" 몫으로 등록된 식품이 없어요`}
                 </p>
@@ -862,7 +865,7 @@ export default function FridgePage() {
 
             {allFood.length === 0 && (
               <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
-                <EmojiIcon emoji="🧊" size={32} className="text-gray-400" />
+                <Refrigerator size={32} strokeWidth={1.75} className="text-gray-400" />
                 <p className="text-sm font-medium text-gray-600">냉장고가 비어있어요</p>
                 <p className="text-xs">식품 하나만 등록해보면 감이 와요.</p>
                 {/* 1순위 CTA는 '첫 등록' — 샘플은 아래 텍스트 링크로 강등 (홈과 동일 패턴) */}
@@ -920,7 +923,7 @@ export default function FridgePage() {
             />
 
             <div className="flex items-center gap-2">
-              <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
+              <Zap size={16} strokeWidth={2} className="text-gray-600" />
               <span className="text-base font-bold text-gray-900 tracking-tight">빠른 추가</span>
             </div>
             <motion.div
