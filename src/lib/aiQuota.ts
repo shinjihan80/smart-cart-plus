@@ -70,18 +70,28 @@ export function useAiQuota() {
 
   const canUse = useCallback((agent: AiAgent): boolean => remaining(agent) > 0, [remaining]);
 
+  // 재발견 — 한도 체크(canUse)는 React 쪽 state(리렌더가 와야 갱신)를 읽고
+  // 실제 증가는 별도의 store.setState로 나중에 일어나, 리렌더 사이에
+  // consume()이 연속 두 번 불리면(더블탭 등) 둘 다 "아직 남음"으로 통과한
+  // 뒤 각자 원자적으로 +1씩 더해 한도를 1회 초과시킬 수 있었다. 유료
+  // API 호출(Vision/파서 등)을 세는 한도라 실제 비용과 직결 — 체크와
+  // 증가를 store.setState 업데이터 안에서 같은 스냅샷으로 함께 평가해
+  // 원자적으로 만든다(sharedStore의 state는 모듈 스코프 동기 변수라
+  // updater 호출 자체는 항상 최신값을 본다).
   const consume = useCallback((agent: AiAgent): boolean => {
-    if (!canUse(agent)) return false;
     if (!isFinite(limits[agent])) return true; // unlimited — skip tracking
+    let allowed = false;
     store.setState((prev) => {
       const today = todayStr();
-      if (prev.date !== today) {
-        return { ...emptyState(), counts: { ...emptyCounts(), [agent]: 1 } };
-      }
-      return { ...prev, counts: { ...prev.counts, [agent]: (prev.counts[agent] ?? 0) + 1 } };
+      const base  = prev.date !== today ? emptyState() : prev;
+      const used  = base.counts[agent] ?? 0;
+      const bonus = base.bonus?.[agent] ?? 0;
+      if (used >= limits[agent] + bonus) return base;
+      allowed = true;
+      return { ...base, counts: { ...base.counts, [agent]: used + 1 } };
     });
-    return true;
-  }, [canUse, limits]);
+    return allowed;
+  }, [limits]);
 
   // 무료 사용자가 한도 소진 후 "광고 보고 1회 더" 로 얻는 보너스. agent당 하루 상한 있음.
   const bonusUsedToday = useCallback((agent: AiAgent): number => state.bonus?.[agent] ?? 0, [state]);
@@ -91,17 +101,21 @@ export function useAiQuota() {
     [bonusUsedToday],
   );
 
+  // consume()과 같은 이유로 같은 수정 — canGrantBonus를 밖에서 먼저
+  // 확인하면 리렌더 전 연속 호출 시 MAX_REWARD_BONUS_PER_AGENT를 넘겨
+  // 보너스를 중복 지급할 수 있었다.
   const grantBonus = useCallback((agent: AiAgent): boolean => {
-    if (!canGrantBonus(agent)) return false;
+    let allowed = false;
     store.setState((prev) => {
       const today = todayStr();
-      if (prev.date !== today) {
-        return { ...emptyState(), bonus: { ...emptyCounts(), [agent]: 1 } };
-      }
-      return { ...prev, bonus: { ...prev.bonus, [agent]: (prev.bonus?.[agent] ?? 0) + 1 } };
+      const base  = prev.date !== today ? emptyState() : prev;
+      const used  = base.bonus?.[agent] ?? 0;
+      if (used >= MAX_REWARD_BONUS_PER_AGENT) return base;
+      allowed = true;
+      return { ...base, bonus: { ...base.bonus, [agent]: used + 1 } };
     });
-    return true;
-  }, [canGrantBonus]);
+    return allowed;
+  }, []);
 
   return { state, remaining, canUse, consume, limits, canGrantBonus, grantBonus };
 }
