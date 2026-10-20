@@ -142,14 +142,23 @@ function detectStorageHint(name: string): StorageType | null {
  * 등)까지 생란 보관 기준(21일)을 적용하면 안 된다(재검토 C1 실측 —
  * "계란말이"가 21일로 저장됨). 합성어를 제대로 가르려면 형태소
  * 분석기가 필요하지만, 여기선 리뷰에서 실제로 지목된 사례부터 닫는다.
+ *
+ * 재발견 — 이 목록이 "계란" 표기 쪽만 등록돼 있어 "달걀말이"·"달걀빵"·
+ * "달걀찜"·"달걀국"·"달걀장"·"달걀볶음밥"·"구운달걀"·"훈제달걀"처럼
+ * "달걀"로 쓴 같은 요리는 하나도 걸러지지 않고 생란 21일을 그대로
+ * 받았다 — KEYWORD_SYNONYMS가 이미 "달걀"→"계란"을 같은 품목으로
+ * 취급하도록 만들어둔 것과 같은 문제(P2-51)가 여기선 미적용 상태였다.
+ * 목록을 "계란" 표기 하나만 유지하고, 매칭 전에 이름의 "달걀"을
+ * "계란"으로 치환해 비교한다 — 표기별로 항목을 두 벌 유지하지 않아도
+ * 되므로 같은 누락이 다시 생기지 않는다.
  */
-const EGG_DISH_EXCLUSIONS = ['계란말이', '계란빵', '계란찜', '계란국', '계란장', '계란볶음밥', '계란샐러드', '달걀샐러드', '계란 샌드위치', '달걀 샌드위치', '구운계란', '훈제계란', '계란과자'];
+const EGG_DISH_EXCLUSIONS = ['계란말이', '계란빵', '계란찜', '계란국', '계란장', '계란볶음밥', '계란샐러드', '계란 샌드위치', '구운계란', '훈제계란', '계란과자'];
 
 /** 카테고리별 합리적 기본 보관 방식과 기한 — name을 주면 품목별 예외를 먼저 본다. */
 export function inferFoodDefaults(category: FoodCategory, name?: string): { storageType: StorageType; baseShelfLifeDays: number } {
   const hint = name ? detectStorageHint(name) : null;
 
-  if (name && !EGG_DISH_EXCLUSIONS.some((dish) => name.includes(dish))) {
+  if (name && !EGG_DISH_EXCLUSIONS.some((dish) => name.replace(/달걀/g, '계란').includes(dish))) {
     const override = ITEM_SHELF_LIFE_OVERRIDES.find((o) => o.keywords.some((kw) => name.includes(kw)));
     if (override) return { storageType: hint ?? override.storageType, baseShelfLifeDays: override.baseShelfLifeDays };
   }
