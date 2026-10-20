@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid, List, SlidersHorizontal, Grid3x3, Shirt, Sparkles, ShoppingBag, Banknote, Heart, Package, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, Grid3x3, Shirt, Sparkles, ShoppingBag, Banknote, Heart, Package, Footprints, BarChart3, Flame, Zap, Search, Archive, Tag, type LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
@@ -26,7 +26,6 @@ import { usePersistedState } from '@/lib/usePersistedState';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import PaletteButton from '@/components/PaletteButton';
 import { AppHeader } from '@/components/ui/AppHeader';
-import EmojiIcon from '@/components/EmojiIcon';
 import ShoppingMallCard from '@/components/ShoppingMallCard';
 import WeekdayPatternChart from '@/components/mypage/WeekdayPatternChart';
 
@@ -62,7 +61,7 @@ const SORT_LABEL: Record<ClosetSort, string> = {
 
 const MATCH_RANK      = { perfect: 0, good: 1, mismatch: 2 } as const;
 const THICKNESS_ORDER = { 얇음: 0, 보통: 1, 두꺼움: 2 } as const;
-const GROUP_EMOJI: Record<FashionGroup, string> = { 의류: '👕', 신발: '👟', 가방: '👜', 액세서리: '✨' };
+const GROUP_ICON: Record<FashionGroup, LucideIcon> = { 의류: Shirt, 신발: Footprints, 가방: ShoppingBag, 액세서리: Sparkles };
 
 const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCategory; size: string; material: string }[] = [
   { name: '반팔 티셔츠', category: '상의',          size: 'M',    material: '면'     },
@@ -72,12 +71,12 @@ const QUICK_ADD_FASHION: { name: string; category: import('@/types').FashionCate
   { name: '양말 세트',   category: '기타 액세서리', size: 'Free', material: '면'     },
 ];
 
-const FILTERS: { key: GroupFilter; label: string }[] = [
+const FILTERS: { key: GroupFilter; label: string; icon?: LucideIcon }[] = [
   { key: '전체',     label: '전체' },
-  { key: '의류',     label: '👕 의류' },
-  { key: '신발',     label: '👟 신발' },
-  { key: '가방',     label: '👜 가방' },
-  { key: '액세서리', label: '✨ 액세서리' },
+  { key: '의류',     label: '의류',     icon: Shirt },
+  { key: '신발',     label: '신발',     icon: Footprints },
+  { key: '가방',     label: '가방',     icon: ShoppingBag },
+  { key: '액세서리', label: '액세서리', icon: Sparkles },
 ];
 
 type ClosetTab = 'closet' | 'clothing' | 'outfit' | 'shopping';
@@ -301,13 +300,13 @@ export default function ClosetPage() {
             {hibernatingCount > 0 && (activeTab === 'closet' || activeTab === 'clothing') && (
               <button
                 onClick={() => setShowHibernating(!showHibernating)}
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${
+                className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${
                   showHibernating
                     ? 'bg-brand-primary text-white'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                 }`}
               >
-                {showHibernating ? '보관 숨기기' : '🗃️ 보관 포함'}
+                {showHibernating ? '보관 숨기기' : <><Archive size={11} strokeWidth={2} /> 보관 포함</>}
               </button>
             )}
             <PaletteButton />
@@ -459,7 +458,7 @@ export default function ClosetPage() {
           // 예시라도 보여주는 것과 대비). "의류" 탭(:905 부근)과 동일한
           // CTA를 첫 탭에도 노출.
           <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
-            <EmojiIcon emoji="👔" size={32} className="text-gray-400" />
+            <Shirt size={32} strokeWidth={1.75} className="text-gray-400" />
             <p className="text-sm font-medium text-gray-600">옷장이 비어있어요</p>
             <p className="text-xs">옷 하나만 등록해보면 감이 와요.</p>
             <button
@@ -506,7 +505,7 @@ export default function ClosetPage() {
           return (
             <>
               <div className="flex items-center gap-2">
-                <EmojiIcon emoji="📊" size={16} className="text-gray-600" />
+                <BarChart3 size={16} strokeWidth={2} className="text-gray-600" />
                 <span className="text-base font-bold text-gray-900 tracking-tight">이번 주 착용 요약</span>
               </div>
               <motion.div
@@ -539,7 +538,7 @@ export default function ClosetPage() {
         {activeClothing.length < 3 && (
           <>
             <div className="flex items-center gap-2">
-              <EmojiIcon emoji="👗" size={16} className="text-brand-primary" />
+              <Sparkles size={16} strokeWidth={2} className="text-brand-primary" />
               <span className="text-base font-bold text-gray-900 tracking-tight">코디 추천 시작 전</span>
             </div>
             <motion.div
@@ -554,9 +553,9 @@ export default function ClosetPage() {
               </p>
               <button
                 onClick={() => selectTab('shopping')}
-                className="mt-2 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-colors"
+                className="inline-flex items-center gap-1 mt-2 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-primary text-white hover:opacity-90 transition-colors"
               >
-                🛍️ 쇼핑 탭으로 가기
+                <ShoppingBag size={11} strokeWidth={2} /> 쇼핑 탭으로 가기
               </button>
             </motion.div>
           </>
@@ -583,7 +582,7 @@ export default function ClosetPage() {
           return (
             <>
               <div className="flex items-center gap-2">
-                <EmojiIcon emoji="🆕" size={16} className="text-gray-600" />
+                <Tag size={16} strokeWidth={2} className="text-gray-600" />
                 <span className="text-base font-bold text-gray-900 tracking-tight">아직 안 입어본 의류 {untriedAll.length}벌</span>
               </div>
               <motion.div
@@ -627,7 +626,7 @@ export default function ClosetPage() {
           return (
             <>
               <div className="flex items-center gap-2">
-                <EmojiIcon emoji="🔥" size={16} className="text-gray-600" />
+                <Flame size={16} strokeWidth={2} className="text-gray-600" />
                 <span className="text-base font-bold text-gray-900 tracking-tight">자주 입는 옷 TOP 3</span>
               </div>
               <motion.div
@@ -697,7 +696,7 @@ export default function ClosetPage() {
 
         {/* 빠른 추가 */}
         <div className="flex items-center gap-2">
-          <EmojiIcon emoji="⚡" size={16} className="text-gray-600" />
+          <Zap size={16} strokeWidth={2} className="text-gray-600" />
           <span className="text-base font-bold text-gray-900 tracking-tight">빠른 추가</span>
         </div>
         <motion.div
@@ -799,8 +798,11 @@ export default function ClosetPage() {
         {/* 타이틀 행 — 특정 그룹/검색 필터 시에만 표시 */}
         {(filter !== '전체' || !!search) && (
           <div id="clothing-items-top" className="flex items-center gap-2 scroll-mt-28">
-            <span className="text-base font-bold text-gray-900 tracking-tight">
-              {FILTERS.find(f => f.key === filter)?.label ?? '전체'}
+            <span className="inline-flex items-center gap-1 text-base font-bold text-gray-900 tracking-tight">
+              {(() => {
+                const f = FILTERS.find((f) => f.key === filter);
+                return f?.icon ? <f.icon size={16} strokeWidth={2} /> : null;
+              })()} {FILTERS.find(f => f.key === filter)?.label ?? '전체'}
             </span>
             <span className="text-xs text-gray-400 font-medium tabular-nums">{items.length}개</span>
             <div className="flex-1 h-px bg-gray-100" />
@@ -833,7 +835,9 @@ export default function ClosetPage() {
               return (
                 <div key={grp} id={`closet-group-${grp}`} className="scroll-mt-28">
                   <div className="flex items-center gap-2 mb-2 mt-1">
-                    <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
+                    <span className="inline-flex items-center gap-1 text-base font-bold text-gray-900 tracking-tight">
+                      {(() => { const GroupIcon = GROUP_ICON[grp]; return <GroupIcon size={16} strokeWidth={2} />; })()} {grp}
+                    </span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                     <div className="flex-1 h-px bg-gray-100" />
                   </div>
@@ -885,7 +889,9 @@ export default function ClosetPage() {
               return (
                 <div key={grp} id={`closet-group-${grp}`} className="scroll-mt-28">
                   <div className="flex items-center gap-2 mb-2 mt-1">
-                    <span className="text-base font-bold text-gray-900 tracking-tight">{GROUP_EMOJI[grp]} {grp}</span>
+                    <span className="inline-flex items-center gap-1 text-base font-bold text-gray-900 tracking-tight">
+                      {(() => { const GroupIcon = GROUP_ICON[grp]; return <GroupIcon size={16} strokeWidth={2} />; })()} {grp}
+                    </span>
                     <span className="text-xs text-gray-400 font-medium tabular-nums">{group.length}개</span>
                     <div className="flex-1 h-px bg-gray-100" />
                   </div>
@@ -937,7 +943,7 @@ export default function ClosetPage() {
 
         {items.length === 0 && allClothing.length > 0 && (
           <div className="text-center py-12 text-gray-400">
-            <div className="flex justify-center mb-2"><EmojiIcon emoji="🔍" size={28} className="text-gray-400" /></div>
+            <div className="flex justify-center mb-2"><Search size={28} strokeWidth={1.75} className="text-gray-400" /></div>
             <p className="text-sm font-medium">검색 결과가 없어요</p>
             <button onClick={() => { setSearch(''); setFilter('전체'); }} className="text-xs text-brand-primary mt-1">
               필터 초기화
@@ -947,7 +953,7 @@ export default function ClosetPage() {
 
         {allClothing.length === 0 && (
           <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
-            <EmojiIcon emoji="👔" size={32} className="text-gray-400" />
+            <Shirt size={32} strokeWidth={1.75} className="text-gray-400" />
             <p className="text-sm font-medium text-gray-600">옷장이 비어있어요</p>
             <p className="text-xs">옷 하나만 등록해보면 감이 와요.</p>
             {/* 1순위 CTA는 '첫 등록' — 샘플은 아래 텍스트 링크로 강등 (홈과 동일 패턴) */}
