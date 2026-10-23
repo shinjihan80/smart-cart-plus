@@ -15,6 +15,8 @@ import { useScrollHint } from '@/lib/useScrollHint';
 import PaletteButton from '@/components/PaletteButton';
 import { AppHeader } from '@/components/ui/AppHeader';
 import ShoppingMallCard from '@/components/ShoppingMallCard';
+import ShoppingListSection from '@/components/mypage/ShoppingListSection';
+import { useShoppingList } from '@/lib/shoppingList';
 
 import { springTransition, CARD, CARD_SHADOW, STORAGE_ICON } from '@/components/fridge/shared';
 import SwipeFoodCard           from '@/components/fridge/SwipeFoodCard';
@@ -213,6 +215,7 @@ export default function FridgePage() {
   const { items: allItems, addItems, updateItem, removeItem, undoRemove, discardHistory, loadSampleData } = useCart();
   const { showToast } = useToast();
   const { profiles } = useProfiles();
+  const shoppingList = useShoppingList();
   const [search, setSearch]         = useState('');
   const [storageFilter, setStorageFilter] = usePersistedState<StorageFilter>(
     'nemoa-fridge-storage', '전체',
@@ -230,7 +233,6 @@ export default function FridgePage() {
     'nemoa-fridge-owner', '전체',
     (raw) => typeof raw === 'string' ? raw : null,
   );
-  const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [seasonalOnly, setSeasonalOnly] = usePersistedState<boolean>(
     'nemoa-fridge-seasonal-only', false,
     (raw) => typeof raw === 'boolean' ? raw : null,
@@ -392,21 +394,15 @@ export default function FridgePage() {
     );
   }
 
+  // 재발견(P0-81) — 예전엔 이 칩이 addItems()로 재고에 바로 등록해,
+  // 사지도 않은 품목이 "오늘 구매"로 들어가 가짜 유통기한이 생겼다
+  // (검토단 5인 전원 + 전문단 2인 전원 독립 재현 — 이번 라운드 최다
+  // 중복 제기). "장보기" 탭의 모든 추가 동작은 살 목록에만 적어야
+  // 한다 — 실제 재고 등록은 마이 쇼핑 리스트의 "담았어요"(산 뒤)로만.
   function handleQuickAdd(preset: typeof QUICK_ADD_FOODS[number]) {
-    const { added } = addItems([{
-      id: `qa-${Date.now()}`,
-      name: preset.name,
-      category: '식품',
-      foodCategory: preset.foodCategory,
-      storageType: preset.storageType,
-      baseShelfLifeDays: preset.days,
-      purchaseDate: todayLocalStr(),
-      ownerId: quickAddOwner,
-      fridgeSection: pickSection(preset),
-      fridgeInstanceId: activeFridgeId,
-    }]);
-    if (added > 0) showToast(`"${preset.name}" 추가됐어요!`);
-    else showToast(`"${preset.name}" 이미 있어요.`);
+    if (shoppingList.has(preset.name)) { showToast(`"${preset.name}" 이미 목록에 있어요.`); return; }
+    shoppingList.add(preset.name, '빠른 추가');
+    showToast(`"${preset.name}" 살 목록에 추가했어요.`);
   }
 
   function cycleFridgeSort() {
@@ -451,21 +447,11 @@ export default function FridgePage() {
     else showToast(`"${name}" 이미 있어요.`);
   }
 
+  // P0-81 — 위 handleQuickAdd와 같은 이유로 재고 직행 대신 살 목록에만 추가.
   function handleSeasonalAdd(p: SeasonalProduce) {
-    const { added } = addItems([{
-      id: `sp-${Date.now()}`,
-      name: p.name,
-      category: '식품',
-      foodCategory: p.foodCategory,
-      storageType: p.storageType,
-      baseShelfLifeDays: p.baseShelfLifeDays,
-      purchaseDate: todayLocalStr(),
-      ownerId: quickAddOwner,
-      fridgeSection: pickSection(p),
-      fridgeInstanceId: activeFridgeId,
-    }]);
-    if (added > 0) showToast(`"${p.name}" 담았어요! 제철이라 가장 맛있을 때예요.`);
-    else showToast(`"${p.name}" 이미 있어요.`);
+    if (shoppingList.has(p.name)) { showToast(`"${p.name}" 이미 목록에 있어요.`); return; }
+    shoppingList.add(p.name, '제철 재료');
+    showToast(`"${p.name}" 살 목록에 추가했어요. 제철이라 가장 맛있을 때예요.`);
   }
 
   const vm = viewMode;
@@ -927,9 +913,16 @@ export default function FridgePage() {
               icon={Salad}
             />
 
+            {/* P0-81 — 진짜 쇼핑 리스트를 "장보기" 탭 상단으로. 예전엔
+                이 탭엔 목록이 전혀 안 보이고 마이 > 쇼핑에만 있어서,
+                정작 "장보기"라는 이름의 화면엔 살 목록이 없었다. */}
+            <SectionErrorBoundary label="쇼핑 리스트">
+              <ShoppingListSection addItems={addItems} showToast={showToast} />
+            </SectionErrorBoundary>
+
             <div className="flex items-center gap-2">
               <Zap size={16} strokeWidth={2} className="text-gray-600" />
-              <span className="text-base font-bold text-gray-900 tracking-tight">빠른 추가</span>
+              <span className="text-base font-bold text-gray-900 tracking-tight">살 목록에 빠르게 추가</span>
             </div>
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -938,29 +931,6 @@ export default function FridgePage() {
               className={CARD}
               style={CARD_SHADOW}
             >
-              {profiles.length >= 2 && (
-                <div className="flex bg-gray-100 rounded-full p-0.5 mb-2 w-fit">
-                  <button
-                    onClick={() => setQuickAddOwner(undefined)}
-                    className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
-                      !quickAddOwner ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                    }`}
-                  >
-                    공용
-                  </button>
-                  {profiles.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setQuickAddOwner(p.id)}
-                      className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
-                        quickAddOwner === p.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
-                      }`}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              )}
               <div className="flex gap-1.5 flex-wrap">
                 {QUICK_ADD_FOODS.map((preset) => {
                   const tone = getFoodCategoryTone(preset.foodCategory);
