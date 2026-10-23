@@ -108,12 +108,6 @@ export default function HeroMessage({
     mounted                    ? DAYPART_ICON[getDaypart()] :
                                  Sparkles;
 
-  function handleCtaClick() {
-    if (msg.paletteQuery) {
-      window.dispatchEvent(new CustomEvent('nemoa:open-palette', { detail: { query: msg.paletteQuery } }));
-    }
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -163,23 +157,18 @@ export default function HeroMessage({
         </p>
 
         {msg.cta && (
-          msg.paletteQuery ? (
-            <button
-              onClick={handleCtaClick}
-              className={`flex items-center gap-[6px] ${tone.cta} rounded-full pl-[22.5px] pr-[18px] py-[11.25px] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
-            >
-              <span>{msg.cta.label}</span>
-              <ArrowRight size={14} strokeWidth={2.4} />
-            </button>
-          ) : (
-            <Link
-              href={msg.cta.href}
-              className={`inline-flex items-center gap-[6px] ${tone.cta} rounded-full pl-[22.5px] pr-[18px] py-[11.25px] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
-            >
-              <span>{msg.cta.label}</span>
-              <ArrowRight size={14} strokeWidth={2.4} />
-            </Link>
-          )
+          // 재발견(P0-80) — 예전엔 paletteQuery가 있으면 href를 버리고
+          // 명령 팔레트를 여는 분기가 따로 있었다. 팔레트는 매칭 방향이
+          // 반대라 "레시피 찾기"를 눌러도 레시피가 0건으로 나오고, 만료
+          // 판정도 안 해서 상한 품목에 레시피를 권하는 사고(P0-30 재발)로
+          // 이어졌다. 이제 CTA는 href로만 이동한다.
+          <Link
+            href={msg.cta.href}
+            className={`inline-flex items-center gap-[6px] ${tone.cta} rounded-full pl-[22.5px] pr-[18px] py-[11.25px] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all`}
+          >
+            <span>{msg.cta.label}</span>
+            <ArrowRight size={14} strokeWidth={2.4} />
+          </Link>
         )}
       </div>
     </motion.div>

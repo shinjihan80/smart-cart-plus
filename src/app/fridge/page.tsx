@@ -257,8 +257,13 @@ export default function FridgePage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const requested = new URLSearchParams(window.location.search).get('tab');
+    const params = new URLSearchParams(window.location.search);
+    const requested = params.get('tab');
     if (isFridgeTab(requested)) setActiveTab(requested);
+    // 재발견(P0-80) — 홈 "확인하기"(기한초과)가 /fridge로만 보내 칸
+    // 그리드에 떨어뜨렸다. ?filter=expired로 들어오면 바로 기한초과만
+    // 걸러 보여줘 실제로 처리할 품목을 한눈에 보게 한다.
+    if (params.get('filter') === 'expired') { setActiveTab('food'); setExpiredOnly(true); }
   }, []);
 
   function selectTab(tab: FridgeTab) {

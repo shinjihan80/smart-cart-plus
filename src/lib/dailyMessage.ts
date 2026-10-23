@@ -22,8 +22,6 @@ export interface DailyMessage {
   text:     string;
   priority: MessagePriority;
   cta?:     { label: string; href: string };
-  /** 설정 시 CTA 클릭이 페이지 이동 대신 명령 팔레트를 이 쿼리로 연다. */
-  paletteQuery?: string;
   /** 이 메시지가 특정 품목을 가리킬 때만 설정 — 홈 하단 위젯이 같은
    *  품목을 다시 보여주지 않도록 제외 처리하는 데 쓴다(P1-51 중복 노출). */
   driverName?: string;
@@ -62,8 +60,11 @@ export function pickDailyMessage(
     return {
       text:     `${josa(`${firstName}${extra}`, '이/가')} 보관 기한이 지났어요. 냉장고에서 확인해주세요.`,
       priority: 'urgent',
-      cta:      { label: '확인하기', href: '/fridge' },
-      paletteQuery: firstName,
+      // 재발견(P0-80) — 예전엔 paletteQuery가 href를 덮어써 "확인하기"를
+      // 눌러도 명령 팔레트(레시피 검색)가 열렸다. expired 품목에 레시피를
+      // 권하면 안 된다는 원칙(P0-30)과 정면으로 부딪치는 경로였다. 이제는
+      // href만 쓰고, 기한초과만 걸러 보여주는 탭+필터로 바로 보낸다.
+      cta:      { label: '확인하기', href: '/fridge?tab=food&filter=expired' },
       driverName: firstName,
     };
   }
@@ -87,7 +88,6 @@ export function pickDailyMessage(
       text:     `${f.name}, ${expiryLabel(getRemainingDays(f))} 드세요. 지금이 ${season} 제철이라 맛이 가장 좋아요.`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge?tab=suggest' },
-      paletteQuery: f.name,
       driverName: f.name,
     };
   }
@@ -100,7 +100,6 @@ export function pickDailyMessage(
       text:     `${josa(`${firstName}${extra}`, '이/가')} ${phrase} 소비가 필요해요. 레시피로 활용해볼까요?`,
       priority: 'urgent',
       cta:      { label: '레시피 찾기', href: '/fridge?tab=suggest' },
-      paletteQuery: firstName,
       driverName: firstName,
     };
   }
@@ -233,7 +232,6 @@ export function pickDailyMessage(
           text:     `최근 ${josa(`"${a.name}"`, '과/와')} ${josa(`"${b.name}"`, '을/를')} ${count}번 같이 만드셨네요. 오늘도 어떠세요?`,
           priority: 'insight',
           cta:      { label: '레시피 열기', href: '/fridge?tab=suggest' },
-          paletteQuery: a.name,
         };
       }
     }
