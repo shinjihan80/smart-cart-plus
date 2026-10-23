@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FASHION_GROUP, type ClothingItem, type FashionGroup } from '@/types';
 import { useProfiles } from '@/lib/profile';
@@ -31,6 +31,12 @@ export default function OutfitPreview({ items }: { items: ClothingItem[] }) {
     'nemoa-outfit-owner', 'all',
     (raw) => typeof raw === 'string' ? raw : null,
   );
+  // P0-82(fridge/closet 페이지와 동일 패턴) — 프로필을 지워도 죽은 id가
+  // 남아 코디 미리보기가 말없이 비어 보일 수 있다.
+  useEffect(() => {
+    if (ownerFilter === 'all' || ownerFilter === 'shared') return;
+    if (!profiles.some((p) => p.id === ownerFilter)) setOwnerFilter('all');
+  }, [ownerFilter, profiles, setOwnerFilter]);
   const [saveOpen, setSaveOpen] = useState(false);
   const [outfitName, setOutfitName] = useState('');
 

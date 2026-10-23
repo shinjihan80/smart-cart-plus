@@ -9,7 +9,7 @@ import { useToast } from '@/context/ToastContext';
 import { getRemainingDays } from '@/lib/expirySelectors';
 import { classifyExpiry, EXPIRY_LABEL, EXPIRY_TONE } from '@/lib/expiryThresholds';
 import { todayLocalStr } from '@/lib/dateMath';
-import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, Salad, Soup, CupSoda, Package, Search, Refrigerator, Zap, AlertTriangle, Ban, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, X, UtensilsCrossed, Lightbulb, ShoppingCart, Grid3x3, Salad, Soup, CupSoda, Package, Search, Refrigerator, Zap, AlertTriangle, Ban, User, type LucideIcon } from 'lucide-react';
 import { useSearchShortcut } from '@/lib/useSearchShortcut';
 import { useScrollHint } from '@/lib/useScrollHint';
 import PaletteButton from '@/components/PaletteButton';
@@ -233,6 +233,14 @@ export default function FridgePage() {
     'nemoa-fridge-owner', '전체',
     (raw) => typeof raw === 'string' ? raw : null,
   );
+  // 재발견(P0-82) — usePersistedState의 validate는 저장된 원시값만 보고
+  // 현재 프로필 목록을 모른다. 프로필을 지워도 필터 값(죽은 id)이 그대로
+  // 남아 "식품 0개"+내부 id 문자열 노출로 이어졌다(C5 재현). 프로필
+  // 목록이 바뀔 때마다 별도로 유효성을 검사해 '전체'로 되돌린다.
+  useEffect(() => {
+    if (ownerFilter === '전체' || ownerFilter === '공용') return;
+    if (!profiles.some((p) => p.id === ownerFilter)) setOwnerFilter('전체');
+  }, [ownerFilter, profiles, setOwnerFilter]);
   const [seasonalOnly, setSeasonalOnly] = usePersistedState<boolean>(
     'nemoa-fridge-seasonal-only', false,
     (raw) => typeof raw === 'boolean' ? raw : null,
@@ -514,6 +522,22 @@ export default function FridgePage() {
 
       <div className="px-4 py-5 flex flex-col gap-4">
 
+        {/* 재발견(P0-82) — 구성원 필터는 음식 탭 안 칩으로만 걸 수 있는데
+            저장돼 다른 탭(냉장고·추천·장보기)의 숫자까지 조용히 바꿔,
+            "데이터가 날아갔다"로 오인됐다(C4·C5). 필터가 걸린 동안엔
+            어느 탭에 있든 이 알약이 보이고 바로 해제할 수 있다. */}
+        {ownerFilter !== '전체' && (
+          <button
+            type="button"
+            onClick={() => setOwnerFilter('전체')}
+            className="self-start inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+          >
+            <User size={12} strokeWidth={2} aria-hidden />
+            {ownerFilter === '공용' ? '공용' : (profiles.find((p) => p.id === ownerFilter)?.name ?? '선택한 구성원')} 것만 보는 중
+            <X size={12} strokeWidth={2.5} aria-hidden />
+          </button>
+        )}
+
         {/* ─── 냉장고 탭 ────────────────────────────── */}
         {activeTab === 'fridge' && (
           <>
@@ -604,7 +628,7 @@ export default function FridgePage() {
               <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
                 <Search size={32} strokeWidth={1.75} className="text-gray-400" />
                 <p className="text-sm font-medium text-gray-600">
-                  {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? ownerFilter}" 몫으로 등록된 식품이 없어요`}
+                  {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? '선택한 구성원'}" 몫으로 등록된 식품이 없어요`}
                 </p>
                 <button onClick={() => setOwnerFilter('전체')} className="text-xs text-brand-primary font-semibold mt-0.5">
                   전체 구성원 보기
@@ -846,7 +870,7 @@ export default function FridgePage() {
               <div className="text-center py-12 text-gray-400">
                 <div className="flex justify-center mb-2"><Search size={28} strokeWidth={1.75} className="text-gray-400" /></div>
                 <p className="text-sm font-medium">
-                  {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? ownerFilter}" 몫으로 등록된 식품이 없어요`}
+                  {ownerFilter === '공용' ? '공용으로 등록된 식품이 없어요' : `"${profiles.find(p => p.id === ownerFilter)?.name ?? '선택한 구성원'}" 몫으로 등록된 식품이 없어요`}
                 </p>
                 <button onClick={() => setOwnerFilter('전체')} className="text-xs text-brand-primary mt-1">
                   전체 구성원 보기

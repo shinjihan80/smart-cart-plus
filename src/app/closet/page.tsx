@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid, List, SlidersHorizontal, Grid3x3, Shirt, Sparkles, ShoppingBag, Banknote, Heart, Package, Footprints, BarChart3, Flame, Zap, Search, Archive, Tag, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, Grid3x3, Shirt, Sparkles, ShoppingBag, Banknote, Heart, Package, Footprints, BarChart3, Flame, Zap, Search, Archive, Tag, User, X, type LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   isClothingItem,
@@ -115,6 +115,13 @@ export default function ClosetPage() {
     'nemoa-closet-owner', '전체',
     (raw) => typeof raw === 'string' ? raw : null,
   );  // 'id' | '전체' | '공용'
+  // P0-82(E2 지적, fridge/page.tsx와 동일 패턴) — 프로필을 지워도 죽은
+  // id가 필터에 남아 "옷장 0벌"처럼 보일 수 있어 프로필 목록이 바뀔
+  // 때마다 유효성을 검사해 '전체'로 되돌린다.
+  useEffect(() => {
+    if (ownerFilter === '전체' || ownerFilter === '공용') return;
+    if (!profiles.some((p) => p.id === ownerFilter)) setOwnerFilter('전체');
+  }, [ownerFilter, profiles, setOwnerFilter]);
   const [quickAddOwner, setQuickAddOwner] = useState<string | undefined>(undefined);
   const [showHibernating, setShowHibernating] = useState(false);
   const [expandedClothingId, setExpandedClothingId] = useState<string | null>(null);
@@ -351,6 +358,22 @@ export default function ClosetPage() {
       />
 
       <div className="px-4 py-5 flex flex-col gap-4">
+
+        {/* P0-82(fridge/page.tsx와 동일) — 구성원 필터가 의류 탭에서만
+            보이는 칩으로 걸리고 저장돼, 다른 탭(옷장·코디·쇼핑)의
+            숫자까지 조용히 바꿨다. 필터가 걸린 동안엔 어느 탭이든
+            이 알약이 보이고 바로 해제할 수 있다. */}
+        {ownerFilter !== '전체' && (
+          <button
+            type="button"
+            onClick={() => setOwnerFilter('전체')}
+            className="self-start inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/15 transition-colors"
+          >
+            <User size={12} strokeWidth={2} aria-hidden />
+            {ownerFilter === '공용' ? '공용' : (profiles.find((p) => p.id === ownerFilter)?.name ?? '선택한 구성원')} 것만 보는 중
+            <X size={12} strokeWidth={2.5} aria-hidden />
+          </button>
+        )}
 
         {/* ─── 옷장 탭 — 시각화 + 요약 ─── */}
         {activeTab === 'closet' && (<>
