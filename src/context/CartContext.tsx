@@ -8,6 +8,7 @@ import { recordAddsAndMaybeShowAd } from '@/lib/addMilestone';
 import { todayLocalStr } from '@/lib/dateMath';
 import { safeSetItem } from '@/lib/safeStorage';
 import { logError } from '@/lib/errorLog';
+import { clearAutoSnapshots } from '@/lib/autoSnapshot';
 
 const STORAGE_KEY  = 'nemoa-items';
 const DISCARD_KEY  = 'nemoa-discard-count';
@@ -40,7 +41,7 @@ interface CartContextValue {
   /** kind 생략 시 'eaten'(다 먹음) — 상한 걸 버릴 땐 'discarded'를 명시. */
   removeItem:      (id: string, kind?: 'eaten' | 'discarded') => void;
   undoRemove:      () => void;
-  resetData:       () => void;
+  resetData:       () => Promise<void>;
   /** 샘플(mockData 22개)로 초기화 — 처음 체험용. resetData와 구분 (resetData는 샘플 복원이기도 함). */
   loadSampleData:  () => number;
   archiveExpired:  () => number;
@@ -419,12 +420,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return mockCartItems.length;
   }, []);
 
-  const resetData = useCallback(() => {
+  const resetData = useCallback(async () => {
     // "모든 데이터를 초기화할까요?"라고 물어놓고 실제로는 빈 상태가 아니라
     // mockCartItems 41개(샘플)로 되돌려, 사용자가 "초기화가 실패했다"고
     // 오인하게 만들었다(P0-64, 전문단 E2 발견) — 샘플이 필요하면 이미
     // 별도로 존재하는 loadSampleData()(빈 상태 화면의 "샘플 데이터로
     // 먼저 둘러보기" 버튼)를 쓰면 된다.
+    // P0-83 — IndexedDB 자동 스냅샷을 localStorage보다 먼저 비운다.
+    // items가 []로 바뀌는 순간 AutoSnapshotRecoveryCard가 "자동 저장된
+    // 데이터를 찾았어요"를 띄울 수 있는데, 그 시점에 스냅샷이 이미
+    // 없어야 "복원할 방법이 전혀 없어요"라는 확인 문구와 실제 동작이
+    // 맞는다.
+    await clearAutoSnapshots();
     setItems([]);
     setArchived([]);
     setDiscardCount(0);

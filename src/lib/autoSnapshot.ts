@@ -73,6 +73,29 @@ export async function saveAutoSnapshot(): Promise<void> {
   }
 }
 
+/**
+ * 재발견(P0-83, 전문단 E2) — "전체 초기화 > 백업 없이 바로 삭제"가
+ * "복원할 방법이 전혀 없어요"라고 약속하는데, CartContext.resetData()는
+ * localStorage의 nemoa-* 키만 지우고 이 IndexedDB 자동 스냅샷은
+ * 손대지 않았다 — 직후 "자동 저장된 데이터를 찾았어요 [복구하기]"
+ * 카드가 떠서 버튼 하나로 가족 정보까지 전부 되살아났다. 전체
+ * 초기화 흐름이 명시적으로 호출해 3세대를 모두 비운다.
+ */
+export async function clearAutoSnapshots(): Promise<void> {
+  try {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror    = () => reject(tx.error);
+    });
+    db.close();
+  } catch {
+    // IndexedDB 미지원 등 — localStorage 스윕은 별도로 진행되므로 핵심 삭제는 영향 없음
+  }
+}
+
 /** 3세대 중 가장 최근 것을 반환. 없거나 읽기 실패하면 null. */
 export async function getLatestAutoSnapshot(): Promise<BackupSnapshot | null> {
   try {

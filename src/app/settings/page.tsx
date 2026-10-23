@@ -148,8 +148,8 @@ export default function SettingsPage() {
    * "백업 후"/"백업 없이" 두 경로를 모두 제공하고, 실제 삭제는 이
    * 함수가 수행한다.
    */
-  function handleResetConfirmed(backedUp: boolean, filename: string | null) {
-    resetData();
+  async function handleResetConfirmed(backedUp: boolean, filename: string | null) {
+    await resetData();
     showToast(backedUp ? `백업(${filename}) 확인 후 초기화됐어요.` : '백업 없이 초기화했어요.');
     // 재검토(C5) — resetData()가 nemoa- 전체 키를 지워도, 프로필·
     // 착용/조리 로그·요금제 상태 등은 각자 다른 훅이 메모리에 들고
