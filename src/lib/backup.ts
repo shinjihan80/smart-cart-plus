@@ -147,7 +147,11 @@ export function applyNonCartFromSnapshot(snap: BackupSnapshot) {
     if (typeof snap.wardrobeActiveId === 'string')
       localStorage.setItem('nemoa-wardrobe-active-id', JSON.stringify(snap.wardrobeActiveId));
   } catch { /* quota */ }
-  writeTimestamp(Date.now());
+  // 재발견(P0-84, C5 재현·전문단 E2) — 이전엔 여기서도
+  // writeTimestamp(Date.now())를 호출해, 파일을 한 번도 받지 않고
+  // IndexedDB 자동 스냅샷만 복구해도 "백업 방금 함"으로 보였다.
+  // "백업"은 downloadBackup()이 실제로 파일을 내려보낸 경우만 — 복원은
+  // 그 반대 방향 동작이라 백업 시각을 갱신할 근거가 없다.
 }
 
 /**

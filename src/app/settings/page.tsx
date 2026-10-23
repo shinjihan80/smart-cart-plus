@@ -17,6 +17,7 @@ import { exportAsJSON, exportAsCSV } from '@/lib/exportUtils';
 import {
   useBackupStatus, downloadBackup, readBackupFile, applyNonCartFromSnapshot, daysAgoLabel,
 } from '@/lib/backup';
+import { saveAutoSnapshot } from '@/lib/autoSnapshot';
 
 import { springTransition, CARD, CARD_SHADOW } from '@/components/mypage/shared';
 import NotificationSettings from '@/components/mypage/NotificationSettings';
@@ -93,7 +94,18 @@ export default function SettingsPage() {
       if (Array.isArray(snap.profiles) && snap.profiles.length > 0) {
         summary.push(`프로필 ${snap.profiles.length}명`);
       }
-      if (!confirm(`백업을 복원할까요?\n생성: ${new Date(snap.createdAt).toLocaleString('ko-KR')}\n${summary.join(' · ')}\n\n현재 데이터는 모두 덮어쓰여요.`)) return;
+      // 재발견(P0-84, C5 재현) — "현재 데이터는 모두 덮어쓰여요"는 실제
+      // 동작과 달랐다. 아이템·보관내역은 통째로 교체되지만, 즐겨찾기·
+      // 쇼핑리스트·로그·프로필 등은 applyNonCartFromSnapshot이 "백업
+      // 파일에 값이 있는 항목만" 덮어쓰고 나머지는 지금 값을 그대로
+      // 둔다(부분 병합). 전체 초기화급 표현을 쓰면서 실제로는 부분
+      // 병합이라 복원 결과를 오해하게 했다.
+      if (!confirm(`백업을 복원할까요?\n생성: ${new Date(snap.createdAt).toLocaleString('ko-KR')}\n${summary.join(' · ')}\n\n아이템·보관내역은 백업 시점으로 완전히 교체돼요. 즐겨찾기·쇼핑리스트·로그 등은 백업에 들어있는 항목만 덮어쓰고, 백업에 없는 항목은 지금 값이 유지돼요.`)) return;
+
+      // 복원 직전 지금 상태를 자동 스냅샷으로 남겨, 복원이 잘못됐을 때도
+      // 되돌아갈 지점을 하나 더 확보한다(P0-84, 가짜 안전신호를 진짜
+      // 안전망으로 대체).
+      await saveAutoSnapshot();
 
       restoreAll({
         items:          snap.items    as CartItem[] | undefined,
